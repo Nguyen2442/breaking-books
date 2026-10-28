@@ -5,8 +5,11 @@
   "scripts": {
     "dev": "next dev -p 3456",
     "build": "next build",
-    "start": "next start -p 3456",
+    "start": "next start -p ${PORT:-3456}",
     "build:ddia": "node ddia-2e/build.mjs"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   },
   "dependencies": {
     "framer-motion": "^11.15.0",
