@@ -107,3 +107,72 @@ model ChapterEmbedding {
   @@index([chapterId])
   @@map("chapter_embeddings")
 }
+
+// ==============================================================================
+// Domain Knowledge Base & Dynamic Prompt Management Engine
+// Enables ongoing data collection, keyword expansion, and non-hardcoded prompts
+// ==============================================================================
+
+model DomainKnowledge {
+  id                     String           @id @default(uuid())
+  domainKey              String           @unique // e.g. "software", "marketing", "finance", "business", "psychology"
+  nameVi                 String
+  nameEn                 String
+  roleName               String
+  perspective            String
+  keywords               Json             // Array of strings / keywords for matching
+  foundationalPrinciples Json?            // Array of core principles / mental models
+  coreGuidance           String           @db.Text
+  calloutContext         String           @db.Text
+  keyMetrics             Json?            // Array of domain metric names
+  widgetLabBlueprint     Json?            // Interactive lab nodes, slider, actions, stats
+  quizContext            String?          @db.Text
+  isActive               Boolean          @default(true)
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+
+  promptTemplates        PromptTemplate[]
+  crawledTerms           CrawledTerm[]
+
+  @@index([domainKey])
+  @@index([isActive])
+  @@map("domain_knowledge")
+}
+
+model PromptTemplate {
+  id                String           @id @default(uuid())
+  key               String           // e.g. "chapter-break", "mindmap", "active-recall"
+  domainKey         String?          // Null = global default; or specific domainKey
+  domain            DomainKnowledge? @relation(fields: [domainKey], references: [domainKey], onDelete: SetNull)
+  version           Int              @default(1)
+  name              String
+  systemInstruction String           @db.Text
+  promptTemplate    String           @db.Text // Contains {{bookTitle}}, {{targetCh}}, {{domainRole}}, etc.
+  parameters        Json?            // { temperature: 0.15, maxOutputTokens: 32768, json: true }
+  isActive          Boolean          @default(true)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@unique([key, domainKey, version])
+  @@index([key, domainKey])
+  @@index([isActive])
+  @@map("prompt_templates")
+}
+
+model CrawledTerm {
+  id            String           @id @default(uuid())
+  domainKey     String
+  domain        DomainKnowledge? @relation(fields: [domainKey], references: [domainKey], onDelete: Cascade)
+  term          String
+  viTranslation String?
+  definition    String?          @db.Text
+  caseStudy     String?          @db.Text
+  source        String?          @default("crawler") // "crawler" | "manual-input" | "gemini-extracted"
+  confidence    Float?           @default(1.0)
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@index([domainKey])
+  @@index([term])
+  @@map("crawled_terms")
+}

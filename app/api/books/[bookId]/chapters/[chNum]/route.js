@@ -7,9 +7,37 @@ import { parseHtmlJsToJsonb, jsonbToHtmlAndJs } from '@/lib/chapter-jsonb';
 
 export const dynamic = 'force-dynamic';
 
+// High-Speed In-Memory Cache (0ms latency for completed chapters)
+const MEMORY_CACHE = new Map();
+const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutes
+
+export function invalidateChapterCache(bookId, chNum) {
+  if (bookId && chNum) {
+    MEMORY_CACHE.delete(`${bookId}:${chNum}`);
+  } else if (bookId) {
+    for (const key of MEMORY_CACHE.keys()) {
+      if (key.startsWith(`${bookId}:`)) MEMORY_CACHE.delete(key);
+    }
+  } else {
+    MEMORY_CACHE.clear();
+  }
+}
+
 export async function GET(request, { params }) {
   const { bookId, chNum } = await params;
   const num = Number(chNum);
+  const cacheKey = `${bookId}:${num}`;
+
+  // 0. Super-fast In-Memory Cache Check (< 1ms)
+  const cached = MEMORY_CACHE.get(cacheKey);
+  if (cached && (Date.now() - cached.timestamp < CACHE_TTL_MS)) {
+    return NextResponse.json(cached.payload, {
+      headers: {
+        'Cache-Control': 'public, max-age=300, stale-while-revalidate=86400',
+        'X-BreakingBooks-Cache': 'MEMORY-HIT',
+      },
+    });
+  }
 
   // 1. Check PostgreSQL DB first if DATABASE_URL is available
   if (isDbAvailable()) {
@@ -17,8 +45,17 @@ export async function GET(request, { params }) {
       const dbChapter = await getChapterFromDb(bookId, num);
       if (dbChapter) {
         if (dbChapter.content) {
-          const { html, js } = jsonbToHtmlAndJs(dbChapter.content);
-          return NextResponse.json({
+          let { html, js } = jsonbToHtmlAndJs(dbChapter.content, num);
+
+          // Fallback to local chN.js if DB rawJs was empty
+          if (!js || js.trim().length === 0) {
+            const localJsPath = join(ROOT, bookId, 'src', `ch${num}.js`);
+            if (existsSync(localJsPath)) {
+              try { js = readFileSync(localJsPath, 'utf8'); } catch {}
+            }
+          }
+
+          const responsePayload = {
             ok: true,
             source: 'db',
             book: dbChapter.book || { id: bookId, title: bookId },
@@ -33,6 +70,17 @@ export async function GET(request, { params }) {
             content: dbChapter.content,
             html,
             js,
+          };
+
+          if (dbChapter.status === 'COMPLETED') {
+            MEMORY_CACHE.set(cacheKey, { payload: responsePayload, timestamp: Date.now() });
+          }
+
+          return NextResponse.json(responsePayload, {
+            headers: {
+              'Cache-Control': 'public, max-age=300, stale-while-revalidate=86400',
+              'X-BreakingBooks-Cache': 'DB-HIT',
+            },
           });
         } else {
           // Chapter is still pending or processing in background
@@ -136,7 +184,7 @@ export async function GET(request, { params }) {
     }).catch(() => {});
   }
 
-  return NextResponse.json({
+  const filePayload = {
     ok: true,
     source: 'file',
     book: payload.book,
@@ -146,5 +194,16 @@ export async function GET(request, { params }) {
     js: payload.js,
     prompt,
     sourceText,
+  };
+
+  if (payload.ch.status === 'complete') {
+    MEMORY_CACHE.set(cacheKey, { payload: filePayload, timestamp: Date.now() });
+  }
+
+  return NextResponse.json(filePayload, {
+    headers: {
+      'Cache-Control': 'public, max-age=300, stale-while-revalidate=86400',
+      'X-BreakingBooks-Cache': 'FILE-HIT',
+    },
   });
 }

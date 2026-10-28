@@ -756,6 +756,16 @@ mark.bb-highlight[data-has-note="true"]::after {
   transform: translateY(-2px);
 }
 
+/* Stepped Chapter Reader: Phase 1 (Lesson & Labs) vs Phase 2 (Quiz & Active Recall) */
+.bb-chapter-reader[data-step="lesson"] .bb-quiz-section,
+.bb-chapter-reader[data-step="lesson"] article[id$="-review"] {
+  display: none !important;
+}
+
+.bb-chapter-reader[data-step="quiz"] .bb-topics-section {
+  display: none !important;
+}
+
 /* View Mode Filter: [data-view="theory"] and [data-view="lab"] */
 .bb-chapter-reader[data-view="theory"] figure.lab,
 .bb-chapter-reader[data-view="theory"] .topic-lab-card {
