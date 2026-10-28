@@ -2,10 +2,11 @@
   "name": "breaking-books-nextjs",
   "version": "2.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "postinstall": "next build",
+    "postinstall": "prisma generate && next build",
     "dev": "next dev -p 3456",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start -H 0.0.0.0",
     "build:ddia": "node ddia-2e/build.mjs"
   },
@@ -13,11 +14,14 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
+    "@prisma/client": "^5.22.0",
     "@tailwindcss/postcss": "^4.0.0",
     "framer-motion": "^11.15.0",
     "lucide-react": "^0.468.0",
     "next": "^15.1.0",
+    "pdf-parse": "^2.4.5",
     "postcss": "^8.4.49",
+    "prisma": "^5.22.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwindcss": "^4.0.0"

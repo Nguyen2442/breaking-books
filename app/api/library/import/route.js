@@ -13,7 +13,7 @@ export async function POST(request) {
     const pdfFile = savePdfUpload(file.name, Buffer.from(await file.arrayBuffer()));
 
     stage = 'split';
-    const book = createNewBook({ pdfFile });
+    const book = await createNewBook({ pdfFile });
 
     stage = 'queue';
     let warning = '';

@@ -9,7 +9,10 @@ export async function POST(request) {
   try {
     const body = await request.json();
     let bookId = body.bookId;
-    if (!bookId && body.pdfFile) bookId = createNewBook({ pdfFile: body.pdfFile }).id;
+    if (!bookId && body.pdfFile) {
+      const nb = await createNewBook({ pdfFile: body.pdfFile });
+      bookId = nb.id;
+    }
     if (!bookId) throw new Error('Thiếu bookId hoặc pdfFile.');
     const state = enqueueBook(bookId, body.chapters);
     return NextResponse.json({ ok: true, bookId, ...state });

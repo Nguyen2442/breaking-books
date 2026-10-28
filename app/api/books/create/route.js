@@ -5,7 +5,7 @@ export async function POST(request) {
   try {
     const body = await request.json();
     const pdfFile = body.pdfFile || body.pdfPath || listPdfFiles()[0]?.name;
-    const book = createNewBook({ ...body, pdfFile });
+    const book = await createNewBook({ ...body, pdfFile });
     return NextResponse.json({ ok: true, bookId: book.id, book });
   } catch (err) {
     return NextResponse.json({ ok: false, error: err.message }, { status: 400 });
