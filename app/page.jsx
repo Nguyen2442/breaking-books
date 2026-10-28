@@ -307,16 +307,24 @@ export default function LibraryPage() {
               )}
 
               {upload.step >= 3 && (
-                <div className="mt-6 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 p-4 text-base leading-relaxed">
-                  <p className="font-semibold text-emerald-800 dark:text-emerald-300">
-                    Đã thêm vào thư viện, chia thành {upload.chapters} chương.
-                  </p>
-                  {upload.warning ? (
-                    <p className="mt-1 text-amber-800 dark:text-amber-300">{upload.warning}</p>
-                  ) : (
-                    <p className="mt-1 text-slate-700 dark:text-slate-300">
-                      Máy đang viết bài học cho từng chương. Bạn có thể đóng trang này; chương nào xong sẽ đọc được ngay.
+                <div className="mt-6 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-500/20 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <p className="font-semibold text-emerald-800 dark:text-emerald-300 text-lg">
+                      Đã thêm sách vào thư viện, chia thành {upload.chapters} chương thành công!
                     </p>
+                    <p className="text-sm text-slate-700 dark:text-slate-300">
+                      Gemini 3.5 AI đang bóc tách ngầm các chương. Bạn có thể bấm vào đọc Chương 1 ngay bây giờ!
+                    </p>
+                  </div>
+                  {upload.bookId && (
+                    <Link
+                      href={`/books/${upload.bookId}/ch/1`}
+                      className="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-teal-700 hover:bg-teal-600 text-white font-semibold text-sm shrink-0 shadow-sm transition-all"
+                    >
+                      <BookOpen className="w-4 h-4" />
+                      <span>Vào đọc Chương 1 ngay</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
                   )}
                 </div>
               )}
@@ -420,16 +428,14 @@ function BookCard({ book, local, busy, onProcess }) {
 
   return (
     <article className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#10161D] overflow-hidden flex flex-col">
-      {React.createElement(
-        firstReady ? Link : "div",
-        {
-          ...(firstReady ? { href: readHref } : {}),
-          className: `bg-gradient-to-br ${coverFor(book.id)} text-white px-6 pt-8 pb-6 min-h-[168px] flex flex-col justify-end`,
-        },
-        <span className="text-xl font-bold leading-snug line-clamp-3">{book.title}</span>,
-        book.subtitle ? <span className="mt-1 text-sm text-white/85 line-clamp-2">{book.subtitle}</span> : null,
-        book.author && !book.subtitle?.includes(book.author) ? <span className="mt-3 text-sm text-white/75">{book.author}</span> : null
-      )}
+      <Link
+        href={readHref}
+        className={`bg-gradient-to-br ${coverFor(book.id)} text-white px-6 pt-8 pb-6 min-h-[168px] flex flex-col justify-end group cursor-pointer`}
+      >
+        <span className="text-xl font-bold leading-snug line-clamp-3 group-hover:underline">{book.title}</span>
+        {book.subtitle && <span className="mt-1 text-sm text-white/85 line-clamp-2">{book.subtitle}</span>}
+        {book.author && !book.subtitle?.includes(book.author) && <span className="mt-3 text-sm text-white/75">{book.author}</span>}
+      </Link>
 
       <div className="p-5 flex-1 flex flex-col gap-4">
         <div className="text-sm font-medium">{status}</div>
@@ -464,19 +470,38 @@ function BookCard({ book, local, busy, onProcess }) {
         )}
 
         <div className="mt-auto flex flex-wrap gap-2">
-          {firstReady ? (
-            <Link
-              href={readHref}
-              className="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-teal-700 hover:bg-teal-600 text-white text-base font-semibold"
-            >
-              {lastCh ? `Đọc tiếp · Chương ${lastCh}` : "Bắt đầu đọc"}
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          ) : (
-            <span className="inline-flex items-center h-11 px-5 rounded-xl bg-slate-100 dark:bg-white/10 text-slate-500 text-base">
-              Chưa có chương nào xong
-            </span>
-          )}
+          <Link
+            href={readHref}
+            className={`inline-flex items-center gap-2 h-11 px-5 rounded-xl text-base font-semibold transition-all ${
+              p.active
+                ? "bg-teal-700 hover:bg-teal-600 text-white shadow-sm"
+                : "bg-teal-700 hover:bg-teal-600 text-white"
+            }`}
+          >
+            {lastCh ? (
+              <>
+                <span>Đọc tiếp · Chương ${lastCh}</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            ) : p.active ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Đang xử lý · Vào xem Chương 1</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            ) : firstReady ? (
+              <>
+                <span>Bắt đầu đọc</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            ) : (
+              <>
+                <BookOpen className="w-4 h-4" />
+                <span>Mở xem Chương 1</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </Link>
           {!ready && !p.active && (
             <button
               onClick={onProcess}

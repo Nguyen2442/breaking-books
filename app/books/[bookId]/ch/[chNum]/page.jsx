@@ -53,19 +53,52 @@ export default function SingleChapterReaderPage() {
     loadChapter();
   }, [bookId, chNum]);
 
+  // Auto-refresh when the chapter is being written or not yet complete
+  const isComplete = chapterData?.ch?.status === "complete" || chapterData?.chapter?.status === "complete";
+  useEffect(() => {
+    if (isComplete || loading) return;
+    const interval = setInterval(() => {
+      loadChapter();
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [isComplete, loading, bookId, chNum]);
+
   // Mount interactive quizzes, progress checkboxes, and execute chapter SVG/Lab scripts
   useEffect(() => {
     if (!chapterData || !contentRef.current) return;
     const root = contentRef.current;
 
-    // 1. Inject HTML
-    root.innerHTML =
-      chapterData.html ||
-      `<div class="chapter"><div class="chapter-head"><span class="eyebrow">CHƯƠNG ${chNum}</span><h1>${
-        chapterData.chapter?.title || `Chương ${chNum}`
-      }</h1><p class="chapter-lead">${
-        chapterData.chapter?.subtitle || ""
-      }</p></div><div class="topic"><div class="prose"><p>Chương này chưa có bài học. Hãy bấm nút <b>Viết chương này</b> ở phía trên.</p></div></div></div>`;
+    // 1. Inject HTML or preview raw text if lesson is still being synthesized
+    if (chapterData.html) {
+      root.innerHTML = chapterData.html;
+    } else {
+      const title = chapterData.ch?.title || `Chương ${chNum}`;
+      const subtitle = chapterData.ch?.subtitle || "Đang được Gemini 3.5 AI xử lý...";
+      const rawPreview = chapterData.sourceText
+        ? `<div class="p-6 rounded-2xl bg-white dark:bg-[#10161D] border border-slate-200 dark:border-white/10 space-y-4">
+            <div class="flex items-center gap-2 text-xs font-mono uppercase text-teal-600 dark:text-teal-400">
+              <span class="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
+              <span>Văn bản gốc đang bóc tách (Đọc trước)</span>
+            </div>
+            <div class="prose max-w-none text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-wrap font-sans text-base">
+              ${chapterData.sourceText.slice(0, 20000)}
+            </div>
+          </div>`
+        : `<p class="text-slate-500">Đang chuẩn bị nội dung chương...</p>`;
+
+      root.innerHTML = `
+        <div class="chapter">
+          <div class="chapter-head">
+            <span class="eyebrow">CHƯƠNG ${chNum}</span>
+            <h1>${title}</h1>
+            <p class="chapter-lead">${subtitle}</p>
+          </div>
+          <div class="topic">
+            ${rawPreview}
+          </div>
+        </div>
+      `;
+    }
 
     // 2. Execute chapter's SVG & Mini-Lab script (src/chN.js) FIRST so widgets & glossary are registered
     if (chapterData.js && chapterData.js.trim().length > 0) {
@@ -123,11 +156,10 @@ export default function SingleChapterReaderPage() {
     }
   }
 
-  const chMeta = chapterData?.chapter;
+  const chMeta = chapterData?.chapter || chapterData?.ch;
   const allChapters = chapterData?.book?.chapters || [];
   const prevCh = allChapters.find((c) => c.n === chNum - 1);
   const nextCh = allChapters.find((c) => c.n === chNum + 1);
-  const isComplete = chMeta?.status === "complete";
   const processing = chapterData?.book?.processing || {};
   const beingWritten = [...(processing.running || []), ...(processing.queued || [])].includes(chNum);
 
@@ -139,17 +171,20 @@ export default function SingleChapterReaderPage() {
       transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
       className="max-w-[840px] mx-auto"
     >
-      {/* Plain-language status when the chapter is not fully written yet */}
-      {!loading && chMeta && !isComplete && (
-        <div className="mb-8 rounded-2xl bg-amber-500/5 border border-amber-500/30 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Real-time status banner when the chapter is being written or not yet complete */}
+      {!loading && !isComplete && (
+        <div className="mb-8 rounded-2xl bg-teal-500/10 border border-teal-500/30 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
-            <p className="text-base font-semibold text-amber-800 dark:text-amber-300">
-              {beingWritten ? "Máy đang viết bài học cho chương này" : "Chương này chưa có bài học đầy đủ"}
-            </p>
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-teal-500 animate-ping"></span>
+              <p className="text-base font-semibold text-teal-800 dark:text-teal-300">
+                {beingWritten ? "Gemini 3.5 AI đang bóc tách bài học cho chương này..." : "Chương này đang sẵn sàng để soạn bài học"}
+              </p>
+            </div>
             <p className="text-sm text-slate-600 dark:text-slate-400">
               {beingWritten
-                ? "Thường mất vài phút. Bấm “Tải lại” để xem phần mới nhất."
-                : "Bấm “Viết chương này” để máy soạn tóm tắt, giải thích và ví dụ."}
+                ? "Chỉ mất khoảng 15-20 giây. Bạn có thể đọc trước phần văn bản gốc bên dưới, bài học tương tác sẽ tự nạp ngay khi sẵn sàng!"
+                : "Bấm “Bắt đầu bóc tách” để Gemini AI soạn tóm tắt, giải nghĩa và dựng phòng thí nghiệm SVG tương tác."}
             </p>
             {jobMessage && <p className="text-sm text-emerald-700 dark:text-emerald-400 pt-1">{jobMessage}</p>}
           </div>
@@ -161,7 +196,7 @@ export default function SingleChapterReaderPage() {
                 disabled={startingJob}
                 className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-600 text-white disabled:opacity-50 cursor-pointer"
               >
-                {startingJob ? "Đang bắt đầu…" : "Viết chương này"}
+                {startingJob ? "Đang bắt đầu…" : "Bắt đầu bóc tách"}
               </button>
             )}
             <button

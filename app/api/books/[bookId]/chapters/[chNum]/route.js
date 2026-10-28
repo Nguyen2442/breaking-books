@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { ROOT, getChapterPayload, buildChapterPrompt } from '@/lib/books';
+import { ROOT, getChapterPayload, buildChapterPrompt, prioritizeChapter } from '@/lib/books';
 import { getChapterFromDb, saveChapterToDb, isDbAvailable } from '@/lib/db';
 import { parseHtmlJsToJsonb, jsonbToHtmlAndJs } from '@/lib/chapter-jsonb';
 
@@ -45,13 +45,20 @@ export async function GET(request, { params }) {
     return NextResponse.json({ ok: false, error: 'Chapter not found' }, { status: 404 });
   }
 
+  // If this chapter is still pending/processing, prioritize it to the very front of the AI write queue!
+  if (payload.ch.status !== 'complete') {
+    try {
+      prioritizeChapter(bookId, num);
+    } catch {}
+  }
+
   const url = new URL(request.url);
   const mode = url.searchParams.get('mode') || 'auto';
   const includeText = url.searchParams.get('text') === '1';
 
   const prompt = buildChapterPrompt(payload.book, payload.ch, mode);
   let sourceText = '';
-  if (includeText && payload.ch.textPath) {
+  if ((includeText || !payload.html) && payload.ch.textPath) {
     try {
       sourceText = readFileSync(join(ROOT, bookId, payload.ch.textPath), 'utf8').slice(0, 60000);
     } catch { /* ignore */ }
