@@ -22,6 +22,8 @@ auramind-core/.env
 books/*.pdf
 books/.users.json
 books/.book_owners.json
+books/.changelogs.json
+books/.feedbacks.json
 
 # Logs & Debugging
 *.log
