@@ -82,17 +82,20 @@ export default function LandingPage() {
 
         {/* Nav links */}
         <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-600 dark:text-slate-400">
-          <a href="#features" className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+          <Link href="/features" className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
             Tính năng cốt lõi
-          </a>
-          <a href="#simulation" className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
-            Phòng Lab tương tác
-          </a>
+          </Link>
+          <Link href="/about" className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+            Giới thiệu
+          </Link>
+          <Link href="/changelog" className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+            Nhật ký cập nhật
+          </Link>
+          <Link href="/feedback" className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+            Góp ý tính năng
+          </Link>
           <a href="#books" className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
             Sách tiêu biểu
-          </a>
-          <a href="#pricing" className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
-            Trải nghiệm miễn phí
           </a>
         </nav>
 
@@ -141,18 +144,18 @@ export default function LandingPage() {
       <section className="relative pt-16 sm:pt-24 pb-20 px-4 sm:px-8 max-w-5xl mx-auto text-center space-y-6">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 text-xs font-semibold">
           <Sparkles className="w-3.5 h-3.5" />
-          <span>Nền tảng Đọc Sách Kỹ Thuật Tương Tác AI & Trực Quan Hóa Hệ Thống</span>
+          <span>Nền tảng Đọc Sách Tương Tác AI & Trực Quan Hóa Tri Thức Cho Mọi Người</span>
         </div>
 
         <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.12]">
-          Đừng đọc sách kỹ thuật thụ động. <br />
+          Đừng đọc sách thụ động. <br />
           <span className="bg-gradient-to-r from-orange-600 via-amber-500 to-orange-500 bg-clip-text text-transparent">
-            Hãy chạm, mô phỏng và làm chủ kiến trúc.
+            Hãy chạm, tương tác và làm chủ tri thức.
           </span>
         </h1>
 
         <p className="text-base sm:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-          Thay vì vật lộn với 700 trang PDF khô khan, Breaking Books dùng AI bóc tách sách thành các Topic 5 phút cô đọng, kèm <b>phòng thí nghiệm trực quan tương tác trực tiếp</b> và thẻ ôn tập flashcards.
+          Dù bạn là học sinh, sinh viên, người đi làm hay người tự học: Breaking Books bóc tách mọi cuốn sách dày cộp thành các Topic 5-10 phút cô đọng, kèm <b>sơ đồ tương tác trực quan</b> và thẻ ôn tập flashcards thông minh.
         </p>
 
         {/* CTA Buttons */}
@@ -295,10 +298,10 @@ export default function LandingPage() {
       <section id="features" className="max-w-5xl mx-auto px-4 sm:px-8 py-16 space-y-12">
         <div className="text-center space-y-3">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
-            Được thiết kế chuyên biệt cho Kỹ sư & Lập trình viên
+            Được thiết kế cho tất cả mọi người: Học tập, Nghiên cứu & Sự nghiệp
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto">
-            Kết hợp kiến thức sâu sắc của những cuốn sách kinh điển với công nghệ tương tác hiện đại.
+            Từ sách công nghệ, kinh tế, quản trị kinh doanh đến kỹ năng mềm — kết hợp tri thức sâu sắc với trải nghiệm tương tác trực quan.
           </p>
         </div>
 
@@ -449,11 +452,11 @@ export default function LandingPage() {
           <div className="w-80 h-80 rounded-full bg-white/10 blur-3xl absolute -top-20 -right-20 pointer-events-none" />
 
           <h2 className="text-3xl sm:text-4xl font-black tracking-tight max-w-xl mx-auto leading-tight">
-            Sẵn sàng làm chủ kiến trúc hệ thống và công nghệ chuyên sâu?
+            Sẵn sàng làm chủ tri thức và chinh phục cuốn sách tiếp theo?
           </h2>
 
           <p className="text-sm sm:text-base text-orange-100 max-w-lg mx-auto">
-            Tạo tài khoản hoàn toàn miễn phí và bắt đầu bóc tách cuốn sách kỹ thuật đầu tiên của bạn ngay hôm nay.
+            Tạo tài khoản hoàn toàn miễn phí và bắt đầu bóc tách cuốn sách đầu tiên của bạn ngay hôm nay.
           </p>
 
           <div className="pt-2">
@@ -469,10 +472,18 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 dark:border-white/10 py-8 px-4 text-center text-xs text-slate-500 space-y-2">
-        <p>Breaking Books © 2026 · Nền tảng Đọc sách & Trực quan hoá Kỹ thuật Tương tác</p>
+      <footer className="border-t border-slate-200 dark:border-white/10 py-10 px-4 text-center text-xs text-slate-500 space-y-4">
+        <div className="flex flex-wrap items-center justify-center gap-6 font-medium text-slate-600 dark:text-slate-400">
+          <Link href="/features" className="hover:text-orange-600 transition-colors">Tính năng</Link>
+          <Link href="/about" className="hover:text-orange-600 transition-colors">Giới thiệu</Link>
+          <Link href="/changelog" className="hover:text-orange-600 transition-colors">Nhật ký cập nhật</Link>
+          <Link href="/feedback" className="hover:text-orange-600 transition-colors">Góp ý tính năng</Link>
+          <Link href="/library" className="hover:text-orange-600 transition-colors">Thư viện</Link>
+          <Link href="/admin" className="hover:text-orange-600 transition-colors">Quản trị viên</Link>
+        </div>
+        <p>Breaking Books © 2026 · Nền tảng Đọc sách & Trực quan hoá Tri thức Tương tác</p>
         <p className="text-[11px] text-slate-400">
-          Phát triển bởi đội ngũ kỹ sư với mục tiêu đem lại trải nghiệm học tập công nghệ đỉnh cao.
+          Phát triển với sứ mệnh giúp mọi người tiếp thu kiến thức nhanh hơn, sâu hơn và hứng thú hơn.
         </p>
       </footer>
     </div>
