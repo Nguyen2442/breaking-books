@@ -26,6 +26,11 @@ import {
   Sparkles,
   Play,
   RotateCcw,
+  Users,
+  UserCheck,
+  UserX,
+  Search,
+  KeyRound,
 } from "lucide-react";
 
 export default function AdminPage() {
@@ -55,6 +60,15 @@ export default function AdminPage() {
   // Delete modal state
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [deleting, setDeleting] = useState(false);
+
+  // User Management State
+  const [users, setUsers] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [userSearch, setUserSearch] = useState("");
+  const [passwordModalUser, setPasswordModalUser] = useState(null);
+  const [newPasswordInput, setNewPasswordInput] = useState("");
+  const [deleteUserModal, setDeleteUserModal] = useState(null);
+  const [userActionLoading, setUserActionLoading] = useState(false);
 
   // Check auth on mount
   const checkAuth = useCallback(async () => {
@@ -94,13 +108,103 @@ export default function AdminPage() {
     }
   }, [authenticated]);
 
+  // Fetch users
+  const fetchUsers = useCallback(async () => {
+    setLoadingUsers(true);
+    try {
+      const res = await fetch("/api/admin/users");
+      const data = await res.json();
+      if (data.ok) setUsers(data.users || []);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoadingUsers(false);
+    }
+  }, []);
+
+  const handleToggleUserStatus = async (user) => {
+    try {
+      setUserActionLoading(true);
+      const res = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "toggle-status", userId: user.id }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setUsers((prev) =>
+          prev.map((u) => (u.id === user.id ? { ...u, isActive: data.isActive } : u))
+        );
+        setActionMessage(`Đã ${data.isActive ? "kích hoạt" : "tạm khóa"} tài khoản ${user.email}`);
+        setTimeout(() => setActionMessage(""), 4000);
+      }
+    } catch (e) {
+      setActionMessage("Lỗi: " + e.message);
+    } finally {
+      setUserActionLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!passwordModalUser || !newPasswordInput || newPasswordInput.length < 6) return;
+    try {
+      setUserActionLoading(true);
+      const res = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "reset-password",
+          userId: passwordModalUser.id,
+          newPassword: newPasswordInput,
+        }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setActionMessage(`Đã cập nhật mật khẩu mới cho ${passwordModalUser.email}`);
+        setPasswordModalUser(null);
+        setNewPasswordInput("");
+        setTimeout(() => setActionMessage(""), 4000);
+      } else {
+        setActionMessage("Lỗi: " + (data.error || "Không thể đổi mật khẩu"));
+      }
+    } catch (e) {
+      setActionMessage("Lỗi: " + e.message);
+    } finally {
+      setUserActionLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!deleteUserModal) return;
+    try {
+      setUserActionLoading(true);
+      const res = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete-user", userId: deleteUserModal.id }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        setUsers((prev) => prev.filter((u) => u.id !== deleteUserModal.id));
+        setActionMessage(`Đã xóa tài khoản ${deleteUserModal.email}`);
+        setDeleteUserModal(null);
+        setTimeout(() => setActionMessage(""), 4000);
+      }
+    } catch (e) {
+      setActionMessage("Lỗi: " + e.message);
+    } finally {
+      setUserActionLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (authenticated) {
       loadDashboardData();
+      fetchUsers();
       const timer = setInterval(loadDashboardData, 8000);
       return () => clearInterval(timer);
     }
-  }, [authenticated, loadDashboardData]);
+  }, [authenticated, loadDashboardData, fetchUsers]);
 
   // Handle Login
   async function handleLogin(e) {
@@ -455,6 +559,19 @@ export default function AdminPage() {
             {systemStats?.errors?.length > 0 && (
               <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
             )}
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveTab("users");
+              fetchUsers();
+            }}
+            className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer ${
+              activeTab === "users" ? "bg-orange-600 text-white shadow-sm" : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            <span>Quản lý Người dùng ({users.length})</span>
           </button>
         </div>
 
@@ -839,6 +956,173 @@ export default function AdminPage() {
             </div>
           </div>
         )}
+
+        {/* ==================================================================
+            TAB 4: USER MANAGEMENT (DANH SÁCH / PHÂN QUYỀN / KHÓA / ĐỔI MẬT KHẨU)
+            ================================================================== */}
+        {activeTab === "users" && (
+          <div className="space-y-6">
+            {/* Top User Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="rounded-2xl bg-[#0F1623] border border-white/10 p-5 space-y-1">
+                <span className="text-xs font-mono text-slate-400 uppercase">Tổng Thành viên</span>
+                <p className="text-2xl font-black text-white">{users.length}</p>
+                <p className="text-[11px] text-slate-500">Tài khoản đăng ký trên hệ thống</p>
+              </div>
+
+              <div className="rounded-2xl bg-[#0F1623] border border-white/10 p-5 space-y-1">
+                <span className="text-xs font-mono text-emerald-400 uppercase">Đang Hoạt động</span>
+                <p className="text-2xl font-black text-emerald-400">
+                  {users.filter((u) => u.isActive !== false).length}
+                </p>
+                <p className="text-[11px] text-slate-500">Có quyền đăng nhập và đọc sách cá nhân</p>
+              </div>
+
+              <div className="rounded-2xl bg-[#0F1623] border border-white/10 p-5 space-y-1">
+                <span className="text-xs font-mono text-rose-400 uppercase">Đã Tạm khóa</span>
+                <p className="text-2xl font-black text-rose-400">
+                  {users.filter((u) => u.isActive === false).length}
+                </p>
+                <p className="text-[11px] text-slate-500">Bị vô hiệu hoá quyền truy cập</p>
+              </div>
+            </div>
+
+            {/* Users List Card */}
+            <div className="rounded-2xl bg-[#0F1623] border border-white/10 p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+                <div className="flex items-center gap-2">
+                  <Users className="w-4 h-4 text-orange-400" />
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                    Danh Sách Người Dùng ({users.length})
+                  </h3>
+                </div>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <div className="relative w-full sm:w-64">
+                    <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="Tìm theo tên hoặc email..."
+                      value={userSearch}
+                      onChange={(e) => setUserSearch(e.target.value)}
+                      className="w-full pl-9 pr-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500"
+                    />
+                  </div>
+                  <button
+                    onClick={fetchUsers}
+                    disabled={loadingUsers}
+                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 transition-colors cursor-pointer"
+                    title="Làm mới"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${loadingUsers ? "animate-spin" : ""}`} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Users Table / Grid */}
+              <div className="space-y-3">
+                {users
+                  .filter(
+                    (u) =>
+                      !userSearch ||
+                      u.name?.toLowerCase().includes(userSearch.toLowerCase()) ||
+                      u.email?.toLowerCase().includes(userSearch.toLowerCase())
+                  )
+                  .map((u) => (
+                    <div
+                      key={u.id}
+                      className="p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/15 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4"
+                    >
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white font-bold text-sm shadow-md uppercase">
+                          {u.name ? u.name.charAt(0) : u.email.charAt(0)}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-sm font-bold text-white">{u.name}</h4>
+                            <span
+                              className={`px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase ${
+                                u.role === "admin"
+                                  ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                                  : "bg-blue-500/20 text-blue-300 border border-blue-500/30"
+                              }`}
+                            >
+                              {u.role || "user"}
+                            </span>
+                            {u.isActive === false ? (
+                              <span className="px-2 py-0.5 rounded-md text-[10px] font-mono bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                                ĐÃ KHÓA
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-md text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                HOẠT ĐỘNG
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-400 font-mono mt-0.5">{u.email}</p>
+                          <div className="flex items-center gap-3 text-[11px] text-slate-500 mt-1">
+                            <span>Sách sở hữu: <b className="text-slate-300">{u.bookCount || 0}</b></span>
+                            <span>•</span>
+                            <span>Tham gia: {new Date(u.createdAt).toLocaleDateString("vi-VN")}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* User Actions */}
+                      <div className="flex items-center gap-2 self-end md:self-center">
+                        <button
+                          onClick={() => handleToggleUserStatus(u)}
+                          disabled={userActionLoading}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border ${
+                            u.isActive === false
+                              ? "bg-emerald-600/20 hover:bg-emerald-600/30 border-emerald-500/30 text-emerald-300"
+                              : "bg-amber-600/20 hover:bg-amber-600/30 border-amber-500/30 text-amber-300"
+                          }`}
+                        >
+                          {u.isActive === false ? (
+                            <>
+                              <UserCheck className="w-3.5 h-3.5" />
+                              <span>Mở khóa</span>
+                            </>
+                          ) : (
+                            <>
+                              <UserX className="w-3.5 h-3.5" />
+                              <span>Khóa</span>
+                            </>
+                          )}
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setPasswordModalUser(u);
+                            setNewPasswordInput("");
+                          }}
+                          className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <KeyRound className="w-3.5 h-3.5 text-orange-400" />
+                          <span>Đổi mật khẩu</span>
+                        </button>
+
+                        <button
+                          onClick={() => setDeleteUserModal(u)}
+                          className="p-1.5 rounded-xl bg-white/5 hover:bg-rose-500/20 border border-white/10 hover:border-rose-500/30 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
+                          title="Xóa tài khoản"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+
+                {users.length === 0 && (
+                  <div className="py-12 text-center text-xs text-slate-500">
+                    Chưa có người dùng nào được đăng ký.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Delete Confirmation Modal */}
@@ -880,6 +1164,101 @@ export default function AdminPage() {
                 >
                   {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
                   <span>Xác nhận xóa</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* User Password Reset Modal */}
+        {passwordModalUser && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-md rounded-2xl bg-[#0F1623] border border-orange-500/30 p-6 space-y-4 shadow-2xl"
+            >
+              <div className="flex items-center gap-3 text-orange-400">
+                <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center">
+                  <KeyRound className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Đổi Mật Khẩu Thành Viên</h3>
+                  <p className="text-xs text-slate-400">{passwordModalUser.email}</p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-xs font-semibold text-slate-300">Mật khẩu mới (tối thiểu 6 ký tự)</label>
+                <input
+                  type="password"
+                  placeholder="Nhập mật khẩu mới..."
+                  value={newPasswordInput}
+                  onChange={(e) => setNewPasswordInput(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-orange-500 font-mono"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  onClick={() => setPasswordModalUser(null)}
+                  disabled={userActionLoading}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/15 text-slate-300 cursor-pointer"
+                >
+                  Hủy bỏ
+                </button>
+                <button
+                  onClick={handleResetPassword}
+                  disabled={userActionLoading || newPasswordInput.length < 6}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white cursor-pointer shadow-sm flex items-center gap-1.5"
+                >
+                  {userActionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+                  <span>Lưu mật khẩu mới</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Delete User Modal */}
+        {deleteUserModal && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-md rounded-2xl bg-[#0F1623] border border-rose-500/30 p-6 space-y-4 shadow-2xl"
+            >
+              <div className="flex items-center gap-3 text-rose-400">
+                <div className="w-10 h-10 rounded-xl bg-rose-500/20 flex items-center justify-center">
+                  <UserX className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Xóa Tài Khoản Thành Viên</h3>
+                  <p className="text-xs text-slate-400">Hành động này không thể hoàn tác</p>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-300 leading-relaxed bg-white/5 p-3 rounded-xl border border-white/5">
+                Bạn có chắc chắn muốn xóa tài khoản <b>{deleteUserModal.name}</b> ({deleteUserModal.email})? Người dùng sẽ không thể đăng nhập vào hệ thống nữa.
+              </p>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  onClick={() => setDeleteUserModal(null)}
+                  disabled={userActionLoading}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/15 text-slate-300 cursor-pointer"
+                >
+                  Hủy bỏ
+                </button>
+                <button
+                  onClick={handleDeleteUser}
+                  disabled={userActionLoading}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-600 hover:bg-rose-500 text-white cursor-pointer shadow-sm flex items-center gap-1.5"
+                >
+                  {userActionLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                  <span>Xóa vĩnh viễn</span>
                 </button>
               </div>
             </motion.div>

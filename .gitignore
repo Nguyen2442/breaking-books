@@ -20,6 +20,8 @@ auramind-core/.env
 
 # Raw Large PDFs in books inbox
 books/*.pdf
+books/.users.json
+books/.book_owners.json
 
 # Logs & Debugging
 *.log

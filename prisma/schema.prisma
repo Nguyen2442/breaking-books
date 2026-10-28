@@ -29,6 +29,21 @@ enum ChapterStatus {
   FAILED
 }
 
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String   // salt:hash
+  role      String   @default("user") // "user" | "admin"
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  books     Book[]
+
+  @@map("users")
+}
+
 model Book {
   id          String     @id @default(uuid())
   title       String
@@ -39,12 +54,16 @@ model Book {
   totalWords  Int?       @default(0)
   status      BookStatus @default(PENDING)
   sourceFile  String?    // Original file path or storage URL
+  userId      String?
+  user        User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  isSample    Boolean    @default(false)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
   chapters    Chapter[]
 
   @@index([status])
+  @@index([userId])
   @@index([createdAt])
   @@map("books")
 }

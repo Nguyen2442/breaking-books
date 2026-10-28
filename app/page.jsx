@@ -1,139 +1,50 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   BookOpen,
-  Upload,
+  ArrowRight,
+  Sparkles,
+  Zap,
+  Cpu,
+  Layers,
+  ShieldCheck,
+  CheckCircle2,
+  Sliders,
   Moon,
   Sun,
-  CheckCircle2,
-  Loader2,
-  AlertCircle,
-  FileText,
-  Settings2,
-  ArrowRight,
-  RotateCw,
-  X,
-  Sparkles,
-  Brain,
-  Flame,
+  Lock,
+  User,
+  ExternalLink,
+  ChevronRight,
+  Code2,
+  GraduationCap,
+  FolderLock,
+  Play,
+  RotateCcw,
 } from "lucide-react";
-import {
-  CrossBookRagPanel,
-  SpacedRepetitionDeck,
-  ActionHabitTracker,
-} from "../components/MoatWorkspacePanels";
 
-// Cover colours for generated book covers (picked by hashing the book id)
-const COVERS = [
-  "from-orange-600 to-amber-800",
-  "from-indigo-700 to-indigo-900",
-  "from-amber-600 to-orange-800",
-  "from-rose-700 to-rose-900",
-  "from-sky-700 to-sky-900",
-  "from-emerald-700 to-emerald-900",
-];
-function coverFor(id) {
-  let h = 7;
-  for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  return COVERS[h % COVERS.length];
-}
-
-function readLocal(key, fallback) {
-  try {
-    const v = localStorage.getItem(key);
-    return v == null ? fallback : JSON.parse(v);
-  } catch {
-    return fallback;
-  }
-}
-
-function formatSize(bytes) {
-  return bytes >= 1e6 ? `${(bytes / 1e6).toFixed(1)} MB` : `${Math.round(bytes / 1e3)} KB`;
-}
-
-const STEPS = ["Tải file lên", "Chia sách thành từng chương", "Bắt đầu viết bài học"];
-
-// Module-level in-memory cache for 0ms instant transitions across Next.js SPA navigation
-let _globalClientOverviewCache = null;
-
-export default function LibraryPage() {
-  const [overview, setOverview] = useState(() => {
-    if (_globalClientOverviewCache) return _globalClientOverviewCache;
-    if (typeof window !== "undefined") {
-      try {
-        const cached = sessionStorage.getItem("bb_overview_cache");
-        if (cached) {
-          const parsed = JSON.parse(cached);
-          _globalClientOverviewCache = parsed;
-          return parsed;
-        }
-      } catch {}
-    }
-    return null;
-  });
-
+export default function LandingPage() {
+  const router = useRouter();
+  const [currentUser, setCurrentUser] = useState(null);
   const [isDark, setIsDark] = useState(false);
-  const [local, setLocal] = useState(() => {
-    const initial = _globalClientOverviewCache;
-    if (initial?.books) {
-      const map = {};
-      initial.books.forEach((b) => {
-        map[b.id] = {
-          read: readLocal(`${b.id}:read`, []).length,
-          lastCh: readLocal(`${b.id}:lastCh`, null),
-        };
-      });
-      return map;
-    }
-    return {};
-  });
 
-  // Upload flow: null | { step: 0..3, pct, fileName, error, warning, bookId }
-  const [activeTab, setActiveTab] = useState("books"); // "books" | "rag" | "learning"
-  const [upload, setUpload] = useState(null);
-  const [dragOver, setDragOver] = useState(false);
-  const fileInputRef = useRef(null);
-  const [busyBook, setBusyBook] = useState(""); // bookId or pdf name being started
-  const [actionError, setActionError] = useState("");
-
-  const fetchOverview = useCallback(async () => {
-    try {
-      const res = await fetch("/api/overview", { cache: "no-store" });
-      const data = await res.json();
-      if (data && data.ok) {
-        setOverview(data);
-        _globalClientOverviewCache = data;
-        try {
-          sessionStorage.setItem("bb_overview_cache", JSON.stringify(data));
-        } catch {}
-        const map = {};
-        (data.books || []).forEach((b) => {
-          map[b.id] = {
-            read: readLocal(`${b.id}:read`, []).length,
-            lastCh: readLocal(`${b.id}:lastCh`, null),
-          };
-        });
-        setLocal(map);
-      }
-    } catch (e) {
-      console.error("Failed to fetch overview", e);
-    }
-  }, []);
+  // Interactive Live Demo Mockup state
+  const [demoReplicationMode, setDemoReplicationMode] = useState("async"); // "sync" | "async"
+  const [demoPacketSent, setDemoPacketSent] = useState(false);
+  const [demoAckReceived, setDemoAckReceived] = useState(false);
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
-    fetchOverview();
-  }, [fetchOverview]);
-
-  // Refresh while any book is being written, so progress moves on its own
-  const anyActive = (overview?.books || []).some((b) => b.processing?.active);
-  useEffect(() => {
-    if (!anyActive && !(upload && upload.step < 3)) return;
-    const t = setInterval(fetchOverview, 5000);
-    return () => clearInterval(t);
-  }, [anyActive, upload, fetchOverview]);
+    fetch("/api/auth")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.ok && data.user) setCurrentUser(data.user);
+      })
+      .catch(() => {});
+  }, []);
 
   function toggleTheme() {
     const next = !isDark;
@@ -144,595 +55,426 @@ export default function LibraryPage() {
     } catch {}
   }
 
-  function startUpload(file) {
-    if (!file) return;
-    if (!/\.pdf$/i.test(file.name)) {
-      setUpload({ step: 0, pct: 0, fileName: file.name, error: "Chỉ nhận file PDF. Hãy chọn file có đuôi .pdf." });
-      return;
-    }
-    setUpload({ step: 0, pct: 0, fileName: file.name });
-    const fd = new FormData();
-    fd.append("file", file);
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/library/import");
-    xhr.upload.onprogress = (e) => {
-      if (!e.lengthComputable) return;
-      const pct = Math.round((e.loaded / e.total) * 100);
-      // Once the bytes are sent, the server is splitting chapters
-      setUpload((u) => u && { ...u, pct, step: pct >= 100 ? 1 : 0 });
-    };
-    xhr.onload = () => {
-      let data = {};
-      try {
-        data = JSON.parse(xhr.responseText);
-      } catch {}
-      if (xhr.status >= 200 && xhr.status < 300 && data.ok) {
-        setUpload((u) => ({ ...u, step: 3, pct: 100, bookId: data.bookId, title: data.title, chapters: data.chapters, warning: data.warning }));
-      } else {
-        const where = data.stage === "split" ? "Không chia được chương. " : "";
-        setUpload((u) => ({ ...u, error: where + (data.error || "Có lỗi khi tải lên. Hãy thử lại.") }));
-      }
-      fetchOverview();
-    };
-    xhr.onerror = () => setUpload((u) => ({ ...u, error: "Mất kết nối tới máy chủ. Kiểm tra ứng dụng còn đang chạy rồi thử lại." }));
-    xhr.send(fd);
+  function triggerDemoPacket() {
+    setDemoPacketSent(true);
+    setDemoAckReceived(false);
+    setTimeout(() => {
+      setDemoAckReceived(true);
+    }, demoReplicationMode === "sync" ? 800 : 250);
   }
-
-  async function processBook(body, key) {
-    setBusyBook(key);
-    setActionError("");
-    try {
-      const res = await fetch("/api/library/process", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Không bắt đầu được.");
-      await fetchOverview();
-    } catch (e) {
-      setActionError(e.message);
-    } finally {
-      setBusyBook("");
-    }
-  }
-
-  const books = overview?.books || [];
-  const pdfs = overview?.unprocessedPdfs || [];
-  const uploading = upload && !upload.error && upload.step < 3;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#090D16] text-slate-900 dark:text-slate-100 selection:bg-orange-500/20">
-      <header className="sticky top-0 z-30 border-b border-slate-100/90 dark:border-white/10 bg-white/90 dark:bg-[#090D16]/90 backdrop-blur-md shadow-[0_1px_10px_-2px_rgba(0,0,0,0.03)]">
-        <div className="max-w-6xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between gap-3">
-          <Link href="/" className="flex items-center gap-3 min-w-0 group">
-            <span className="w-9 h-9 shrink-0 rounded-xl bg-orange-600 group-hover:bg-orange-500 text-white flex items-center justify-center shadow-sm transition-colors">
-              <BookOpen className="w-5 h-5" />
-            </span>
-            <span className="text-lg font-bold tracking-tight whitespace-nowrap text-slate-900 dark:text-white">Breaking Books</span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={toggleTheme}
-              className="inline-flex items-center gap-2 h-10 px-3.5 rounded-xl border border-slate-200/80 dark:border-white/10 text-sm font-medium hover:border-orange-500/60 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-all cursor-pointer"
-            >
-              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
-              <span className="hidden sm:inline">{isDark ? "Nền sáng" : "Nền tối"}</span>
-            </button>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className="inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold shadow-[0_2px_8px_-1px_rgba(234,88,12,0.25)] hover:shadow-[0_4px_14px_-2px_rgba(234,88,12,0.35)] disabled:opacity-50 transition-all cursor-pointer"
-            >
-              <Upload className="w-4 h-4" />
-              <span className="whitespace-nowrap">Thêm sách PDF</span>
-            </button>
+    <div className="min-h-screen bg-white dark:bg-[#090D13] text-slate-900 dark:text-slate-100 font-sans selection:bg-orange-500/20 selection:text-orange-700 dark:selection:text-orange-300 transition-colors duration-300">
+      {/* Background Ambience */}
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-orange-500/10 via-amber-500/5 to-transparent pointer-events-none" />
+      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-orange-600/10 rounded-full blur-[120px] pointer-events-none" />
+
+      {/* Navigation Header */}
+      <header className="sticky top-0 z-40 backdrop-blur-md bg-white/80 dark:bg-[#090D13]/80 border-b border-slate-200/80 dark:border-white/10 px-4 sm:px-8 py-3.5 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
+            <BookOpen className="w-5 h-5" />
           </div>
+          <span className="text-lg font-black tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+            Breaking Books
+          </span>
+        </Link>
+
+        {/* Nav links */}
+        <nav className="hidden md:flex items-center gap-6 text-xs font-semibold text-slate-600 dark:text-slate-400">
+          <a href="#features" className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+            Tính năng cốt lõi
+          </a>
+          <a href="#simulation" className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+            Phòng Lab tương tác
+          </a>
+          <a href="#books" className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+            Sách tiêu biểu
+          </a>
+          <a href="#pricing" className="hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
+            Trải nghiệm miễn phí
+          </a>
+        </nav>
+
+        {/* Auth CTA */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-slate-400 transition-colors cursor-pointer"
+            title="Đổi giao diện Sáng / Tối"
+          >
+            {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
+          </button>
+
+          {currentUser ? (
+            <Link
+              href="/library"
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-md shadow-orange-600/20 flex items-center gap-2 transition-all"
+            >
+              <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
+                {currentUser.name ? currentUser.name.charAt(0) : "U"}
+              </div>
+              <span>Vào Thư viện của tôi</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Link
+                href="/login?redirect=/library"
+                className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-orange-600 transition-colors"
+              >
+                Đăng nhập
+              </Link>
+              <Link
+                href="/register?redirect=/library"
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white shadow-md shadow-orange-600/20 flex items-center gap-1.5 transition-all"
+              >
+                <span>Dùng thử ngay</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          )}
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-8 py-10 space-y-12">
-        <section className="pt-2 sm:pt-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-50 dark:bg-orange-950/40 border border-orange-200/70 dark:border-orange-500/30 text-xs font-semibold text-orange-800 dark:text-orange-300 shadow-sm mb-4">
-            <Sparkles className="w-3.5 h-3.5 text-orange-600 animate-pulse" />
-            <span>Nền tảng Sách Kỹ thuật Tương tác</span>
-          </div>
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.18]">
-            Đọc, Trải nghiệm & Thử nghiệm <br className="hidden sm:inline" />
-            <span className="bg-gradient-to-r from-orange-600 via-amber-500 to-orange-500 bg-clip-text text-transparent">
-              Kiến trúc Hệ thống Thực tế
-            </span>
-          </h1>
-          <p className="mt-3.5 text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
-            Bóc tách từng chương sách kinh điển thành lý thuyết cô đọng và phòng thử nghiệm trực quan riêng biệt. Bạn có thể kéo slider, quan sát luồng gói tin, phân tích đồ thị và tương tác trực tiếp ngay trong trình duyệt.
-          </p>
+      {/* Hero Section */}
+      <section className="relative pt-16 sm:pt-24 pb-20 px-4 sm:px-8 max-w-5xl mx-auto text-center space-y-6">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 text-xs font-semibold">
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>Nền tảng Đọc Sách Kỹ Thuật Tương Tác AI & Trực Quan Hóa Hệ Thống</span>
+        </div>
 
-          <div className="mt-6 flex flex-wrap items-center gap-2.5 sm:gap-4 text-xs font-medium text-slate-600 dark:text-slate-300">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200/70 dark:border-white/10 shadow-[0_2px_6px_-1px_rgba(0,0,0,0.02)]">
-              📚 <strong className="text-slate-800 dark:text-slate-200">{books.length} Bộ sách kinh điển</strong>
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200/70 dark:border-white/10 shadow-[0_2px_6px_-1px_rgba(0,0,0,0.02)]">
-              🧪 <strong className="text-slate-800 dark:text-slate-200">100% Visual Lab tương tác</strong>
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200/70 dark:border-white/10 shadow-[0_2px_6px_-1px_rgba(0,0,0,0.02)]">
-              ⚡ <strong className="text-slate-800 dark:text-slate-200">Đọc từng chương độc lập</strong>
-            </span>
-          </div>
-        </section>
+        <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.12]">
+          Đừng đọc sách kỹ thuật thụ động. <br />
+          <span className="bg-gradient-to-r from-orange-600 via-amber-500 to-orange-500 bg-clip-text text-transparent">
+            Hãy chạm, mô phỏng và làm chủ kiến trúc.
+          </span>
+        </h1>
 
-        {/* Feature Navigation Tabs */}
-        <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 w-fit">
-          <button
-            type="button"
-            onClick={() => setActiveTab("books")}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer ${
-              activeTab === "books"
-                ? "bg-white dark:bg-[#141822] text-slate-900 dark:text-white shadow-sm"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-            }`}
+        <p className="text-base sm:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
+          Thay vì vật lộn với 700 trang PDF khô khan, Breaking Books dùng AI bóc tách sách thành các Topic 5 phút cô đọng, kèm <b>phòng thí nghiệm trực quan tương tác trực tiếp</b> và thẻ ôn tập flashcards.
+        </p>
+
+        {/* CTA Buttons */}
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5">
+          <Link
+            href={currentUser ? "/library" : "/register?redirect=/library"}
+            className="w-full sm:w-auto px-7 py-3.5 rounded-2xl text-sm font-bold bg-gradient-to-r from-orange-600 via-amber-600 to-orange-600 hover:from-orange-500 hover:to-amber-500 text-white shadow-xl shadow-orange-600/25 flex items-center justify-center gap-2.5 transition-all transform hover:-translate-y-0.5 cursor-pointer"
+          >
+            <span>{currentUser ? "Truy cập Thư viện cá nhân" : "Bắt đầu dùng thử miễn phí"}</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+
+          <Link
+            href="/library"
+            className="w-full sm:w-auto px-6 py-3.5 rounded-2xl text-sm font-semibold bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-white/10 flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
             <BookOpen className="w-4 h-4 text-orange-500" />
-            Kho Sách Tương Tác
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("rag")}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer ${
-              activeTab === "rag"
-                ? "bg-white dark:bg-[#141822] text-indigo-600 dark:text-indigo-400 shadow-sm"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-            }`}
-          >
-            <Brain className="w-4 h-4 text-indigo-500" />
-            Hỏi Đáp Liên Sách (Cross-Book RAG)
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("learning")}
-            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer ${
-              activeTab === "learning"
-                ? "bg-white dark:bg-[#141822] text-amber-600 dark:text-amber-400 shadow-sm"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-            }`}
-          >
-            <Flame className="w-4 h-4 text-amber-500" />
-            Ghi Nhớ Thích Ứng & Hành Động
-          </button>
+            <span>Khám phá 3 sách mẫu có sẵn</span>
+          </Link>
         </div>
 
-        {activeTab === "rag" && <CrossBookRagPanel />}
-
-        {activeTab === "learning" && (
-          <div className="space-y-8">
-            <SpacedRepetitionDeck />
-            <ActionHabitTracker />
+        {/* Highlights Badges */}
+        <div className="pt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            <span>100% Visual Lab tương tác</span>
           </div>
-        )}
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            <span>Bóc tách bằng Gemini 3.5 Flash</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+            <span>Phân quyền riêng tư từng thành viên</span>
+          </div>
+        </div>
+      </section>
 
-        {activeTab === "books" && (
-          <>
-        {/* Upload: one drop zone that turns into a step-by-step progress panel */}
-        <section aria-label="Thêm sách mới">
-          <input
-            ref={fileInputRef}
-            id="pdf-upload"
-            type="file"
-            accept="application/pdf,.pdf"
-            className="hidden"
-            onChange={(e) => {
-              startUpload(e.target.files?.[0]);
-              e.target.value = "";
-            }}
-          />
-          {!upload ? (
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              onDragOver={(e) => {
-                e.preventDefault();
-                setDragOver(true);
-              }}
-              onDragLeave={() => setDragOver(false)}
-              onDrop={(e) => {
-                e.preventDefault();
-                setDragOver(false);
-                startUpload(e.dataTransfer.files?.[0]);
-              }}
-              className={`w-full rounded-3xl border-2 border-dashed px-6 py-10 flex flex-col items-center gap-3 text-center transition-all duration-300 cursor-pointer shadow-[0_4px_24px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_36px_-6px_rgba(234,88,12,0.09)] ${
-                dragOver
-                  ? "border-orange-600 bg-orange-50/60 dark:bg-orange-500/10 scale-[1.005]"
-                  : "border-slate-200/90 dark:border-white/15 bg-white dark:bg-[#10161D] hover:border-orange-500"
-              }`}
-            >
-              <span className="w-14 h-14 rounded-2xl bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-300 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-                <Upload className="w-6 h-6" />
-              </span>
-              <span className="text-lg font-bold text-slate-900 dark:text-white">Kéo file PDF sách vào đây, hoặc bấm để chọn file</span>
-              <span className="text-sm text-slate-500 dark:text-slate-400 max-w-md">
-                Hệ thống tự động tìm bìa gốc chuẩn xác, chia chương thông minh và khởi tạo phòng thí nghiệm trực quan cho từng bài học.
-              </span>
-            </button>
-          ) : (
-            <div className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#10161D] p-6 sm:p-8 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.04)]">
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <p className="text-sm text-slate-500 dark:text-slate-400">Đang thêm sách</p>
-                  <p className="text-lg font-semibold truncate">{upload.title || upload.fileName}</p>
-                </div>
-                {!uploading && (
-                  <button
-                    onClick={() => setUpload(null)}
-                    className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 dark:border-white/10 text-sm cursor-pointer"
-                  >
-                    <X className="w-4 h-4" />
-                    Đóng
-                  </button>
-                )}
+      {/* Interactive Live Demo Mockup Section */}
+      <section id="simulation" className="max-w-5xl mx-auto px-4 sm:px-8 py-12">
+        <div className="rounded-3xl bg-slate-900 border border-slate-800 p-6 sm:p-8 shadow-2xl text-white relative overflow-hidden">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-mono font-bold text-orange-400 uppercase tracking-wider">
+                  Trải nghiệm thử Live Lab ngay trên trang chủ
+                </span>
               </div>
-
-              <ol className="mt-6 space-y-4">
-                {STEPS.map((label, i) => {
-                  const done = upload.step > i;
-                  const current = upload.step === i && !upload.error;
-                  const failed = upload.step === i && upload.error;
-                  return (
-                    <li key={label} className="flex items-center gap-3">
-                      <span
-                        className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                          done
-                            ? "bg-emerald-600 text-white"
-                            : failed
-                            ? "bg-rose-600 text-white"
-                            : current
-                            ? "bg-orange-600 text-white"
-                            : "bg-slate-100 dark:bg-white/10 text-slate-400"
-                        }`}
-                      >
-                        {done ? (
-                          <CheckCircle2 className="w-4 h-4" />
-                        ) : failed ? (
-                          <AlertCircle className="w-4 h-4" />
-                        ) : current ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <span className="text-sm font-semibold">{i + 1}</span>
-                        )}
-                      </span>
-                      <span className={`text-base ${done || current ? "font-medium" : "text-slate-400"}`}>
-                        {label}
-                        {i === 0 && current && upload.pct > 0 ? ` (${upload.pct}%)` : ""}
-                        {i === 1 && current ? "… việc này có thể mất nửa phút" : ""}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ol>
-
-              {upload.error && (
-                <div className="mt-6 flex flex-wrap items-center gap-3">
-                  <p className="text-base text-rose-700 dark:text-rose-400">{upload.error}</p>
-                  <button
-                    onClick={() => {
-                      setUpload(null);
-                      fileInputRef.current?.click();
-                    }}
-                    className="inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold cursor-pointer"
-                  >
-                    Chọn file khác
-                  </button>
-                </div>
-              )}
-
-              {upload.step >= 3 && (
-                <div className="mt-6 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-500/20 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <p className="font-semibold text-emerald-800 dark:text-emerald-300 text-lg">
-                      Đã thêm sách vào thư viện, chia thành {upload.chapters} chương thành công!
-                    </p>
-                    <p className="text-sm text-slate-700 dark:text-slate-300">
-                      Gemini 3.5 AI đang bóc tách ngầm các chương. Bạn có thể bấm vào đọc Chương 1 ngay bây giờ!
-                    </p>
-                  </div>
-                  {upload.bookId && (
-                    <Link
-                      href={`/books/${upload.bookId}/ch/1`}
-                      className="inline-flex items-center gap-2 h-11 px-5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-sm shrink-0 shadow-sm transition-all"
-                    >
-                      <BookOpen className="w-4 h-4" />
-                      <span>Vào đọc Chương 1 ngay</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  )}
-                </div>
-              )}
+              <h3 className="text-lg font-bold text-white mt-1">
+                Mô phỏng Quá trình Replication: Synchronous vs Asynchronous
+              </h3>
             </div>
-          )}
-        </section>
 
-        {/* Books */}
-        <section aria-label="Sách đang có">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-xl font-bold">Sách trong thư viện</h2>
-            {anyActive && (
-              <span className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-full bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-300 border border-orange-500/20">
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>AI đang bóc tách ngầm</span>
-              </span>
-            )}
-          </div>
-
-          {/* Ongoing processing banner for newly added books */}
-          {books.filter((b) => b.processing?.active).map((pb) => (
-            <div
-              key={pb.id}
-              className="mb-6 rounded-2xl bg-orange-50 dark:bg-orange-950/40 border border-orange-500/30 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-            >
-              <div className="flex items-center gap-4 min-w-0">
-                {(pb.coverUrl || pb.id) && (
-                  <div className="w-12 h-16 rounded-md overflow-hidden shrink-0 shadow-md ring-1 ring-white/10 hidden sm:block">
-                    <img
-                      src={pb.coverUrl || `/covers/${pb.id}.jpg`}
-                      alt=""
-                      loading="lazy"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-                <div className="space-y-1 min-w-0">
-                  <div className="flex items-center gap-2 text-orange-800 dark:text-orange-300 font-semibold text-base">
-                    <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-                    <span className="truncate">Đang phân tích và viết bài học: {pb.title}</span>
-                  </div>
-                  <p className="text-sm text-slate-600 dark:text-slate-400">
-                    Đã bóc tách {pb.stats.completeChapters}/{pb.stats.totalChapters} chương. Bạn có thể mở đọc Chương 1 ngay lập tức trong khi hệ thống xử lý các chương tiếp theo!
-                  </p>
-                </div>
-              </div>
-              <Link
-                href={`/books/${pb.id}/ch/1`}
-                className="inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-sm shrink-0 shadow-sm transition-all"
+            {/* Controls */}
+            <div className="flex items-center gap-2 bg-slate-800/80 p-1 rounded-xl border border-slate-700">
+              <button
+                onClick={() => setDemoReplicationMode("sync")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                  demoReplicationMode === "sync"
+                    ? "bg-orange-600 text-white shadow-sm"
+                    : "text-slate-400 hover:text-white"
+                }`}
               >
-                <BookOpen className="w-4 h-4" />
-                <span>Vào đọc Chương 1 ngay</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+                Đồng bộ (Sync)
+              </button>
+              <button
+                onClick={() => setDemoReplicationMode("async")}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                  demoReplicationMode === "async"
+                    ? "bg-orange-600 text-white shadow-sm"
+                    : "text-slate-400 hover:text-white"
+                }`}
+              >
+                Bất đồng bộ (Async)
+              </button>
             </div>
-          ))}
+          </div>
 
-          {!overview ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="rounded-3xl border border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-white/[0.02] p-6 h-80 flex flex-col items-center justify-center gap-4">
-                  <div className="w-32 h-44 bg-slate-200/70 dark:bg-white/10 rounded-lg shadow-sm" />
-                  <div className="w-3/4 h-4 bg-slate-200/70 dark:bg-white/10 rounded-full" />
-                  <div className="w-1/2 h-3 bg-slate-100 dark:bg-white/5 rounded-full" />
+          {/* Canvas Simulation */}
+          <div className="py-8 grid grid-cols-1 sm:grid-cols-3 gap-6 items-center text-center">
+            {/* Leader Node */}
+            <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/80 space-y-2 relative">
+              <div className="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center mx-auto font-bold text-sm">
+                L
+              </div>
+              <h4 className="text-xs font-bold text-white">Leader Node</h4>
+              <p className="text-[11px] text-slate-400">Nhận Write Request từ Client</p>
+              <div className="h-1 rounded-full bg-emerald-500/50 w-16 mx-auto mt-2" />
+            </div>
+
+            {/* Network Pipe */}
+            <div className="space-y-3">
+              <div className="text-xs font-mono text-slate-400">
+                {demoReplicationMode === "sync" ? "Chờ Replica ACK trước khi trả lời" : "Trả lời ngay khi ghi xong Leader"}
+              </div>
+
+              <button
+                onClick={triggerDemoPacket}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-lg shadow-orange-600/30 inline-flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer"
+              >
+                <Play className="w-3.5 h-3.5 fill-current" />
+                <span>Gửi 1 Ghi dữ liệu (Write Request)</span>
+              </button>
+
+              {demoPacketSent && (
+                <div className="text-[11px] font-mono text-orange-300 animate-pulse">
+                  {demoAckReceived
+                    ? `✓ Hoàn thành ACK (${demoReplicationMode === "sync" ? "800ms độ trễ cao, bền vững 100%" : "250ms cực nhanh, chấp nhận rủi ro mất dữ liệu"})`
+                    : "Đang truyền gói tin qua mạng..."}
                 </div>
-              ))}
+              )}
             </div>
-          ) : books.length === 0 ? (
-            <p className="text-base text-slate-500">Thư viện còn trống. Thêm file PDF đầu tiên ở khung bên trên.</p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {books.map((b) => (
-                <BookCard
-                  key={b.id}
-                  book={b}
-                  local={local[b.id] || {}}
-                  busy={busyBook === b.id}
-                  onProcess={() => processBook({ bookId: b.id }, b.id)}
-                />
-              ))}
+
+            {/* Follower Node */}
+            <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/80 space-y-2">
+              <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mx-auto font-bold text-sm">
+                F
+              </div>
+              <h4 className="text-xs font-bold text-white">Follower Node</h4>
+              <p className="text-[11px] text-slate-400">Sao chép WAL & áp dụng thay đổi</p>
+              <div className="h-1 rounded-full bg-blue-500/50 w-16 mx-auto mt-2" />
             </div>
-          )}
-          {actionError && <p className="mt-4 text-base text-rose-700 dark:text-rose-400">{actionError}</p>}
-        </section>
-
-        {/* PDFs on disk that are not a book yet */}
-        {pdfs.length > 0 && (
-          <section aria-label="File PDF chưa chuẩn bị">
-            <h2 className="text-xl font-bold">File PDF chưa chuẩn bị</h2>
-            <p className="mt-1 mb-4 text-base text-slate-600 dark:text-slate-300">
-              Những file này đã nằm trong thư mục sách nhưng chưa được chia chương.
-            </p>
-            <ul className="divide-y divide-slate-200 dark:divide-white/10 rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#10161D]">
-              {pdfs.map((p) => (
-                <li key={p.name} className="flex flex-wrap items-center gap-3 px-5 py-4">
-                  <FileText className="w-5 h-5 text-slate-400 shrink-0" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-base font-medium truncate">{p.name.replace(/\.pdf$/i, "")}</p>
-                    <p className="text-sm text-slate-500">{formatSize(p.size)}</p>
-                  </div>
-                  <button
-                    onClick={() => processBook({ pdfFile: p.name }, p.name)}
-                    disabled={busyBook === p.name}
-                    className="inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold disabled:opacity-50 cursor-pointer"
-                  >
-                    {busyBook === p.name ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                    {busyBook === p.name ? "Đang chia chương…" : "Chuẩn bị sách này"}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-        </>
-        )}
-
-        <footer className="pt-6 border-t border-slate-200 dark:border-white/10 text-xs text-slate-400 text-center">
-          <span>Breaking Books © 2026 · Nền tảng học và đọc sách kỹ thuật tương tác</span>
-        </footer>
-      </main>
-    </div>
-  );
-}
-
-function BookCardCover({ book, readHref }) {
-  const [imgError, setImgError] = useState(false);
-  const coverUrl = book.coverUrl || `/covers/${book.id}.jpg`;
-  const showImage = !imgError;
-
-  return (
-    <Link
-      href={readHref}
-      className="relative w-full pt-8 pb-7 px-6 bg-gradient-to-b from-slate-50/70 via-white to-white dark:from-white/[0.03] dark:via-transparent dark:to-transparent flex flex-col items-center justify-center border-b border-slate-100/90 dark:border-white/10 group cursor-pointer select-none overflow-hidden"
-    >
-      {/* Subtle ambient spotlight glow */}
-      <div className="absolute w-48 h-48 rounded-full bg-orange-500/5 dark:bg-orange-400/5 blur-2xl pointer-events-none group-hover:scale-130 group-hover:bg-orange-500/10 transition-all duration-500" />
-
-      {showImage ? (
-        /* 3D Realistic Floating Book Cover — Enlarged for maximum visual elegance */
-        <div className="relative z-10 w-[142px] h-[196px] sm:w-[155px] sm:h-[215px] rounded-lg overflow-hidden shadow-[0_16px_36px_-6px_rgba(15,23,42,0.18),0_4px_12px_-2px_rgba(15,23,42,0.08)] ring-1 ring-black/5 dark:ring-white/15 transition-all duration-300 ease-out group-hover:scale-[1.04] group-hover:-translate-y-2 group-hover:rotate-[0.8deg] group-hover:shadow-[0_24px_48px_-8px_rgba(234,88,12,0.22),0_8px_16px_-4px_rgba(15,23,42,0.12)]">
-          {/* Left Spine 3D Highlight & Shadow */}
-          <div className="absolute inset-y-0 left-0 w-2 bg-gradient-to-r from-white/40 via-white/10 to-transparent z-10 pointer-events-none" />
-          <div className="absolute inset-y-0 left-0 w-1 bg-black/20 z-10 pointer-events-none" />
-          {/* Right Pages Thickness Edge */}
-          <div className="absolute inset-y-0 right-0 w-1 bg-gradient-to-l from-white/30 to-transparent z-10 pointer-events-none" />
-
-          <img
-            src={coverUrl}
-            alt={book.title}
-            loading="lazy"
-            decoding="async"
-            onError={() => setImgError(true)}
-            className="w-full h-full object-cover object-top"
-          />
-        </div>
-      ) : (
-        <div className={`w-[142px] h-[196px] sm:w-[155px] sm:h-[215px] rounded-lg shadow-lg bg-gradient-to-br ${coverFor(book.id)} p-5 flex flex-col justify-end text-white transition-all duration-300 group-hover:scale-105 group-hover:-translate-y-1.5`}>
-          <BookOpen className="w-8 h-8 opacity-75 mb-auto" />
-          <span className="text-sm font-bold line-clamp-3 leading-snug">{book.title}</span>
-        </div>
-      )}
-    </Link>
-  );
-}
-
-function BookCard({ book, local, busy, onProcess }) {
-  const total = book.stats.totalChapters;
-  const done = book.stats.completeChapters;
-  const p = book.processing || {};
-  const ready = done === total && total > 0;
-  const firstReady = book.chapters.find((c) => c.status === "complete")?.n;
-  const lastCh = book.chapters.some((c) => c.n === local.lastCh && c.status === "complete") ? local.lastCh : null;
-  const readHref = `/books/${book.id}/ch/${lastCh || firstReady || 1}`;
-  const readPct = book.stats.totalTopics ? Math.min(100, Math.round(((local.read || 0) / book.stats.totalTopics) * 100)) : 0;
-
-  return (
-    <article className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#10161D] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_48px_-6px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col group">
-      <BookCardCover book={book} readHref={readHref} />
-
-      <div className="p-6 flex-1 flex flex-col gap-4">
-        {/* Book Title & Subtitle */}
-        <div>
-          <Link href={readHref} className="block group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-snug line-clamp-2">
-              {book.title}
-            </h3>
-          </Link>
-          {book.subtitle && (
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 line-clamp-1 leading-normal">
-              {book.subtitle}
-            </p>
-          )}
-          {book.author && !book.subtitle?.includes(book.author) && (
-            <p className="mt-1 text-[11px] font-semibold text-orange-600 dark:text-orange-400 uppercase tracking-wider">
-              {book.author}
-            </p>
-          )}
-        </div>
-
-        {/* Status & Progress */}
-        <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-white/5">
-          <div className="flex items-center justify-between text-xs">
-            {ready ? (
-              <span className="inline-flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-400">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>Sẵn sàng · {total} chương</span>
-              </span>
-            ) : p.active ? (
-              <span className="inline-flex items-center gap-1.5 font-medium text-orange-600 dark:text-orange-400">
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Đang bóc tách · {done}/{total}</span>
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 font-medium text-amber-700 dark:text-amber-400">
-                <AlertCircle className="w-3.5 h-3.5" />
-                <span>{done}/{total} chương sẵn sàng</span>
-              </span>
-            )}
-
-            {ready && local.read > 0 && (
-              <span className="font-mono text-slate-500 dark:text-slate-400">
-                Đã đọc {readPct}%
-              </span>
-            )}
           </div>
 
-          {/* Progress Bar */}
-          <div className="h-2 rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden" aria-hidden="true">
-            <div
-              className={`h-full transition-all duration-500 rounded-full ${
-                ready ? "bg-gradient-to-r from-emerald-500 to-amber-500" : "bg-gradient-to-r from-orange-500 to-amber-500"
-              }`}
-              style={{
-                width: ready && local.read > 0 ? `${readPct}%` : `${total ? (done / total) * 100 : 0}%`,
-              }}
-            />
-          </div>
-        </div>
-
-        {p.active && (
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            Chương hoàn thành sẽ đọc được ngay. Hệ thống tự cập nhật.
-          </p>
-        )}
-        {!p.active && p.failed?.length > 0 && (
-          <p className="text-xs text-rose-700 dark:text-rose-400">
-            {p.failed.length} chương chưa xử lý xong. Bấm nút thử lại.
-          </p>
-        )}
-
-        {/* Action Button */}
-        <div className="mt-auto pt-2 flex items-center gap-2">
-          <Link
-            href={readHref}
-            className="flex-1 inline-flex items-center justify-between h-11 px-5 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-sm shadow-[0_2px_8px_-1px_rgba(234,88,12,0.25)] hover:shadow-[0_6px_18px_-2px_rgba(234,88,12,0.35)] transition-all group/btn cursor-pointer"
-          >
-            {lastCh ? (
-              <>
-                <span>Đọc tiếp · Chương {lastCh}</span>
-                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-              </>
-            ) : p.active ? (
-              <>
-                <span className="truncate">Vào xem Chương 1</span>
-                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-              </>
-            ) : firstReady ? (
-              <>
-                <span>Bắt đầu đọc</span>
-                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-              </>
-            ) : (
-              <>
-                <span>Mở xem Chương 1</span>
-                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-              </>
-            )}
-          </Link>
-
-          {!ready && !p.active && (
-            <button
-              onClick={onProcess}
-              disabled={busy}
-              className="inline-flex items-center justify-center w-11 h-11 rounded-2xl border border-slate-200 dark:border-white/15 text-slate-700 dark:text-slate-300 hover:border-orange-500 hover:text-orange-600 disabled:opacity-50 transition-all cursor-pointer"
-              title="Tiếp tục bóc tách các chương còn lại"
+          <div className="border-t border-slate-800 pt-4 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
+            <span>💡 Đây là 1 trong hơn 100 phòng thí nghiệm tương tác được tích hợp sẵn trong sách.</span>
+            <Link
+              href="/library"
+              className="font-bold text-orange-400 hover:text-orange-300 inline-flex items-center gap-1"
             >
-              {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCw className="w-4 h-4" />}
-            </button>
-          )}
+              <span>Xem đầy đủ các chương sách</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
         </div>
-      </div>
-    </article>
+      </section>
+
+      {/* Core Features Grid */}
+      <section id="features" className="max-w-5xl mx-auto px-4 sm:px-8 py-16 space-y-12">
+        <div className="text-center space-y-3">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+            Được thiết kế chuyên biệt cho Kỹ sư & Lập trình viên
+          </h2>
+          <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto">
+            Kết hợp kiến thức sâu sắc của những cuốn sách kinh điển với công nghệ tương tác hiện đại.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Feature 1 */}
+          <div className="p-7 rounded-3xl bg-slate-50 dark:bg-[#10161D] border border-slate-200/80 dark:border-white/10 space-y-3">
+            <div className="w-11 h-11 rounded-2xl bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold">
+              <Zap className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+              Bóc tách tự động bằng AI Gemini 3.5 Flash
+            </h3>
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Bạn tải lên file PDF sách kỹ thuật bất kỳ. AI tự động chia chương, cấu trúc thành các Topic cô đọng 5-10 phút, giữ nguyên thuật ngữ tiếng Anh gốc và giải nghĩa tiếng Việt chuẩn xác.
+            </p>
+          </div>
+
+          {/* Feature 2 */}
+          <div className="p-7 rounded-3xl bg-slate-50 dark:bg-[#10161D] border border-slate-200/80 dark:border-white/10 space-y-3">
+            <div className="w-11 h-11 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
+              <Sliders className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+              Visual Lab: Thử nghiệm kiến trúc thời gian thực
+            </h3>
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Không còn sơ đồ chết trên trang giấy. Mỗi chủ đề đều có Interactive Widget: bạn có thể thay đổi số lượng replicas, mô phỏng network split-brain, kiểm tra ACID và đo lường độ trễ P99.
+            </p>
+          </div>
+
+          {/* Feature 3 */}
+          <div className="p-7 rounded-3xl bg-slate-50 dark:bg-[#10161D] border border-slate-200/80 dark:border-white/10 space-y-3">
+            <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
+              <GraduationCap className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+              Active Recall & Xuất Anki Flashcards 1-Click
+            </h3>
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Mỗi chương kết thúc bằng bộ câu hỏi tư duy trắc nghiệm và hệ thống từ điển thuật ngữ. Bạn có thể xuất ngay file Anki TSV để ôn tập lặp lại ngắt quãng (Spaced Repetition).
+            </p>
+          </div>
+
+          {/* Feature 4 */}
+          <div className="p-7 rounded-3xl bg-slate-50 dark:bg-[#10161D] border border-slate-200/80 dark:border-white/10 space-y-3">
+            <div className="w-11 h-11 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
+              <FolderLock className="w-5 h-5" />
+            </div>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">
+              Không gian cá nhân riêng biệt & Bảo mật
+            </h3>
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+              Mỗi người dùng có tài khoản và không gian thư viện riêng. Sách do bạn tải lên được lưu trữ độc lập và phân quyền nghiêm ngặt, chỉ bạn mới có thể truy cập và quản lý.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Books Preview Section */}
+      <section id="books" className="max-w-5xl mx-auto px-4 sm:px-8 py-16 space-y-8">
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+            Bộ Sách Mẫu Sẵn Sàng Trải Nghiệm Ngay
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Đã được biên soạn đầy đủ sơ đồ Visual Lab và câu hỏi kiểm tra tư duy
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Book 1 */}
+          <div className="rounded-3xl bg-slate-50 dark:bg-[#10161D] border border-slate-200/80 dark:border-white/10 p-5 flex flex-col justify-between hover:shadow-xl transition-all">
+            <div className="space-y-3">
+              <div className="h-44 rounded-2xl overflow-hidden bg-slate-900 shadow-md">
+                <img
+                  src="/covers/ddia-2e.jpg"
+                  alt="Designing Data-Intensive Applications"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <h3 className="text-sm font-bold line-clamp-2">
+                Designing Data-Intensive Applications (2nd Edition)
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Martin Kleppmann</p>
+            </div>
+            <Link
+              href="/books/ddia-2e"
+              className="mt-4 py-2 px-3.5 rounded-xl text-xs font-bold bg-orange-600/10 hover:bg-orange-600 text-orange-600 hover:text-white transition-all flex items-center justify-between"
+            >
+              <span>Khám phá 12 chương</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* Book 2 */}
+          <div className="rounded-3xl bg-slate-50 dark:bg-[#10161D] border border-slate-200/80 dark:border-white/10 p-5 flex flex-col justify-between hover:shadow-xl transition-all">
+            <div className="space-y-3">
+              <div className="h-44 rounded-2xl overflow-hidden bg-slate-900 shadow-md">
+                <img
+                  src="/covers/building-microservices-2nd-edition-sam-newman.jpg"
+                  alt="Building Microservices 2nd Edition"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <h3 className="text-sm font-bold line-clamp-2">
+                Building Microservices (2nd Edition)
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Sam Newman</p>
+            </div>
+            <Link
+              href="/books/building-microservices-2nd-edition-sam-newman"
+              className="mt-4 py-2 px-3.5 rounded-xl text-xs font-bold bg-orange-600/10 hover:bg-orange-600 text-orange-600 hover:text-white transition-all flex items-center justify-between"
+            >
+              <span>Khám phá 7 chương</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+
+          {/* Book 3 */}
+          <div className="rounded-3xl bg-slate-50 dark:bg-[#10161D] border border-slate-200/80 dark:border-white/10 p-5 flex flex-col justify-between hover:shadow-xl transition-all">
+            <div className="space-y-3">
+              <div className="h-44 rounded-2xl overflow-hidden bg-slate-900 shadow-md">
+                <img
+                  src="/covers/head-first-javascript-programming-a-brain-friendly-guide.jpg"
+                  alt="Head First JavaScript Programming"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <h3 className="text-sm font-bold line-clamp-2">
+                Head First JavaScript Programming
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">Eric Freeman & Elisabeth Robson</p>
+            </div>
+            <Link
+              href="/books/head-first-javascript-programming-a-brain-friendly-guide"
+              className="mt-4 py-2 px-3.5 rounded-xl text-xs font-bold bg-orange-600/10 hover:bg-orange-600 text-orange-600 hover:text-white transition-all flex items-center justify-between"
+            >
+              <span>Khám phá 13 chương</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Bottom CTA Banner */}
+      <section id="pricing" className="max-w-5xl mx-auto px-4 sm:px-8 py-16">
+        <div className="rounded-3xl bg-gradient-to-br from-orange-600 via-amber-600 to-orange-700 p-8 sm:p-12 text-center text-white space-y-6 shadow-2xl relative overflow-hidden">
+          <div className="w-80 h-80 rounded-full bg-white/10 blur-3xl absolute -top-20 -right-20 pointer-events-none" />
+
+          <h2 className="text-3xl sm:text-4xl font-black tracking-tight max-w-xl mx-auto leading-tight">
+            Sẵn sàng làm chủ kiến trúc hệ thống và công nghệ chuyên sâu?
+          </h2>
+
+          <p className="text-sm sm:text-base text-orange-100 max-w-lg mx-auto">
+            Tạo tài khoản hoàn toàn miễn phí và bắt đầu bóc tách cuốn sách kỹ thuật đầu tiên của bạn ngay hôm nay.
+          </p>
+
+          <div className="pt-2">
+            <Link
+              href={currentUser ? "/library" : "/register?redirect=/library"}
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl text-sm font-black bg-white text-orange-700 hover:bg-orange-50 shadow-xl transition-all transform hover:scale-105"
+            >
+              <span>{currentUser ? "Vào Thư viện của tôi ngay" : "Tạo tài khoản miễn phí"}</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-slate-200 dark:border-white/10 py-8 px-4 text-center text-xs text-slate-500 space-y-2">
+        <p>Breaking Books © 2026 · Nền tảng Đọc sách & Trực quan hoá Kỹ thuật Tương tác</p>
+        <p className="text-[11px] text-slate-400">
+          Phát triển bởi đội ngũ kỹ sư với mục tiêu đem lại trải nghiệm học tập công nghệ đỉnh cao.
+        </p>
+      </footer>
+    </div>
   );
 }
