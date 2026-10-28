@@ -450,21 +450,23 @@ function BookCardCover({ book, readHref }) {
   return (
     <Link
       href={readHref}
-      className="relative overflow-hidden min-h-[190px] flex flex-col justify-end p-6 group cursor-pointer select-none"
+      className="relative overflow-hidden min-h-[230px] sm:min-h-[245px] flex flex-col justify-end p-6 group cursor-pointer select-none"
     >
       {showImage ? (
         <>
           {/* 1. Atmospheric ambient background image with blur & scale */}
           <div
-            className="absolute inset-0 bg-cover bg-center filter blur-md scale-110 opacity-35 transition-transform duration-500 group-hover:scale-125"
+            className="absolute inset-0 bg-cover bg-center filter blur-md scale-110 opacity-30 transition-transform duration-700 group-hover:scale-120"
             style={{ backgroundImage: `url("${coverUrl}")` }}
             aria-hidden="true"
           />
           {/* 2. Deep vignette gradient scrim for contrast */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-slate-950/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-slate-950/25" />
 
-          {/* 3. Floating 3D Book Cover thumbnail on top-right */}
-          <div className="absolute top-4 right-4 w-[76px] h-[106px] rounded-lg overflow-hidden shadow-2xl shadow-black/90 ring-1 ring-white/20 transition-all duration-300 group-hover:-translate-y-1 group-hover:rotate-1 group-hover:shadow-teal-500/20">
+          {/* 3. Prominent 3D Floating Book Cover on top-right */}
+          <div className="absolute top-4 right-4 w-[106px] h-[150px] sm:w-[116px] sm:h-[164px] rounded-md overflow-hidden shadow-[0_16px_30px_-6px_rgba(0,0,0,0.85)] ring-1 ring-white/25 transition-all duration-300 group-hover:-translate-y-2 group-hover:rotate-1 group-hover:shadow-[0_24px_38px_-8px_rgba(0,0,0,0.95)]">
+            {/* Book spine highlight */}
+            <div className="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-r from-white/35 to-transparent z-10 pointer-events-none" />
             <img
               src={coverUrl}
               alt={book.title}
@@ -480,7 +482,7 @@ function BookCardCover({ book, readHref }) {
       )}
 
       {/* Book Metadata on Card */}
-      <div className={`relative z-10 ${showImage ? "pr-22" : ""} text-white`}>
+      <div className={`relative z-10 ${showImage ? "pr-30 sm:pr-34" : ""} text-white`}>
         <span className="text-xl font-bold leading-snug line-clamp-2 group-hover:underline drop-shadow-md">
           {book.title}
         </span>
