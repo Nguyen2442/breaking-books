@@ -1,29 +1,31 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import {
+  ADMIN_COOKIE,
+  ADMIN_SESSION_MAX_AGE,
+  createSessionToken,
+  isAdminAuthenticated,
+  verifyCredentials,
+} from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
 
-const ADMIN_USER = process.env.ADMIN_USER || 'admin';
-const ADMIN_PASS = process.env.ADMIN_PASS || 'admin123';
-
 export async function GET() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get('bb_admin_session');
-  const authenticated = session?.value === 'authenticated_admin_ok';
+  const authenticated = await isAdminAuthenticated();
   return NextResponse.json({ authenticated });
 }
 
 export async function POST(req) {
   try {
     const { username, password } = await req.json();
-    if (username === ADMIN_USER && password === ADMIN_PASS) {
+    if (verifyCredentials(username, password)) {
       const cookieStore = await cookies();
-      cookieStore.set('bb_admin_session', 'authenticated_admin_ok', {
+      cookieStore.set(ADMIN_COOKIE, createSessionToken(), {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
-        maxAge: 60 * 60 * 24 * 7, // 7 days
+        maxAge: ADMIN_SESSION_MAX_AGE,
       });
       return NextResponse.json({ ok: true, message: 'Đăng nhập thành công' });
     }
@@ -38,6 +40,6 @@ export async function POST(req) {
 
 export async function DELETE() {
   const cookieStore = await cookies();
-  cookieStore.delete('bb_admin_session');
+  cookieStore.delete(ADMIN_COOKIE);
   return NextResponse.json({ ok: true });
 }

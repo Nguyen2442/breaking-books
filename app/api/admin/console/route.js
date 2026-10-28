@@ -1,15 +1,9 @@
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { getGeminiApiKeys, callGemini } from '@/lib/gemini';
 import { getSweeperState, setSweeperEnabled, getSystemErrorLogs, clearSystemErrorLogs } from '@/lib/books';
+import { isAdminAuthenticated as checkAdminAuth } from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
-
-async function checkAdminAuth() {
-  const cookieStore = await cookies();
-  const session = cookieStore.get('bb_admin_session');
-  return session?.value === 'authenticated_admin_ok';
-}
 
 export async function GET() {
   const isAuth = await checkAdminAuth();
