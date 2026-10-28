@@ -1,5 +1,6 @@
 import Script from "next/script";
 import "./globals.css";
+import { ProcessingProgressWidget } from "@/components/ProcessingProgressWidget";
 
 export const metadata = {
   title: "Breaking Books — Interactive Technical Book Studio & Reader",
@@ -43,6 +44,7 @@ export default function RootLayout({ children }) {
           }}
         />
         {children}
+        <ProcessingProgressWidget />
       </body>
     </html>
   );

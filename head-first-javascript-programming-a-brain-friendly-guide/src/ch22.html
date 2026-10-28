@@ -19,7 +19,7 @@
       <p>Khi trình duyệt nạp một trang web, nó không chỉ hiển thị văn bản thuần túy mà thực thi một thuật toán phân tích cú pháp (parsing). Khởi đầu bằng một <dfn data-term="document-node">document node</dfn> tối cao ở đỉnh. Tiếp theo, trình duyệt bóc tách thẻ <code>&lt;html&gt;</code>, gắn nó làm con của document, rồi đệ quy lặp lại cho mọi thẻ con, nhánh và lá bên trong. Kết quả là một tập hợp các đối tượng (element objects) nằm trong bộ nhớ.</p>
     </div>
       <aside class="callout callout-real">
-      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <div class="callout-title">Tình huống thực tế</div>
       <p>Khi hệ thống ZaloPay render giao diện mã QR thanh toán động, trình duyệt phải dựng DOM cho hàng triệu node cùng lúc trong các dịp cao điểm như Tết, đòi hỏi tối ưu hóa cấu trúc cây để tránh nghẽn luồng render.</p>
     </aside>
     </div>
@@ -43,7 +43,7 @@
       <p>HTML và JavaScript vận hành theo hai trường phái khác nhau: HTML mang tính khai báo (declarative), còn JavaScript mang tính mệnh lệnh (imperative). Cầu nối duy nhất giữa chúng tại tầng DOM là phương thức <dfn data-term="get-element-by-id">getElementById()</dfn>. Khi gọi phương thức này trên đối tượng <code>document</code>, trình duyệt trả về một tham chiếu đến element object thực tế. Sau đó, thông qua thuộc tính <dfn data-term="inner-html">innerHTML</dfn>, kỹ sư có thể đọc hoặc ghi đè toàn bộ nội dung HTML bên trong phần tử đó ngay lập tức.</p>
     </div>
       <aside class="callout callout-real">
-      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <div class="callout-title">Tình huống thực tế</div>
       <p>Trang thương mại điện tử Tiki cập nhật trạng thái đơn hàng theo thời gian thực (Đang đóng gói, Đang giao) bằng cách lấy ID của progress bar và cập nhật nội dung text thông qua innerHTML.</p>
     </aside>
     </div>
@@ -67,7 +67,7 @@
       <p>Một lỗi sơ đẳng của lập trình viên sơ cấp là đặt thẻ <code>&lt;script&gt;</code> ở phần <code>&lt;head&gt;</code> và gọi ngay <code>document.getElementById()</code>. Vào thời điểm đó, trình duyệt chưa đọc đến phần <code>&lt;body&gt;</code>, đồng nghĩa với việc các phần tử HTML chưa được chuyển đổi thành node trong DOM. Kết quả là hàm trả về <dfn data-term="null-reference">null</dfn>, gây gãy khúc logic ứng dụng mà không báo lỗi dừng chương trình rõ ràng.</p>
     </div>
       <aside class="callout callout-real">
-      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <div class="callout-title">Tình huống thực tế</div>
       <p>Các hệ thống đặt vé xem phim như CGV hay Galaxy nếu viết script sai thời điểm tải trang sẽ khiến nút 'Đặt vé' không bắt được sự kiện click khi người dùng truy cập dồn dập.</p>
     </aside>
     </div>

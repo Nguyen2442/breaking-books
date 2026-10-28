@@ -19,7 +19,7 @@
       <p>Khi xây dựng các hệ thống phức tạp như giỏ hàng tại Tiki hay hệ thống đặt xe của Grab, việc quản lý rời rạc các biến là thảm họa kiến trúc. Giải pháp là gom nhóm dữ liệu và hàm xử lý vào <dfn data-term="object">Object</dfn>. Khi một hàm nằm bên trong object, nó được gọi là method. Để method truy cập được dữ liệu của chính object đó mà không bị phụ thuộc vào biến bên ngoài, ta bắt buộc phải dùng từ khóa <dfn data-term="this">this</dfn>.</p>
     </div>
       <aside class="callout callout-real">
-      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <div class="callout-title">Tình huống thực tế</div>
       <p>Hệ thống quản lý tài xế XanhSM định nghĩa mỗi xe là một Object chứa thông số định vị và phương thức updateLocation(). Bên trong phương thức, this.lat và this.lng cập nhật tọa độ GPS theo thời gian thực.</p>
     </aside>
     </div>
@@ -43,7 +43,7 @@
       <p>Mã JavaScript chạy độc lập với markup HTML cho đến khi xuất hiện <dfn data-term="dom">DOM (Document Object Model)</dfn>. Khi trang web được tải, trình duyệt phân tích cú pháp HTML và dựng lên một cấu trúc cây các object. Object toàn cục <dfn data-term="document">document</dfn> là điểm neo để truy xuất mọi thành phần giao diện thông qua các phương thức như getElementById.</p>
     </div>
       <aside class="callout callout-real">
-      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <div class="callout-title">Tình huống thực tế</div>
       <p>Khi Flash Sale trên Shopee đếm ngược từng giây, script JS liên tục gọi DOM để cập nhật text của thẻ HTML hiển thị thời gian còn lại mà không cần tải lại trang.</p>
     </aside>
     </div>

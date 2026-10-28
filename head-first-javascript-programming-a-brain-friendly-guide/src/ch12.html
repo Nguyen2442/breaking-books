@@ -19,7 +19,7 @@
       <p>Vấn đề lớn nhất trong các ứng dụng web cồng kềnh là quản lý trạng thái qua các <dfn data-term="Scope">scope</dfn>. Biến global tồn tại từ khi file script được nạp cho đến khi reload trang, dễ dẫn đến hiện tượng ô nhiễm bộ nhớ và xung đột tên. Trong khi đó, biến local có vòng đời ngắn ngủi, được tạo khi hàm chạy và bị hủy ngay khi hàm trả về kết quả.</p><p>Giải pháp kỹ thuật là tuân thủ nghiêm ngặt quy tắc cô lập dữ liệu. Chỉ sử dụng global khi thực sự cần thiết (như cấu hình ứng dụng), và ép mọi dữ liệu nghiệp vụ vào scope của hàm thông qua <dfn data-term="Parameters">parameters</dfn> và <dfn data-term="Local Variables">local variables</dfn>.</p>
     </div>
       <aside class="callout callout-real">
-      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <div class="callout-title">Tình huống thực tế</div>
       <p>Tại các hệ thống thương mại điện tử như Shopee hay Tiki, việc để lọt biến global trong các script tracking hoặc widget quảng cáo bên thứ ba có thể làm crash toàn bộ luồng xử lý giỏ hàng của người dùng.</p>
     </aside>
     </div>

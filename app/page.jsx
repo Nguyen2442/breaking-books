@@ -497,11 +497,8 @@ export default function LibraryPage() {
           </section>
         )}
 
-        <footer className="pt-6 border-t border-slate-200 dark:border-white/10 text-sm text-slate-500">
-          <Link href="/studio" className="inline-flex items-center gap-1.5 hover:text-orange-700 dark:hover:text-orange-400">
-            <Settings2 className="w-4 h-4" />
-            Công cụ nâng cao (dành cho người soạn sách)
-          </Link>
+        <footer className="pt-6 border-t border-slate-200 dark:border-white/10 text-xs text-slate-400 text-center">
+          <span>Breaking Books © 2026 · Nền tảng học và đọc sách kỹ thuật tương tác</span>
         </footer>
       </main>
     </div>

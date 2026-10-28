@@ -19,7 +19,7 @@
       <p>Khi trình duyệt đọc tài liệu HTML từ trên xuống dưới, nó xây dựng <dfn data-term="DOM">Document Object Model</dfn> theo từng bước. Nếu thẻ <script> nằm ở phần <head> và cố gắng truy xuất một phần tử ở <body> thông qua <dfn data-term="getElementById">document.getElementById</dfn>, kết quả trả về sẽ là <dfn data-term="null">null</dfn> vì phần tử đó chưa được tạo ra trong bộ nhớ.</p>
     </div>
       <aside class="callout callout-real">
-      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <div class="callout-title">Tình huống thực tế</div>
       <p>Tại các cổng thanh toán như MoMo hay ZaloPay, việc tải các script SDK bên thứ ba vào phần head mà không quản lý thứ tự thực thi sẽ gây nghẽn luồng render và lỗi tương tác người dùng nghiêm trọng trên các thiết bị cấu hình thấp.</p>
     </aside>
     </div>
@@ -43,7 +43,7 @@
       <p>Kỹ thuật sử dụng <dfn data-term="callback">callback function</dfn> thông qua thuộc tính <dfn data-term="window.onload">window.onload</dfn> cho phép lập trình viên thông báo cho trình duyệt: 'Hãy gọi hàm này ngay khi toàn bộ trang web và tài nguyên đã được tải xong'. Đây là nền tảng của lập trình hướng sự kiện trong JavaScript.</p>
     </div>
       <aside class="callout callout-real">
-      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <div class="callout-title">Tình huống thực tế</div>
       <p>Hệ thống đặt xe Grab/XanhSM áp dụng triệt để mô hình hướng sự kiện bất đồng bộ này để khởi tạo bản đồ và định vị GPS ngay khi DOM bản đồ nền load thành công.</p>
     </aside>
     </div>
@@ -67,7 +67,7 @@
       <p>Sau khi có tham chiếu đến phần tử thông qua <dfn data-term="DOM Element">Element Object</dfn>, bạn có thể sử dụng <dfn data-term="setAttribute">setAttribute("class", "redtext")</dfn> để tiêm các lớp CSS động, hoặc dùng <dfn data-term="getAttribute">getAttribute</dfn> để kiểm tra giá trị hiện tại, luôn nhớ kiểm tra giá trị trả về có bằng null hay không.</p>
     </div>
       <aside class="callout callout-real">
-      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <div class="callout-title">Tình huống thực tế</div>
       <p>Trang thương mại điện tử Tiki sử dụng các hàm setAttribute động để chuyển đổi trạng thái nút 'Thêm vào giỏ hàng' sang 'Đã hết hàng' ngay khi nhận được tín hiệu WebSocket từ máy chủ.</p>
     </aside>
     </div>

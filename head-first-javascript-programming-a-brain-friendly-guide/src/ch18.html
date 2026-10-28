@@ -19,7 +19,7 @@
       <p>Trong JavaScript, bạn có thể khởi tạo đối tượng rỗng <code>var obj = {}</code> và thêm thuộc tính bất cứ lúc nào bằng toán tử chấm (<dfn data-term="dot-notation">dot notation</dfn>) hoặc ngoặc vuông. Để hủy bỏ một thuộc tính, sử dụng từ khóa <dfn data-term="delete-keyword">delete</dfn>. Hàm này trả về true nếu thao tác thành công.</p>
     </div>
       <aside class="callout callout-real">
-      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <div class="callout-title">Tình huống thực tế</div>
       <p>Hệ thống quản lý giỏ hàng của Tiki sử dụng các object JavaScript động để thêm/bớt sản phẩm vào giỏ hàng tùy theo thao tác real-time của người dùng mà không cần định nghĩa trước schema cứng nhắc.</p>
     </aside>
     </div>
@@ -43,7 +43,7 @@
       <p>Khác với kiểu dữ liệu nguyên thủy (primitive) như số hay chuỗi được lưu trữ trực tiếp giá trị trong biến, đối tượng có kích thước lớn và được quản lý thông qua <dfn data-term="object-reference">tham chiếu (reference)</dfn>. Khi gán biến này cho biến khác, bạn chỉ đang sao chép địa chỉ trỏ chứ không sao chép toàn bộ cấu trúc dữ liệu.</p>
     </div>
       <aside class="callout callout-real">
-      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <div class="callout-title">Tình huống thực tế</div>
       <p>Khi tối ưu hiệu năng hiển thị danh sách tài xế trên ứng dụng Grab, việc hiểu rõ cơ chế tham chiếu giúp tránh việc nhân bản dữ liệu thừa thãi trong bộ nhớ RAM của thiết bị di động cấu hình thấp.</p>
     </aside>
     </div>
@@ -67,7 +67,7 @@
       <p>Khi bạn truyền một đối tượng như <code>fido</code> vào hàm <code>loseWeight(dog)</code>, tham số <code>dog</code> nhận được bản sao của tham chiếu. Do cả hai cùng trỏ tới một vùng nhớ, mọi câu lệnh thay đổi như <code>dog.weight = ...</code> sẽ trực tiếp làm thay đổi dữ liệu của object gốc bên ngoài hàm.</p>
     </div>
       <aside class="callout callout-real">
-      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <div class="callout-title">Tình huống thực tế</div>
       <p>Hệ thống tính cước phí tự động của ZaloPay khi nhận vào object giao dịch, nếu lập trình viên bất cẩn thay đổi trực tiếp thông tin số dư bên trong hàm tính toán mà không clone object, sẽ gây lỗi lệch số dư nghiêm trọng.</p>
     </aside>
     </div>

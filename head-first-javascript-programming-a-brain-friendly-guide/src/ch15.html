@@ -19,7 +19,7 @@
       <p>Khi xử lý dữ liệu thực tế, kích thước tập dữ liệu thường không cố định. Việc khai báo mảng rỗng bằng cú pháp <dfn data-term="Array Literal">array literal</dfn> rỗng `var bestSolutions = [];` cung cấp một vùng chứa linh hoạt. Thay vì tự quản lý chỉ số (index) dễ dẫn đến lỗi, phương thức <dfn data-term="push()">push()</dfn> tự động đẩy phần tử mới vào vị trí trống tiếp theo ở cuối mảng.</p>
     </div>
       <aside class="callout callout-real">
-      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <div class="callout-title">Tình huống thực tế</div>
       <p>Hệ thống quản lý giỏ hàng của Tiki sử dụng mảng động để lưu danh sách các sản phẩm khách hàng thêm vào giỏ hàng liên tục trong phiên làm việc mà không cần định trước dung lượng bộ nhớ.</p>
     </aside>
     </div>
@@ -43,7 +43,7 @@
       <p>Để tìm giải pháp tốt nhất trong bài toán Bubbles-R-Us, chúng ta áp dụng thuật toán tuyến tính (<dfn data-term="Linear Scan">linear scan</dfn>). Vòng lặp đầu tiên cập nhật biến `highScore` khi phát hiện điểm số cao hơn. Vòng lặp thứ hai so sánh từng phần tử với `highScore` đã biết và dùng `push()` để lưu lại các chỉ số đạt đỉnh.</p>
     </div>
       <aside class="callout callout-real">
-      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <div class="callout-title">Tình huống thực tế</div>
       <p>Hệ thống đặt xe Grab/XanhSM áp dụng logic quét dữ liệu tương tự để tìm ra tài xế có điểm đánh giá cao nhất trong bán kính cho phép quanh vị trí khách hàng.</p>
     </aside>
     </div>
@@ -67,7 +67,7 @@
       <p>Trong JavaScript, mảng thực chất là một dạng đối tượng đặc biệt. Nếu bạn tạo một mảng và gán giá trị tại index 10000 mà bỏ qua các index trước đó, bạn tạo ra một <dfn data-term="Sparse Array">sparse array</dfn>. Các ô trống sẽ nhận giá trị mặc định là <dfn data-term="Undefined">undefined</dfn>, chiếm dụng bộ nhớ RAM một cách vô ích.</p>
     </div>
       <aside class="callout callout-real">
-      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <div class="callout-title">Tình huống thực tế</div>
       <p>Các hệ thống backend xử lý dữ liệu lớn bằng Node.js tại các sàn thương mại điện tử phải đặc biệt cẩn trọng với sparse array để tránh hiện tượng rò rỉ bộ nhớ (memory leak) gây sập tiến trình (OOM crash).</p>
     </aside>
     </div>
