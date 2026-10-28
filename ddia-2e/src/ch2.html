@@ -1,0 +1,456 @@
+<style>
+#ch2 .req-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+#ch2 .req-card { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--bg); display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+#ch2 .req-card p { margin: 0; font-size: var(--t-sm); line-height: 1.45; }
+#ch2 .req-card select { width: 100%; }
+#ch2 .req-card.right { border-color: var(--ok); background: var(--ok-soft); }
+#ch2 .req-card.wrong { border-color: var(--bad); background: var(--bad-soft); }
+#ch2 .req-card .why { font-size: var(--t-xs); color: var(--ink-2); }
+#ch2 .bars { display: flex; flex-direction: column; gap: 8px; }
+#ch2 .bar-row { display: grid; grid-template-columns: minmax(120px, 210px) minmax(0, 1fr); gap: 10px; align-items: center; font-size: var(--t-xs); }
+#ch2 .bar-row .track { position: relative; height: 22px; background: var(--surface-2); border-radius: 5px; overflow: hidden; }
+#ch2 .bar-row .fill { position: absolute; inset: 0 auto 0 0; border-radius: 5px; transition: width .25s; }
+#ch2 .bar-row .track span { position: absolute; left: 8px; top: 2px; font: 600 .74rem/18px var(--f-mono); color: var(--ink); white-space: nowrap; }
+#ch2 .step-card { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--bg); }
+#ch2 .step-card p { margin: 0 0 8px; }
+#ch2 .choice-list { display: flex; flex-direction: column; gap: 6px; }
+#ch2 .choice-list button { text-align: left; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; font: 400 var(--t-sm)/1.45 var(--f-display); }
+#ch2 .choice-list button:hover:not(:disabled) { border-color: var(--accent); }
+#ch2 .choice-list button.good { border-color: var(--ok); background: var(--ok-soft); }
+#ch2 .choice-list button.badc { border-color: var(--bad); background: var(--bad-soft); }
+#ch2 .feedback { margin-top: 8px; font-size: var(--t-sm); color: var(--ink-2); }
+#ch2 .tl-boxes { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 8px; }
+#ch2 .tl-box { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; background: var(--bg); font-size: var(--t-xs); min-height: 74px; min-width: 0; }
+#ch2 .tl-box b { display: block; font-size: var(--t-xs); margin-bottom: 4px; }
+#ch2 .tl-box .it { font-family: var(--f-mono); font-size: .7rem; padding: 1px 4px; border-radius: 3px; background: var(--accent-soft); margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#ch2 .tl-box .it.celeb { background: var(--mark-soft); }
+#ch2 .tl-box .it.merged { background: var(--violet-soft); }
+@media (max-width: 600px) { #ch2 .viz svg { min-width: 560px; } #ch2 .bar-row { grid-template-columns: 1fr; gap: 2px; } }
+</style>
+
+<section class="chapter" id="ch2" data-chapter="2" data-title="Yêu cầu phi chức năng">
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 2</p>
+    <h1>Defining Nonfunctional Requirements <span class="vi">Định nghĩa các yêu cầu phi chức năng</span></h1>
+    <blockquote class="epigraph">The Internet was done so well that most people think of it as a natural resource like the Pacific Ocean, rather than something that was man-made. When was the last time a technology with a scale like that was so error-free?<cite>— Alan Kay, phỏng vấn với Dr Dobb’s Journal (2012)</cite></blockquote>
+    <p class="lede">Ngoài việc phần mềm <em>làm gì</em>, ta còn cần nó nhanh, đáng tin cậy, chịu được tải tăng và dễ bảo trì. Chương này cho bạn bộ từ vựng chính xác để nói về bốn yêu cầu đó: hiệu năng (đo bằng percentile), độ tin cậy (fault và failure), khả năng mở rộng (mô tả tải) và khả năng bảo trì. Tất cả được neo vào một case study: dòng thời gian (home timeline) của một mạng xã hội kiểu X.</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- 2.1 -->
+  <article class="topic" id="ch2-intro" data-num="2.1" data-short="Chức năng vs phi chức năng" data-keywords="functional nonfunctional requirements yeu cau">
+    <p class="eyebrow">2.1 · Introduction</p>
+    <h2>Yêu cầu chức năng và phi chức năng <span class="vi">Functional vs Nonfunctional Requirements</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="functional-req">Yêu cầu chức năng</dfn> nói ứng dụng phải làm gì: màn hình nào, nút nào, mỗi thao tác cho ra kết quả gì.</li>
+      <li><dfn data-term="nonfunctional-req">Yêu cầu phi chức năng</dfn> nói ứng dụng phải làm điều đó <em>tốt đến mức nào</em>: nhanh, tin cậy, an toàn, đúng luật, dễ bảo trì.</li>
+      <li>Chúng hay không được viết ra vì “hiển nhiên”, nhưng quan trọng ngang chức năng: một app chậm không chịu nổi hoặc hay sập thì coi như không tồn tại.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Khi xây ứng dụng, danh sách yêu cầu thường bắt đầu bằng chức năng. Nhưng song song luôn có một danh sách ngầm: trang phải tải nhanh, dữ liệu không được mất, hệ thống không sập khi lượng người dùng tăng gấp mười, và đội ngũ sau này vẫn sửa được code. Sách không bàn mọi loại yêu cầu phi chức năng (bảo mật hay tuân thủ pháp luật chỉ được nhắc qua) mà tập trung vào bốn loại liên quan trực tiếp đến hệ thống dữ liệu:</p>
+      <ul>
+        <li><strong>Hiệu năng</strong> (<em class="en">performance</em>): định nghĩa và đo thế nào cho đúng.</li>
+        <li><strong>Độ tin cậy</strong> (<em class="en">reliability</em>): tiếp tục chạy đúng ngay cả khi có thứ hỏng.</li>
+        <li><strong>Khả năng mở rộng</strong> (<em class="en">scalability</em>): có cách hiệu quả để thêm tài nguyên khi tải tăng.</li>
+        <li><strong>Khả năng bảo trì</strong> (<em class="en">maintainability</em>): giữ cho hệ thống dễ vận hành, dễ hiểu, dễ thay đổi về lâu dài.</li>
+      </ul>
+      <p>Định nghĩa trừu tượng thì khô, nên tác giả mở đầu bằng một case study cụ thể. Trước khi đọc tiếp, thử tự phân loại vài yêu cầu của một app đặt đồ ăn dưới đây.</p>
+    </div>
+    <figure class="lab" data-widget="req-sort">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Phân loại yêu cầu của app đặt đồ ăn
+        <small>Chọn loại cho từng thẻ rồi bấm “Kiểm tra”. Mỗi thẻ sẽ hiện giải thích.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Yêu cầu phi chức năng thường được phát biểu mơ hồ (“phải nhanh”). Phần còn lại của chương dạy cách biến chúng thành con số đo được: “p99 dưới 1 giây”, “chịu được mất một availability zone”.</p></aside>
+  </article>
+
+  <!-- 2.2 -->
+  <article class="topic" id="ch2-timeline" data-num="2.2" data-short="Case study: home timeline" data-keywords="twitter x social network polling timeline query 5700 posts">
+    <p class="eyebrow">2.2 · Case Study: Social Network Home Timelines</p>
+    <h2>Case study: home timeline của mạng xã hội <span class="vi">Representing Users, Posts, and Follows</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Giả định: 500 triệu bài/ngày ≈ 5.700 bài/giây trung bình, đỉnh 150.000 bài/giây; mỗi người theo dõi 200 người và có 200 follower.</li>
+      <li>Cách ngây thơ: lưu ba bảng <code>users</code>, <code>posts</code>, <code>follows</code> và chạy câu JOIN mỗi lần ai đó mở <dfn data-term="home-timeline">home timeline</dfn>.</li>
+      <li>Nếu 10 triệu người online <dfn data-term="polling">polling</dfn> mỗi 5 giây: 2 triệu truy vấn/giây, tức 400 triệu lần tra bài của từng người gửi mỗi giây. Quá đắt.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Hình dung bạn phải xây một mạng xã hội kiểu X (Twitter cũ): người dùng đăng bài và theo dõi nhau. Đây là bản đơn giản hoá rất nhiều, nhưng đủ để thấy các vấn đề của hệ thống lớn. Dữ liệu nằm trong cơ sở dữ liệu quan hệ với ba bảng (Hình 2-1 trong sách):</p>
+      <ul>
+        <li><code>users(id, screen_name, profile_image)</code></li>
+        <li><code>posts(id, sender_id, text, timestamp)</code></li>
+        <li><code>follows(follower_id, followee_id)</code></li>
+      </ul>
+      <p>Thao tác đọc chính là home timeline: các bài gần nhất của những người bạn theo dõi. Câu SQL tự nhiên nhất:</p>
+    </div>
+    <pre class="code"><span class="k">SELECT</span> posts.*, users.* <span class="k">FROM</span> posts
+  <span class="k">JOIN</span> follows <span class="k">ON</span> posts.sender_id = follows.followee_id
+  <span class="k">JOIN</span> users   <span class="k">ON</span> posts.sender_id = users.id
+  <span class="k">WHERE</span> follows.follower_id = <mark>current_user</mark>
+  <span class="k">ORDER BY</span> posts.timestamp <span class="k">DESC</span>
+  <span class="k">LIMIT</span> <span class="n">1000</span></pre>
+    <div class="prose">
+      <p>Database phải tìm 200 người bạn theo dõi, lấy bài gần đây của từng người rồi trộn và sắp xếp theo thời gian. Bài đăng cần “tươi”: follower phải thấy bài mới trong vòng 5 giây. Nếu client cứ 5 giây chạy lại truy vấn (polling) và có 10 triệu người online, ta có 10.000.000 / 5 = <strong>2 triệu truy vấn mỗi giây</strong>. Mỗi truy vấn tra bài của 200 người gửi, nên database phải làm <strong>400 triệu lần tra cứu mỗi giây</strong>. Và đó mới là trường hợp trung bình: có người theo dõi hàng chục nghìn tài khoản.</p>
+      <p>Cách thay thế là làm việc trước, ở phía ghi: khi ai đó đăng bài, đẩy bài vào timeline của từng follower. Khi đó mỗi bài gây ra khoảng 200 lần ghi, tức 5.700 × 200 ≈ <strong>1,14 triệu lần ghi timeline mỗi giây</strong>. Vẫn nhiều, nhưng rẻ hơn 400 triệu lần đọc rất nhiều. Bộ tính dưới đây cho bạn đổi giả định và so sánh hai cách.</p>
+    </div>
+    <figure class="lab" data-widget="timeline-calc">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đọc lúc truy vấn (pull) hay ghi trước (push)?
+        <small>Giá trị mặc định là số liệu trong sách. Thanh dùng thang log: mỗi vạch là gấp 10 lần.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Nhìn câu SQL ngắn gọn, dễ nghĩ nó “rẻ”. Chi phí thật nằm ở tích của các con số: số người online × tần suất polling × số người được theo dõi. Luôn nhân các con số tải ra trước khi chọn thiết kế.</p></aside>
+  </article>
+
+  <!-- 2.3 -->
+  <article class="topic" id="ch2-fanout" data-num="2.3" data-short="Fan-out & người nổi tiếng" data-keywords="fan-out materialized view celebrity timeline cache push">
+    <p class="eyebrow">2.3 · Materializing and Updating Timelines</p>
+    <h2>Materialize timeline và bài toán người nổi tiếng <span class="vi">Materializing and Updating Timelines</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Tính sẵn timeline cho từng người (<dfn data-term="materialization">materialization</dfn>) và lưu như một cache: đọc trở nên rất rẻ.</li>
+      <li>Cái giá: mỗi bài đăng gây ra <dfn data-term="fan-out">fan-out</dfn>, tức một lần ghi vào timeline của từng follower.</li>
+      <li>Người nổi tiếng có hàng chục triệu follower làm fan-out bùng nổ. Giải pháp lai: lưu bài của họ riêng và trộn vào lúc đọc.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Hai cải tiến so với polling. Thứ nhất, server chủ động <em>đẩy</em> bài mới tới follower đang online thay vì để client hỏi liên tục. Thứ hai, <em>tính trước</em> kết quả của câu truy vấn timeline. Mỗi người có một cấu trúc dữ liệu chứa timeline của mình, giống một hộp thư. Khi bạn đăng bài, hệ thống tra danh sách follower của bạn và bỏ bài vào hộp thư của từng người. Lúc đăng nhập, người dùng chỉ cần đọc hộp thư đã có sẵn, và client chỉ cần đăng ký nhận luồng bài mới được thêm vào hộp thư đó.</p>
+      <p>Timeline cache này là một <dfn data-term="materialized-view">materialized view</dfn>: kết quả truy vấn được tính sẵn và cập nhật dần. Nó là dữ liệu dẫn xuất (<em class="en">derived data</em>), nên mọi lần ghi gốc đều kéo theo việc cập nhật nó. Khi tải tăng đột biến, ta không cần giao bài ngay: có thể xếp hàng các lần giao và chấp nhận bài hiện chậm hơn một chút. Timeline vẫn tải nhanh vì luôn được phục vụ từ cache.</p>
+      <p>Điểm yếu lộ ra với người nổi tiếng. Một bài của tài khoản có 100 triệu follower nghĩa là 100 triệu lần ghi. Cách xử lý được sách nêu: tách bài của người nổi tiếng ra lưu riêng, không fan-out, và khi ai đó đọc timeline thì trộn các bài đó vào timeline đã materialize. Thử cả hai chế độ:</p>
+    </div>
+    <figure class="lab" data-widget="fanout-sim">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Fan-out khi đăng bài
+        <small>Bấm vào một người (hình tròn) để đăng bài. “Sao” có rất nhiều follower; mỗi follower thật được đại diện bằng ô timeline. Bật chế độ lai để so khối lượng công việc.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Sách dẫn rằng có thời điểm khoảng 3% số server của Twitter được dành riêng cho Justin Bieber. Dù đã tối ưu, xử lý người nổi tiếng trên mạng xã hội vẫn tốn rất nhiều hạ tầng.</p></aside>
+  </article>
+
+  <!-- 2.4 -->
+  <article class="topic" id="ch2-throughput" data-num="2.4" data-short="Throughput & hàng đợi" data-keywords="response time throughput queueing metastable retry storm backoff circuit breaker load shedding backpressure">
+    <p class="eyebrow">2.4 · Describing Performance</p>
+    <h2>Response time, throughput và hàng đợi <span class="vi">Describing Performance</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Hai thước đo chính: <dfn data-term="response-time">response time</dfn> (người dùng chờ bao lâu, đơn vị giây) và <dfn data-term="throughput">throughput</dfn> (xử lý bao nhiêu việc mỗi giây).</li>
+      <li>Càng gần công suất tối đa, response time càng tăng vọt vì hàng đợi.</li>
+      <li>Hệ thống quá tải có thể rơi vào vòng xoáy tự duy trì (<dfn data-term="metastable-failure">metastable failure</dfn>) do client gửi lại request: <dfn data-term="retry-storm">retry storm</dfn>.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Trong case study, “số bài mỗi giây” và “số lần ghi timeline mỗi giây” là throughput. “Thời gian tải home timeline” hay “thời gian đến khi bài tới follower” là response time. Người dùng quan tâm response time nhất; throughput quyết định cần bao nhiêu máy, tức là chi phí. Một hệ thống <dfn data-term="scalability">scalable</dfn> khi ta có thể tăng đáng kể throughput tối đa bằng cách thêm tài nguyên.</p>
+      <p>Hai đại lượng này liên quan với nhau qua hàng đợi. Khi tải thấp, request đến là được xử lý ngay. Khi tải cao, CPU nhiều khả năng đang bận với request trước, nên request mới phải chờ. Khi throughput tiến sát giới hạn phần cứng, thời gian chờ tăng rất mạnh (Hình 2-3). Mô hình hàng đợi đơn giản nhất cho thấy điều này: với thời gian phục vụ <em>S</em> và mức sử dụng ρ, response time trung bình ≈ <em>S</em> / (1 − ρ).</p>
+    </div>
+    <figure class="lab" data-widget="queue-curve">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Response time khi tải tiến gần công suất
+        <small>Mô hình hàng đợi M/M/1 với thời gian phục vụ 10 ms. Kéo mức sử dụng và để ý độ dốc sau 80%.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Khi hệ thống quá tải không tự hồi phục</h3>
+      <p>Hàng đợi dài làm response time tăng tới mức client hết thời gian chờ (<em class="en">timeout</em>) và gửi lại request. Tải thực tế tăng thêm, hàng đợi càng dài, càng nhiều timeout: một retry storm. Điều đáng sợ là kể cả khi tải gốc đã giảm lại, hệ thống vẫn kẹt trong trạng thái quá tải cho đến khi bị khởi động lại. Hiện tượng này gọi là metastable failure.</p>
+      <p>Cách phòng ngừa từ phía client: giãn và ngẫu nhiên hoá khoảng chờ giữa các lần thử lại (<dfn data-term="exponential-backoff">exponential backoff</dfn> kèm jitter), tạm ngừng gọi service vừa lỗi (<dfn data-term="circuit-breaker">circuit breaker</dfn>, token bucket). Từ phía server: chủ động từ chối bớt request khi sắp quá tải (<dfn data-term="load-shedding">load shedding</dfn>) và báo client chậm lại (<dfn data-term="backpressure">backpressure</dfn>).</p>
+    </div>
+    <figure class="lab" data-widget="retry-storm">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Mô phỏng retry storm
+        <small>Bấm “Chạy mô phỏng”: tải tăng đột biến trong một khoảng ngắn rồi trở lại bình thường. Không có biện pháp nào, hệ thống không hồi phục. Bật từng biện pháp và chạy lại. Số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Đừng vận hành hệ thống sát 100% công suất. Phần dư công suất là thứ hấp thụ đột biến; còn retry không có backoff biến một sự cố ngắn thành sự cố kéo dài.</p></aside>
+  </article>
+
+  <!-- 2.5 -->
+  <article class="topic" id="ch2-latency" data-num="2.5" data-short="Latency & head-of-line" data-keywords="latency response time service time queueing delay network head of line blocking gc pause">
+    <p class="eyebrow">2.5 · Latency and Response Time</p>
+    <h2>Latency, service time và head-of-line blocking <span class="vi">Latency and Response Time</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Response time = mọi thứ client thấy: network latency + <dfn data-term="queueing-delay">queueing delay</dfn> + <dfn data-term="service-time">service time</dfn>.</li>
+      <li><dfn data-term="latency">Latency</dfn> là khoảng thời gian request “nằm chờ”, không được xử lý.</li>
+      <li>Vài request chậm có thể chặn các request nhanh phía sau: <dfn data-term="head-of-line-blocking">head-of-line blocking</dfn>. Vì vậy phải đo response time ở phía client.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Sách dùng các thuật ngữ này một cách chính xác (Hình 2-4):</p>
+      <ul>
+        <li><strong>Response time</strong> là thứ client nhìn thấy, gồm mọi độ trễ ở bất kỳ đâu.</li>
+        <li><strong>Service time</strong> là khoảng thời gian service thực sự đang xử lý request.</li>
+        <li><strong>Queueing delay</strong> có thể xảy ra ở nhiều chỗ: chờ CPU rảnh, chờ gói tin phản hồi được gửi ra card mạng đang bận.</li>
+        <li><strong>Latency</strong> là từ chung cho khoảng thời gian request không được xử lý. <em class="en">Network latency</em> là thời gian request và response đi trên mạng.</li>
+      </ul>
+      <p>Cùng một request lặp lại vẫn có response time khác nhau. Nhiều thứ thêm độ trễ ngẫu nhiên: context switch sang tiến trình nền, mất gói tin và TCP gửi lại, GC pause, page fault phải đọc đĩa, thậm chí rung cơ học trong rack. Biến động của network delay còn gọi là <dfn data-term="jitter">jitter</dfn>.</p>
+      <p>Hàng đợi thường gây phần lớn biến động. Server chỉ xử lý song song được vài việc (giới hạn bởi số core), nên chỉ cần vài request chậm là các request sau phải chờ, dù bản thân chúng xử lý rất nhanh. Service không thấy thời gian chờ này trong số đo của nó.</p>
+    </div>
+    <figure class="lab" data-widget="hol-blocking">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một request chậm chặn cả hàng
+        <small>Một worker xử lý tuần tự. Thêm request nhanh và chậm vào hàng đợi rồi chạy. Mỗi thanh chia thành mạng / chờ / xử lý.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Nếu chỉ đo service time trong server, request số 5 trong ví dụ trên trông rất nhanh. Người dùng thì thấy nó chậm. Đo ở phía client mới thấy thời gian chờ trong hàng.</p></aside>
+  </article>
+
+  <!-- 2.6 -->
+  <article class="topic" id="ch2-percentiles" data-num="2.6" data-short="Trung bình & percentile" data-keywords="mean median p50 p95 p99 p999 tail latency amazon percentile">
+    <p class="eyebrow">2.6 · Average, Median, and Percentiles</p>
+    <h2>Trung bình, trung vị và percentile <span class="vi">Average, Median, and Percentiles</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Response time là một <em>phân bố</em>, không phải một con số. <dfn data-term="mean">Trung bình</dfn> không cho biết bao nhiêu người thực sự chịu mức trễ đó.</li>
+      <li><dfn data-term="median">Trung vị</dfn> (p50) cho thời gian chờ điển hình; <dfn data-term="p99">p95, p99, p999</dfn> cho biết outlier tệ cỡ nào.</li>
+      <li>Percentile cao (<dfn data-term="tail-latency">tail latency</dfn>) quan trọng vì người chậm nhất thường là khách hàng nhiều dữ liệu nhất, cũng là khách có giá trị nhất.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Sắp xếp các response time từ nhanh đến chậm. Điểm giữa là trung vị: median 200 ms nghĩa là một nửa request nhanh hơn 200 ms, một nửa chậm hơn. Muốn biết outlier tệ đến đâu thì nhìn percentile cao. Nếu p95 là 1,5 giây thì 95 trên 100 request nhanh hơn 1,5 giây và 5 request còn lại mất từ 1,5 giây trở lên.</p>
+      <p>Amazon đặt yêu cầu response time cho service nội bộ theo p99.9, dù nó chỉ ảnh hưởng 1/1.000 request. Lý do: khách có request chậm nhất thường là người có nhiều dữ liệu nhất trong tài khoản vì đã mua rất nhiều. Ngược lại, tối ưu p99.99 bị đánh giá là quá đắt mà lợi ích không đủ: ở mức đó độ trễ bị chi phối bởi các sự kiện ngẫu nhiên ngoài tầm kiểm soát.</p>
+      <p>Thử kéo tỉ lệ request chậm: trung bình bị kéo lên nhanh hơn trung vị nhiều, và có lúc trung bình không ứng với trải nghiệm của bất kỳ ai.</p>
+    </div>
+    <figure class="lab" data-widget="percentiles">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Phân bố response time của 100 request
+        <small>Mỗi cột là một request (giống Hình 2-5). Đổi tỉ lệ và độ lớn của outlier, chuyển giữa thứ tự thời gian và thứ tự đã sắp xếp.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Không được lấy trung bình của percentile</h3>
+      <p>Khi gộp số liệu từ nhiều máy hoặc giảm độ phân giải thời gian, việc lấy trung bình các p99 là vô nghĩa về mặt toán học. Cách đúng là cộng các histogram lại rồi tính percentile trên histogram gộp.</p>
+    </div>
+    <figure class="lab" data-widget="percentile-merge">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Trung bình hai p99 khác p99 của dữ liệu gộp
+        <small>Hai server nhận lượng request và phân bố khác nhau. So sánh con số sai với con số đúng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Dữ liệu về ảnh hưởng của latency lên hành vi người dùng khó tin hơn ta tưởng. Google 2006 báo chậm từ 400 lên 900 ms làm giảm 20% traffic, nhưng nghiên cứu Google 2009 chỉ thấy giảm 0,6% lượt tìm với 400 ms thêm. Nghiên cứu Akamai về tỉ lệ chuyển đổi lẫn lộn nội dung trang với tốc độ tải (trang lỗi 404 tải rất nhanh). Nghiên cứu của Yahoo có kiểm soát chất lượng kết quả thì thấy nhiều hơn 20–30% lượt click khi tìm kiếm nhanh hơn từ 1,25 giây trở lên.</p></aside>
+  </article>
+
+  <!-- 2.7 -->
+  <article class="topic" id="ch2-slo" data-num="2.7" data-short="Tail amplification & SLO" data-keywords="tail latency amplification slo sla hdrhistogram t-digest ddsketch backend calls">
+    <p class="eyebrow">2.7 · Use of Response Time Metrics</p>
+    <h2>Khuếch đại độ trễ đuôi, SLO và SLA <span class="vi">Use of Response Time Metrics</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Một request của người dùng thường gọi nhiều backend song song và phải chờ cái chậm nhất. Chỉ cần một cuộc gọi chậm là cả request chậm.</li>
+      <li>Nếu mỗi backend chậm với xác suất p, request gọi n backend chậm với xác suất 1 − (1 − p)<sup>n</sup>: đó là <dfn data-term="tail-amplification">tail latency amplification</dfn>.</li>
+      <li>Percentile được dùng để viết <dfn data-term="slo">SLO</dfn> (mục tiêu) và <dfn data-term="sla">SLA</dfn> (hợp đồng, có hậu quả nếu không đạt).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Percentile cao đặc biệt quan trọng với các backend service bị gọi nhiều lần trong một request người dùng. Gọi song song cũng không cứu được: request vẫn phải đợi cuộc gọi chậm nhất (Hình 2-6). Dù chỉ một tỉ lệ nhỏ cuộc gọi backend chậm, request càng gọi nhiều backend thì càng dễ dính ít nhất một cuộc gọi chậm.</p>
+      <p>Một SLO ví dụ trong sách: median dưới 200 ms, p99 dưới 1 giây, và ít nhất 99,9% request hợp lệ trả về không lỗi. SLA là hợp đồng quy định điều gì xảy ra nếu SLO không đạt, ví dụ khách được hoàn tiền. Trên thực tế, định nghĩa chỉ số availability tốt cho SLO và SLA không hề đơn giản.</p>
+    </div>
+    <figure class="lab" data-widget="tail-amplify">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bao nhiêu request người dùng bị chậm?
+        <small>Mỗi ô là một request người dùng, gồm các chấm là cuộc gọi backend. Ô viền đỏ có ít nhất một cuộc gọi chậm.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Tính percentile trong thực tế</h3>
+      <p>Dashboard giám sát thường giữ một cửa sổ trượt (ví dụ 10 phút gần nhất) và mỗi phút tính lại median cùng các percentile. Cách đơn giản nhất là giữ toàn bộ danh sách response time và sắp xếp mỗi phút. Nếu cách đó quá tốn, các thuật toán xấp xỉ như HdrHistogram, t-digest, OpenHistogram, DDSketch cho kết quả tốt với rất ít CPU và bộ nhớ.</p>
+    </div>
+    <figure class="lab" data-widget="slo-check">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Kiểm tra SLO trên một mẫu request
+        <small>SLO: p50 &lt; 200 ms, p99 &lt; 1 s, ít nhất 99,9% request không lỗi. Đổi đặc tính của service và xem chỉ tiêu nào vỡ. Số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Với kiến trúc microservice có fan-out rộng, p99 của từng service là chưa đủ. Một service “chỉ chậm 1%” có thể làm phần lớn request người dùng chậm khi nó bị gọi hàng chục lần.</p></aside>
+  </article>
+
+  <!-- 2.8 -->
+  <article class="topic" id="ch2-faults" data-num="2.8" data-short="Fault, failure & SPOF" data-keywords="reliability fault failure fault tolerance spof chaos engineering exactly once">
+    <p class="eyebrow">2.8 · Reliability and Fault Tolerance</p>
+    <h2>Fault, failure và chịu lỗi <span class="vi">Reliability and Fault Tolerance</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Độ tin cậy, nói gọn: tiếp tục làm việc đúng ngay cả khi có thứ hỏng.</li>
+      <li><dfn data-term="fault">Fault</dfn> là một thành phần hỏng; <dfn data-term="failure">failure</dfn> là cả hệ thống ngừng cung cấp dịch vụ (không đạt SLO). Cùng một sự kiện, khác cấp độ nhìn.</li>
+      <li>Hệ thống <dfn data-term="fault-tolerance">fault-tolerant</dfn> ngăn fault leo thang thành failure. Thành phần không có dự phòng là <dfn data-term="spof">SPOF</dfn>.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Với phần mềm, “chạy đúng” thường gồm: làm đúng chức năng người dùng mong đợi, chịu được người dùng thao tác sai hoặc dùng theo cách không ngờ, hiệu năng đủ tốt với tải và lượng dữ liệu dự kiến, và chặn truy cập trái phép. Độ tin cậy là tiếp tục giữ được những điều đó khi có sự cố.</p>
+      <p>Sự phân biệt fault và failure dễ gây rối vì chúng là cùng một thứ ở hai tầng. Nếu hệ thống chỉ có một ổ cứng và nó hỏng, đó là failure của hệ thống. Nếu hệ thống có nhiều ổ cứng và dữ liệu có bản sao trên ổ khác, một ổ hỏng chỉ là fault của hệ thống lớn.</p>
+      <p>Trong case study, một fault có thể là máy đang cập nhật timeline bị sập giữa chừng quá trình fan-out. Để chịu lỗi, máy khác phải tiếp quản mà không bỏ sót và không nhân đôi bài (ý tưởng <em class="en">exactly-once semantics</em>, được bàn ở chương sau).</p>
+      <p>Khả năng chịu lỗi luôn có giới hạn: chịu được tối đa hai ổ hỏng cùng lúc, hay một trong ba node sập. Chịu mọi loại lỗi là vô nghĩa: nếu Trái Đất bị hố đen nuốt, bạn sẽ cần hosting ngoài không gian.</p>
+    </div>
+    <figure class="lab" data-widget="fault-tolerance">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Fault có thành failure không?
+        <small>Bấm vào từng thành phần để làm hỏng hoặc sửa nó. Thử làm hỏng load balancer khi chỉ có một cái, rồi bật dự phòng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Cố tình gây lỗi</h3>
+      <p>Nghe ngược đời, nhưng trong hệ thống chịu lỗi, nên tăng tần suất fault bằng cách chủ động gây ra chúng, ví dụ giết ngẫu nhiên một tiến trình mà không báo trước. Nhiều bug nghiêm trọng nằm ở code xử lý lỗi; gây lỗi có chủ đích giúp cơ chế chịu lỗi luôn được chạy thử. Đó là <dfn data-term="chaos-engineering">chaos engineering</dfn>.</p>
+      <p>Thường ta ưu tiên chịu lỗi hơn ngăn lỗi, nhưng có chỗ phòng bệnh mới là cách duy nhất: bảo mật. Khi kẻ tấn công đã lấy được dữ liệu nhạy cảm, không có cách nào hoàn tác.</p>
+    </div>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Khi thiết kế, hãy liệt kê rõ: hệ thống chịu được <em>những loại</em> fault nào và <em>bao nhiêu</em> fault cùng lúc. “Hệ thống chịu lỗi” mà không nói giới hạn là một câu không có nghĩa.</p></aside>
+  </article>
+
+  <!-- 2.9 -->
+  <article class="topic" id="ch2-hw-sw-faults" data-num="2.9" data-short="Lỗi phần cứng & phần mềm" data-keywords="hard disk ssd afr failure rate cpu ram cosmic rays datacenter redundancy raid availability zone rolling upgrade leap second software bug correlated cascading">
+    <p class="eyebrow">2.9 · Hardware and Software Faults</p>
+    <h2>Lỗi phần cứng và lỗi phần mềm <span class="vi">Hardware and Software Faults</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Ở quy mô lớn, phần cứng hỏng là chuyện thường ngày: 10.000 ổ cứng với tỉ lệ hỏng 2–5%/năm nghĩa là khoảng một ổ hỏng mỗi ngày.</li>
+      <li><dfn data-term="redundancy">Dự phòng</dfn> hiệu quả nhất khi các fault độc lập. Cloud chuyển trọng tâm sang chịu mất cả máy, rack hay <dfn data-term="availability-zone">availability zone</dfn> ở tầng phần mềm.</li>
+      <li>Lỗi phần mềm thì <em>tương quan</em>: cùng một bug chạy trên mọi node, nên có thể đánh sập tất cả cùng lúc.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Số liệu phần cứng sách đưa ra:</p>
+      <ul>
+        <li>Khoảng 2–5% ổ cứng từ (HDD) hỏng mỗi năm. Cụm 10.000 ổ: trung bình một ổ hỏng mỗi ngày.</li>
+        <li>Khoảng 0,5–1% SSD hỏng mỗi năm. Lỗi bit nhỏ được sửa tự động, nhưng lỗi không sửa được xảy ra khoảng một lần mỗi năm mỗi ổ, cao hơn HDD.</li>
+        <li>Khoảng 1/1.000 máy có một core CPU thỉnh thoảng tính sai, có khi làm crash, có khi lặng lẽ trả kết quả sai.</li>
+        <li>Hơn 1% máy gặp lỗi RAM không sửa được trong một năm, kể cả với ECC.</li>
+        <li>Cả datacenter có thể mất điện, cấu hình mạng sai, hoặc bị cháy, ngập.</li>
+      </ul>
+      <p>Phản ứng đầu tiên là thêm dự phòng cho từng linh kiện: RAID, nguồn kép, CPU thay nóng, pin và máy phát diesel. Nhưng các hỏng hóc thường có tương quan (cả rack, cả datacenter), nên hệ thống cloud tập trung vào việc chịu mất toàn bộ máy ở tầng phần mềm. Lợi ích phụ: có thể vá hệ điều hành bằng cách khởi động lại từng node một mà không dừng dịch vụ (<dfn data-term="rolling-upgrade">rolling upgrade</dfn>).</p>
+      <p>Lỗi phần mềm khó lường hơn vì chúng tương quan cao. Ví dụ trong sách: ngày 30/6/2012, một giây nhuận làm nhiều ứng dụng Java treo cùng lúc do bug trong nhân Linux. Một bug firmware làm mọi SSD của một số model hỏng sau đúng 32.768 giờ hoạt động. Các dạng khác: tiến trình chạy mất kiểm soát ngốn tài nguyên chung, service phụ thuộc bị chậm hoặc trả dữ liệu hỏng, và <dfn data-term="cascading-failure">cascading failure</dfn> khi một thành phần quá tải kéo sập thành phần tiếp theo.</p>
+    </div>
+    <figure class="lab" data-widget="disk-failures">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một năm của một cụm lưu trữ
+        <small>Chọn số ổ và tỉ lệ hỏng hằng năm (AFR). Dải 365 ngày cho thấy ngày nào có ổ hỏng. Bật “lỗi phần mềm tương quan” để thấy khác biệt về chất.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Bug phần mềm thường ngủ yên rất lâu, chờ một tình huống bất thường làm lộ ra một giả định về môi trường vốn luôn đúng cho đến một ngày nó sai. Không có cách sửa nhanh; chỉ có nhiều biện pháp nhỏ: nghĩ kỹ về giả định, test kỹ, cô lập tiến trình, cho phép crash và khởi động lại, tránh vòng phản hồi như retry storm, đo và giám sát trên production.</p></aside>
+  </article>
+
+  <!-- 2.10 -->
+  <article class="topic" id="ch2-humans" data-num="2.10" data-short="Con người & độ tin cậy" data-keywords="human error configuration outage blameless postmortem horizon post office">
+    <p class="eyebrow">2.10 · Humans and Reliability</p>
+    <h2>Con người và độ tin cậy <span class="vi">Humans and Reliability</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Thay đổi cấu hình của người vận hành là nguyên nhân hàng đầu gây outage; phần cứng chỉ góp mặt trong 10–25% số vụ.</li>
+      <li>“Lỗi con người” là triệu chứng của hệ thống kỹ thuật–xã hội, không phải nguyên nhân. Đổ lỗi phản tác dụng.</li>
+      <li><dfn data-term="blameless-postmortem">Blameless postmortem</dfn> giúp tổ chức học từ sự cố; hãy nghi ngờ các câu trả lời đơn giản.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Con người thiết kế, xây và vận hành hệ thống. Điểm mạnh của con người là sáng tạo và linh hoạt chứ không chỉ làm theo quy tắc, nhưng chính điều đó cũng khiến họ khó đoán và đôi khi mắc lỗi dù đã cố hết sức.</p>
+      <p>Có nhiều biện pháp kỹ thuật giảm tác động của sai sót: test kỹ, cơ chế rollback nhanh cho thay đổi cấu hình, roll-out code dần dần, giám sát rõ ràng, công cụ observability, và giao diện thiết kế để khuyến khích làm đúng, ngăn làm sai. Nhưng các biện pháp này tốn thời gian và tiền. Khi tổ chức chọn thêm tính năng thay vì thêm test, và một sai sót có thể phòng tránh xảy ra, thì vấn đề nằm ở ưu tiên của tổ chức chứ không phải ở người bấm nút.</p>
+      <p>Văn hoá blameless postmortem khuyến khích người liên quan kể đầy đủ chuyện đã xảy ra mà không sợ bị phạt. Quá trình này có thể chỉ ra cần đổi ưu tiên kinh doanh, đầu tư vào phần bị bỏ bê, hoặc đổi động lực của những người liên quan.</p>
+    </div>
+    <figure class="lab" data-widget="postmortem">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bạn dẫn buổi postmortem
+        <small>Một sự cố giả định. Ở mỗi bước, chọn cách phản ứng và đọc nhận xét dựa trên lập luận trong sách.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế: độ tin cậy quan trọng đến mức nào?</b><p>Nhiều ứng dụng chịu được vài phút, thậm chí vài giờ ngừng hoạt động, nhưng mất hoặc hỏng dữ liệu vĩnh viễn là thảm hoạ: hãy nghĩ tới một phụ huynh lưu toàn bộ ảnh và video của con trong app của bạn.</p><p>Vụ bê bối Post Office Horizon ở Anh: từ 1999 đến 2019, hàng trăm người quản lý bưu cục bị kết tội trộm cắp hoặc gian lận vì phần mềm kế toán báo thiếu hụt. Sau này mới rõ nhiều khoản thiếu là do bug. Luật Anh mặc định máy tính hoạt động đúng trừ khi có bằng chứng ngược lại. Đây có lẽ là vụ oan sai lớn nhất lịch sử nước Anh.</p></aside>
+  </article>
+
+  <!-- 2.11 -->
+  <article class="topic" id="ch2-scalability" data-num="2.11" data-short="Scalability & kiến trúc" data-keywords="scalability load describing linear vertical scaling scale up scale out shared memory shared disk shared nothing nas san">
+    <p class="eyebrow">2.11 · Scalability</p>
+    <h2>Khả năng mở rộng và ba kiến trúc chia sẻ <span class="vi">Describing Load · Shared-Memory, Shared-Disk, Shared-Nothing</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>“X scalable” là câu vô nghĩa. Câu hỏi đúng: nếu hệ thống tăng trưởng theo hướng này, ta có những lựa chọn nào?</li>
+      <li>Mô tả tải trước: throughput, đỉnh, tỉ lệ đọc/ghi, cache hit rate, số phần tử mỗi người dùng. Gấp đôi tài nguyên để xử lý gấp đôi tải là <dfn data-term="linear-scalability">linear scalability</dfn>.</li>
+      <li>Ba cách thêm phần cứng: <dfn data-term="shared-memory">shared-memory</dfn> (<dfn data-term="vertical-scaling">scale up</dfn>), <dfn data-term="shared-disk">shared-disk</dfn>, <dfn data-term="shared-nothing">shared-nothing</dfn> (scale out).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Hệ thống chạy tốt hôm nay chưa chắc chạy tốt khi người dùng tăng từ 10.000 lên 100.000. Nhưng với một startup ít người dùng, mục tiêu kỹ thuật quan trọng nhất là giữ hệ thống đơn giản, dễ thay đổi. Lo trước cho quy mô giả định là tối ưu sớm: tốt nhất thì lãng phí công sức, tệ nhất thì khoá bạn vào một thiết kế cứng nhắc. Khi ứng dụng thật sự lớn, bạn sẽ biết nút thắt nằm ở đâu và cần mở rộng theo chiều nào.</p>
+      <p>Sau khi mô tả được tải, có hai cách nhìn: giữ nguyên tài nguyên và tăng tải thì hiệu năng thay đổi thế nào; hoặc muốn giữ nguyên hiệu năng thì phải tăng tài nguyên bao nhiêu. Thường chi phí tăng nhanh hơn tuyến tính, ví dụ vì một lần ghi trên tập dữ liệu lớn tốn nhiều việc hơn trên tập nhỏ.</p>
+      <h3>Ba kiến trúc</h3>
+      <ul>
+        <li><strong>Shared-memory / scale up:</strong> chuyển lên máy mạnh hơn (nhiều core, RAM, đĩa hơn). Các thread chung một RAM. Vấn đề: máy gấp đôi tài nguyên đắt hơn gấp đôi khá nhiều, và do nút thắt nên thường không xử lý nổi gấp đôi tải.</li>
+        <li><strong>Shared-disk:</strong> nhiều máy có CPU và RAM riêng nhưng dùng chung một dãy đĩa qua mạng nhanh (NAS, SAN). Từng phổ biến cho data warehouse on-premises, nhưng tranh chấp và chi phí khoá giới hạn khả năng mở rộng.</li>
+        <li><strong>Shared-nothing / scale out:</strong> mỗi node có CPU, RAM, đĩa riêng; phối hợp qua mạng thông thường ở tầng phần mềm. Có tiềm năng mở rộng tuyến tính, chọn được phần cứng có giá/hiệu năng tốt nhất, dễ co giãn, chịu lỗi tốt qua nhiều datacenter. Cái giá: phải phân vùng dữ liệu và gánh mọi độ phức tạp của hệ phân tán.</li>
+      </ul>
+      <p>Một số database cloud-native tách storage và compute: nhiều compute node dùng chung một dịch vụ lưu trữ. Nó giống shared-disk, nhưng tránh được vấn đề cũ vì dịch vụ lưu trữ cung cấp API thiết kế riêng cho database thay vì giả lập filesystem hay block device.</p>
+    </div>
+    <figure class="lab" data-widget="scaling-arch">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Chi phí theo tải của ba kiến trúc
+        <small>Chọn kiến trúc để xem sơ đồ, kéo tải để xem chi phí và giới hạn. Đường cong là mô hình minh hoạ, không phải bảng giá thật.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Câu “Bạn không phải Google hay Amazon, cứ dùng database quan hệ đi” đúng hay sai tuỳ loại ứng dụng. Điểm đáng giữ lại: chỉ đầu tư vào khả năng mở rộng theo chiều mà bạn đã đo được là sắp chạm giới hạn.</p></aside>
+  </article>
+
+  <!-- 2.12 -->
+  <article class="topic" id="ch2-scale-principles" data-num="2.12" data-short="Nguyên tắc mở rộng" data-keywords="principles scalability magic scaling sauce order of magnitude 100 MB/s 1 kB 2 GB">
+    <p class="eyebrow">2.12 · Principles for Scalability</p>
+    <h2>Không có “nước sốt mở rộng thần kỳ” <span class="vi">Principles for Scalability</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Kiến trúc ở quy mô lớn luôn đặc thù cho ứng dụng. Cùng 100 MB/s, 100.000 request 1 kB mỗi giây và 3 request 2 GB mỗi phút là hai bài toán khác hẳn.</li>
+      <li>Mỗi khi tải tăng một bậc độ lớn (×10), hãy chuẩn bị nghĩ lại kiến trúc; đừng lên kế hoạch xa hơn một bậc.</li>
+      <li>Chia hệ thống thành các phần chạy độc lập, và đừng làm phức tạp hơn mức cần.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Không tồn tại kiến trúc mở rộng chung cho mọi thứ (dân trong nghề gọi đùa là <em class="en">magic scaling sauce</em>). Hai hệ thống trong ví dụ của sách có cùng throughput dữ liệu 100 MB/s nhưng nút thắt khác nhau: một bên là chi phí cố định cho mỗi request (kết nối, parse, tra index), bên kia là băng thông và bộ nhớ cho từng request khổng lồ.</p>
+      <p>Nguyên tắc tốt: chia hệ thống thành các thành phần nhỏ, gần như độc lập với nhau. Đây là ý tưởng chung của microservices, phân vùng dữ liệu, stream processing và shared-nothing. Cái khó là biết vạch ranh giới ở đâu. Nguyên tắc thứ hai: đừng phức tạp hơn mức cần. Nếu một database trên một máy đủ dùng thì nó tốt hơn một hệ phân tán phức tạp. Auto-scaling thì hay, nhưng nếu tải khá dễ đoán, scale thủ công có thể ít bất ngờ hơn. Hệ thống 5 service đơn giản hơn hệ thống 50 service.</p>
+    </div>
+    <figure class="lab" data-widget="same-throughput">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Cùng MB/s, khác nút thắt
+        <small>Hai workload mặc định theo ví dụ trong sách. Đổi tần suất và kích thước request; chi phí mỗi request và băng thông là giả định minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Kiến trúc tốt thường là sự pha trộn thực dụng nhiều cách làm. Một con số throughput không đủ để mô tả tải: hãy luôn hỏi thêm “bao nhiêu request, mỗi cái lớn cỡ nào, phân bố ra sao”.</p></aside>
+  </article>
+
+  <!-- 2.13 -->
+  <article class="topic" id="ch2-maintainability" data-num="2.13" data-short="Khả năng bảo trì" data-keywords="maintainability operability simplicity evolvability complexity abstraction legacy big ball of mud irreversibility">
+    <p class="eyebrow">2.13 · Maintainability</p>
+    <h2>Khả năng bảo trì: vận hành, đơn giản, tiến hoá <span class="vi">Operability · Simplicity · Evolvability</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Phần lớn chi phí phần mềm nằm ở bảo trì, không phải lúc viết ban đầu. Mọi hệ thống có giá trị rồi sẽ thành hệ thống legacy.</li>
+      <li>Ba nguyên tắc: <dfn data-term="operability">operability</dfn> (dễ vận hành), <dfn data-term="simplicity">simplicity</dfn> (dễ hiểu), <dfn data-term="evolvability">evolvability</dfn> (dễ thay đổi).</li>
+      <li><dfn data-term="abstraction">Abstraction</dfn> tốt là công cụ mạnh nhất để quản lý độ phức tạp; giảm các hành động không thể đảo ngược giúp hệ thống dễ tiến hoá.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Phần mềm không mòn, nhưng yêu cầu đổi, môi trường đổi, và luôn có bug cần sửa. Bảo trì gồm sửa bug, giữ hệ thống chạy, điều tra sự cố, chuyển sang nền tảng mới, trả nợ kỹ thuật, thêm tính năng. Hệ thống chạy lâu năm có thể dùng công nghệ ít người còn hiểu (mainframe, COBOL) và kiến thức về lý do thiết kế đã mất theo người rời đi.</p>
+      <h3>Operability</h3>
+      <p>“Vận hành tốt có thể bù cho phần mềm tồi, nhưng phần mềm tốt không chạy ổn định được với vận hành tồi.” Tự động hoá là cần thiết ở quy mô lớn nhưng là con dao hai lưỡi: những ca không tự động được là những ca khó nhất, nên càng tự động hoá càng cần đội vận hành giỏi, và hệ thống tự động khi hỏng thường khó gỡ hơn. Hệ thống dữ liệu giúp vận hành dễ hơn bằng cách: cung cấp metric và hỗ trợ observability; không phụ thuộc vào từng máy; tài liệu và mô hình vận hành dễ hiểu (“làm X thì Y xảy ra”); mặc định tốt nhưng cho phép ghi đè; tự phục hồi khi hợp lý nhưng vẫn cho quản trị viên kiểm soát thủ công; hành vi dễ đoán.</p>
+      <h3>Simplicity</h3>
+      <p>Dự án lớn dễ biến thành <dfn data-term="big-ball-of-mud">big ball of mud</dfn>, nơi mọi thay đổi đều có nguy cơ tạo bug vì giả định ẩn và tương tác bất ngờ. Một cách phân tích là tách <em class="en">essential complexity</em> (vốn có của bài toán) và <dfn data-term="accidental-complexity">accidental complexity</dfn> (do giới hạn của công cụ), dù ranh giới này dịch chuyển khi công cụ tiến bộ. Abstraction tốt giấu rất nhiều chi tiết sau một mặt tiền gọn gàng và được tái sử dụng rộng rãi: SQL giấu cấu trúc dữ liệu trên đĩa, request đồng thời từ client khác và trạng thái lộn xộn sau crash.</p>
+      <h3>Evolvability</h3>
+      <p>Yêu cầu luôn thay đổi. Hệ thống đơn giản, dễ hiểu thì dễ sửa hơn. Một yếu tố lớn khiến thay đổi khó là hành động không đảo ngược được: nếu chuyển sang database mới mà không quay lại được database cũ khi có vấn đề, rủi ro cao hơn nhiều so với khi có đường lui.</p>
+    </div>
+    <figure class="lab" data-widget="reversibility">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Chuyển database: có đường lui hay không
+        <small>Chọn kế hoạch chuyển đổi, bấm “Chạy kế hoạch”. Một bug sẽ lộ ra sau khi chuyển; xem mỗi kế hoạch trả giá thế nào. Số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Giảm số hành động không thể đảo ngược là cách cụ thể nhất để tăng evolvability. Bạn sẽ gặp lại ý này ở event sourcing trong Chương 3.</p></aside>
+  </article>
+
+  <!-- review -->
+  <article class="topic" id="ch2-review" data-num="2.★" data-short="Tổng kết & kiểm tra" data-keywords="summary quiz review">
+    <p class="eyebrow">Chương 2 · Summary</p>
+    <h2>Tổng kết chương và tự kiểm tra <span class="vi">Summary</span></h2>
+    <div class="prose">
+      <p>Chương này đi qua bốn yêu cầu phi chức năng và bộ thuật ngữ dùng suốt cuốn sách:</p>
+      <ul>
+        <li><strong>Hiệu năng:</strong> response time là phân bố, hãy dùng percentile (p50, p99, p999) chứ đừng dùng trung bình. Throughput đo tải và quyết định chi phí. Gần công suất, hàng đợi làm response time tăng vọt; retry không kiểm soát có thể gây metastable failure.</li>
+        <li><strong>Độ tin cậy:</strong> fault là một phần hỏng, failure là cả hệ thống ngừng phục vụ. Chịu lỗi ngăn fault thành failure. Lỗi phần cứng phần lớn độc lập; lỗi phần mềm thường tương quan mạnh nên khó xử lý hơn. Con người mắc lỗi; blameless postmortem giúp tổ chức học.</li>
+        <li><strong>Khả năng mở rộng:</strong> giữ hiệu năng khi tải tăng. Mô tả tải trước, chia việc thành các phần độc lập, và đừng phức tạp hoá sớm.</li>
+        <li><strong>Khả năng bảo trì:</strong> hỗ trợ vận hành, quản lý độ phức tạp bằng abstraction tốt, giảm hành động không đảo ngược để dễ tiến hoá.</li>
+      </ul>
+      <p>Case study home timeline cho thấy cùng một bài toán có thể chuyển chi phí từ lúc đọc sang lúc ghi (materialization, fan-out), và các trường hợp cực đoan như người nổi tiếng mới là thứ quyết định thiết kế.</p>
+    </div>
+    <div class="quiz">
+      <div class="q" data-answer="2">
+        <p>Mạng xã hội có 10 triệu người online, client polling timeline mỗi 10 giây, mỗi người theo dõi 200 người. Database phải tra bài của từng người gửi bao nhiêu lần mỗi giây?</p>
+        <ol><li>2 triệu</li><li>100 triệu</li><li>200 triệu</li><li>400 triệu</li></ol>
+        <p class="explain">10.000.000 / 10 = 1 triệu truy vấn mỗi giây, mỗi truy vấn tra 200 người gửi: 200 triệu lần tra cứu/giây. Polling mỗi 5 giây như trong sách thì gấp đôi, 400 triệu.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Vì sao sách khuyên dùng median và percentile thay vì trung bình cộng để báo cáo response time?</p>
+        <ol><li>Trung bình tính tốn CPU hơn percentile.</li><li>Trung bình không cho biết bao nhiêu người dùng thực sự chịu mức trễ đó; vài outlier có thể kéo lệch nó.</li><li>Percentile luôn nhỏ hơn trung bình nên trông đẹp hơn.</li></ol>
+        <p class="explain">Response time là một phân bố. Median cho biết trải nghiệm điển hình, p99/p999 cho biết outlier tệ cỡ nào. Trung bình không trả lời được câu nào trong hai câu đó.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Mỗi cuộc gọi backend có 1% khả năng chậm. Một request người dùng gọi song song 100 backend. Khoảng bao nhiêu request người dùng bị chậm?</p>
+        <ol><li>Khoảng 63%</li><li>1%</li><li>Khoảng 10%</li><li>100%</li></ol>
+        <p class="explain">1 − 0,99<sup>100</sup> ≈ 0,634. Đây là tail latency amplification: request phải chờ cuộc gọi chậm nhất.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Cụm có 3 ổ cứng chứa bản sao của nhau. Một ổ hỏng nhưng dịch vụ vẫn chạy. Theo thuật ngữ của sách, đây là gì?</p>
+        <ol><li>Một failure của hệ thống</li><li>Một SPOF</li><li>Một fault đã được chịu đựng (fault-tolerant)</li><li>Một metastable failure</li></ol>
+        <p class="explain">Ổ hỏng là fault ở cấp hệ thống lớn. Vì vẫn đạt SLO, fault không leo thang thành failure.</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>Vì sao lỗi phần mềm thường gây nhiều failure hơn lỗi phần cứng?</p>
+        <ol><li>Phần mềm hỏng thường xuyên hơn ổ cứng.</li><li>Phần cứng luôn có RAID.</li><li>Lỗi phần mềm không thể phát hiện bằng monitoring.</li><li>Nhiều node chạy cùng phần mềm nên có cùng bug; một điều kiện kích hoạt có thể đánh sập tất cả cùng lúc.</li></ol>
+        <p class="explain">Lỗi phần cứng phần lớn độc lập nên dự phòng hiệu quả. Lỗi phần mềm tương quan mạnh, như vụ giây nhuận 2012 hay bug firmware SSD sau 32.768 giờ.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Sau một outage do thay đổi cấu hình, câu kết luận nào phù hợp nhất với tinh thần của sách?</p>
+        <ol><li>“Bob đáng lẽ phải cẩn thận hơn khi deploy.”</li><li>“Quy trình cho phép một thay đổi cấu hình chưa được kiểm thử lên production ngay lập tức, không có roll-out dần và rollback nhanh; cần đầu tư vào đó.”</li><li>“Phải viết lại backend bằng Haskell.”</li></ol>
+        <p class="explain">Sách bác bỏ cả hai câu trả lời đơn giản (đổ lỗi cho người, hoặc giải pháp công nghệ to tát). Cần hiểu hệ thống kỹ thuật–xã hội và cải thiện nó.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Hệ A: 100.000 request/giây, mỗi request 1 kB. Hệ B: 3 request/phút, mỗi request 2 GB. Điều nào đúng?</p>
+        <ol><li>Cùng throughput dữ liệu khoảng 100 MB/s nhưng cần kiến trúc rất khác nhau.</li><li>Có thể dùng chung một kiến trúc vì cùng MB/s.</li><li>Hệ B luôn khó hơn vì request lớn hơn.</li></ol>
+        <p class="explain">Throughput giống nhau, nhưng A bị chi phối bởi chi phí cố định cho từng request, còn B bởi băng thông và bộ nhớ cho từng request. Không có kiến trúc mở rộng chung.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Kiến trúc nào có tiềm năng mở rộng gần tuyến tính nhưng buộc bạn phải phân vùng dữ liệu và gánh độ phức tạp của hệ phân tán?</p>
+        <ol><li>Shared-memory</li><li>Shared-disk</li><li>Shared-nothing</li></ol>
+        <p class="explain">Shared-nothing: mỗi node có CPU, RAM, đĩa riêng, phối hợp qua mạng. Shared-memory đắt siêu tuyến tính; shared-disk bị giới hạn bởi tranh chấp và khoá.</p>
+      </div>
+    </div>
+  </article>
+</section>

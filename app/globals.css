@@ -1,0 +1,1238 @@
+@import "tailwindcss";
+
+/* The theme toggle sets html.dark, so Tailwind's dark: variant must follow that class, not the OS setting */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  /* Mintlify / Stripe Docs — Crisp Airy Light Palette */
+  --bg: #F8FAFC;
+  --surface: #FFFFFF;
+  --surface-2: #F1F5F9;
+  --surface-3: #E2E8F0;
+  --line: #E2E8F0;
+  --line-strong: #CBD5E1;
+  --ink: #0F172A;
+  --ink-2: #334155;
+  --ink-3: #64748B;
+
+  /* Mintlify Teal-Emerald + Stripe Indigo Accents */
+  --accent: #0D9488;
+  --accent-ink: #FFFFFF;
+  --accent-soft: #CCFBF1;
+  --mark: #D97706;
+  --mark-soft: #FEF3C7;
+  --violet: #4F46E5;
+  --violet-soft: #E0E7FF;
+  --ok: #15803D;
+  --ok-soft: #DCFCE7;
+  --warn: #B45309;
+  --warn-soft: #FEF3C7;
+  --bad: #B91C1C;
+  --bad-soft: #FEE2E2;
+  --code-bg: #F8FAFC;
+
+  /* Typography — Generous, Breathable Reading Scale */
+  --f-display: 'Plus Jakarta Sans', 'Be Vietnam Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --f-body: 'Be Vietnam Pro', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --f-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --t-xs: 0.78rem;
+  --t-sm: 0.92rem;
+  --t-base: 1.0625rem; /* 17px comfortable reading size */
+  --t-md: 1.25rem;
+  --t-lg: 1.55rem;
+  --t-xl: 2.05rem;
+  --t-2xl: 2.5rem;
+  --read-w: 68ch;
+}
+
+html.font-serif-mode {
+  --f-body: 'Literata', Georgia, Cambria, serif;
+}
+
+html.dark {
+  /* Mintlify / Stripe Docs — Deep Slate-Obsidian Dark Palette */
+  --bg: #090D16;
+  --surface: #0F1623;
+  --surface-2: #162032;
+  --surface-3: #1E293B;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-strong: rgba(255, 255, 255, 0.15);
+  --ink: #F8FAFC;
+  --ink-2: #CBD5E1;
+  --ink-3: #94A3B8;
+
+  --accent: #2DD4BF;
+  --accent-ink: #042F2E;
+  --accent-soft: rgba(45, 212, 191, 0.14);
+  --mark: #FBBF24;
+  --mark-soft: rgba(251, 191, 36, 0.15);
+  --violet: #818CF8;
+  --violet-soft: rgba(129, 140, 248, 0.15);
+  --ok: #34D399;
+  --ok-soft: rgba(52, 211, 153, 0.15);
+  --warn: #FBBF24;
+  --warn-soft: rgba(251, 191, 36, 0.15);
+  --bad: #FB7185;
+  --bad-soft: rgba(251, 113, 133, 0.15);
+  --code-bg: #0B111E;
+}
+
+html {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--f-body);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  overflow-x: hidden;
+}
+
+/* Subtle Mintlify Grid Background Utility */
+.mint-grid-bg {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+}
+html.dark .mint-grid-bg {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+}
+
+/* ==========================================================================
+   AIRY, SPACIOUS CHAPTER READER STYLES (.bb-chapter-reader)
+   ========================================================================== */
+
+/* User Adjustable Reading Typography Settings */
+:root {
+  --reader-font-size: 17px;
+  --reader-line-height: 1.88;
+  --reader-max-width: 840px;
+}
+
+.bb-chapter-reader {
+  font-family: var(--f-body);
+  font-size: var(--reader-font-size);
+  line-height: var(--reader-line-height);
+  max-width: var(--reader-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  letter-spacing: 0.004em;
+  word-spacing: 0.02em;
+  color: var(--ink);
+}
+
+/* ==========================================================================
+   TEXT HIGHLIGHTS & ANNOTATION STYLES
+   ========================================================================== */
+mark.bb-highlight {
+  border-radius: 4px;
+  padding: 1px 4px;
+  margin: 0 1px;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  text-decoration: none;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+mark.bb-highlight:hover {
+  filter: brightness(0.95);
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.4);
+}
+
+/* Color schemes */
+mark.bb-highlight-yellow {
+  background-color: rgba(253, 224, 71, 0.45);
+  color: inherit;
+  border-bottom: 2px solid #EAB308;
+}
+html.dark mark.bb-highlight-yellow {
+  background-color: rgba(234, 179, 8, 0.32);
+  border-bottom-color: #FACC15;
+}
+
+mark.bb-highlight-green {
+  background-color: rgba(110, 231, 183, 0.45);
+  color: inherit;
+  border-bottom: 2px solid #10B981;
+}
+html.dark mark.bb-highlight-green {
+  background-color: rgba(16, 185, 129, 0.3);
+  border-bottom-color: #34D399;
+}
+
+mark.bb-highlight-blue {
+  background-color: rgba(125, 211, 252, 0.45);
+  color: inherit;
+  border-bottom: 2px solid #0EA5E9;
+}
+html.dark mark.bb-highlight-blue {
+  background-color: rgba(14, 165, 233, 0.3);
+  border-bottom-color: #38BDF8;
+}
+
+mark.bb-highlight-purple {
+  background-color: rgba(216, 180, 254, 0.45);
+  color: inherit;
+  border-bottom: 2px solid #A855F7;
+}
+html.dark mark.bb-highlight-purple {
+  background-color: rgba(168, 85, 247, 0.3);
+  border-bottom-color: #C084FC;
+}
+
+mark.bb-highlight-coral {
+  background-color: rgba(253, 164, 175, 0.45);
+  color: inherit;
+  border-bottom: 2px solid #F43F5E;
+}
+html.dark mark.bb-highlight-coral {
+  background-color: rgba(244, 63, 94, 0.3);
+  border-bottom-color: #FB7185;
+}
+
+/* Highlight Note indicator badge */
+mark.bb-highlight[data-has-note="true"]::after {
+  content: " 📝";
+  font-size: 0.75em;
+  opacity: 0.9;
+}
+
+/* Topic Bookmark Button */
+.topic-bookmark-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-family: var(--f-mono);
+  padding: 4px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.topic-bookmark-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.topic-bookmark-btn[aria-pressed="true"] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.bb-chapter-reader h1,
+.bb-chapter-reader h2,
+.bb-chapter-reader h3,
+.bb-chapter-reader h4 {
+  font-family: var(--f-display);
+  line-height: 1.32;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.bb-chapter-reader code,
+.bb-chapter-reader pre,
+.bb-chapter-reader kbd,
+.bb-chapter-reader samp {
+  font-family: var(--f-mono);
+}
+
+/* Chapter Hero Header — Spacious Editorial Banner */
+.bb-chapter-reader .chapter {
+  margin-bottom: 72px;
+}
+
+.bb-chapter-reader .chapter-head {
+  position: relative;
+  padding: 44px 48px 40px;
+  margin-bottom: 36px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+}
+.bb-chapter-reader .chapter-head::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3.5px;
+  background: linear-gradient(90deg, var(--accent), var(--violet));
+}
+
+.bb-chapter-reader .eyebrow {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--f-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--accent);
+  margin: 0 0 14px;
+}
+
+.bb-chapter-reader .ed-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--violet-soft);
+  color: var(--violet);
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.bb-chapter-reader .chapter-head h1 {
+  margin: 0 0 16px;
+  font-size: clamp(1.75rem, 2.8vw, 2.3rem);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+/* CRITICAL FIX: Put bilingual subtitle (.vi / .en) on its own line with generous spacing! */
+.bb-chapter-reader .chapter-head h1 .vi,
+.bb-chapter-reader .chapter-head h1 .en,
+.bb-chapter-reader .topic h2 .vi,
+.bb-chapter-reader .topic h2 .en {
+  display: block;
+  font-family: var(--f-display);
+  font-weight: 500;
+  color: var(--ink-3);
+  font-size: 0.54em;
+  letter-spacing: 0;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+/* Epigraph Quote & Lede Paragraph inside Chapter Header */
+.bb-chapter-reader .epigraph {
+  margin: 24px 0 0;
+  padding: 16px 22px;
+  border-left: 3px solid var(--mark);
+  background: var(--surface-2);
+  border-radius: 0 12px 12px 0;
+  font-style: italic;
+  color: var(--ink-2);
+  max-width: var(--read-w);
+  line-height: 1.78;
+}
+.bb-chapter-reader .epigraph cite {
+  display: block;
+  font-style: normal;
+  font-family: var(--f-display);
+  font-size: var(--t-xs);
+  font-weight: 600;
+  margin-top: 8px;
+  color: var(--ink-3);
+}
+
+.bb-chapter-reader .lede,
+.bb-chapter-reader .chapter-lead {
+  max-width: var(--read-w);
+  margin: 22px 0 0;
+  color: var(--ink-2);
+  font-size: 1.08rem;
+  line-height: 1.85;
+}
+
+/* Chapter Topic Quick Chips inside Header */
+.bb-chapter-reader .chapter-map {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.bb-chapter-reader .chapter-map a {
+  font-family: var(--f-display);
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 6px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.bb-chapter-reader .chapter-map a:hover {
+  border-color: var(--accent);
+  color: var(--ink);
+  background: var(--accent-soft);
+}
+
+/* ==========================================================================
+   TOPIC SECTION CARD — GENEROUS PADDING & BREATHING ROOM
+   ========================================================================== */
+.bb-chapter-reader .topic {
+  padding: 44px 48px;
+  margin-bottom: 34px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  scroll-margin-top: 84px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+  transition: border-color 0.2s ease;
+}
+.bb-chapter-reader .topic:hover {
+  border-color: var(--line-strong);
+}
+
+.bb-chapter-reader .topic-head {
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+.bb-chapter-reader .topic-num {
+  display: inline-block;
+  font-family: var(--f-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  margin-bottom: 10px;
+}
+
+/* Both .topic > h2 and .topic-head h2 get clear bottom margin & spacing */
+.bb-chapter-reader .topic > h2,
+.bb-chapter-reader .topic-head h2 {
+  margin: 4px 0 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+  font-size: clamp(1.35rem, 2.1vw, 1.65rem);
+  font-weight: 750;
+  line-height: 1.32;
+  max-width: var(--read-w);
+}
+.bb-chapter-reader .topic-head h2 {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.bb-chapter-reader .topic h3 {
+  font-size: 1.18rem;
+  font-weight: 700;
+  margin: 34px 0 14px;
+  color: var(--ink);
+  max-width: var(--read-w);
+}
+
+.bb-chapter-reader .topic h4 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 26px 0 10px;
+  color: var(--ink);
+  max-width: var(--read-w);
+}
+
+/* Prose Content — Generous Line Height & Paragraph Separation */
+.bb-chapter-reader .prose {
+  max-width: var(--read-w);
+  color: var(--ink-2);
+  font-size: var(--t-base);
+  line-height: 1.9;
+}
+.bb-chapter-reader .prose p {
+  margin: 0 0 1.35em;
+}
+.bb-chapter-reader .prose p:last-child {
+  margin-bottom: 0;
+}
+.bb-chapter-reader .prose ul {
+  list-style-type: disc;
+  margin: 0 0 1.4em;
+  padding-left: 1.5em;
+}
+.bb-chapter-reader .prose ol {
+  list-style-type: decimal;
+  margin: 0 0 1.4em;
+  padding-left: 1.5em;
+}
+.bb-chapter-reader .prose li {
+  margin-bottom: 0.65em;
+  line-height: 1.82;
+  padding-left: 0.25em;
+}
+.bb-chapter-reader .prose li::marker {
+  color: var(--accent);
+}
+.bb-chapter-reader .prose strong,
+.bb-chapter-reader .prose b {
+  color: var(--ink);
+  font-weight: 600;
+}
+.bb-chapter-reader .prose em.en,
+.bb-chapter-reader .en {
+  font-style: italic;
+  color: var(--ink-2);
+}
+.bb-chapter-reader mark,
+.bb-chapter-reader .hl {
+  background: var(--mark-soft);
+  color: var(--ink);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+.bb-chapter-reader .prose code {
+  font-size: 0.86em;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+
+/* Glossary Term Inline Underline (<dfn data-term>) */
+.bb-chapter-reader dfn[data-term] {
+  font-style: normal;
+  font-weight: 500;
+  color: inherit;
+  border-bottom: 1.5px dotted var(--accent);
+  cursor: help;
+  padding: 0 1px;
+  margin: 0;
+  background: transparent !important;
+  transition: color 0.15s ease;
+}
+.bb-chapter-reader dfn[data-term]:hover {
+  color: var(--accent);
+}
+.bb-chapter-reader dfn[data-term]:focus {
+  outline: none;
+  background: transparent !important;
+}
+
+.term-pop {
+  position: absolute;
+  z-index: 90;
+  max-width: 360px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  box-shadow: 0 14px 36px rgba(15, 23, 42, 0.14);
+  font: 400 var(--t-sm)/1.65 var(--f-display);
+  color: var(--ink);
+}
+.term-pop b {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+.term-pop .vi {
+  color: var(--accent);
+  font-family: var(--f-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.term-pop p {
+  margin: 8px 0 0;
+  color: var(--ink-2);
+  font-size: 0.88rem;
+  line-height: 1.65;
+}
+
+/* Mintlify Callouts & TL;DR — Spacious & Scannable */
+.bb-chapter-reader .tldr {
+  max-width: var(--read-w);
+  margin: 0 0 30px;
+  padding: 20px 24px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  border-radius: 16px;
+  font-family: var(--f-display);
+  font-size: 0.96rem;
+  line-height: 1.78;
+  color: var(--ink);
+}
+.bb-chapter-reader .tldr h3 {
+  margin: 0 0 10px !important;
+  font-family: var(--f-mono) !important;
+  font-size: 0.74rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--accent);
+}
+.bb-chapter-reader .tldr ul {
+  list-style-type: disc;
+  margin: 0;
+  padding-left: 1.35em;
+}
+.bb-chapter-reader .tldr li {
+  margin-bottom: 8px;
+  line-height: 1.72;
+}
+.bb-chapter-reader .tldr li:last-child {
+  margin-bottom: 0;
+}
+
+.bb-chapter-reader .callout {
+  max-width: var(--read-w);
+  margin: 28px 0;
+  padding: 18px 22px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--ink-3);
+  background: var(--surface-2);
+  font-family: var(--f-display);
+  font-size: 0.95rem;
+  line-height: 1.78;
+  color: var(--ink-2);
+}
+.bb-chapter-reader .callout > b:first-child,
+.bb-chapter-reader .callout .c-title {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: 0.73rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+  color: var(--ink);
+}
+.bb-chapter-reader .callout p {
+  margin: 0 0 0.65em;
+}
+.bb-chapter-reader .callout p:last-child {
+  margin: 0;
+}
+.bb-chapter-reader .callout-key {
+  border-left-color: var(--accent);
+  background: var(--surface);
+}
+.bb-chapter-reader .callout-key > b:first-child {
+  color: var(--accent);
+}
+.bb-chapter-reader .callout-warn {
+  border-left-color: var(--warn);
+  background: var(--surface);
+}
+.bb-chapter-reader .callout-warn > b:first-child {
+  color: var(--warn);
+}
+.bb-chapter-reader .callout-real {
+  border-left-color: var(--violet);
+  background: var(--surface);
+}
+.bb-chapter-reader .callout-real > b:first-child {
+  color: var(--violet);
+}
+.bb-chapter-reader .callout-book {
+  background: transparent;
+  border: 1px dashed var(--line-strong);
+}
+
+/* Data Tables & Code Blocks */
+.bb-chapter-reader .table-wrap {
+  overflow-x: auto;
+  margin: 28px 0;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.bb-chapter-reader table.data {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: var(--f-display);
+  font-size: var(--t-sm);
+  line-height: 1.6;
+}
+.bb-chapter-reader table.data th,
+.bb-chapter-reader table.data td {
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+.bb-chapter-reader table.data thead th {
+  background: var(--surface-2);
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+}
+.bb-chapter-reader table.data tbody tr:last-child td {
+  border-bottom: 0;
+}
+.bb-chapter-reader table.data td.num,
+.bb-chapter-reader table.data th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.bb-chapter-reader table.data tr.hit td {
+  background: var(--mark-soft);
+}
+
+.bb-chapter-reader pre.code {
+  max-width: var(--read-w);
+  margin: 22px 0;
+  padding: 18px 20px;
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.72;
+}
+.bb-chapter-reader pre.code .k { color: var(--violet); font-weight: 600; }
+.bb-chapter-reader pre.code .s { color: var(--accent); }
+.bb-chapter-reader pre.code .c { color: var(--ink-3); font-style: italic; }
+.bb-chapter-reader pre.code .n { color: var(--warn); }
+.bb-chapter-reader pre.code .fn { color: var(--bad); }
+
+/* ==========================================================================
+   STRIPE / MINTLIFY INTERACTIVE PLAYGROUND (figure.lab)
+   ========================================================================== */
+.bb-chapter-reader figure.lab {
+  margin: 34px 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 18px;
+  background: var(--surface);
+  overflow: hidden;
+  box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.04);
+}
+.bb-chapter-reader figure.lab > figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
+  padding: 16px 24px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  font-family: var(--f-display);
+  font-size: 0.96rem;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.bb-chapter-reader figure.lab > figcaption .lab-tag {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-family: var(--f-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.bb-chapter-reader figure.lab > figcaption small {
+  flex-basis: 100%;
+  display: block;
+  margin-top: 4px;
+  font-weight: 400;
+  color: var(--ink-2);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.bb-chapter-reader .lab-body {
+  padding: 24px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  font-family: var(--f-display);
+  font-size: var(--t-sm);
+  line-height: 1.6;
+  min-width: 0;
+}
+.bb-chapter-reader .lab-note {
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 0.86rem;
+  line-height: 1.65;
+}
+.bb-chapter-reader .lab-split,
+.bb-chapter-reader .split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.bb-chapter-reader .lab-split > *,
+.bb-chapter-reader .split > * {
+  min-width: 0;
+}
+
+.bb-chapter-reader .controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 20px;
+  align-items: flex-end;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+.bb-chapter-reader .ctl {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 170px;
+  flex: 1 1 180px;
+}
+.bb-chapter-reader .ctl label,
+.bb-chapter-reader .ctl .ctl-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: var(--t-xs);
+  color: var(--ink-2);
+  font-weight: 600;
+}
+.bb-chapter-reader .ctl output {
+  font-family: var(--f-mono);
+  color: var(--accent);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.bb-chapter-reader input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.bb-chapter-reader .lab input[type="text"],
+.bb-chapter-reader .lab input[type="number"],
+.bb-chapter-reader .lab select,
+.bb-chapter-reader .lab textarea {
+  font: 500 var(--t-sm) var(--f-display);
+  padding: 8px 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+}
+
+/* Stripe-Style Segmented Pill Control */
+.bb-chapter-reader .seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  padding: 4px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  gap: 3px;
+}
+.bb-chapter-reader .seg button {
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  font: 600 var(--t-xs) var(--f-display);
+  padding: 6px 12px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.bb-chapter-reader .seg button:hover {
+  color: var(--ink);
+}
+.bb-chapter-reader .seg button[aria-pressed="true"] {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+}
+
+.bb-chapter-reader .btn,
+.bb-chapter-reader button.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 15px;
+  border-radius: 9px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font: 600 var(--t-xs) var(--f-display);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.bb-chapter-reader .btn:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+.bb-chapter-reader .btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.bb-chapter-reader .btn-ghost {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line-strong);
+}
+.bb-chapter-reader .btn-ghost:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+  filter: none;
+}
+.bb-chapter-reader .btn-danger {
+  background: transparent;
+  color: var(--bad);
+  border-color: var(--bad);
+}
+.bb-chapter-reader .btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.bb-chapter-reader .chk-ctl {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+  cursor: pointer;
+  user-select: none;
+}
+.bb-chapter-reader .chk-ctl input {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+}
+
+/* Stat Readouts */
+.bb-chapter-reader .stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 12px;
+}
+.bb-chapter-reader .stat {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  min-width: 0;
+}
+.bb-chapter-reader .stat .lbl {
+  font-size: 0.74rem;
+  color: var(--ink-2);
+  display: block;
+  font-weight: 500;
+}
+.bb-chapter-reader .stat .val {
+  font-family: var(--f-mono);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 4px;
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
+.bb-chapter-reader .stat .sub {
+  font-size: 0.72rem;
+  color: var(--ink-3);
+  margin-top: 2px;
+  display: block;
+}
+.bb-chapter-reader .stat.ok { border-color: var(--ok); background: var(--ok-soft); }
+.bb-chapter-reader .stat.ok .val { color: var(--ok); }
+.bb-chapter-reader .stat.warn { border-color: var(--warn); background: var(--warn-soft); }
+.bb-chapter-reader .stat.warn .val { color: var(--warn); }
+.bb-chapter-reader .stat.bad { border-color: var(--bad); background: var(--bad-soft); }
+.bb-chapter-reader .stat.bad .val { color: var(--bad); }
+.bb-chapter-reader .stat.accent { border-color: var(--accent); background: var(--accent-soft); }
+.bb-chapter-reader .stat.accent .val { color: var(--accent); }
+
+.bb-chapter-reader .box {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  min-width: 0;
+}
+.bb-chapter-reader .box h4,
+.bb-chapter-reader .box h5 {
+  margin: 0 0 8px;
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--ink-2);
+}
+
+.bb-chapter-reader .log {
+  font-family: var(--f-mono);
+  font-size: 0.78rem;
+  line-height: 1.65;
+  max-height: 210px;
+  overflow-y: auto;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: var(--code-bg);
+  border: 1px solid var(--line);
+}
+.bb-chapter-reader .log > div {
+  padding: 3px 0;
+  border-bottom: 1px dashed var(--line);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.bb-chapter-reader .log > div:last-child { border-bottom: 0; }
+.bb-chapter-reader .log .ok { color: var(--ok); }
+.bb-chapter-reader .log .warn { color: var(--warn); }
+.bb-chapter-reader .log .bad { color: var(--bad); }
+.bb-chapter-reader .log .acc { color: var(--accent); }
+
+.bb-chapter-reader .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+.bb-chapter-reader .pill.ok { border-color: var(--ok); color: var(--ok); background: var(--ok-soft); }
+.bb-chapter-reader .pill.warn { border-color: var(--warn); color: var(--warn); background: var(--warn-soft); }
+.bb-chapter-reader .pill.bad { border-color: var(--bad); color: var(--bad); background: var(--bad-soft); }
+.bb-chapter-reader .pill.accent { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.bb-chapter-reader .pill.violet { border-color: var(--violet); color: var(--violet); background: var(--violet-soft); }
+
+/* SVG Visualization Semantic Classes */
+.bb-chapter-reader .viz { width: 100%; overflow-x: auto; }
+.bb-chapter-reader .viz svg,
+.bb-chapter-reader figure.lab svg { display: block; width: 100%; height: auto; max-width: 100%; }
+.bb-chapter-reader .viz svg text,
+.bb-chapter-reader figure.lab svg text { font-family: var(--f-display); font-size: 11px; fill: var(--ink-2); }
+.bb-chapter-reader .viz svg .lbl-strong,
+.bb-chapter-reader figure.lab svg .lbl-strong { fill: var(--ink); font-weight: 700; }
+.bb-chapter-reader .viz svg .grid,
+.bb-chapter-reader figure.lab svg .grid { stroke: var(--line); stroke-width: 1; fill: none; }
+.bb-chapter-reader .viz svg .axis,
+.bb-chapter-reader figure.lab svg .axis { stroke: var(--ink-3); stroke-width: 1; fill: none; }
+
+.f-accent { fill: var(--accent); } .s-accent { stroke: var(--accent); }
+.f-accent-soft { fill: var(--accent-soft); }
+.f-mark { fill: var(--mark); } .s-mark { stroke: var(--mark); }
+.f-mark-soft { fill: var(--mark-soft); }
+.f-violet { fill: var(--violet); } .s-violet { stroke: var(--violet); }
+.f-violet-soft { fill: var(--violet-soft); }
+.f-ok { fill: var(--ok); } .s-ok { stroke: var(--ok); }
+.f-warn { fill: var(--warn); } .s-warn { stroke: var(--warn); }
+.f-bad { fill: var(--bad); } .s-bad { stroke: var(--bad); }
+.f-bad-soft { fill: var(--bad-soft); }
+.f-ink { fill: var(--ink); } .s-ink { stroke: var(--ink); }
+.f-ink2, .f-mid { fill: var(--ink-2); } .s-mid { stroke: var(--ink-2); }
+.f-ink3, .f-dim { fill: var(--ink-3); } .s-ink3, .s-dim { stroke: var(--ink-3); }
+.f-surface, .f-card { fill: var(--surface); } .f-surface2 { fill: var(--surface-2); } .f-bg { fill: var(--bg); }
+.s-line { stroke: var(--line); }
+.f-none { fill: none; }
+.bb-chapter-reader svg .node rect, .bb-chapter-reader svg .node circle { stroke-width: 1.5; }
+.bb-chapter-reader svg .clickable { cursor: pointer; }
+.bb-chapter-reader svg .dash { stroke-dasharray: 4 3; }
+@keyframes ddia-pulse { 0% { opacity: 1; } 50% { opacity: 0.35; } 100% { opacity: 1; } }
+.pulse { animation: ddia-pulse 1s ease-in-out infinite; }
+
+/* Topic Footer, Inline Personal Notes & Quizzes */
+.bb-chapter-reader .topic-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 34px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  max-width: var(--read-w);
+  font-family: var(--f-display);
+  font-size: var(--t-sm);
+}
+.bb-chapter-reader .topic-foot-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+.bb-chapter-reader .mark-read {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  cursor: pointer;
+  font: 600 var(--t-xs) var(--f-display);
+  transition: all 0.15s ease;
+}
+.bb-chapter-reader .mark-read:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.bb-chapter-reader .mark-read[aria-pressed="true"] {
+  background: var(--ok-soft);
+  border-color: var(--ok);
+  color: var(--ok);
+}
+.bb-chapter-reader .mark-read.note-toggle[aria-pressed="true"] {
+  background: var(--violet-soft);
+  border-color: var(--violet);
+  color: var(--violet);
+}
+.bb-chapter-reader .topic-foot .next {
+  margin-left: auto;
+  text-decoration: none;
+  font-size: var(--t-sm);
+  font-weight: 600;
+  color: var(--accent);
+}
+.bb-chapter-reader .topic-foot .next:hover {
+  text-decoration: underline;
+}
+
+.bb-chapter-reader .topic-note-box {
+  max-width: var(--read-w);
+  margin-top: 24px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface-2);
+  font-family: var(--f-display);
+}
+.bb-chapter-reader .topic-note-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: var(--t-xs);
+  color: var(--ink-2);
+}
+.bb-chapter-reader .topic-note-status {
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  color: var(--ok);
+}
+.bb-chapter-reader .topic-note-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font: 400 var(--t-sm)/1.65 var(--f-display);
+  resize: vertical;
+}
+.bb-chapter-reader .topic-note-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* Quizzes */
+.bb-chapter-reader .quiz {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: var(--read-w);
+  font-family: var(--f-display);
+}
+.bb-chapter-reader .quiz .q {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 22px 24px;
+  background: var(--surface-2);
+}
+.bb-chapter-reader .quiz .q > p:first-child {
+  margin: 0 0 14px;
+  font-weight: 650;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--ink);
+}
+.bb-chapter-reader .quiz .q ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bb-chapter-reader .quiz .q li button {
+  width: 100%;
+  text-align: left;
+  padding: 11px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-2);
+  cursor: pointer;
+  font: 500 var(--t-sm)/1.55 var(--f-display);
+  transition: all 0.15s ease;
+}
+.bb-chapter-reader .quiz .q li button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--ink);
+}
+.bb-chapter-reader .quiz .q li button.right {
+  background: var(--ok-soft);
+  border-color: var(--ok);
+  color: var(--ink);
+  font-weight: 600;
+}
+.bb-chapter-reader .quiz .q li button.wrong {
+  background: var(--bad-soft);
+  border-color: var(--bad);
+}
+.bb-chapter-reader .quiz .q .explain {
+  margin: 12px 0 0;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line-strong);
+  font-size: var(--t-sm);
+  color: var(--ink-2);
+  line-height: 1.68;
+}
+.bb-chapter-reader .quiz-score {
+  font: 600 var(--t-sm) var(--f-display);
+  color: var(--ink-2);
+}
+
+@media (max-width: 640px) {
+  .bb-chapter-reader .chapter-head,
+  .bb-chapter-reader .topic {
+    padding: 24px 20px;
+    border-radius: 18px;
+    margin-bottom: 22px;
+  }
+  .bb-chapter-reader .lab-body {
+    padding: 16px;
+  }
+  .bb-chapter-reader .ctl {
+    min-width: 0;
+    flex-basis: 100%;
+  }
+}

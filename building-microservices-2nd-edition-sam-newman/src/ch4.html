@@ -1,0 +1,553 @@
+<style>
+  #ch4 .ch4-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+  #ch4 .ch4-code { font: 400 .78rem/1.55 var(--f-mono); white-space: pre; overflow-x: auto; margin: 0; background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+  #ch4 .ch4-code mark { background: var(--mark-soft); color: var(--ink); border-radius: 3px; }
+  #ch4 .ch4-code .del { color: var(--bad); text-decoration: line-through; }
+  #ch4 .ch4-code .add { color: var(--ok); }
+  #ch4 .ch4-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  #ch4 .ch4-verdict { padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); }
+  #ch4 .ch4-verdict.ok { border-color: var(--ok); background: var(--ok-soft); }
+  #ch4 .ch4-verdict.warn { border-color: var(--warn); background: var(--warn-soft); }
+  #ch4 .ch4-verdict.bad { border-color: var(--bad); background: var(--bad-soft); }
+  #ch4 .ch4-verdict b { display: block; margin-bottom: 2px; }
+  #ch4 .ch4-hex { font: 400 .74rem/1.6 var(--f-mono); overflow-wrap: anywhere; word-break: break-all; }
+  #ch4 .ch4-hex .tag { color: var(--accent); font-weight: 700; }
+  #ch4 .ch4-hex .len { color: var(--violet); }
+  #ch4 .ch4-hex .dat { color: var(--ink-2); }
+  #ch4 .ch4-qa { display: flex; flex-direction: column; gap: 10px; }
+  #ch4 .ch4-qa .ctl-label { font-size: var(--t-xs); color: var(--ink-2); font-weight: 600; display: block; margin-bottom: 4px; }
+</style>
+<section class="chapter" id="ch4" data-ch="4" data-chapter="4" data-title="Triển khai giao tiếp Microservices">
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 4</p>
+    <h1>Implementing Microservice Communication <span class="vi">Triển khai giao tiếp giữa các Microservice</span></h1>
+    <p class="lede">SOAP, XML-RPC, REST, gRPC, GraphQL, Kafka… danh sách công nghệ giao tiếp dài đến choáng ngợp. Chương này dùng các kiểu giao tiếp đã phân loại ở <a href="#ch3">Chương 3</a> làm bộ lọc, rồi soi từng nhóm công nghệ phổ biến: chúng giỏi ở đâu, gãy ở đâu. Nửa sau của chương xoay quanh câu hỏi Sam Newman nhận được nhiều nhất sau “microservice nên to cỡ nào?”: <em>làm sao thay đổi hợp đồng giữa các service mà không phá vỡ consumer</em> — schema, tolerant reader, semantic versioning, và các chiến lược khi buộc phải tạo breaking change.</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- 4.1 -->
+  <article class="topic" id="ch4-criteria" data-num="4.1" data-short="Tiêu chí chọn công nghệ" data-keywords="backwards compatibility explicit interface technology agnostic client library hide internal implementation">
+    <p class="eyebrow">4.1 · Looking for the Ideal Technology</p>
+    <h2>Năm tiêu chí cho công nghệ giao tiếp <span class="vi">What We Want Out of Whatever Technology We Pick</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Chọn công nghệ <em>sau</em> khi đã chọn kiểu giao tiếp (đồng bộ chặn hay bất đồng bộ, request-response hay event-driven). Kiểu giao tiếp giúp cắt ngắn danh sách ứng viên.</li>
+        <li>Năm tiêu chí: dễ giữ <dfn data-term="backwards-compatibility">tương thích ngược</dfn>, giao diện tường minh (<dfn data-term="explicit-interface">explicit interface</dfn>), API trung lập công nghệ (<dfn data-term="technology-agnostic">technology-agnostic</dfn>), dễ dùng cho consumer, và che giấu chi tiết cài đặt nội bộ.</li>
+        <li>Các tiêu chí đôi khi kéo nhau ngược chiều: client library làm consumer dễ dùng hơn nhưng lại tăng ghép nối.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Công nghệ mới ra đời liên tục, nên trước khi bàn về RPC hay Kafka, Sam Newman đề nghị ta thống nhất mình <em>muốn gì</em> từ bất kỳ công nghệ nào được chọn. Danh sách này sẽ là “thước đo” xuyên suốt chương.</p>
+      <h3>1. Dễ thay đổi mà không phá vỡ tương thích</h3>
+      <p>Thao tác đơn giản như thêm một trường mới không được làm client gãy. Lý tưởng hơn nữa, ta muốn có cách <em>kiểm chứng</em> thay đổi là tương thích ngược và nhận được phản hồi đó trước khi đưa microservice lên production.</p>
+      <h3>2. Giao diện tường minh</h3>
+      <p>Consumer phải thấy rõ service cung cấp chức năng gì; người phát triển service cũng phải thấy rõ phần nào cần giữ nguyên cho bên ngoài, để tránh vô tình phá vỡ tương thích. Schema giúp rất nhiều ở đây — có công nghệ bắt buộc schema, có công nghệ để tuỳ chọn, nhưng tác giả khuyến khích dùng schema trong mọi trường hợp.</p>
+      <h3>3. API trung lập công nghệ</h3>
+      <p>“Điều chắc chắn duy nhất là thay đổi.” Hôm nay bạn là một shop .NET, nhưng một hay năm năm nữa thì sao? Tránh công nghệ tích hợp nào áp đặt stack mà các microservice phải dùng.</p>
+      <h3>4. Đơn giản cho consumer</h3>
+      <p>Một microservice được thiết kế đẹp cũng chẳng có ý nghĩa gì nếu chi phí sử dụng nó quá cao. Ta muốn cho client tự do chọn công nghệ, nhưng một <dfn data-term="client-library">client library</dfn> có thể giúp việc áp dụng dễ hơn — với cái giá là ghép nối tăng lên.</p>
+      <h3>5. Che giấu chi tiết cài đặt nội bộ</h3>
+      <p>Nếu consumer bị ràng buộc vào cài đặt nội bộ, mỗi lần đổi bên trong service ta lại buộc consumer đổi theo. Chi phí thay đổi tăng, và ta ngại thay đổi vì sợ phải nâng cấp consumer — nợ kỹ thuật tích tụ dần. Công nghệ nào đẩy ta lộ biểu diễn nội bộ ra ngoài thì nên tránh.</p>
+      <p>Bốn nhóm công nghệ được xem xét trong chương: <strong>RPC</strong> (SOAP, gRPC), <strong>REST</strong>, <strong>GraphQL</strong> và <strong>message broker</strong>.</p>
+    </div>
+    <figure class="lab" data-widget="ch4-criteria">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đặt từng công nghệ lên thước đo năm tiêu chí
+        <small>Chọn một công nghệ để xem đánh giá và lý do theo từng tiêu chí; bỏ chọn tiêu chí bạn không quan tâm để thấy thứ hạng thay đổi. Điểm số là tổng hợp từ nhận xét trong sách, không phải benchmark.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Không có công nghệ nào đạt điểm tối đa ở mọi tiêu chí. Hãy để kiểu giao tiếp và bối cảnh (bạn có kiểm soát cả hai đầu hay không, consumer đa dạng tới đâu) quyết định tiêu chí nào nặng ký nhất.</p></aside>
+  </article>
+
+  <!-- 4.2 -->
+  <article class="topic" id="ch4-rpc" data-num="4.2" data-short="RPC & ghép nối công nghệ" data-keywords="rpc remote procedure call soap wsdl grpc protocol buffers java rmi thrift avro stub code generation">
+    <p class="eyebrow">4.2 · Remote Procedure Calls</p>
+    <h2>RPC: biến lời gọi từ xa thành lời gọi cục bộ <span class="vi">Schemas, Stubs, Technology Coupling &amp; Local vs Remote Calls</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li><dfn data-term="rpc">RPC</dfn> cho phép gọi một phương thức cục bộ và để nó thực thi trên một service ở xa. Đa số công nghệ RPC (SOAP, gRPC) yêu cầu schema tường minh, nhờ đó sinh được <dfn data-term="client-stub">stub</dfn> cho client và server ở nhiều stack khác nhau.</li>
+        <li>Chọn RPC tức là “mua kèm” một giao thức tuần tự hoá: gRPC dùng <dfn data-term="protocol-buffers">protocol buffers</dfn>, SOAP dùng XML mô tả bởi <dfn data-term="wsdl">WSDL</dfn>.</li>
+        <li><dfn data-term="java-rmi">Java RMI</dfn> trói cả client lẫn server vào JVM — một dạng lộ chi tiết công nghệ nội bộ. gRPC, SOAP và Thrift thì cho phép các stack khác nhau nói chuyện với nhau.</li>
+        <li>Lời gọi từ xa không giống lời gọi cục bộ: chi phí marshalling, độ trễ mạng và các kiểu lỗi mạng buộc ta thiết kế API khác đi.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Điểm chung cốt lõi của mọi công nghệ RPC là làm cho một lời gọi từ xa <em>trông như</em> lời gọi cục bộ. Với schema tách rời, bạn có thể có một server Java cung cấp giao diện SOAP và một client .NET được sinh mã từ file WSDL của giao diện đó. Ngược lại, Java RMI không cần định nghĩa giao diện chung, nhưng đòi hỏi cả hai đầu cùng một công nghệ.</p>
+      <p>Một số cài đặt RPC gắn chặt với một giao thức mạng (SOAP dùng HTTP chỉ “trên danh nghĩa”), số khác cho phép chọn giao thức: TCP đảm bảo giao nhận, UDP thì không nhưng nhẹ hơn nhiều.</p>
+      <h3>Sinh mã client: điểm bán hàng lớn nhất</h3>
+      <p>Có schema tường minh thì client nào cũng tự sinh mã được, không cần thư viện client riêng. Điều kiện là client phải lấy được schema <em>out of band</em> — tức là có schema trước khi gọi. <dfn data-term="avro">Avro</dfn> RPC là ngoại lệ thú vị: nó có tuỳ chọn gửi kèm toàn bộ schema trong payload để client diễn giải động.</p>
+      <h3>Thách thức 1: ghép nối công nghệ</h3>
+      <p>Java RMI trói client vào JVM, và trói luôn cả server. Thrift và protocol buffers hỗ trợ rất nhiều ngôn ngữ nên giảm được nhược điểm này, nhưng hãy luôn kiểm tra giới hạn tương tác của công nghệ RPC trước khi chọn.</p>
+      <h3>Thách thức 2: lời gọi cục bộ khác lời gọi từ xa</h3>
+      <p>Ta có thể gọi hàng loạt lời gọi trong tiến trình mà không lo hiệu năng. Với RPC, chi phí marshalling/un-marshalling payload và thời gian truyền qua mạng là đáng kể. Lấy nguyên một API cục bộ biến thành ranh giới service mà không suy nghĩ thêm gần như chắc chắn sẽ gặp rắc rối; tệ nhất là khi lớp trừu tượng che kín đến mức lập trình viên gọi mạng mà không biết.</p>
+      <p>Ngộ nhận đầu tiên trong các <dfn data-term="fallacies-of-distributed-computing">ngộ nhận về tính toán phân tán</dfn> là “mạng thì tin cậy được”. Mạng hỏng nhanh, hỏng chậm, thậm chí làm méo gói tin. Lỗi có thể do server trả lỗi, hoặc do chính bạn gọi sai — bạn có phân biệt được không? Và làm gì khi server chỉ đơn giản là chậm dần?</p>
+    </div>
+    <figure class="lab" data-widget="ch4-rpc-coupling">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ma trận ghép nối công nghệ của các framework RPC
+        <small>Chọn framework, stack của server và của client. Widget cho biết hai bên có nói chuyện được không, client lấy stub từ đâu, dữ liệu được tuần tự hoá ra sao — kèm đoạn stub mẫu.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Đừng trừu tượng hoá lời gọi từ xa đến mức mạng biến mất hoàn toàn. Client phải biết rằng một lời gọi mạng sắp xảy ra, để thiết kế độ hạt API và xử lý lỗi cho đúng.</p></aside>
+  </article>
+
+  <!-- 4.3 -->
+  <article class="topic" id="ch4-rpc-brittleness" data-num="4.3" data-short="Độ giòn của RPC & gRPC" data-keywords="brittleness lock-step expand-only types java rmi stub regenerate grpc http/2 protolock where to use rpc">
+    <p class="eyebrow">4.3 · Brittleness · Where To Use It</p>
+    <h2>Độ giòn của RPC và khi nào nên dùng <span class="vi">Stub Regeneration, Lock-Step Releases &amp; Expand-Only Types</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Với Java RMI, thêm một phương thức <code>createCustomer(email)</code> là phải sinh lại stub client — đôi khi cả những client không cần phương thức mới.</li>
+        <li>Xoá trường <code>age</code> (dù không ai dùng) khỏi lớp <code>Customer</code> trên server sẽ làm vỡ phần giải tuần tự hoá ở mọi consumer chưa cập nhật: buộc phát hành đồng loạt (<dfn data-term="lock-step-release">lock-step release</dfn>).</li>
+        <li>Kiểu dữ liệu đi qua binary serialization trở thành kiểu “chỉ được nở ra” (<dfn data-term="expand-only-type">expand-only type</dfn>): một đống trường, có trường không ai dùng mà không dám xoá.</li>
+        <li>Tác giả vẫn thích RPC hiện đại: <dfn data-term="grpc">gRPC</dfn> trên HTTP/2 là lựa chọn số một khi bạn kiểm soát cả client lẫn server. Nếu phải phục vụ nhiều loại client đa dạng, REST over HTTP hợp hơn.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Hãy xét giao diện <code>CustomerRemote</code> trong Ví dụ 4-1 của sách. Java RMI sinh stub client và server từ giao diện này.</p>
+      <pre class="code"><span class="k">public interface</span> CustomerRemote <span class="k">extends</span> Remote {
+  <span class="k">public</span> Customer <span class="fn">findCustomer</span>(String id) <span class="k">throws</span> RemoteException;
+  <span class="k">public</span> Customer <span class="fn">createCustomer</span>(String firstname, String surname, String emailAddress)
+      <span class="k">throws</span> RemoteException;
+}</pre>
+      <p>Muốn cho phép tạo khách hàng chỉ với email? Thêm một phương thức thì dễ, nhưng client nào muốn dùng nó cần stub mới, và tuỳ bản chất thay đổi, cả client không cần cũng phải nâng cấp stub. Những thay đổi kiểu này rất thường gặp, nên endpoint RPC hay phình ra hàng loạt phương thức cho từng cách tạo hay tương tác với đối tượng — dấu hiệu ta vẫn đang nghĩ lời gọi từ xa như lời gọi cục bộ.</p>
+      <h3>Độ giòn thứ hai: kiểu dữ liệu</h3>
+      <p>Lớp <code>Customer implements Serializable</code> có bốn trường <code>firstName</code>, <code>surname</code>, <code>emailAddress</code>, <code>age</code>. Nếu không consumer nào dùng <code>age</code> và server xoá nó, mã giải tuần tự hoá ở phía consumer vẫn gãy. Muốn triển khai, phải deploy server mới và mọi client cùng lúc. Gom <code>firstName</code> và <code>surname</code> vào một kiểu <code>Naming</code> mới cũng gây vấn đề tương tự. Truyền dictionary làm tham số thì tránh được, nhưng mất luôn lợi ích của stub sinh sẵn.</p>
+      <h3>Nên dùng ở đâu?</h3>
+      <p>Java RMI có nhiều vấn đề về độ giòn và hạn chế lựa chọn công nghệ; SOAP khá nặng nề với lập trình viên. gRPC thì được xây để tận dụng HTTP/2, hiệu năng ấn tượng, dễ dùng, và có hệ sinh thái tốt — ví dụ <em>Protolock</em> để phát hiện thay đổi schema không tương thích. gRPC hợp với mô hình request-response đồng bộ, và có thể kết hợp với reactive extensions.</p>
+    </div>
+    <figure class="lab" data-widget="ch4-rmi-brittleness">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đổi lớp Customer và xem consumer nào gãy
+        <small>Chọn thay đổi phía server và công nghệ tuần tự hoá. So sánh binary stub kiểu Java RMI với protocol buffers (định danh trường bằng số) để thấy khi nào bị ép phát hành đồng loạt.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>“Nếu dùng công nghệ này, lock-step release có thể là tương lai của bạn.” Đây là thách thức then chốt của mọi cơ chế RPC khuyến khích sinh binary stub: bạn không tách được việc triển khai client và server.</p></aside>
+  </article>
+
+  <!-- 4.4 -->
+  <article class="topic" id="ch4-rest" data-num="4.4" data-short="REST & HTTP" data-keywords="rest resource representation http verbs get post put idempotent varnish caching openapi swagger tcp udp http/3 quic richardson maturity model">
+    <p class="eyebrow">4.4 · REST · REST and HTTP · Challenges</p>
+    <h2>REST: tài nguyên, biểu diễn và động từ HTTP <span class="vi">Resources, Representations, HTTP Ecosystem &amp; Performance</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li><dfn data-term="rest">REST</dfn> là một phong cách kiến trúc lấy cảm hứng từ Web, xoay quanh <dfn data-term="resource">tài nguyên</dfn> (Customer, Order…). Cách tài nguyên hiện ra bên ngoài (<em>representation</em>, ví dụ JSON) tách hẳn khỏi cách nó được lưu bên trong.</li>
+        <li>Động từ HTTP có ngữ nghĩa sẵn: GET lấy tài nguyên theo cách <dfn data-term="idempotent">idempotent</dfn>, POST tạo tài nguyên mới. Thay vì <code>createCustomer</code>, <code>editCustomer</code>… ta có một tài nguyên Customer và các động từ chung.</li>
+        <li>HTTP mang theo cả hệ sinh thái: cache proxy như Varnish, load balancer như mod_proxy, công cụ giám sát, cơ chế bảo mật từ basic auth đến client cert.</li>
+        <li>Nhược điểm: lịch sử không sinh được mã client (nay có <dfn data-term="openapi">OpenAPI</dfn>), overhead HTTP và TCP cho từng request; HTTP/3 với <em>QUIC</em> đang khắc phục phần này.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Representational State Transfer có nhiều nguyên tắc và ràng buộc; Sam Newman chỉ tập trung vào những gì giúp ích khi tích hợp microservice, và khuyên đọc <em>Richardson Maturity Model</em> để so sánh các “cấp độ” REST. Client có representation của một Customer thì có thể gửi yêu cầu thay đổi nó; server có thể chấp nhận hoặc không.</p>
+      <p>REST về lý thuyết không gắn với giao thức nào — tác giả từng thấy REST chạy trên cổng serial hay USB — nhưng HTTP cho sẵn những thứ như động từ, nên REST over HTTP dễ hơn nhiều.</p>
+      <h3>Dùng HTTP cho tốt</h3>
+      <p>Để hưởng lợi từ hệ sinh thái HTTP, bạn phải dùng HTTP đúng cách; dùng sai thì nó cũng thiếu an toàn và khó mở rộng như bất kỳ công nghệ nào. Lưu ý HTTP cũng có thể chở RPC: SOAP chạy qua HTTP nhưng bỏ qua gần hết đặc tả — bỏ qua động từ, bỏ qua cả mã lỗi HTTP. gRPC thì ngược lại, tận dụng HTTP/2 để chạy nhiều luồng request-response trên một kết nối.</p>
+      <h3>Thách thức</h3>
+      <p>Vì trước đây không sinh được mã client cho REST, nhiều nhóm tự viết client library, kéo theo ghép nối (xem <a href="#ch4-dry">4.14</a>). Đặc tả OpenAPI, lớn lên từ định dạng tài liệu Swagger, nay cho phép sinh mã client — nhưng tác giả hiếm thấy nhóm nào dùng, có lẽ vì khó gắn thêm vào API sẵn có; và một schema OpenAPI phức tạp hơn hẳn một schema protocol buffer.</p>
+      <p>Về hiệu năng, payload REST có thể gọn hơn SOAP nhờ JSON hay thậm chí nhị phân, nhưng vẫn không gọn bằng giao thức nhị phân như Thrift. Mọi phiên bản HTTP phổ biến đều cần TCP bên dưới, kém hiệu quả hơn một số giao thức khác; vài cài đặt RPC cho phép dùng UDP. HTTP/3 chuyển sang QUIC — đảm bảo kiểu TCP nhưng cải thiện độ trễ và băng thông. Có thể mất vài năm mới phổ biến trên Internet công cộng, nhưng tổ chức có thể hưởng lợi sớm hơn trong mạng nội bộ.</p>
+      <h3>Nên dùng ở đâu?</h3>
+      <p>REST over HTTP là lựa chọn mặc định hợp lý cho request-response đồng bộ khi bạn muốn mở cho càng nhiều loại client càng tốt. Nhờ dựa trên (chứ không che giấu) khả năng của HTTP, nó toả sáng khi cần cache ở quy mô lớn — vì thế là lựa chọn hiển nhiên cho API công khai và giao diện client. Dựng giao tiếp bất đồng bộ trên REST thì được, nhưng không phải là lựa chọn tốt so với các phương án khác.</p>
+    </div>
+    <figure class="lab" data-widget="ch4-rest-console">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bảng điều khiển REST cho tài nguyên Customer
+        <small>Chọn động từ và định dạng representation rồi gửi request. Bấm “Gửi 3 lần liên tiếp” để thấy GET/PUT/DELETE idempotent còn POST thì tạo ba khách hàng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Varnish chỉ cache được những gì HTTP cho phép cache. Một API SOAP gửi mọi thứ bằng POST tới một URL duy nhất thì chẳng proxy nào cache giúp được — đó là cái giá của việc dùng HTTP mà phớt lờ đặc tả.</p></aside>
+  </article>
+
+  <!-- 4.5 -->
+  <article class="topic" id="ch4-hateoas" data-num="4.5" data-short="HATEOAS & hypermedia" data-keywords="hateoas hypermedia controls links give blood the brakes amazon shopping cart chatty round trips">
+    <p class="eyebrow">4.5 · Hypermedia As the Engine of Application State</p>
+    <h2>HATEOAS: client đi theo liên kết thay vì nhớ URI <span class="vi">Hypermedia Controls, Decoupling &amp; Chatty Protocols</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li><dfn data-term="hateoas">HATEOAS</dfn>: client tương tác với server (và dẫn tới chuyển trạng thái) thông qua các liên kết — <dfn data-term="hypermedia-control">hypermedia control</dfn> — nằm ngay trong tài nguyên, thay vì biết trước URI nào để gọi.</li>
+        <li>Giống người dùng Amazon: vị trí, hình vẽ, đường link của giỏ hàng đã đổi nhiều lần, nhưng ta vẫn nhận ra giỏ hàng. Chỉ khi đổi hẳn ngữ nghĩa hoặc xoá control thì client mới gãy.</li>
+        <li>Cái giá: client phải đi qua nhiều control, có thể thành giao thức “lắm lời” (<em>chatty</em>) với nhiều round trip mỗi thao tác.</li>
+        <li>Tác giả thừa nhận hiếm thấy HATEOAS được áp dụng và chưa thấy nó mang lại lợi ích đáng công trong kiến trúc microservice.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Hypermedia là nội dung chứa liên kết tới các nội dung khác — đúng như một trang web bình thường. Ví dụ 4-2 trong sách là một mục catalog của MusicCorp cho album <em>Give Blood</em>:</p>
+      <pre class="code">&lt;album&gt;
+  &lt;name&gt;Give Blood&lt;/name&gt;
+  <mark>&lt;link rel="/artist" href="/artist/theBrakes" /&gt;</mark>
+  &lt;description&gt;Awesome, short, brutish, funny and loud. Must buy!&lt;/description&gt;
+  <mark>&lt;link rel="/instantpurchase" href="/instantPurchase/1234" /&gt;</mark>
+&lt;/album&gt;</pre>
+      <p>Client cần hiểu rằng control có quan hệ <code>artist</code> dẫn tới thông tin nghệ sĩ, còn <code>instantpurchase</code> là một phần của giao thức mua album — tương tự người mua hiểu “giỏ hàng” nghĩa là gì. Client không cần biết lược đồ URI: chỉ cần lấy tài nguyên, tìm control “mua”, rồi đi theo nó. URI có thể đổi, thậm chí trỏ sang một service khác, client cũng không quan tâm.</p>
+      <p>Ta cũng được tự do thêm control mới (đại diện cho chuyển trạng thái mới). Lý thuyết là lợi ích tách rời lâu dài sẽ bù cho thời gian dựng giao thức ban đầu.</p>
+      <h3>Hiệu năng và thực tế áp dụng</h3>
+      <p>Nếu chọn HATEOAS, tác giả khuyên cứ để client đi theo control trước, tối ưu sau nếu cần — “tối ưu hoá sớm là nguồn gốc của mọi điều xấu”. Nhưng ông cũng thẳng thắn: nhiều ý tưởng của REST được đặt ra để xây <em>hệ thống siêu văn bản phân tán</em>, và đó không phải thứ đa số chúng ta xây. Có thể khái niệm quá xa lạ, có thể thiếu công cụ và chuẩn, hoặc mô hình đơn giản không hợp với loại hệ thống ta làm.</p>
+    </div>
+    <figure class="lab" data-widget="ch4-hateoas">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hai client cùng mua album Give Blood khi server đổi URI
+        <small>Chọn phiên bản server (đổi URI, chuyển sang service khác, xoá control) rồi bấm “Mua album”. So sánh client gán cứng URI với client đi theo hypermedia — và đếm số round trip.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Dù đánh giá cao mục tiêu của HATEOAS về mặt ý tưởng, Sam Newman không nhớ có nhóm microservice nào trong vài năm gần đây nói được giá trị của nó. Kết luận của ông: ở vành đai hệ thống (perimeter) REST hoạt động tuyệt vời, và cho request-response đồng bộ giữa microservice thì REST rất tốt — không cần đến HATEOAS.</p></aside>
+  </article>
+
+  <!-- 4.6 -->
+  <article class="topic" id="ch4-graphql" data-num="4.6" data-short="GraphQL" data-keywords="graphql query mobile aggregation caching cdn server load apollo odata github bff backend for frontend">
+    <p class="eyebrow">4.6 · GraphQL</p>
+    <h2>GraphQL: một truy vấn thay cho nhiều lời gọi <span class="vi">Client-Defined Queries, Caching &amp; Server-Side Load</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li><dfn data-term="graphql">GraphQL</dfn> cho thiết bị client tự định nghĩa truy vấn, lấy đúng các trường cần từ nhiều microservice hạ lưu trong <em>một</em> request — rất có lợi cho thiết bị di động bị giới hạn băng thông và gói data.</li>
+        <li>Truy vấn do client thay đổi linh hoạt có thể gây tải lớn bất ngờ phía server, và khó chẩn đoán hơn SQL vì không có query planner tương đương.</li>
+        <li>Cache khó hơn REST: không dùng được header cache để CDN hay reverse proxy cache response một cách tự nhiên.</li>
+        <li>Về bản chất GraphQL là cơ chế <em>gộp lời gọi</em> ở vành đai hệ thống; nó không thay thế giao tiếp microservice-với-microservice. Phương án thay thế: <dfn data-term="bff">Backend For Frontend</dfn>.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Ví dụ của sách: một ứng dụng di động muốn hiển thị trang tổng quan đơn hàng gần nhất của khách hàng. Trang cần vài trường của khách hàng và thông tin về <strong>5 đơn hàng gần nhất</strong> — chỉ ngày đặt, giá trị và trạng thái đã giao. Gọi thẳng hai microservice hạ lưu nghĩa là nhiều request và kéo về cả dữ liệu không cần, tốn gói data và chậm hơn. Với GraphQL, một microservice cung cấp endpoint GraphQL làm cửa ngõ cho mọi truy vấn của client, công bố một schema các kiểu dữ liệu, kèm cả công cụ dựng truy vấn trực quan.</p>
+      <h3>Những thách thức còn lại</h3>
+      <p>Ban đầu chỉ có JavaScript hỗ trợ; nay mọi công nghệ lớn đều có. Nhưng vẫn còn: <strong>tải server</strong> khó kiểm soát và việc throttle khó vì một lời gọi có thể trải trên nhiều microservice; <strong>cache</strong> — lời khuyên phổ biến là gắn ID cho mỗi tài nguyên trả về và để client cache theo ID, nghĩa là CDN hay caching reverse proxy rất khó dùng nếu không có thêm công cụ (cài đặt JavaScript Apollo có giải pháp riêng); <strong>ghi dữ liệu</strong> không hợp bằng đọc, nên nhiều nhóm đọc bằng GraphQL và ghi bằng REST.</p>
+      <p>Vấn đề cuối có phần chủ quan: GraphQL tạo cảm giác ta chỉ đang làm việc với dữ liệu, củng cố ý nghĩ rằng microservice chỉ là lớp vỏ bọc database. Nhiều người so sánh nó với OData — công nghệ API chung để truy cập database. Microservice cung cấp <em>chức năng</em>, có logic và hành vi riêng; đừng để API GraphQL ghép nối vào kho dữ liệu bên dưới.</p>
+      <h3>Nên dùng ở đâu?</h3>
+      <p>Điểm mạnh nhất là vành đai hệ thống, phục vụ GUI và đặc biệt thiết bị di động. GraphQL cũng được dùng cho API công khai — GitHub là một trong những bên áp dụng sớm. Nếu client bên ngoài thường phải gọi nhiều lần mới đủ thông tin, GraphQL làm API hiệu quả và thân thiện hơn.</p>
+    </div>
+    <figure class="lab" data-widget="ch4-graphql">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Màn hình “5 đơn hàng gần nhất” trên điện thoại: REST so với GraphQL
+        <small>Tick các trường màn hình cần. Widget dựng truy vấn GraphQL, tính số request và số byte thực tế của JSON trả về ở hai cách, và cho biết CDN có cache được không. Dữ liệu khách hàng là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Nếu truy vấn rất riêng cho từng người dùng thì tỉ lệ cache hit vốn thấp, thiếu cache ở tầng request không phải vấn đề lớn. Nhưng với dữ liệu chung, bạn có thể sẽ phải chạy song song: request chung đi REST (cache được), request riêng đi GraphQL.</p></aside>
+  </article>
+
+  <!-- 4.7 -->
+  <article class="topic" id="ch4-brokers" data-num="4.7" data-short="Message broker: queue & topic" data-keywords="message broker middleware queue topic consumer group competing consumers order processor order status warehouse notifications">
+    <p class="eyebrow">4.7 · Message Brokers · Topics and Queues</p>
+    <h2>Message broker: queue và topic <span class="vi">Point-to-Point, Publish-Subscribe &amp; Consumer Groups</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li><dfn data-term="message-broker">Message broker</dfn> là middleware đứng giữa các tiến trình để quản lý giao tiếp. Message có thể chứa request, response hoặc event.</li>
+        <li><dfn data-term="queue">Queue</dfn> là điểm-điểm; với <dfn data-term="topic">topic</dfn>, nhiều consumer đăng ký và mỗi consumer đăng ký nhận một bản sao.</li>
+        <li>Nhiều instance của một microservice được gom thành <dfn data-term="consumer-group">consumer group</dfn>: mỗi message chỉ tới một thành viên — chính là mẫu <dfn data-term="competing-consumers">competing consumers</dfn> ở <a href="#ch3">Chương 3</a>.</li>
+        <li>Khác biệt cốt lõi: gửi qua queue thì bên gửi biết message đi tới đâu; gửi lên topic thì bên gửi không biết ai (nếu có) sẽ nhận.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Message broker là lựa chọn phổ biến cho giao tiếp bất đồng bộ giữa microservice. Thay vì microservice nói chuyện trực tiếp với nhau, nó trao message cho broker cùng thông tin về cách message nên được gửi đi.</p>
+      <h3>Queue: phân phối tải</h3>
+      <p>Hình 4-1: <strong>Order Processor</strong> có ba instance, cùng thuộc một consumer group. Khi một message vào queue, chỉ một thành viên nhận được. Queue khi đó là cơ chế phân phối tải.</p>
+      <h3>Topic: phát sóng sự kiện</h3>
+      <p>Hình 4-2: một event “đơn hàng đã thanh toán” được đẩy lên topic <strong>Order Status</strong>. Microservice <strong>Warehouse</strong> và <strong>Notifications</strong> ở hai consumer group khác nhau, nên mỗi bên nhận một bản sao; trong mỗi group chỉ một instance thấy event đó.</p>
+      <p>Thoạt nhìn queue giống một topic với đúng một consumer group. Nhưng việc bên gửi có biết người nhận hay không mới là điểm phân biệt. Vì vậy topic hợp với cộng tác dựa trên event, còn queue hợp với request/response — đây là gợi ý chung chứ không phải luật cứng.</p>
+    </div>
+    <figure class="lab" data-widget="ch4-queue-topic">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Gửi message qua queue và qua topic
+        <small>Chọn chế độ rồi bấm “Gửi message”. Ở chế độ topic, thử thêm consumer group Loyalty — bên gửi không cần thay đổi gì và cũng không biết có thêm người nghe.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Câu hỏi để chọn giữa queue và topic: “Bên gửi có nên biết ai xử lý message này không?” Nếu có (một yêu cầu cụ thể tới một service cụ thể) — queue. Nếu không (công bố một sự thật đã xảy ra) — topic.</p></aside>
+  </article>
+
+  <!-- 4.8 -->
+  <article class="topic" id="ch4-delivery" data-num="4.8" data-short="Guaranteed delivery & exactly once" data-keywords="guaranteed delivery durable cluster rabbitmq trust ordering partition transactions exactly once idempotent consumer message id jms">
+    <p class="eyebrow">4.8 · Guaranteed Delivery · Trust · Other Characteristics</p>
+    <h2>Đảm bảo giao nhận, niềm tin và “exactly once” <span class="vi">Durability, Ordering, Transactions &amp; Duplicate Messages</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li><dfn data-term="guaranteed-delivery">Guaranteed delivery</dfn>: broker cam kết message sẽ được giao. Nếu đích đang không sẵn sàng, broker giữ message lại — bên gửi bớt một việc phải lo so với lời gọi HTTP trực tiếp (thử lại hay bỏ cuộc?).</li>
+        <li>Để giữ cam kết, broker lưu bền message chưa giao và thường chạy dạng cluster. Cấu hình sai có thể phá vỡ lời hứa: cluster RabbitMQ cần mạng độ trễ thấp, nếu không có thể mất dữ liệu.</li>
+        <li>Thứ tự không phải lúc nào cũng được đảm bảo: Kafka chỉ đảm bảo thứ tự <em>trong một partition</em>. Một số broker có giao dịch khi ghi (Kafka ghi nhiều topic trong một transaction) hoặc khi đọc (qua JMS).</li>
+        <li><dfn data-term="exactly-once-delivery">Exactly once delivery</dfn> gây tranh cãi. Tốt hơn hết: xây consumer sẵn sàng nhận một message nhiều lần — ví dụ kiểm tra message ID đã xử lý (<em>idempotent consumer</em>).</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Vì sao dùng broker? Thuộc tính thú vị nhất là đảm bảo giao nhận — mọi broker phổ biến đều hỗ trợ theo cách nào đó. Nhưng mỗi broker hiểu “đảm bảo giao nhận” hơi khác nhau, và chạy cluster đúng cách không hề dễ. Nếu tự vận hành broker, hãy đọc kỹ tài liệu.</p>
+      <h3>Niềm tin</h3>
+      <p>Nếu hệ thống của bạn xây trên giả định giao nhận được đảm bảo, mà giả định đó sai vì sự cố ở broker, hậu quả có thể nghiêm trọng. Hy vọng là bạn đang giao phần việc khó này cho phần mềm do những người làm giỏi hơn bạn viết ra — nhưng rốt cuộc bạn phải tự quyết định tin broker tới mức nào.</p>
+      <h3>Thứ tự, giao dịch và message trùng</h3>
+      <p>Khi không chắc message tới đúng thứ tự, consumer có thể phải bù — ví dụ hoãn xử lý message tới sai thứ tự cho đến khi nhận đủ message còn thiếu. Còn với “exactly once”: cách dễ nhất để đảm bảo giao nhận là cho phép gửi lại, nên consumer có thể thấy một message hơn một lần (dù hiếm). Có chuyên gia nói đảm bảo exactly once trong mọi trường hợp là bất khả, có người nói làm được với vài mẹo. Dù sao, nếu broker tuyên bố có tính năng này, hãy tìm hiểu kỹ nó được cài đặt thế nào.</p>
+    </div>
+    <figure class="lab" data-widget="ch4-delivery">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> 20 event “OrderPaid” gửi tới Warehouse — gọi trực tiếp so với qua broker
+        <small>Cho Warehouse ngừng hoạt động một lúc, tăng xác suất mất ACK (khiến broker gửi lại), và bật/tắt kiểm tra message ID. Quan sát message bị mất và kho bị trừ hai lần. Xác suất là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Đừng đặt cược tính đúng đắn của nghiệp vụ vào tuyên bố “exactly once” của broker. Một kiểm tra ID message ở consumer tốn rất ít công nhưng chặn được cả lớp lỗi trừ kho, trừ tiền, gửi email hai lần.</p></aside>
+  </article>
+
+  <!-- 4.9 -->
+  <article class="topic" id="ch4-kafka" data-num="4.9" data-short="Lựa chọn broker & Kafka" data-keywords="rabbitmq activemq kafka sqs sns kinesis linkedin message permanence retention replay ksql stream processing partition offset">
+    <p class="eyebrow">4.9 · Choices · Kafka</p>
+    <h2>Các lựa chọn broker và đặc điểm của Kafka <span class="vi">Scale, Message Permanence &amp; Stream Processing</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Broker phổ biến: RabbitMQ, ActiveMQ, Kafka. Đám mây công cộng có bản managed và sản phẩm riêng — AWS có SQS, SNS, Kinesis. SQS là sản phẩm đầu tiên AWS phát hành, năm 2006.</li>
+        <li><dfn data-term="kafka">Kafka</dfn> được LinkedIn xây để thay nhiều cluster message bằng một nền tảng duy nhất; tác giả từng gặp tổ chức có hơn 50 nghìn producer và consumer trên cùng một cluster.</li>
+        <li><dfn data-term="message-permanence">Message permanence</dfn>: Kafka giữ message trong khoảng thời gian cấu hình được — kể cả mãi mãi — nên consumer có thể đọc lại, và consumer mới có thể xử lý message gửi từ trước.</li>
+        <li>Kafka có xử lý luồng tích hợp: <em>KSQL</em> cho phép viết câu lệnh kiểu SQL xử lý topic theo thời gian thực, giống một materialized view cập nhật liên tục.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Kafka nổi lên một phần vì được dùng để di chuyển khối lượng dữ liệu lớn trong các pipeline xử lý luồng, giúp chuyển từ xử lý theo lô sang gần thời gian thực. Nó được thiết kế cho quy mô rất lớn với nhiều producer và consumer. Rất ít tổ chức gặp bài toán ở mức 50 nghìn client, nhưng khả năng mở rộng Kafka (tương đối) dễ dàng vẫn hữu ích với nhiều nơi.</p>
+      <h3>Giữ message thay vì xoá</h3>
+      <p>Với broker thông thường, khi consumer cuối cùng đã nhận message, broker không cần giữ nó nữa. Kafka thì lưu message vào log theo cấu hình thời gian lưu. Đây là điều mở ra cách dùng mới: triển khai một consumer hoàn toàn mới và cho nó “tua lại” lịch sử, hoặc cho consumer cũ xử lý lại sau khi sửa lỗi.</p>
+      <h3>Xử lý luồng ngay trong Kafka</h3>
+      <p>Thay vì đẩy message sang công cụ xử lý luồng chuyên dụng như Apache Flink, một số tác vụ có thể làm ngay trong Kafka bằng KSQL. Nguồn dữ liệu của “view” khi đó là topic Kafka chứ không phải database. Sách gợi ý đọc thêm <em>Designing Event-Driven Systems</em> của Ben Stopford (Sam Newman viết lời tựa) và <em>Kafka: The Definitive Guide</em>.</p>
+    </div>
+    <figure class="lab" data-widget="ch4-kafka-log">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Log của topic Kafka: thứ tự theo partition và đọc lại lịch sử
+        <small>Ghi event cho các đơn hàng (mỗi đơn đi vào partition theo key), cho consumer đọc, rồi triển khai consumer mới. So sánh với broker truyền thống xoá message sau khi đã giao.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Vì thứ tự chỉ được đảm bảo trong một partition, hãy chọn key (ví dụ mã đơn hàng) sao cho các event cần đúng thứ tự với nhau luôn rơi vào cùng partition.</p></aside>
+  </article>
+
+  <!-- 4.10 -->
+  <article class="topic" id="ch4-serialization" data-num="4.10" data-short="Định dạng tuần tự hoá" data-keywords="serialization json xml avro protocol buffers binary xpath jsonpath simple binary encoding capn proto flatbuffers payload size">
+    <p class="eyebrow">4.10 · Serialization Formats</p>
+    <h2>Định dạng văn bản và nhị phân <span class="vi">Textual Formats vs Binary Formats</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Một số công nghệ chọn sẵn định dạng (gRPC luôn dùng protocol buffers); số khác như Kafka để bạn tự chọn.</li>
+        <li><em>JSON</em> đã thay <em>XML</em> vì consumer chính thường là trình duyệt. Chênh lệch kích thước JSON/XML hiếm khi lớn, nhất là khi đã nén — và sự đơn giản của JSON đi kèm cái giá là schema bị vứt bỏ.</li>
+        <li>Tác giả vẫn thích XML nhờ công cụ tốt hơn, như <dfn data-term="xpath">XPath</dfn> để trích một phần payload; JSONPATH ít được hỗ trợ hơn.</li>
+        <li>Định dạng nhị phân (protocol buffers, Simple Binary Encoding, Cap'n Proto, FlatBuffers) dành cho khi bạn thật sự lo kích thước payload hoặc tốc độ đọc/ghi. Benchmark công bố không thay được phép đo của chính bạn.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Định dạng văn bản cho client rất nhiều tự do. API REST thường dùng văn bản cho body, dù HTTP hoàn toàn chở được nhị phân — gRPC chính là HTTP bên dưới với payload protocol buffers nhị phân.</p>
+      <p>Avro thú vị ở chỗ dùng JSON làm cấu trúc để định nghĩa một định dạng dựa trên schema, và có thể gửi schema kèm payload. Nó rất phổ biến cho payload message. Tác giả thấy lạ khi người ta chọn JSON vì nhẹ nhàng, rồi lại cố nhồi vào đó những khái niệm như hypermedia control vốn đã có sẵn trong XML — dù ông thừa nhận mình thuộc thiểu số.</p>
+      <h3>Khi nào cần nhị phân?</h3>
+      <p>Protocol buffers có lẽ là định dạng nhị phân phổ biến nhất cho giao tiếp microservice, dùng cả ngoài gRPC. Nếu bạn muốn vắt kiệt từng byte hay từng micro-giây, hãy tự so sánh các định dạng với dữ liệu và cách dùng của mình. Nhưng theo kinh nghiệm của tác giả, phần lớn hệ thống đạt được cải thiện mong muốn bằng cách <em>gửi ít dữ liệu hơn</em>, hoặc <em>không gọi luôn</em>. Chỉ khi xây hệ phân tán độ trễ cực thấp mới cần lao đầu vào thế giới định dạng nhị phân.</p>
+    </div>
+    <figure class="lab" data-widget="ch4-serialization">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Mã hoá bản ghi khách hàng của Ví dụ 4-3 bằng năm định dạng
+        <small>Chọn định dạng để xem payload và số byte thật (protocol buffers và Avro được mã hoá đúng theo đặc tả). Kéo số bản ghi để thấy chênh lệch nhân lên thế nào.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Kích thước payload là một tham số tối ưu muộn. Trước khi đổi sang định dạng nhị phân, hãy hỏi: có trường nào không cần gửi? Có lời gọi nào không cần thực hiện?</p></aside>
+  </article>
+
+  <!-- 4.11 -->
+  <article class="topic" id="ch4-schemas" data-num="4.11" data-short="Schema: phá vỡ cấu trúc & ngữ nghĩa" data-keywords="schema xsd json schema wsdl structural breakage semantic breakage hard calculations static dynamic typing implicit schema contract testing">
+    <p class="eyebrow">4.11 · Schemas · Structural vs Semantic Contract Breakages</p>
+    <h2>Schema và hai loại phá vỡ hợp đồng <span class="vi">Should You Use Schemas?</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Định dạng quyết định công nghệ <dfn data-term="schema">schema</dfn>: XML dùng XSD, JSON dùng JSON-Schema, SOAP dùng WSDL, gRPC cần đặc tả protocol buffer.</li>
+        <li><dfn data-term="structural-breakage">Phá vỡ cấu trúc</dfn>: xoá trường/phương thức, thêm trường bắt buộc. <dfn data-term="semantic-breakage">Phá vỡ ngữ nghĩa</dfn>: cấu trúc giữ nguyên nhưng hành vi đổi làm sai kỳ vọng của consumer.</li>
+        <li>So sánh các phiên bản schema bắt được phá vỡ cấu trúc; phá vỡ ngữ nghĩa phải dựa vào kiểm thử.</li>
+        <li>Câu hỏi thật không phải “có schema hay không” mà là schema có <em>tường minh</em> hay không — API “schemaless” vẫn có một <em>schema ngầm định</em> nằm trong giả định của mã consumer.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Tác giả ủng hộ schema tường minh vì hai lý do: nó là bản mô tả rõ ràng những gì endpoint cung cấp và chấp nhận (giảm lượng tài liệu cần viết), và nó giúp bắt những lần vô tình phá vỡ endpoint.</p>
+      <h3>Ví dụ Hard Calculations</h3>
+      <p>Microservice <strong>Hard Calculations</strong> có phương thức <code>calculate</code> nhận hai số nguyên bắt buộc. Đổi sang chỉ nhận một số nguyên thì consumer gãy ngay — request gửi hai số bị từ chối. Đây là thay đổi cấu trúc, thường dễ phát hiện. Còn nếu phiên bản đầu <em>cộng</em> hai số và phiên bản sau đổi thành <em>nhân</em>, cấu trúc không đổi chút nào nhưng ngữ nghĩa đã khác — khó phát hiện hơn nhiều.</p>
+      <h3>Giống kiểu tĩnh và kiểu động</h3>
+      <p>Với ngôn ngữ kiểu tĩnh, trình biên dịch bắt lỗi kiểu, nên kiểm thử tập trung vào việc khác; với ngôn ngữ kiểu động, kiểm thử phải gánh thêm phần đó. Tác giả khá thoải mái giữa hai loại ngôn ngữ, nhưng với giao tiếp microservice thì ông thấy không có sự cân bằng tương tự: schema tường minh đáng giá hơn hẳn mọi lợi ích cảm nhận được của giao tiếp không schema. Lập luận “schema tốn công mà ít giá trị” theo ông một phần là thiếu trí tưởng tượng, một phần là thiếu công cụ tốt. Chỉ khi chi phí thay đổi thấp, ví dụ cùng một nhóm sở hữu cả client lẫn server, ông mới thoải mái hơn với việc không có schema.</p>
+    </div>
+    <figure class="lab" data-widget="ch4-schema-breaks">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Thay đổi Hard Calculations và xem lưới an toàn nào bắt được
+        <small>Chọn một thay đổi cho <code>calculate</code>, bật/tắt bước so sánh schema trong CI và kiểm thử hợp đồng hướng consumer. Lỗi bị chặn trước khi deploy, hay lọt ra production?</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Schema tường minh + công cụ so sánh = bắt phá vỡ cấu trúc. Kiểm thử = bắt phá vỡ ngữ nghĩa. Không có schema thì kiểm thử phải gánh cả hai.</p></aside>
+  </article>
+
+  <!-- 4.12 -->
+  <article class="topic" id="ch4-avoid-breaking" data-num="4.12" data-short="Tránh breaking change" data-keywords="expansion changes tolerant reader postel law robustness principle field number semantic versioning asyncapi cloudevents protolock openapi-diff schema registry consumer-driven contract">
+    <p class="eyebrow">4.12 · Handling Change Between Microservices · Avoiding Breaking Changes</p>
+    <h2>Tránh breaking change: mở rộng, đọc khoan dung, bắt lỗi sớm <span class="vi">Expansion Changes, Tolerant Reader, Explicit Interface &amp; Semantic Versioning</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Năm ý tưởng bổ trợ nhau: <dfn data-term="expansion-change">thay đổi mở rộng</dfn> (chỉ thêm, không xoá), <dfn data-term="tolerant-reader">Tolerant Reader</dfn>, chọn đúng công nghệ, giao diện tường minh, và bắt breaking change vô tình từ sớm.</li>
+        <li>Tolerant Reader thể hiện <dfn data-term="postels-law">định luật Postel</dfn>: “Hãy bảo thủ với những gì bạn làm, phóng khoáng với những gì bạn nhận từ người khác.”</li>
+        <li>Protocol buffers định danh trường bằng <em>field number</em>: thêm trường mới thì client cũ không quan tâm.</li>
+        <li><dfn data-term="semantic-versioning">Semantic versioning</dfn> MAJOR.MINOR.PATCH gói nhiều kỳ vọng vào ba con số. Công cụ như Protolock, json-schema-diff-validator, openapi-diff, <em>Confluent Schema Registry</em> nên làm <em>fail build CI</em> khi gặp schema không tương thích.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Câu hỏi “versioning thế nào?” hiếm khi là chuyện đánh số, mà là chuyện xử lý thay đổi hợp đồng giữa các microservice. Trước hết hãy cố <em>không tạo</em> breaking change.</p>
+      <h3>Thay đổi mở rộng và Tolerant Reader</h3>
+      <p>Thêm trường <code>dob</code> vào bản ghi khách hàng là ổn — miễn client khoan dung với thay đổi. Ví dụ của sách: microservice email cần gửi email “đơn đã giao” cho khách hàng 1234. Nó lấy bản ghi khách hàng (Ví dụ 4-3) chỉ để dùng <code>firstname</code>, <code>lastname</code>, <code>email</code> — không cần <code>telephoneNumber</code>. Công nghệ binding, nhất là ở ngôn ngữ kiểu mạnh, có thể cố gắn mọi trường dù consumer có cần hay không; khi ai đó xoá <code>telephoneNumber</code> vì không ai dùng, consumer gãy vô cớ. Nếu bản ghi được tái cấu trúc thành <code>&lt;naming&gt;</code> (Ví dụ 4-4), dữ liệu vẫn còn nhưng mã gán cứng vị trí cũng gãy. Dùng XPath để tìm trường ở bất cứ đâu chính là Tolerant Reader — tên do Martin Fowler đặt.</p>
+      <h3>Đúng công nghệ, giao diện tường minh</h3>
+      <p>Java RMI giòn; protocol buffers có field number; Avro gửi schema kèm payload để client diễn giải gần như kiểu động; HATEOAS đi xa nhất. Schema tường minh làm ranh giới che giấu thông tin rõ ràng — cái gì có trong schema thì theo định nghĩa là không bị che. RPC có schema từ lâu; REST xem schema là tuỳ chọn nhưng đang đổi nhờ OpenAPI và JSON Schema. Messaging bất đồng bộ khó hơn: schema cho payload thì dễ (thường là Avro), nhưng “service này phát ra những event nào?” thì cần hơn thế — <em>AsyncAPI</em> và <em>CloudEvents</em> (được CNCF hậu thuẫn, Azure Event Grid hỗ trợ) là các nỗ lực đáng chú ý.</p>
+      <h3>Semantic versioning và bắt lỗi sớm</h3>
+      <p>MAJOR tăng: có thay đổi không tương thích ngược. MINOR tăng: thêm chức năng tương thích ngược. PATCH tăng: sửa lỗi. Ứng dụng helpdesk xây cho customer service 1.2.0 thì chạy được với 1.3.0, không chắc chạy được với 1.1.0, và phải chuẩn bị sửa khi 2.0.0 ra mắt. Với phá vỡ ngữ nghĩa — hoặc khi không có schema — thì cần kiểm thử, đặc biệt là <dfn data-term="consumer-driven-contracts">consumer-driven contract testing</dfn>. Nếu hỗ trợ nhiều client library, chạy kiểm thử bằng từng library với service mới nhất cũng là một cách hay.</p>
+    </div>
+    <figure class="lab" data-widget="ch4-tolerant-reader">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ba kiểu reader đọc bản ghi khách hàng qua bốn phiên bản; kiểm tra tương thích semver
+        <small>Chế độ “Tolerant Reader”: chọn phiên bản payload, xem reader nào trích được firstname, lastname, email (truy vấn XPath chạy thật trong trình duyệt). Chế độ “Semantic Versioning”: helpdesk xây cho 1.2.0 có chạy được với phiên bản bạn chọn không?</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Thứ bạn cần không phải công cụ chỉ <em>liệt kê khác biệt</em> giữa hai schema, mà công cụ <em>đạt/trượt</em> dựa trên tương thích — để có thể làm fail build CI và đảm bảo microservice không tương thích không bao giờ được deploy.</p></aside>
+  </article>
+
+  <!-- 4.13 -->
+  <article class="topic" id="ch4-managing-breaking" data-num="4.13" data-short="Quản lý breaking change" data-keywords="lock-step deployment coexist versions emulate old interface expand and contract netflix v1 v2 v3 uri header versioning social contract tracking usage extreme measures">
+    <p class="eyebrow">4.13 · Managing Breaking Changes · The Social Contract</p>
+    <h2>Khi buộc phải phá vỡ: ba chiến lược và khế ước xã hội <span class="vi">Lock-Step, Coexist Versions, Emulate the Old Interface</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Ba lựa chọn: <dfn data-term="lock-step-release">lock-step deployment</dfn> (đổi service và mọi consumer cùng lúc), chạy song song hai phiên bản service (<em>coexist incompatible versions</em>), hoặc service mới đồng thời <em>giả lập giao diện cũ</em>.</li>
+        <li>Lock-step đi ngược khả năng triển khai độc lập; lạm dụng nó và bạn sẽ sớm có một <dfn data-term="distributed-monolith">distributed monolith</dfn>.</li>
+        <li>Chạy song song phiên bản: phải vá lỗi ở hai nhánh mã, cần định tuyến ở middleware, và dữ liệu do cả hai phiên bản tạo ra phải thấy được ở mọi nơi. Chỉ hợp khi ngắn hạn (blue/green, canary).</li>
+        <li>Tác giả ưu tiên giả lập endpoint cũ — một dạng <dfn data-term="expand-and-contract">expand and contract</dfn>. Và cần một khế ước xã hội: ai đề xuất, ai sửa consumer, bao lâu thì tắt endpoint cũ, có theo dõi ai còn dùng không.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <h3>Chạy song song nhiều phiên bản</h3>
+      <p>Netflix dùng cách này một cách dè dặt khi chi phí đổi consumer cũ quá cao, nhất là với thiết bị đời cũ gắn với API cũ (Hình 4-3). Tác giả không thích: mỗi bug phải sửa và deploy hai bộ service (thường là phải rẽ nhánh mã nguồn), logic định tuyến consumer rơi vào middleware hoặc một đống script nginx, và khách hàng tạo bởi phiên bản nào cũng phải lưu và hiển thị cho mọi service. Trong blue/green hay canary release (xem <a href="#ch7">Chương 7</a>), các phiên bản chỉ cùng tồn tại vài phút đến vài giờ nên nhược điểm được bù lại.</p>
+      <h3>Giả lập giao diện cũ</h3>
+      <p>Deploy một phiên bản service cung cấp cả endpoint cũ lẫn mới (Hình 4-4); khi mọi consumer đã chuyển, gỡ endpoint cũ cùng mã liên quan. Lần gần nhất dùng cách này, nhóm của tác giả lỡ phải giữ <strong>ba</strong> phiên bản endpoint cùng lúc — không nên chút nào. Để dễ quản lý, họ biến đổi nội bộ mọi request V1 thành request V2, rồi V2 thành V3, nhờ vậy phân định rõ đoạn mã nào sẽ bị gỡ khi endpoint cũ “chết”. Với HTTP, phiên bản có thể nằm trong header hoặc URI (<code>/v1/customer/</code>, <code>/v2/customer/</code>); với RPC, có thể đặt phương thức vào namespace khác nhau như <code>v1.createCustomer</code> và <code>v2.createCustomer</code>.</p>
+      <h3>Khế ước xã hội, theo dõi sử dụng và biện pháp cực đoan</h3>
+      <p>Hai bên cần rõ: vấn đề được nêu thế nào, thống nhất thay đổi ra sao, ai làm việc cập nhật consumer, và consumer có bao lâu để chuyển trước khi giao diện cũ bị gỡ. Hãy log từng endpoint và yêu cầu một định danh client — đơn giản như đặt tên trong header User-Agent, hoặc bắt mọi lời gọi qua API Gateway với key riêng. Netflix từng phải giữ endpoint cũ cho các set-top box không nâng cấp được; quyết định ngừng hỗ trợ đôi khi là bài toán tiền bạc. Một công ty lớn cho hẳn <strong>một năm</strong> rồi tắt giao diện cũ mà không theo dõi ai còn dùng — consumer gãy là lỗi của consumer. Một nơi khác chèn <code>sleep</code> vào thư viện cũ và tăng dần thời gian chờ cho tới khi các nhóm khác “hiểu ý”.</p>
+    </div>
+    <figure class="lab" data-widget="ch4-breaking-strategy">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Mô phỏng một breaking change trên customer service theo từng tuần
+        <small>Chọn chiến lược, số consumer và thời gian consumer cần để chuyển. Bật/tắt theo dõi định danh client để thấy khi nào được phép gỡ /v1. Lịch chuyển đổi của từng consumer là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Một trong những bí quyết của kiến trúc microservice hiệu quả là tư duy <em>consumer-first</em>: microservice tồn tại để được gọi. Lock-step chỉ chấp nhận được khi một nhóm sở hữu cả service lẫn mọi consumer và đó thật sự là chuyện một lần.</p></aside>
+  </article>
+
+  <!-- 4.14 -->
+  <article class="topic" id="ch4-dry" data-num="4.14" data-short="DRY, thư viện & client library" data-keywords="dry don't repeat yourself shared library code reuse client library aws sdk netflix realestate.com.au service template service mesh api gateway">
+    <p class="eyebrow">4.14 · DRY and the Perils of Code Reuse in a Microservice World</p>
+    <h2>DRY và hiểm hoạ tái sử dụng mã giữa các microservice <span class="vi">Shared Libraries, Client Libraries, Service Meshes &amp; API Gateways</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li><dfn data-term="dry">DRY</dfn> đúng nghĩa là tránh trùng lặp <em>hành vi và tri thức</em>, không chỉ tránh trùng dòng mã.</li>
+        <li><em>Thư viện dùng chung</em> nào rò rỉ ra ngoài ranh giới service (như thư viện domain object chung) là một dạng ghép nối. Thư viện logging thì ổn vì là khái niệm nội bộ.</li>
+        <li>Không thể cập nhật mọi nơi dùng thư viện cùng một lúc: mỗi service đóng gói thư viện vào bản deploy của nó. Nếu thật sự cần cập nhật đồng thời, hãy tái sử dụng qua một microservice riêng.</li>
+        <li>Client library: tách phần xử lý giao thức truyền tải (service discovery, lỗi) khỏi logic của service đích, và để <em>client tự quyết khi nào nâng cấp</em>. <dfn data-term="service-mesh">Service mesh</dfn> và <dfn data-term="api-gateway">API gateway</dfn> có thể chia sẻ hành vi chung — miễn là hoàn toàn chung chung.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Ở một khách hàng của tác giả, có một thư viện domain object dùng chung đại diện các thực thể cốt lõi, được mọi service dùng. Mỗi khi đổi một đối tượng, mọi service phải cập nhật; hệ thống giao tiếp qua message queue, nên các queue cũng phải được “xả” hết nội dung giờ đã không hợp lệ — và quên làm thì khốn khổ. RealEstate.com.au thì có một service template để khởi tạo service mới, nhưng họ <em>sao chép</em> nó cho mỗi service thay vì chia sẻ, để ghép nối không rò rỉ vào.</p>
+      <p>Dùng thư viện để tái sử dụng mã là được, miễn bạn chấp nhận nhiều phiên bản khác nhau của cùng thư viện cùng tồn tại một lúc.</p>
+      <h3>Client library</h3>
+      <p>Khi cùng một nhóm viết cả API server lẫn client, logic đáng lẽ ở server dễ rò sang client — tác giả thừa nhận từng làm vậy. Logic càng rò, cohesion càng vỡ, và để sửa server bạn phải đổi nhiều client; nếu bắt buộc dùng client library thì còn giới hạn luôn lựa chọn công nghệ. Mô hình tác giả thích là AWS: API SOAP/REST gọi trực tiếp được, nhưng ai cũng dùng SDK — do cộng đồng hoặc người AWS <em>khác với</em> nhóm làm API viết, và client chủ động thời điểm nâng cấp. Netflix đặc biệt coi trọng client library, nhưng chủ yếu vì độ tin cậy và khả năng mở rộng (service discovery, chế độ lỗi, logging) chứ không phải tránh trùng mã; dù vậy, theo ít nhất một người ở Netflix, theo thời gian nó đã gây ra ghép nối client–server đáng ngại.</p>
+    </div>
+    <figure class="lab" data-widget="ch4-shared-lib">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Phát hành phiên bản 2 của thứ được chia sẻ giữa năm microservice
+        <small>Chọn thứ được chia sẻ (thư viện logging, thư viện domain object, client library chứa logic server, proxy trong service mesh) rồi bấm “Phát hành v2”. Xem service nào bị buộc deploy lại ngay và message nào trong queue trở nên không hợp lệ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Hành vi đặt trong API gateway hay service mesh phải hoàn toàn không liên quan đến hành vi riêng của bất kỳ microservice nào. Khi proxy bắt đầu “biết” nghiệp vụ, bạn vừa tạo ra một nơi ghép nối mới.</p></aside>
+  </article>
+
+  <!-- Review -->
+  <article class="topic" id="ch4-review" data-num="4.★" data-short="Tổng kết & kiểm tra" data-keywords="summary quiz review technology choice schemas backwards compatible">
+    <p class="eyebrow">4.★ · Summary</p>
+    <h2>Tổng kết chương và câu hỏi ôn tập <span class="vi">Summary &amp; Quiz</span></h2>
+    <div class="tldr">
+      <h3>Bốn điều cần mang theo</h3>
+      <ul>
+        <li>Để bài toán dẫn dắt lựa chọn công nghệ: chọn kiểu giao tiếp trước, công nghệ sau — đừng rơi vào bẫy chọn công nghệ trước.</li>
+        <li>Dù chọn gì, hãy dùng schema để hợp đồng tường minh và để bắt breaking change vô tình.</li>
+        <li>Khi có thể, hãy thay đổi theo hướng tương thích ngược để giữ được khả năng triển khai độc lập.</li>
+        <li>Nếu buộc phải phá vỡ tương thích, hãy cho consumer thời gian nâng cấp, tránh lock-step deployment.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Hình 4-5 của sách đặt các công nghệ lên ma trận kiểu giao tiếp: request-response đồng bộ thường đi với REST over HTTP hoặc gRPC; request-response bất đồng bộ và cộng tác hướng sự kiện thường đi với message broker (queue cho request, topic cho event). GraphQL là cơ chế gộp lời gọi ở vành đai hệ thống. Nhưng mô hình này không thay được việc ngồi xuống suy nghĩ về bối cảnh của chính bạn. Chương tiếp theo của sách chuyển sang điều phối luồng nghiệp vụ trải qua nhiều microservice — xem <a href="#ch5">Chương 5 — Workflow</a>.</p>
+    </div>
+    <figure class="lab" data-widget="ch4-tech-chooser">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Trợ lý chọn công nghệ theo Hình 4-5 và các mục “Where to use it”
+        <small>Trả lời bốn câu hỏi về bối cảnh; widget đề xuất công nghệ và trích lý do từ chương. Đây là điểm khởi đầu cho thảo luận, không phải câu trả lời cuối cùng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="quiz">
+      <div class="q" data-answer="2">
+        <p>Server Java RMI xoá trường <code>age</code> khỏi lớp <code>Customer</code>, dù không consumer nào đọc trường này. Điều gì xảy ra?</p>
+        <ol>
+          <li>Không gì cả, vì consumer không dùng trường đó.</li>
+          <li>Chỉ consumer viết bằng .NET bị ảnh hưởng.</li>
+          <li>Mã giải tuần tự hoá ở consumer chưa cập nhật bị gãy, buộc deploy server và client cùng lúc.</li>
+          <li>Java RMI tự bỏ qua trường bị thiếu nhờ field number.</li>
+        </ol>
+        <p class="explain">Với binary stub kiểu RMI, client và server phải khớp định nghĩa kiểu, nên xoá trường dù không dùng vẫn phá vỡ giải tuần tự hoá → lock-step release. Field number là đặc điểm của protocol buffers, không phải RMI; và RMI vốn chỉ chạy trên JVM nên không có consumer .NET.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Đổi <code>calculate(a, b)</code> của Hard Calculations từ cộng sang nhân, giữ nguyên chữ ký. Lưới an toàn nào bắt được?</p>
+        <ol>
+          <li>Công cụ so sánh schema như Protolock trong CI.</li>
+          <li>Kiểm thử, ví dụ consumer-driven contract test kỳ vọng <code>calculate(2, 3) = 5</code>.</li>
+          <li>Semantic versioning tự động phát hiện.</li>
+          <li>Trình biên dịch của consumer.</li>
+        </ol>
+        <p class="explain">Đây là phá vỡ ngữ nghĩa: cấu trúc không đổi nên mọi công cụ so sánh schema và trình biên dịch đều thấy “không có gì thay đổi”. Chỉ kiểm thử hành vi mới bắt được. Semver chỉ là quy ước — người phát hành phải tự nhận ra để tăng MAJOR.</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>Topic khác queue ở điểm cốt lõi nào, theo Sam Newman?</p>
+        <ol>
+          <li>Topic luôn nhanh hơn queue.</li>
+          <li>Queue không hỗ trợ nhiều instance consumer.</li>
+          <li>Topic đảm bảo exactly once còn queue thì không.</li>
+          <li>Với topic, bên gửi không biết ai (nếu có) sẽ nhận; với queue, bên gửi biết message đi tới đâu.</li>
+        </ol>
+        <p class="explain">Thoạt nhìn queue giống topic có một consumer group, nhưng khác biệt nằm ở việc bên gửi có biết người nhận hay không. Queue vẫn hỗ trợ nhiều instance qua consumer group (competing consumers).</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Broker của bạn tuyên bố hỗ trợ “exactly once delivery”. Lời khuyên của sách là gì?</p>
+        <ol>
+          <li>Tìm hiểu kỹ cách nó được cài đặt, và tốt hơn nữa là xây consumer chịu được message trùng, ví dụ kiểm tra message ID đã xử lý.</li>
+          <li>Tin tưởng hoàn toàn, vì đây là tính năng chuẩn của mọi broker.</li>
+          <li>Tắt guaranteed delivery để tránh message trùng.</li>
+          <li>Chuyển sang gọi HTTP trực tiếp vì HTTP không bao giờ gửi trùng.</li>
+        </ol>
+        <p class="explain">Exactly once là chủ đề gây tranh cãi giữa các chuyên gia. Cách an toàn là consumer idempotent. Tắt guaranteed delivery thì mất message; HTTP trực tiếp kèm retry cũng có thể gửi trùng.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Ứng dụng helpdesk được xây cho customer service phiên bản 1.2.0. Phiên bản nào nó có thể dùng mà không cần thay đổi?</p>
+        <ol>
+          <li>1.1.0</li>
+          <li>2.0.0</li>
+          <li>1.3.0</li>
+          <li>Cả ba</li>
+        </ol>
+        <p class="explain">MINOR tăng (1.3.0) nghĩa là thêm chức năng tương thích ngược. 1.1.0 có thể thiếu chức năng helpdesk dựa vào (thêm ở 1.2.0); 2.0.0 có thay đổi không tương thích ngược.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Vì sao GraphQL không phải lựa chọn tốt để thay thế giao tiếp microservice-với-microservice nói chung?</p>
+        <ol>
+          <li>Vì GraphQL chỉ chạy được trên JavaScript.</li>
+          <li>Vì về bản chất nó là cơ chế gộp lời gọi ở vành đai hệ thống, phục vụ GUI/di động và API công khai.</li>
+          <li>Vì GraphQL không có schema.</li>
+          <li>Vì GraphQL không hỗ trợ đọc dữ liệu từ nhiều service.</li>
+        </ol>
+        <p class="explain">GraphQL toả sáng khi client cần gom dữ liệu từ nhiều microservice trong một request. Hiện mọi công nghệ lớn đều hỗ trợ, nó có schema, và chính việc đọc từ nhiều service là điểm mạnh của nó.</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>Chiến lược Sam Newman ưu tiên khi buộc phải tạo breaking change là gì?</p>
+        <ol>
+          <li>Lock-step deployment cho mọi trường hợp.</li>
+          <li>Chạy hai phiên bản service song song trong nhiều tháng.</li>
+          <li>Tắt giao diện cũ ngay, consumer tự xoay xở.</li>
+          <li>Giả lập giao diện cũ trong cùng service (expand and contract), gỡ khi mọi consumer đã chuyển.</li>
+        </ol>
+        <p class="explain">Giả lập endpoint cũ giữ được khả năng triển khai độc lập và dễ xử lý hơn chạy song song nhiều phiên bản (vá lỗi hai nhánh, định tuyến middleware, dữ liệu chung). Lock-step dùng thường xuyên dẫn tới distributed monolith.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Mô hình client library nào được tác giả khen ngợi?</p>
+        <ol>
+          <li>AWS SDK: viết bởi người khác với nhóm làm API, và client tự quyết khi nào nâng cấp.</li>
+          <li>Client library do chính nhóm server viết và bắt buộc mọi consumer dùng.</li>
+          <li>Thư viện domain object dùng chung cho mọi service.</li>
+          <li>Sao chép nguyên logic nghiệp vụ của server sang client để giảm lời gọi mạng.</li>
+        </ol>
+        <p class="explain">Sự tách biệt giữa người viết SDK và người viết API giúp tránh rò rỉ logic server sang client; việc client nắm quyền nâng cấp giữ được khả năng phát hành độc lập. Các phương án còn lại đều là những cạm bẫy được nêu trong sách.</p>
+      </div>
+    </div>
+  </article>
+</section>

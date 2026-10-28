@@ -1,0 +1,27 @@
+{
+  "id": "ddia-2e",
+  "title": "Sổ tay DDIA 2e",
+  "subtitle": "Designing Data-Intensive Applications",
+  "author": "Martin Kleppmann",
+  "edition": "2nd Edition (Early Release) + 1st Edition (2017)",
+  "description": "Sổ tay đọc tương tác cho Designing Data-Intensive Applications: tóm tắt, giải nghĩa và ví dụ thao tác được cho từng chủ đề.",
+  "sourcePdfs": [
+    "_OceanofPDF.com_Designing_Data-Intensive_Apllications_2nd_Edition_-_Martin_Kleppmann.pdf",
+    "Designing Data Intensive Applications.pdf"
+  ],
+  "chapters": [
+    { "n": 1, "en": "Trade-offs in Data Systems Architecture", "vi": "Đánh đổi trong kiến trúc hệ thống dữ liệu", "src": "2e", "part": "Phần I · Nền tảng của hệ thống dữ liệu" },
+    { "n": 2, "en": "Defining Nonfunctional Requirements", "vi": "Định nghĩa các yêu cầu phi chức năng", "src": "2e", "e1": 1 },
+    { "n": 3, "en": "Data Models and Query Languages", "vi": "Mô hình dữ liệu & ngôn ngữ truy vấn", "src": "2e", "e1": 2 },
+    { "n": 4, "en": "Storage and Retrieval", "vi": "Lưu trữ và truy xuất", "src": "1e", "e1": 3 },
+    { "n": 5, "en": "Encoding and Evolution", "vi": "Mã hoá và tiến hoá dữ liệu", "src": "1e", "e1": 4 },
+    { "n": 6, "en": "Replication", "vi": "Sao chép dữ liệu", "src": "1e", "e1": 5, "part": "Phần II · Dữ liệu phân tán" },
+    { "n": 7, "en": "Partitioning", "vi": "Phân mảnh dữ liệu", "src": "1e", "e1": 6 },
+    { "n": 8, "en": "Transactions", "vi": "Giao dịch (Transactions)", "src": "1e", "e1": 7 },
+    { "n": 9, "en": "The Trouble with Distributed Systems", "vi": "Rắc rối của hệ thống phân tán", "src": "1e", "e1": 8 },
+    { "n": 10, "en": "Consistency and Consensus", "vi": "Tính nhất quán và đồng thuận", "src": "1e", "e1": 9 },
+    { "n": 11, "en": "Batch Processing", "vi": "Xử lý theo lô (Batch)", "src": "1e", "e1": 10, "part": "Phần III · Dữ liệu dẫn xuất" },
+    { "n": 12, "en": "Stream Processing", "vi": "Xử lý luồng (Stream)", "src": "1e", "e1": 11 },
+    { "n": 13, "en": "The Future of Data Systems", "vi": "Tương lai của hệ thống dữ liệu", "src": "1e", "e1": 12 }
+  ]
+}

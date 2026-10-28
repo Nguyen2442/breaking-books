@@ -1,0 +1,475 @@
+<style>
+  #ch1 .viz svg text.t-ok { fill: var(--ok); }
+  #ch1 .viz svg text.t-bad { fill: var(--bad); }
+  #ch1 .viz svg text.t-warn { fill: var(--warn); }
+  #ch1 .viz svg text.t-accent { fill: var(--accent); }
+  #ch1 .viz svg text.t-violet { fill: var(--violet); }
+  #ch1 .viz svg text.t-dim { fill: var(--ink-3); }
+  #ch1 .viz svg text.t-mid { text-anchor: middle; }
+  #ch1 .viz svg text.t-end { text-anchor: end; }
+  #ch1 .viz svg text.t-sm { font-size: 9.5px; }
+  #ch1 .viz svg text.t-lg { font-size: 13px; }
+  #ch1 .f-ok-soft { fill: var(--ok-soft); }
+  #ch1 .f-warn-soft { fill: var(--warn-soft); }
+  #ch1 .s-w2 { stroke-width: 2; }
+  #ch1 .s-w3 { stroke-width: 3; }
+  #ch1 .ctl select { width: 100%; max-width: 100%; }
+  #ch1 .ch1-chk { display: flex; flex-direction: column; gap: 8px; }
+  #ch1 .ch1-reasons { margin: 0; padding-left: 18px; }
+  #ch1 .ch1-reasons li { margin: 3px 0; }
+  #ch1 .ch1-reasons li.pro::marker { color: var(--ok); }
+  #ch1 .ch1-reasons li.con::marker { color: var(--bad); }
+  #ch1 .ch1-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  #ch1 .ch1-verdict { font: 700 var(--t-md)/1.35 var(--f-display); margin: 0; }
+  #ch1 .ch1-sub-title { font: 700 var(--t-xs) var(--f-display); text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); margin: 0; }
+  #ch1 .log .hit { background: var(--mark-soft); }
+</style>
+<section class="chapter" id="ch1" data-chapter="1" data-title="Microservices là gì?">
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 1</p>
+    <h1>What Are Microservices? <span class="vi">Microservices là gì?</span></h1>
+    <blockquote class="epigraph">“Microservices buy you options.”<cite>— James Lewis, ThoughtWorks</cite></blockquote>
+    <p class="lede">Chương mở đầu định nghĩa microservices bằng vài ý cốt lõi: triển khai độc lập, mô hình hoá theo nghiệp vụ, tự sở hữu dữ liệu và che giấu thông tin. Từ đó Sam Newman đặt microservices cạnh các kiểu monolith, điểm qua công nghệ hỗ trợ, rồi cân ưu điểm với nỗi đau đi kèm. Kết luận của chương: microservices là <em>một</em> lựa chọn kiến trúc, không phải lựa chọn mặc định, và bạn phải có lý do chính đáng để dùng nó.</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- 1.1 -->
+  <article class="topic" id="ch1-at-a-glance" data-num="1.1" data-short="Microservices trong một cái nhìn" data-keywords="microservice black box endpoint REST queue information hiding parnas encapsulation">
+    <p class="eyebrow">1.1 · Microservices At a Glance</p>
+    <h2>Microservice là một hộp đen có ranh giới mạng <span class="vi">Microservices At a Glance</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li><dfn data-term="microservices">Microservices</dfn> là các service <em>release độc lập</em>, được mô hình hoá quanh một nghiệp vụ, cung cấp chức năng cho bên ngoài qua mạng.</li>
+        <li>Nhìn từ bên ngoài, mỗi microservice là một hộp đen: chỉ lộ ra các <dfn data-term="network-endpoint">endpoint</dfn> như REST API hay hàng đợi (queue). Ngôn ngữ, framework, cách lưu dữ liệu đều được giấu kín.</li>
+        <li>Nguyên lý nền tảng là <dfn data-term="information-hiding">che giấu thông tin</dfn> (<em>information hiding</em>): giấu nhiều nhất có thể bên trong, lộ ra ít nhất có thể qua interface.</li>
+        <li>Ranh giới ổn định dẫn tới <dfn data-term="loose-coupling">ghép nối lỏng</dfn> và <dfn data-term="cohesion">tính gắn kết</dfn> cao, nhờ đó service có thể thay đổi và release mà không kéo theo ai.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Sam Newman định nghĩa ngắn gọn: microservices là những service có thể release độc lập, được mô hình hoá quanh một miền nghiệp vụ. Mỗi service đóng gói một phần chức năng và cung cấp nó qua mạng; ta ghép nhiều khối như vậy thành hệ thống lớn hơn. Ví dụ trong sách là một hệ thống thương mại điện tử: một service lo tồn kho (<em>inventory</em>), một service quản lý đơn hàng, một service lo vận chuyển.</p>
+      <p>Microservices là một dạng <dfn data-term="soa">kiến trúc hướng dịch vụ</dfn> (SOA), nhưng là dạng có <em>quan điểm rõ ràng</em> về cách vẽ ranh giới service, và đặt khả năng triển khai độc lập lên hàng đầu. Chúng cũng <dfn data-term="technology-agnostic">không phụ thuộc công nghệ</dfn> (<em>technology agnostic</em>): bên trong mỗi service dùng gì là việc riêng của service đó.</p>
+      <h3>Hộp đen và hợp đồng</h3>
+      <p>Bên gọi (<dfn data-term="upstream-consumer">consumer</dfn>), dù là microservice khác hay một chương trình bất kỳ, chỉ biết đến endpoint. Vì không ai nhìn thấy bên trong, microservice gần như không bao giờ dùng chung database. Mỗi service tự đóng gói database của mình khi cần.</p>
+      <p>Ý tưởng che giấu thông tin do David Parnas đưa ra từ năm 1971. Cách làm này tách rõ phần <em>dễ thay đổi</em> (cài đặt bên trong) khỏi phần <em>khó thay đổi</em> (interface mà người khác đang dùng). Chừng nào interface mạng không thay đổi theo kiểu <dfn data-term="backward-compatibility">phá vỡ tương thích ngược</dfn>, bạn có thể sửa thoải mái bên trong và release bất cứ lúc nào.</p>
+    </div>
+    <figure class="lab" data-widget="ch1-blackbox">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Thay đổi nào lọt ra khỏi hộp đen?
+        <small>Chọn một thay đổi cho service Customer và xem consumer nào bị ảnh hưởng. Chỉ thay đổi làm hỏng hợp đồng mạng mới buộc bên ngoài phải sửa theo.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Giá trị của ranh giới service nằm ở chỗ nó <em>không đổi</em> khi bên trong thay đổi. Interface càng nhỏ và càng ổn định thì phần bên trong càng được tự do.</p></aside>
+  </article>
+
+  <!-- 1.2 -->
+  <article class="topic" id="ch1-soa" data-num="1.2" data-short="SOA và microservices" data-keywords="SOA service-oriented architecture SOAP ESB vendor middleware agile scrum XP">
+    <p class="eyebrow">1.2 · Are Service-Oriented Architecture and Microservices Different Things?</p>
+    <h2>SOA và microservices có khác nhau không? <span class="vi">SOA vs Microservices</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>SOA là cách thiết kế trong đó nhiều service, thường là các tiến trình hệ điều hành riêng, phối hợp với nhau qua lời gọi mạng.</li>
+        <li>SOA ra đời để đối phó với monolith lớn, hướng tới tái sử dụng và dễ thay thế. Ý tưởng hợp lý, nhưng ngành chưa bao giờ thống nhất được cách làm SOA cho tốt.</li>
+        <li>Nhiều thất bại bị đổ cho SOA thực ra đến từ giao thức (SOAP), <dfn data-term="vendor-middleware">middleware của nhà cung cấp</dfn>, và việc thiếu hướng dẫn về độ lớn và cách chia service.</li>
+        <li>Microservices là <em>một cách làm SOA cụ thể</em>, giống như Scrum hay XP là những cách làm Agile cụ thể.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Về mặt hình thức, SOA chỉ yêu cầu chức năng được chia ra nhiều service gọi nhau qua mạng thay vì gọi hàm trong cùng tiến trình. Lời hứa của nó là hai ứng dụng khác nhau có thể dùng lại cùng một service, và có thể thay một service bằng service khác mà không ai hay biết, miễn là ngữ nghĩa không đổi nhiều.</p>
+      <p>Theo Newman, cái thiếu của SOA truyền thống là những điều <em>không được nói ra</em>: chia một khối lớn thành các phần nhỏ thế nào, lớn bao nhiêu là quá lớn, làm sao để các service không dính chặt vào nhau. Ông cũng thẳng thắn cho rằng các nhà cung cấp đã “mượn” (và đôi khi dẫn dắt) phong trào SOA để bán sản phẩm, và chính các sản phẩm đó lại làm hỏng mục tiêu ban đầu.</p>
+      <p>Ông kể đã gặp nhiều hệ thống SOA mà đội ngũ cố gắng làm service nhỏ lại, nhưng mọi thứ vẫn gắn vào một database và vẫn phải deploy cùng nhau. Đó là SOA, nhưng không phải microservices. Microservices hình thành từ kinh nghiệm thực tế, là cách <em>làm SOA cho đúng</em>.</p>
+    </div>
+    <figure class="lab" data-widget="ch1-soa">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hệ thống của bạn là SOA, microservices, hay chưa phải cả hai?
+        <small>Chọn một kịch bản mẫu hoặc tự bật/tắt từng đặc điểm. Vị trí của hệ thống trên sơ đồ tập hợp sẽ thay đổi theo.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>“Service oriented? Yes. But it’s not microservices.” Câu này dành cho những hệ thống có nhiều service nhưng vẫn dùng chung database và phải deploy đồng loạt.</p></aside>
+  </article>
+
+  <!-- 1.3 -->
+  <article class="topic" id="ch1-independent-deploy" data-num="1.3" data-short="Triển khai độc lập" data-keywords="independent deployability lock-step deploy contract shared database forcing function">
+    <p class="eyebrow">1.3 · Key Concepts — Independent Deployability</p>
+    <h2>Triển khai độc lập: điều quan trọng nhất của cả cuốn sách <span class="vi">Independent Deployability</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li><dfn data-term="independent-deployability">Triển khai độc lập</dfn>: sửa một microservice, deploy và release nó tới người dùng mà không phải deploy service nào khác.</li>
+        <li>Chỉ <em>có thể</em> làm vậy thì chưa đủ. Đó phải là cách bạn <em>thực sự</em> release hằng ngày, một kỷ luật mặc định.</li>
+        <li>Muốn vậy, các service phải ghép nối lỏng, giữa chúng có <dfn data-term="service-contract">hợp đồng</dfn> tường minh và ổn định. Dùng chung database là trở ngại lớn nhất.</li>
+        <li>Đây là một <dfn data-term="forcing-function">forcing function</dfn>: cố đạt được nó thì bạn sẽ phải làm đúng nhiều thứ khác, và hưởng thêm lợi ích từ những thứ đó.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Nếu chỉ mang theo một điều từ cuốn sách, Newman muốn đó là điều này: hãy tập thói quen deploy và release thay đổi của <em>một</em> microservice lên production mà không cần deploy bất cứ thứ gì khác. Ý tưởng thì đơn giản, làm được lại không dễ.</p>
+      <p>Để đổi một service mà không phải đổi gì khác, ta cần hợp đồng rõ ràng giữa các service. Hợp đồng chỉ ổn định khi ranh giới service được vẽ đúng chỗ. Vì vậy mong muốn triển khai độc lập quay lại định hình cách ta tìm ranh giới service ngay từ đầu.</p>
+      <p>Có hai thứ hay phá vỡ triển khai độc lập. Thứ nhất là <em>thay đổi phá vỡ hợp đồng</em>: consumer buộc phải sửa và deploy theo. Thứ hai là <em>database dùng chung</em>: đổi schema là kéo theo mọi service đọc bảng đó. Khi nhiều service phải deploy cùng nhau theo một thứ tự nhất định, ta có kiểu release <dfn data-term="lock-step-release">lock-step</dfn>.</p>
+    </div>
+    <figure class="lab" data-widget="ch1-independent-deploy">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một thay đổi kéo theo bao nhiêu lần deploy?
+        <small>Chọn service cần sửa, bật/tắt “dùng chung database” và “breaking change”, rồi bấm “Deploy thay đổi” để xem những service nào phải lên production cùng lúc.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Hãy dùng triển khai độc lập làm thước đo. Mỗi lần buộc phải deploy hai service cùng nhau, hãy coi đó là tín hiệu ranh giới hoặc hợp đồng đang có vấn đề.</p></aside>
+  </article>
+
+  <!-- 1.4 -->
+  <article class="topic" id="ch1-business-domain" data-num="1.4" data-short="Mô hình hoá theo nghiệp vụ" data-keywords="domain-driven design DDD three-tier layered architecture cohesion business functionality vertical slice">
+    <p class="eyebrow">1.4 · Key Concepts — Modelled Around a Business Domain</p>
+    <h2>Cắt theo nghiệp vụ, không cắt theo tầng kỹ thuật <span class="vi">Modelled Around a Business Domain</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li><dfn data-term="domain-driven-design">Domain-driven design</dfn> giúp cấu trúc code phản ánh miền nghiệp vụ thật. Microservices dùng chính ý tưởng này để vẽ ranh giới service.</li>
+        <li>Một thay đổi chạm vào nhiều service rất tốn kém: phải phối hợp nhiều đội và deploy đúng thứ tự. Mục tiêu là để những thay đổi xuyên service xảy ra <em>càng hiếm càng tốt</em>.</li>
+        <li><dfn data-term="three-tier-architecture">Kiến trúc ba tầng</dfn> chia theo chức năng kỹ thuật, trong khi phần lớn thay đổi về chức năng lại cắt ngang cả ba tầng.</li>
+        <li>Microservices chọn <em>gắn kết theo nghiệp vụ</em> thay vì gắn kết theo kỹ thuật: mỗi service là một <dfn data-term="vertical-slice">lát cắt dọc</dfn> gồm UI, logic và dữ liệu khi cần.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Newman thường gặp kiến trúc phân tầng: tầng trình bày, tầng ứng dụng, tầng dữ liệu, mỗi tầng là một ranh giới service. Sửa riêng tầng trình bày thì khá nhanh. Nhưng kinh nghiệm cho thấy các thay đổi chức năng thường <em>xuyên qua nhiều tầng</em>, và càng nhiều tầng thì càng tệ. Thực tế mỗi tầng còn hay bị chia nhỏ thêm.</p>
+      <p>Khi mỗi service là một lát cắt nghiệp vụ trọn vẹn từ đầu đến cuối, kiến trúc được tổ chức sao cho thay đổi nghiệp vụ là rẻ nhất. Một service có thể chứa cả phần trình bày, logic nghiệp vụ lẫn lưu trữ dữ liệu. Bên trong nó có phân tầng hay không là chuyện riêng của service đó.</p>
+      <p>Mô hình hoá quanh nghiệp vụ còn giúp ghép các microservice theo những cách mới để tạo ra chức năng mới cho người dùng. Phần tương tác giữa DDD và cách tổ chức đội ngũ sẽ được bàn tiếp ở mục 1.8.</p>
+    </div>
+    <figure class="lab" data-widget="ch1-slicing">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Cắt ngang hay cắt dọc: đếm số thay đổi xuyên service
+        <small>Cùng 9 khối chức năng (3 nghiệp vụ × 3 tầng) được gom thành 3 service theo hai cách. Bấm “Mô phỏng yêu cầu thay đổi” để chạy một loạt yêu cầu và đếm số lần phải phối hợp nhiều service. Tỉ lệ loại yêu cầu là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Muốn đổi màu một nút bấm thì kiến trúc phân tầng rất tiện. Muốn thêm một trường nghiệp vụ mới thì nó buộc ba đội làm việc với nhau. Hãy nhìn lại backlog của bạn: phần lớn yêu cầu thuộc loại nào?</p></aside>
+  </article>
+
+  <!-- 1.5 -->
+  <article class="topic" id="ch1-own-state" data-num="1.5" data-short="Tự sở hữu dữ liệu" data-keywords="owning state shared database encapsulation contract backward incompatible OO">
+    <p class="eyebrow">1.5 · Key Concepts — Owning Their Own State</p>
+    <h2>Mỗi service tự giữ trạng thái của mình <span class="vi">Owning Their Own State</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Microservices không dùng chung database. Muốn dữ liệu của service khác thì <em>hỏi service đó</em>.</li>
+        <li>Service tự quyết định cái gì được chia sẻ, cái gì giấu đi, nhờ đó tách cài đặt nội bộ (đổi thoải mái) khỏi hợp đồng bên ngoài (hiếm khi đổi).</li>
+        <li>Giấu trạng thái nội bộ tương tự <dfn data-term="encapsulation">đóng gói</dfn> trong lập trình hướng đối tượng, và cũng là một biểu hiện của information hiding.</li>
+        <li>Theo Newman, <dfn data-term="shared-database">database dùng chung</dfn> là một trong những điều tệ nhất bạn có thể làm nếu muốn triển khai độc lập.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Đây là nguyên tắc mà Newman thấy mọi người khó chấp nhận nhất. Khi service Order đọc thẳng bảng <code>customer</code>, cấu trúc bảng đó trở thành một phần hợp đồng giữa hai service, dù không ai ghi lại. Đổi tên một cột, tách một bảng hay chuyển sang database khác đều có thể làm hỏng một service ở đâu đó.</p>
+      <p>Muốn triển khai độc lập thì phải hạn chế các thay đổi phá vỡ tương thích ngược, vì mỗi lần như vậy consumer cũng phải đổi theo. Ranh giới rõ ràng giữa chi tiết nội bộ và hợp đồng bên ngoài giúp giảm số lần phải làm vậy.</p>
+      <p>Kết hợp với ý ở mục trước: đóng gói cả dữ liệu lẫn hành vi trong cùng một service cho ta độ gắn kết nghiệp vụ cao, còn việc giấu database phía sau làm giảm ghép nối. <a href="#ch2">Chương 2</a> sẽ đi sâu vào coupling và cohesion.</p>
+    </div>
+    <figure class="lab" data-widget="ch1-own-state">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đổi schema của Customer: ai bị vỡ?
+        <small>So sánh khi Order và Loyalty đọc thẳng bảng của Customer với khi chúng gọi API. Chọn một thay đổi nội bộ để xem truy vấn và phản hồi thay đổi ra sao.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>“Chỉ đọc thôi mà” không phải lý do để dùng chung database. Một service chỉ đọc cũng phụ thuộc vào tên cột, kiểu dữ liệu và ý nghĩa của từng giá trị.</p></aside>
+  </article>
+
+  <!-- 1.6 -->
+  <article class="topic" id="ch1-size" data-num="1.6" data-short="Kích thước microservice" data-keywords="size lines of code Java Clojure James Lewis head Chris Richardson interface">
+    <p class="eyebrow">1.6 · Key Concepts — Size</p>
+    <h2>Microservice nên lớn cỡ nào? <span class="vi">Size</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>“Nên lớn cỡ nào?” là câu hỏi Newman nghe nhiều nhất, nhưng kích thước lại là khía cạnh <em>ít thú vị nhất</em> của microservices.</li>
+        <li>Đếm dòng code là vô nghĩa: cùng một việc, Java cần 25 dòng thì Clojure có thể chỉ cần 10.</li>
+        <li>James Lewis nói microservice nên “to bằng cái đầu tôi”, tức là đủ nhỏ để hiểu được. Nhưng mỗi người hiểu được một lượng khác nhau, nên hãy đọc là “to bằng cái đầu <em>bạn</em>”.</li>
+        <li>Chris Richardson đưa ra một định nghĩa có ích hơn: interface càng nhỏ càng tốt. Hai câu hỏi quan trọng hơn là bạn quản lý nổi bao nhiêu service, và vẽ ranh giới thế nào để không thành mớ ghép nối chằng chịt.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Chữ “micro” nằm ngay trong tên gọi nên ai cũng hỏi về kích thước. Nhưng đo bằng gì? Số dòng code phụ thuộc ngôn ngữ: một số ngôn ngữ biểu đạt gọn hơn. Điều đó không nói gì về độ phức tạp hay khả năng hiểu của một service.</p>
+      <p>Kích thước còn phụ thuộc rất nhiều vào ngữ cảnh. Một người đã làm với hệ thống 15 năm thấy 100.000 dòng code dễ hiểu, người mới vào dự án lại thấy nó quá lớn. Một công ty mới bắt đầu, có dưới 10 microservice, sẽ trả lời khác với một công ty cùng quy mô đã chạy hàng trăm service nhiều năm.</p>
+      <p>Lời khuyên của Newman là đừng bận tâm về kích thước. Lúc bắt đầu, hãy tập trung vào hai câu hỏi. Một: bạn xử lý được bao nhiêu microservice? Càng nhiều service thì hệ thống càng phức tạp và bạn càng phải học kỹ năng mới. Đó là lý do ông ủng hộ <dfn data-term="incremental-migration">di chuyển dần dần</dfn>. Hai: vẽ ranh giới thế nào để tận dụng được microservices mà không biến tất cả thành một mớ ghép nối khủng khiếp?</p>
+    </div>
+    <figure class="lab" data-widget="ch1-size">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ba cách “đo” kích thước một microservice
+        <small>Đổi ngôn ngữ, đổi kinh nghiệm của người đọc code, và đổi số thao tác mà service lộ ra. Để ý thước đo nào thực sự liên quan tới ghép nối.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Kích thước của interface quan trọng hơn kích thước của code. Một service 5.000 dòng nhưng lộ ra 40 thao tác có thể gây ghép nối nhiều hơn một service 20.000 dòng chỉ lộ ra 3 thao tác.</p></aside>
+  </article>
+
+  <!-- 1.7 -->
+  <article class="topic" id="ch1-flexibility" data-num="1.7" data-short="Linh hoạt: vặn núm, không bật công tắc" data-keywords="flexibility options dial switch incremental adoption James Lewis cost">
+    <p class="eyebrow">1.7 · Key Concepts — Flexibility</p>
+    <h2>Microservices mua cho bạn các lựa chọn <span class="vi">Flexibility</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>James Lewis: “microservices buy you options”. Chữ <em>mua</em> được chọn có chủ ý: lựa chọn có giá, và bạn phải quyết định chúng có đáng tiền hay không.</li>
+        <li>Sự linh hoạt đến trên nhiều trục: tổ chức, kỹ thuật, khả năng mở rộng, độ bền vững.</li>
+        <li>Áp dụng microservices giống <dfn data-term="dial-not-switch">vặn một núm xoay</dfn> hơn là bật công tắc. Vặn lên thì linh hoạt hơn, nhưng cũng đau hơn.</li>
+        <li>Vặn từ từ giúp bạn đo được tác động sau mỗi bước và dừng lại khi cần.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Không ai biết trước tương lai, nên ta muốn một kiến trúc về lý thuyết có thể giúp giải quyết những vấn đề chưa xuất hiện. Cân bằng giữa việc giữ cho mình nhiều lựa chọn và việc trả giá cho kiến trúc phức tạp là một nghệ thuật thực sự.</p>
+      <p>Hình ảnh núm xoay giải thích vì sao Newman luôn khuyên áp dụng dần dần. Mỗi service thêm vào mang lại thêm lựa chọn, đồng thời thêm một tiến trình phải theo dõi, thêm một hợp đồng phải giữ, thêm một đường mạng có thể hỏng. Khi đi từng bước, bạn thấy được điểm nào lợi ích bắt đầu không còn bù nổi chi phí.</p>
+    </div>
+    <figure class="lab" data-widget="ch1-dial">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Vặn núm số lượng microservice
+        <small>Kéo số service và mức độ trưởng thành vận hành của đội. Đường cong lợi ích và chi phí là số liệu minh hoạ; mốc công nghệ lấy theo lời khuyên trong sách.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Newman nhắc đi nhắc lại việc chuyển đổi dần dần trong suốt chương này: ở phần kích thước, phần linh hoạt, phần độ trễ và phần nhất quán dữ liệu. Ý chung là thay đổi một chút, đo tác động, rồi mới đi tiếp.</p></aside>
+  </article>
+
+  <!-- 1.8 -->
+  <article class="topic" id="ch1-conway" data-num="1.8" data-short="Kiến trúc và tổ chức (Music Corp)" data-keywords="Conway law Music Corp three-tier team favorite genre Customer Catalog Recommendations poly-skilled">
+    <p class="eyebrow">1.8 · Alignment of Architecture and Organization</p>
+    <h2>Music Corp và định luật Conway <span class="vi">Alignment of Architecture and Organization</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Music Corp bán CD trực tuyến với kiến trúc ba tầng: web UI, backend monolith, database. Mỗi tầng do một đội riêng sở hữu.</li>
+        <li>Thêm tính năng “thể loại nhạc yêu thích” buộc cả ba đội phải sửa và deploy theo đúng thứ tự.</li>
+        <li><dfn data-term="conways-law">Định luật Conway</dfn>: tổ chức thiết kế hệ thống sẽ tạo ra cấu trúc giống cấu trúc giao tiếp của chính nó. Kiến trúc ba tầng tồn tại vì ta từng gom người theo kỹ năng.</li>
+        <li>Ngày nay ta xây <dfn data-term="poly-skilled-team">đội đa kỹ năng</dfn> để giảm bàn giao. Một service Customer chuyên trách giúp thay đổi gói gọn trong một đội.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Music Corp là ví dụ xuyên suốt cuốn sách. Hệ thống của họ là kiến trúc ba tầng kinh điển, và các tầng, như thường lệ, thuộc về các đội khác nhau. Khi khách hàng muốn chọn thể loại nhạc yêu thích, UI phải hiện lựa chọn, backend phải cho đọc và ghi giá trị đó, database phải có chỗ lưu. Ba đội cùng làm, ba lần deploy theo đúng thứ tự.</p>
+      <p>Newman nhấn mạnh rằng kiến trúc này không tệ. Mọi kiến trúc đều được tối ưu cho một tập mục tiêu nào đó. Nó phổ biến một phần vì ai cũng biết nó, nhưng lý do lớn nhất là nó khớp với cách ta tổ chức đội: DBA ngồi với DBA, lập trình viên Java ngồi với lập trình viên Java, frontend ngồi với frontend.</p>
+      <blockquote>Any organization that designs a system… will inevitably produce a design whose structure is a copy of the organization’s communication structure. <br>— Melvin Conway, <em>How Do Committees Invent?</em></blockquote>
+      <p>Hoàn cảnh đã thay đổi: ta muốn ship nhanh hơn bao giờ hết, và gom người thành các đội đa kỹ năng. Kiến trúc ba tầng có gắn kết cao về công nghệ nhưng gắn kết thấp về nghiệp vụ. Trong phương án thay thế, một service <strong>Customer</strong> chuyên trách có UI riêng để khách cập nhật thông tin và lưu trạng thái của khách. Thể loại yêu thích gắn với khách hàng nên thay đổi nằm gọn trong đó. Danh sách thể loại lấy từ service <strong>Catalog</strong> sẵn có, và một service <strong>Recommendations</strong> có thể dùng thông tin này trong một lần release sau.</p>
+    </div>
+    <figure class="lab" data-widget="ch1-musiccorp">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Thêm “thể loại nhạc yêu thích” ở Music Corp
+        <small>Chọn kiến trúc rồi bấm “Triển khai tính năng”. Theo dõi số đội tham gia, số lần bàn giao và thứ tự deploy.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Khi nghiệp vụ là lực chính định hình kiến trúc, việc gắn mỗi đội với một mảng nghiệp vụ trong tổ chức cũng dễ hơn. Kiến trúc và tổ chức nên được thiết kế cùng nhau.</p></aside>
+  </article>
+
+  <!-- 1.9 -->
+  <article class="topic" id="ch1-monolith" data-num="1.9" data-short="Ba loại monolith" data-keywords="monolith unit of deployment single-process modular distributed Shopify Lamport">
+    <p class="eyebrow">1.9 · The Monolith</p>
+    <h2>Monolith là một đơn vị triển khai <span class="vi">Single-Process, Modular &amp; Distributed Monolith</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Trong sách, <dfn data-term="monolith">monolith</dfn> được định nghĩa theo <em>đơn vị triển khai</em>: mọi chức năng phải deploy cùng nhau.</li>
+        <li><dfn data-term="single-process-monolith">Single-process monolith</dfn>: toàn bộ code đóng gói trong một tiến trình (có thể chạy nhiều instance).</li>
+        <li><dfn data-term="modular-monolith">Modular monolith</dfn>: một tiến trình chia thành các module làm song song được, nhưng vẫn deploy chung. Shopify là ví dụ thành công.</li>
+        <li><dfn data-term="distributed-monolith">Distributed monolith</dfn>: nhiều service nhưng vẫn phải deploy cùng nhau. Nó mang nhược điểm của cả hệ phân tán lẫn monolith.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Ví dụ quen thuộc nhất là single-process monolith. Bạn có thể chạy nhiều instance để tăng độ bền hay khả năng mở rộng, nhưng về bản chất mọi code nằm trong một tiến trình. Thực ra nó đã là một hệ phân tán đơn giản, vì luôn đọc/ghi database và phục vụ ứng dụng web hoặc mobile. Hệ thống thật thường còn phức tạp hơn: hai ba monolith dính chặt vào nhau, kèm phần mềm của nhà cung cấp.</p>
+      <h3>Modular monolith</h3>
+      <p>Chia phần mềm thành module là ý tưởng có từ thời lập trình cấu trúc những năm 1970, nhưng theo Newman vẫn ít tổ chức áp dụng nghiêm túc. Nếu ranh giới module được định nghĩa tốt, nhiều người làm song song được trong khi topo triển khai vẫn đơn giản. Điểm yếu là database thường không được chia theo module, gây khó khăn lớn nếu sau này muốn tách. Một số đội đi xa hơn: chia cả database theo đúng ranh giới module.</p>
+      <h3>Distributed monolith</h3>
+      <blockquote>A distributed system is one in which the failure of a computer you didn’t even know existed can render your own computer unusable. <br>— Leslie Lamport</blockquote>
+      <p>Distributed monolith có thể vẫn đúng định nghĩa SOA, nhưng không mang lại lợi ích SOA hứa hẹn. Nó thường xuất hiện khi information hiding và gắn kết nghiệp vụ bị xem nhẹ. Ghép nối chặt khiến thay đổi lan qua ranh giới service, và một sửa đổi trông như cục bộ lại làm hỏng chỗ khác. Chính việc gặp nhiều distributed monolith đã khiến Newman quan tâm tới microservices.</p>
+    </div>
+    <figure class="lab" data-widget="ch1-monolith-types">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> So sánh các kiểu monolith với microservices
+        <small>Chọn một kiểu kiến trúc. Khung nét đứt cho biết những gì buộc phải deploy cùng nhau. Các điểm đánh giá là nhận định định tính theo sách.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Shopify chọn modular monolith thay vì tách microservices, và theo Newman cách này hoạt động rất tốt với họ (xem bài “Deconstructing the Monolith” của Kirsten Westeinde).</p></aside>
+  </article>
+
+  <!-- 1.10 -->
+  <article class="topic" id="ch1-contention" data-num="1.10" data-short="Delivery contention & ưu điểm monolith" data-keywords="delivery contention ownership monolith advantages code reuse simple deployment default choice legacy">
+    <p class="eyebrow">1.10 · Monoliths and Delivery Contention · Advantages of Monoliths</p>
+    <h2>Giẫm chân nhau khi giao hàng, và vì sao monolith vẫn là mặc định hợp lý <span class="vi">Delivery Contention &amp; Advantages of Monoliths</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Càng nhiều người làm chung một chỗ, họ càng cản đường nhau: cùng sửa một đoạn code, muốn release vào những thời điểm khác nhau, không rõ ai sở hữu gì. Newman gọi đó là <dfn data-term="delivery-contention">delivery contention</dfn>.</li>
+        <li>Monolith không chắc chắn gây ra vấn đề này, microservices cũng không chắc chắn loại bỏ nó. Nhưng microservices cho bạn ranh giới cụ thể để vẽ đường sở hữu.</li>
+        <li>Monolith có nhiều ưu điểm thật: topo triển khai đơn giản, quy trình dev, monitoring, xử lý sự cố, test end-to-end đều dễ hơn, và tái sử dụng code thì chỉ việc gọi.</li>
+        <li>Monolith không đồng nghĩa với “legacy”. Theo Newman, nó là <em>lựa chọn mặc định hợp lý</em>: ông cần được thuyết phục để dùng microservices, chứ không phải tìm lý do để từ chối.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Nhiều nghiên cứu, trong đó có các nghiên cứu của Microsoft Research như “Don’t Touch My Code!” của Christian Bird và cộng sự, cho thấy quyền sở hữu không rõ ràng ảnh hưởng xấu tới chất lượng phần mềm. Khi một codebase có hàng chục người cùng sửa và mọi thay đổi phải đi chung một chuyến release, chi phí phối hợp tăng nhanh hơn số người.</p>
+      <h3>Ưu điểm của monolith</h3>
+      <p>Single-process và modular monolith tránh được nhiều cạm bẫy của hệ phân tán. Quy trình làm việc của developer đơn giản hơn; giám sát, xử lý sự cố, test end-to-end dễ hơn nhiều. Tái sử dụng code cũng đơn giản: trong hệ phân tán bạn phải chọn giữa sao chép code, tách thư viện hay đẩy phần dùng chung thành service; trong monolith thì code nằm sẵn đó, cứ dùng.</p>
+      <p>Đáng tiếc là nhiều người đã coi monolith là thứ phải tránh. Nếu ta cứ hạ thấp monolith như một lựa chọn hợp lệ, ta đang không làm đúng với chính mình và với người dùng phần mềm.</p>
+    </div>
+    <figure class="lab" data-widget="ch1-contention">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Tăng số developer và xem ai cản đường ai
+        <small>Mỗi chấm là một developer, mỗi khung là một đơn vị code/release. Mức xung đột và chi phí vận hành là số liệu minh hoạ, chỉ để so sánh xu hướng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Gọi mọi monolith là “legacy” khiến đội ngũ lao vào microservices mà không có vấn đề thật cần giải quyết. Hãy bắt đầu bằng câu hỏi “ta đang gặp nỗi đau gì?”.</p></aside>
+  </article>
+
+  <!-- 1.11 -->
+  <article class="topic" id="ch1-enabling-tech" data-num="1.11" data-short="Công nghệ hỗ trợ" data-keywords="log aggregation correlation id distributed tracing Jaeger Honeycomb Humio containers Kubernetes Kafka Debezium Flink serverless FaaS public cloud">
+    <p class="eyebrow">1.11 · Enabling Technology</p>
+    <h2>Log tập trung, tracing, container, streaming và cloud <span class="vi">Enabling Technology</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Đừng áp dụng hàng loạt công nghệ mới khi mới bắt đầu. Hãy đợi vấn đề xuất hiện rồi tìm công nghệ giải quyết nó.</li>
+        <li>Ngoại lệ duy nhất: <dfn data-term="log-aggregation">log aggregation</dfn> là điều kiện tiên quyết trước khi áp dụng microservices. Kết hợp với <dfn data-term="correlation-id">correlation ID</dfn> để lọc ra mọi log của một luồng gọi.</li>
+        <li>Khi hệ thống lớn dần, cần thêm <dfn data-term="distributed-tracing">distributed tracing</dfn> (Jaeger) và các công cụ quan sát thế hệ mới (LightStep, Honeycomb).</li>
+        <li><dfn data-term="container">Container</dfn> và <dfn data-term="kubernetes">Kubernetes</dfn>, streaming với <dfn data-term="apache-kafka">Kafka</dfn>, public cloud và <dfn data-term="serverless">serverless</dfn> đều hữu ích, nhưng chỉ nên dùng khi đã thực sự cần.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Công nghệ đóng vai trò lớn trong sự phổ biến của microservices. Newman còn cho rằng người thiết kế kiến trúc microservices cần hiểu cả kiến trúc logic lẫn hạ tầng vật lý, vì ranh giới giữa hai thế giới này không còn rõ như trước.</p>
+      <h3>Log aggregation và distributed tracing</h3>
+      <p>Số tiến trình tăng lên thì việc hiểu hệ thống đang chạy thế nào trên production cũng khó hơn. Hệ thống log tập trung gom log từ mọi service về một chỗ để phân tích, thậm chí dùng để cảnh báo. Newman thích Humio, nhưng dịch vụ log có sẵn của các nhà cung cấp cloud có thể đủ để bắt đầu. Khi mỗi dòng log mang cùng một ID cho cả chuỗi lời gọi bắt nguồn từ một thao tác người dùng, việc cô lập log của một luồng trở nên dễ dàng. Xa hơn, các công cụ tracing cho phép phân tích trace qua nhiều service, tìm nút thắt cổ chai, và đặt những câu hỏi mà trước đó bạn không biết mình sẽ cần hỏi.</p>
+      <h3>Container và Kubernetes</h3>
+      <p>Lý tưởng nhất là mỗi instance chạy cô lập, để một service ngốn hết CPU không kéo service khác xuống theo. Máy ảo thì quá nặng so với kích thước microservice; container nhẹ hơn, khởi động nhanh hơn và rẻ hơn. Khi đã có nhiều container trên nhiều máy, bạn cần một nền tảng điều phối như Kubernetes. Nhưng đừng vội: với vài service thì khó biện minh. Khi đã dùng, hãy để người khác vận hành cluster giúp bạn, ví dụ dịch vụ managed của public cloud.</p>
+      <h3>Streaming</h3>
+      <p>Bỏ database nguyên khối nhưng vẫn phải chia sẻ dữ liệu, trong khi tổ chức muốn chuyển từ báo cáo batch sang phản hồi gần thời gian thực. Apache Kafka đã trở thành lựa chọn mặc định với khả năng lưu bền message, <em>compaction</em> và mở rộng cho khối lượng lớn. Kafka có KSQL để xử lý stream, có thể dùng kèm Apache Flink, còn <dfn data-term="debezium">Debezium</dfn> giúp stream dữ liệu từ các nguồn dữ liệu cũ qua Kafka.</p>
+      <h3>Public cloud và serverless</h3>
+      <p>Google Cloud, Microsoft Azure và AWS cung cấp vô số dịch vụ managed: database, Kubernetes, message broker, hệ thống file phân tán. Kiến trúc microservices càng lớn thì càng nhiều việc dồn sang vận hành, và đẩy việc đó cho bên thứ ba là hợp lý. Các sản phẩm serverless giấu hẳn máy chủ bên dưới; <dfn data-term="faas">Function as a Service</dfn> cho phép bạn chỉ việc deploy code, nền tảng tự khởi chạy instance theo nhu cầu (xem <a href="#ch7">Chương 7</a>).</p>
+    </div>
+    <figure class="lab" data-widget="ch1-correlation-id">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Tìm nguyên nhân lỗi trong log của 5 service
+        <small>Ba khách hàng đặt hàng cùng lúc và một đơn bị lỗi. Bật/tắt correlation ID rồi lọc theo ID để cô lập luồng lỗi và xem trace thời gian của nó.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>“You don’t need a Kubernetes cluster when you have three services!” Chỉ log aggregation là nên có ngay từ ngày đầu; các công nghệ khác hãy thêm vào khi nỗi đau tương ứng xuất hiện.</p></aside>
+  </article>
+
+  <!-- 1.12 -->
+  <article class="topic" id="ch1-advantages" data-num="1.12" data-short="Ưu điểm của microservices" data-keywords="advantages technology heterogeneity robustness bulkhead scaling Gilt ease of deployment organizational alignment composability seams Netflix Twitter JVM">
+    <p class="eyebrow">1.12 · Advantages of Microservices</p>
+    <h2>Sáu lợi ích: công nghệ, bền vững, mở rộng, triển khai, tổ chức, kết hợp <span class="vi">Advantages of Microservices</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li><dfn data-term="technology-heterogeneity">Đa dạng công nghệ</dfn>: chọn đúng công cụ cho từng việc, và thử công nghệ mới ở service ít rủi ro nhất.</li>
+        <li>Độ bền vững: ranh giới service là những <dfn data-term="bulkhead">vách ngăn</dfn> tự nhiên. Một phần hỏng thì hệ thống xuống cấp từng phần thay vì sập toàn bộ.</li>
+        <li>Mở rộng: chỉ scale phần cần scale. Gilt khởi đầu bằng monolith Rails năm 2007, quá tải năm 2009, và hiện có hơn 450 microservice.</li>
+        <li>Triển khai dễ hơn, đội ngũ khớp với kiến trúc, và <dfn data-term="composability">khả năng kết hợp</dfn>: mở ra nhiều <dfn data-term="seam">seam</dfn> cho các kênh mới.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <p>Nhiều lợi ích sau đây thuộc về hệ phân tán nói chung. Microservices đạt chúng ở mức cao hơn vì có quan điểm rõ ràng về cách vẽ ranh giới, kết hợp information hiding và DDD với sức mạnh của hệ phân tán.</p>
+      <h3>Đa dạng công nghệ</h3>
+      <p>Một mạng xã hội có thể lưu quan hệ giữa người dùng trong graph database và lưu bài đăng trong document store. Rào cản lớn nhất khi thử công nghệ mới là rủi ro. Trong monolith, đổi ngôn ngữ, database hay framework ảnh hưởng tới phần lớn hệ thống; với nhiều service, bạn có nhiều chỗ để thử. Dĩ nhiên điều này có chi phí: Netflix và Twitter chủ yếu dùng JVM vì hiểu rất rõ độ tin cậy và hiệu năng của nó, dù không công ty nào dùng duy nhất một stack.</p>
+      <h3>Độ bền vững</h3>
+      <p>Trong monolith, service hỏng thì mọi thứ dừng. Chạy nhiều máy giúp giảm xác suất hỏng, nhưng với microservices ta có thể xây hệ thống chịu được việc một số service chết hẳn và giảm chức năng tương ứng. Cái giá là phải hiểu các nguồn lỗi mới của hệ phân tán: mạng sẽ hỏng, máy sẽ hỏng.</p>
+      <h3>Mở rộng</h3>
+      <p>Với monolith lớn, một phần nhỏ bị nghẽn cũng buộc ta scale cả khối. Với service nhỏ, ta chỉ scale những service cần, phần còn lại chạy trên phần cứng nhỏ hơn. Kết hợp với hạ tầng cấp phát theo nhu cầu như AWS, việc tiết kiệm chi phí gần như thấy ngay.</p>
+      <h3>Triển khai, tổ chức và khả năng kết hợp</h3>
+      <p>Đổi một dòng trong monolith một triệu dòng là phải deploy cả ứng dụng. Vì sợ rủi ro, người ta deploy thưa đi, thay đổi dồn lại, và delta giữa hai lần release càng lớn thì rủi ro càng cao. Microservices cho phép deploy từng service, cô lập sự cố nhanh và rollback dễ, đó là lý do Amazon và Netflix dùng kiến trúc này. Đội nhỏ làm trên codebase nhỏ thường năng suất hơn, và quyền sở hữu service có thể chuyển giao khi tổ chức thay đổi. Cuối cùng, microservices mở ra nhiều seam để web, ứng dụng native, mobile web, tablet, thiết bị đeo dùng lại chức năng theo cách khác nhau. Với monolith, bạn thường chỉ có một seam thô, và muốn chia nhỏ nó thì “cần đến búa”.</p>
+    </div>
+    <figure class="lab" data-widget="ch1-advantages">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ba lợi ích dễ thấy nhất: scale có chọn lọc, vách ngăn, release nhỏ
+        <small>Chọn tab. Scale: tăng tải lên phần Catalog như đợt flash sale của Gilt. Vách ngăn: tắt một service và xem chức năng nào còn sống. Release: kéo dài chu kỳ release và xem delta phình ra. Số liệu chi phí và rủi ro là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Gilt, nhà bán lẻ thời trang trực tuyến, tách microservices đúng vì lý do scaling: tách các phần cốt lõi ra giúp họ chịu được các đợt tăng đột biến lưu lượng, và mỗi service trong số hơn 450 service chạy trên nhiều máy riêng.</p></aside>
+  </article>
+
+  <!-- 1.13 -->
+  <article class="topic" id="ch1-pain-points" data-num="1.13" data-short="Những nỗi đau của microservices" data-keywords="pain points developer experience technology overload reporting monitoring security testing latency data consistency saga eventual consistency">
+    <p class="eyebrow">1.13 · Microservice Pain Points</p>
+    <h2>Tám nỗi đau đi kèm <span class="vi">Microservice Pain Points</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Phần lớn nỗi đau đến từ bản chất hệ phân tán, nên distributed monolith cũng gặp y hệt. Newman nói phần lớn cuốn sách là về cách đối phó với chúng.</li>
+        <li>Trải nghiệm developer giảm sút (laptop chạy được 4–5 service JVM, không phải 10–20). Dễ rơi vào <dfn data-term="technology-overload">quá tải công nghệ</dfn>. Báo cáo, giám sát và bảo mật khó hơn.</li>
+        <li><dfn data-term="end-to-end-test">Test end-to-end</dfn> ngày càng kém hiệu quả, đẩy bạn sang <dfn data-term="contract-testing">contract testing</dfn> và <dfn data-term="testing-in-production">test trên production</dfn>.</li>
+        <li><dfn data-term="latency">Độ trễ</dfn> tăng do tuần tự hoá và mạng. Mất transaction của database, phải chuyển sang <dfn data-term="saga">saga</dfn> và <dfn data-term="eventual-consistency">nhất quán cuối cùng</dfn>.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <h3>Trải nghiệm developer và quá tải công nghệ</h3>
+      <p>Runtime nặng như JVM giới hạn số service chạy được trên máy dev. Giải pháp cực đoan là “phát triển trên cloud”, nhưng Newman không thích vì vòng phản hồi chậm hẳn. Ông chọn cách giới hạn phạm vi hệ thống mà mỗi developer cần làm việc, dù điều này mâu thuẫn với mô hình sở hữu tập thể. Về công nghệ, nhiều thứ chỉ được dán nhãn lại thành “microservice friendly”. Microservices cho phép mỗi service một ngôn ngữ, một runtime, một database, nhưng đó là <em>lựa chọn</em>, không phải yêu cầu. Bạn vốn đã phải học về nhất quán dữ liệu, độ trễ, mô hình hoá service; học thêm cả núi công nghệ cùng lúc sẽ rất vất vả và lấy mất thời gian ship tính năng.</p>
+      <h3>Báo cáo, giám sát và bảo mật</h3>
+      <p>Với monolith, người làm báo cáo chạy truy vấn join thẳng trên database, có khi trên một <dfn data-term="read-replica">read replica</dfn>. Khi schema bị chia nhỏ thì nhu cầu báo cáo vẫn còn, chỉ là khó hơn: cần streaming thời gian thực hoặc đẩy dữ liệu về database báo cáo trung tâm hay <dfn data-term="data-lake">data lake</dfn>. Giám sát monolith gần như nhị phân, sống hoặc chết. Với hàng chục, hàng trăm tiến trình: một instance chết thì ảnh hưởng thế nào? Một tiến trình kẹt 100% CPU có đáng đánh thức ai đó lúc 3 giờ sáng không? Bảo mật cũng khó hơn vì dữ liệu đi qua mạng nhiều hơn, có thể bị nghe lén hoặc bị sửa trong <dfn data-term="man-in-the-middle">tấn công man-in-the-middle</dfn>.</p>
+      <h3>Test, độ trễ và nhất quán dữ liệu</h3>
+      <p>Test càng rộng thì càng tự tin, nhưng càng khó dựng dữ liệu, chạy càng lâu và càng khó biết lỗi ở đâu. Với microservices, test end-to-end phải deploy và cấu hình nhiều service, và hay báo lỗi sai khi một instance chết hay mạng time-out. Lợi tức đầu tư vào loại test này giảm dần. Về độ trễ, thông tin trước đây chảy trong một tiến trình giờ phải tuần tự hoá, truyền qua mạng và giải tuần tự hoá. Hãy thay đổi từng chút, đo bằng công cụ như Jaeger, và biết thế nào là đủ nhanh, vì chậm hơn một chút đôi khi hoàn toàn chấp nhận được. Cuối cùng, <dfn data-term="distributed-transaction">transaction phân tán</dfn> hầu như luôn gây rắc rối; bạn sẽ cần saga (xem <a href="#ch5">Chương 5</a>) và tư duy nhất quán cuối cùng.</p>
+    </div>
+    <figure class="lab" data-widget="ch1-pain-points">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đo ba nỗi đau: máy dev, độ trễ, test end-to-end
+        <small>Chọn tab rồi kéo các thanh trượt. Mức RAM mỗi runtime, độ trễ mỗi chặng mạng và độ tin cậy môi trường test là số liệu minh hoạ; mốc 4–5 service JVM trên một laptop lấy từ sách.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Biến việc chuyển sang microservices thành dịp “thử hết đồ chơi mới” là công thức thất bại. Thêm công nghệ khi cần: “You don’t need a Kubernetes cluster when you have three services!”</p></aside>
+  </article>
+
+  <!-- 1.14 -->
+  <article class="topic" id="ch1-should-i" data-num="1.14" data-short="Có nên dùng microservices?" data-keywords="should I use microservices startup microservice tax customer-installed software SaaS scale-up product market fit Uber Flickr">
+    <p class="eyebrow">1.14 · Should I Use Microservices?</p>
+    <h2>Khi nào không nên, khi nào nên dùng <span class="vi">Who They Might Not Work For · Where They Work Well</span></h2>
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Microservices là <em>một</em> cách tiếp cận kiến trúc, không phải <em>cách duy nhất</em>. Hãy xét bài toán, kỹ năng và công nghệ của chính bạn.</li>
+        <li>Không hợp với sản phẩm mới hay startup: domain còn thay đổi mạnh nên ranh giới service sẽ phải dời liên tục. Uber ban đầu tập trung vào xe limo, Flickr xuất phát từ một game online nhiều người chơi.</li>
+        <li>Đội nhỏ phải trả <dfn data-term="microservice-tax">microservice tax</dfn>: một trong năm người lo hạ tầng là mất 20% năng lực làm sản phẩm. Phần mềm do khách hàng tự cài cũng không hợp.</li>
+        <li>Hợp với tổ chức có nhiều developer cần làm việc độc lập (một scale-up trăm người), ứng dụng <dfn data-term="saas">SaaS</dfn> chạy 24/7, tổ chức muốn tận dụng cloud và phục vụ nhiều kênh.</li>
+      </ul>
+    </div>
+    <div class="prose">
+      <h3>Ai có thể không hợp</h3>
+      <p>Ranh giới service cần ổn định, nên Newman thường khuyên đợi đến khi mô hình domain đủ ổn định rồi mới vẽ ranh giới. Startup hay nghĩ “thành công thì sẽ cần scale”, nhưng bạn chưa biết có ai muốn dùng sản phẩm không, và sản phẩm cuối cùng có thể rất khác ý tưởng ban đầu, vì quá trình tìm <dfn data-term="product-market-fit">product-market fit</dfn> luôn như vậy. Startup cũng ít người, mà chi phí cố định để deploy và quản lý microservices càng nặng khi đội càng nhỏ. Dời sang microservices sau, khi đã biết ràng buộc và nỗi đau nằm ở đâu, dễ hơn nhiều.</p>
+      <p>Trường hợp đáng ngạc nhiên thứ ba là phần mềm do khách hàng tự triển khai và vận hành. Bạn có thể bù độ phức tạp vận hành bằng công nghệ và kỹ năng mới, khách hàng thì không. Một khách quen nhận bộ cài Windows sẽ choáng khi được bảo “cứ đặt 20 pod này lên cluster Kubernetes của bạn”.</p>
+      <h3>Nơi chúng phát huy</h3>
+      <p>Lý do phổ biến nhất là để nhiều developer làm trên cùng một hệ thống mà không cản đường nhau, tức giảm delivery contention. Startup năm người sẽ thấy microservices là gánh nặng; scale-up trăm người đang tăng trưởng nhanh sẽ thấy nó giúp tăng trưởng dễ hơn. SaaS phải chạy 24/7 nên release độc lập là lợi thế lớn, và scale lên xuống theo tải giúp tối ưu chi phí. Tính không phụ thuộc công nghệ giúp tận dụng cloud: một service chạy dạng function, một service trên VM managed, một service trên <dfn data-term="paas">PaaS</dfn>. Cuối cùng là các dự án chuyển đổi số muốn “mở khoá” chức năng đang bị giấu trong hệ thống cũ để phục vụ kênh mới.</p>
+    </div>
+    <figure class="lab" data-widget="ch1-decision">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bối cảnh của bạn nghiêng về phía nào?
+        <small>Mô tả tổ chức và sản phẩm. Lập luận ở bên dưới lấy từ sách; điểm số chỉ là cách tóm tắt, không phải công thức ra quyết định.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>“They are an architectural approach, not the architectural approach.” Sự linh hoạt có giá. Nếu bạn muốn giữ nhiều lựa chọn cho tương lai, đó có thể là cái giá đáng trả, nhưng phải được biện minh bằng vấn đề thật.</p></aside>
+  </article>
+
+  <!-- review -->
+  <article class="topic" id="ch1-review" data-num="1.★" data-short="Tổng kết & kiểm tra">
+    <p class="eyebrow">1.★ · Summary</p>
+    <h2>Tổng kết chương 1 <span class="vi">Summary &amp; Quiz</span></h2>
+    <div class="prose">
+      <p>Microservices là các service release độc lập, mô hình hoá quanh nghiệp vụ, tự sở hữu dữ liệu và chỉ giao tiếp qua mạng. Ba ý cốt lõi gắn với nhau: <strong>information hiding</strong> giữ hợp đồng nhỏ và ổn định, <strong>ranh giới theo nghiệp vụ</strong> giữ phần lớn thay đổi trong một service, <strong>không dùng chung database</strong> bảo vệ khả năng <strong>triển khai độc lập</strong>, yếu tố quan trọng nhất.</p>
+      <p>Kích thước gần như không quan trọng. Thứ quan trọng là bạn quản lý nổi bao nhiêu service và ranh giới có đúng hay không. Microservices “mua” sự linh hoạt về công nghệ, độ bền, khả năng mở rộng, cách tổ chức đội và khả năng kết hợp, nhưng đổi lại là trải nghiệm developer kém hơn, nguy cơ quá tải công nghệ, báo cáo, giám sát, bảo mật, test khó hơn, độ trễ cao hơn và mất transaction.</p>
+      <p>Monolith, đặc biệt là modular monolith, là lựa chọn mặc định hợp lý. Hãy vặn núm dần dần và chỉ thêm công nghệ khi nỗi đau tương ứng xuất hiện (trừ log aggregation, thứ nên có từ đầu). <a href="#ch2">Chương 2</a> sẽ đi vào cách vẽ ranh giới microservice với lập trình cấu trúc và domain-driven design.</p>
+    </div>
+    <div class="quiz">
+      <div class="q" data-answer="2">
+        <p>Theo Newman, nếu chỉ nhớ một điều về microservices từ cuốn sách, đó nên là gì?</p>
+        <ol><li>Mỗi microservice nên dưới 1.000 dòng code</li><li>Mỗi service nên dùng một ngôn ngữ khác nhau</li><li>Tập thói quen deploy và release từng microservice mà không phải deploy gì khác</li><li>Dùng Kubernetes ngay từ đầu</li></ol>
+        <p class="explain">Triển khai độc lập là khái niệm then chốt và là một forcing function: muốn đạt được nó thì phải làm đúng ghép nối lỏng, hợp đồng ổn định, không dùng chung DB. Kích thước theo dòng code là vô nghĩa, còn đa dạng công nghệ và Kubernetes chỉ là lựa chọn, không phải yêu cầu.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Một hệ thống có 12 service gọi nhau qua REST nhưng cùng đọc/ghi một database và luôn được deploy đồng loạt. Gọi nó là gì cho đúng nhất?</p>
+        <ol><li>Microservices chuẩn mực</li><li>Distributed monolith: là SOA, nhưng không phải microservices</li><li>Modular monolith</li><li>Single-process monolith</li></ol>
+        <p class="explain">Nhiều service qua mạng nên nó đúng là SOA, nhưng việc phải deploy cùng nhau khiến nó thành distributed monolith. Modular monolith và single-process monolith đều chạy trong một tiến trình.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Ở Music Corp, vì sao thêm “thể loại nhạc yêu thích” lại tốn công trong kiến trúc ba tầng?</p>
+        <ol><li>Vì thay đổi cắt ngang UI, backend và database, mỗi tầng thuộc một đội, phải deploy theo thứ tự</li><li>Vì kiến trúc ba tầng luôn chậm hơn microservices</li><li>Vì database không lưu được trường mới</li><li>Vì Catalog phải bị viết lại</li></ol>
+        <p class="explain">Kiến trúc ba tầng gắn kết cao về công nghệ nhưng thấp về nghiệp vụ, và theo định luật Conway nó phản chiếu cách gom đội theo kỹ năng. Service Customer theo nghiệp vụ giữ thay đổi trong một đội; Catalog chỉ cung cấp danh sách thể loại có sẵn.</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>Cách nào được Newman coi là có ý nghĩa nhất khi nói về “kích thước” microservice?</p>
+        <ol><li>Số dòng code</li><li>Số developer làm trên service</li><li>Số bảng trong database</li><li>Interface càng nhỏ càng tốt (Chris Richardson)</li></ol>
+        <p class="explain">Dòng code phụ thuộc ngôn ngữ (25 dòng Java so với 10 dòng Clojure). “To bằng cái đầu” thì tuỳ người. Ý của Chris Richardson về interface nhỏ gắn với information hiding, nên gần nhất với điều thực sự quan trọng.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Công nghệ nào Newman khuyên coi là điều kiện tiên quyết trước khi áp dụng microservices?</p>
+        <ol><li>Kubernetes</li><li>Apache Kafka</li><li>Một hệ thống log aggregation</li><li>Một nền tảng FaaS</li></ol>
+        <p class="explain">Ông khuyên thận trọng với công nghệ mới, nhưng log aggregation quan trọng đến mức nên có trước. Kubernetes chỉ nên dùng khi chi phí quản lý deploy trở thành vấn đề thật, tốt nhất là dịch vụ managed.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Khi số service tăng lên, điều gì xảy ra với test end-to-end?</p>
+        <ol><li>Chúng nhanh hơn vì mỗi service nhỏ hơn</li><li>Chúng tốn kém hơn nhưng mang lại ít tự tin hơn, và hay báo lỗi sai do môi trường</li><li>Chúng không còn cần thiết</li><li>Chúng thay thế hoàn toàn unit test</li></ol>
+        <p class="explain">Phạm vi test rất rộng, phải deploy và cấu hình nhiều service, hay hỏng vì instance chết hoặc mạng time-out. Lợi tức giảm dần, đẩy bạn sang contract testing và test trên production.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Một startup 5 người, sản phẩm mới, muốn “đi microservices ngay để sau này scale”. Newman sẽ khuyên gì?</p>
+        <ol><li>Nên đợi: domain còn thay đổi mạnh, đội nhỏ phải trả microservice tax, và chuyển sau sẽ dễ hơn khi đã biết nỗi đau ở đâu</li><li>Nên làm ngay vì microservices luôn rẻ hơn về lâu dài</li><li>Nên làm ngay nhưng chỉ dùng một ngôn ngữ</li><li>Nên dùng distributed monolith thay thế</li></ol>
+        <p class="explain">Ranh giới service cần domain ổn định; sản phẩm có thể đổi hẳn hướng như Uber và Flickr. Một người trong năm người lo hạ tầng là mất 20% năng lực. Distributed monolith là kết cục tệ nhất.</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>Vì sao dùng chung database lại cản trở triển khai độc lập?</p>
+        <ol><li>Vì database chung luôn chậm hơn</li><li>Vì không thể backup database chung</li><li>Vì database chung bắt buộc dùng SOAP</li><li>Vì schema trở thành hợp đồng ngầm: service sở hữu không thể đổi cấu trúc nội bộ mà không làm hỏng service khác</li></ol>
+        <p class="explain">Khi service khác đọc thẳng bảng, mọi tên cột và kiểu dữ liệu đều bị lộ ra ngoài. Information hiding bị phá vỡ, và đổi schema buộc deploy kiểu lock-step.</p>
+      </div>
+    </div>
+  </article>
+</section>

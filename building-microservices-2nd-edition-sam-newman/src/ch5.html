@@ -1,0 +1,445 @@
+<section class="chapter" id="ch5" data-chapter="5" data-title="Điều phối luồng nghiệp vụ (Transactions & Sagas)">
+  <style>
+    #ch5 .f-ok-soft { fill: var(--ok-soft); }
+    #ch5 .f-warn-soft { fill: var(--warn-soft); }
+    #ch5 .s-ok-w { stroke: var(--ok); stroke-width: 2; }
+    #ch5 .s-bad-w { stroke: var(--bad); stroke-width: 2; }
+    #ch5 .s-accent-w { stroke: var(--accent); stroke-width: 2; }
+    #ch5 .s-violet-w { stroke: var(--violet); stroke-width: 2; }
+    #ch5 .s-mark-w { stroke: var(--mark); stroke-width: 2; }
+    #ch5 .s-line-w { stroke: var(--line); stroke-width: 1.5; }
+    #ch5 .viz svg text.small { font-size: 9.5px; }
+    #ch5 .viz svg text.mono { font-family: var(--f-mono); font-size: 9.5px; }
+    #ch5 .mini-tables { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+    #ch5 .mini-tables table.data td, #ch5 .mini-tables table.data th { padding: 4px 8px; }
+    #ch5 .step-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+    #ch5 .step-list li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+    #ch5 .step-list li .grow { flex: 1 1 160px; min-width: 0; }
+    #ch5 .step-list li.on { border-color: var(--accent); background: var(--accent-soft); }
+    #ch5 .step-list li.fail { border-color: var(--bad); background: var(--bad-soft); }
+    #ch5 .step-list li.done { border-color: var(--ok); }
+    #ch5 .step-list li.undo { border-color: var(--warn); background: var(--warn-soft); }
+    #ch5 .step-list .mini { height: 28px; padding: 0 9px; font-size: var(--t-xs); }
+    #ch5 .verdict { padding: 10px 12px; border-radius: 8px; border-left: 3px solid var(--ink-3); background: var(--surface-2); }
+    #ch5 .verdict.ok { border-color: var(--ok); background: var(--ok-soft); }
+    #ch5 .verdict.bad { border-color: var(--bad); background: var(--bad-soft); }
+    #ch5 .verdict.warn { border-color: var(--warn); background: var(--warn-soft); }
+    #ch5 .verdict.accent { border-color: var(--accent); background: var(--accent-soft); }
+    #ch5 .verdict p { margin: 4px 0 0; }
+    #ch5 .verdict ul { margin: 6px 0 0; padding-left: 18px; }
+    #ch5 .q-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 16px; }
+    #ch5 .q-grid .qitem { display: flex; flex-direction: column; gap: 6px; }
+    #ch5 .q-grid .qitem > span { font-size: var(--t-xs); color: var(--ink-2); font-weight: 600; }
+    #ch5 .inbox > div { padding: 6px 8px; border-bottom: 1px dashed var(--line); }
+    #ch5 .inbox > div:last-child { border-bottom: 0; }
+  </style>
+
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 5 · Workflow</p>
+    <h1>Workflow <span class="vi">Điều phối luồng nghiệp vụ: từ giao dịch ACID đến Saga</span></h1>
+    <blockquote class="epigraph">When flying an airplane that needs all of its engines to work, adding an engine reduces the availability of the airplane.<cite>— Pat Helland, Life Beyond Distributed Transactions</cite></blockquote>
+    <p class="lede">Hai chương trước bàn chuyện một microservice nói chuyện với một microservice khác. Chương này hỏi câu khó hơn: khi nhiều microservice phải cùng nhau hoàn thành một quy trình nghiệp vụ, ta đảm bảo "tất cả hoặc không gì cả" bằng cách nào? Sam Newman chỉ ra vì sao giao dịch phân tán (<em class="en">two-phase commit</em>) thường là ngõ cụt, rồi giới thiệu Saga — cách mô hình hoá quy trình nghiệp vụ một cách tường minh, chấp nhận mất tính nguyên tử nhưng đổi lại được khả năng suy luận và phục hồi.</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- ==================== 5.1 ==================== -->
+  <article class="topic" id="ch5-transactions" data-num="5.1" data-short="Giao dịch & ACID" data-keywords="transaction acid atomicity consistency isolation durability mongodb neo4j">
+    <p class="eyebrow">5.1 · Transactions · ACID Transactions</p>
+    <h2>Giao dịch và bốn thuộc tính ACID <span class="vi">Transactions and ACID</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Một <dfn data-term="transaction">giao dịch</dfn> gom nhiều thao tác thành một đơn vị: hoặc tất cả xảy ra, hoặc không gì xảy ra.</li>
+      <li><dfn data-term="acid">ACID</dfn> = <dfn data-term="atomicity">Atomicity</dfn>, <dfn data-term="consistency">Consistency</dfn>, <dfn data-term="isolation">Isolation</dfn>, <dfn data-term="durability">Durability</dfn>.</li>
+      <li>Không phải database nào cũng có ACID đầy đủ: MongoDB nhiều năm chỉ đảm bảo ACID trên một document.</li>
+      <li>Chương này chủ yếu bàn về <b>atomicity</b>, vì đó là thứ vỡ đầu tiên khi ta tách chức năng ra thành microservice.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Khi một thao tác nghiệp vụ gồm nhiều thay đổi, ta muốn trả lời được hai câu hỏi: <em>mọi thay đổi đã được thực hiện chưa?</em> và <em>nếu có lỗi giữa chừng thì dọn dẹp thế nào?</em> Cách quen thuộc nhất là dùng giao dịch của database. Trong một database quan hệ, một giao dịch có thể cập nhật nhiều bảng cùng lúc, và database cam kết rằng các thay đổi đó được đối xử như một khối duy nhất.</p>
+      <p>Khi nói "giao dịch database", ta thường ngầm hiểu là giao dịch ACID:</p>
+      <ul>
+        <li><b>Atomicity (tính nguyên tử)</b> — mọi thao tác trong giao dịch cùng thành công hoặc cùng thất bại. Nếu một thay đổi hỏng, cả giao dịch bị huỷ, như thể chưa từng có gì xảy ra.</li>
+        <li><b>Consistency (tính nhất quán)</b> — sau khi thay đổi, database vẫn ở trạng thái hợp lệ.</li>
+        <li><b>Isolation (tính cô lập)</b> — nhiều giao dịch chạy song song mà không giẫm chân nhau: trạng thái trung gian của giao dịch này không lộ ra cho giao dịch khác.</li>
+        <li><b>Durability (tính bền vững)</b> — khi giao dịch đã hoàn tất, dữ liệu không mất đi dù hệ thống gặp sự cố.</li>
+      </ul>
+      <p>Mọi hệ quản trị CSDL quan hệ mà Sam từng dùng đều hỗ trợ ACID, nhiều NoSQL mới như Neo4j cũng vậy. MongoDB thì trong nhiều năm chỉ đảm bảo ACID cho thay đổi trên <em>một</em> document, gây khó khi cần cập nhật nguyên tử nhiều document; đến MongoDB 4.0 mới có <dfn data-term="multi-document-transaction">giao dịch đa document</dfn>.</p>
+      <p>Sam cố ý đơn giản hoá các định nghĩa trên và giới thiệu cuốn <i>Designing Data-Intensive Applications</i> của Martin Kleppmann cho ai muốn đào sâu. Phần còn lại của chương tập trung vào atomicity — không phải vì ba thuộc tính kia kém quan trọng, mà vì atomicity là vấn đề đầu tiên ta đụng phải khi chia nhỏ hệ thống.</p>
+    </div>
+    <figure class="lab" data-widget="ch5-acid">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Tắt từng chữ cái của ACID và xem chuyện gì xảy ra
+        <small>Giao dịch onboarding khách hàng của MusicCorp: đổi Customer sang VERIFIED và xoá dòng PendingEnrollments. Chọn một sự cố, rồi bật/tắt từng thuộc tính.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Mỗi chữ cái trong ACID chống lại một loại sự cố khác nhau. Khi chuyển sang microservice, chữ A là chữ đầu tiên bạn đánh mất ở cấp độ toàn bộ thao tác.</p></aside>
+  </article>
+
+  <!-- ==================== 5.2 ==================== -->
+  <article class="topic" id="ch5-lost-atomicity" data-num="5.2" data-short="Vẫn ACID nhưng mất nguyên tử" data-keywords="still acid lacking atomicity pending enrollments customer verified two databases">
+    <p class="eyebrow">5.2 · Still ACID, but Lacking Atomicity?</p>
+    <h2>Vẫn ACID, nhưng thiếu tính nguyên tử <span class="vi">Still ACID, but Lacking Atomicity?</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Microservice vẫn dùng giao dịch ACID thoải mái — nhưng chỉ trong phạm vi database của chính nó.</li>
+      <li>Cùng một thay đổi, khi trải trên hai database, trở thành hai giao dịch độc lập: mỗi cái có thể thành công hoặc thất bại riêng.</li>
+      <li>Sắp xếp thứ tự các bước giúp giảm rủi ro, nhưng ta vẫn phải tự viết logic xử lý khi bước sau hỏng.</li>
+      <li>Thiếu atomicity là lý do người ta bắt đầu tìm đến giao dịch phân tán.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ví dụ của sách: MusicCorp đang theo dõi quy trình onboarding khách hàng mới. Ở bước cuối, ta đổi <code>Status</code> của khách trong bảng <code>Customer</code> từ <code>PENDING</code> sang <code>VERIFIED</code>, đồng thời xoá dòng tương ứng trong bảng <code>PendingEnrollments</code>. Với một database duy nhất (Hình 5-1), cả hai việc nằm trong một giao dịch ACID: hoặc cả hai được ghi, hoặc không cái nào.</p>
+      <p>Giờ tách hai bảng ra hai database thuộc hai microservice khác nhau (Hình 5-2). Thay đổi y hệt, nhưng giờ có <b>hai giao dịch</b>, mỗi cái có thể thành công hoặc thất bại độc lập với cái kia. Ta có thể sắp thứ tự — chỉ xoá dòng <code>PendingEnrollments</code> khi đã cập nhật được <code>Customer</code> — nhưng nếu lệnh xoá lại thất bại thì sao? Toàn bộ logic xử lý tình huống đó, ta phải tự viết.</p>
+      <p>Ý tưởng "sắp xếp lại thứ tự các bước để dễ xử lý lỗi" rất hữu ích và sẽ quay lại khi bàn về saga. Nhưng về bản chất, <mark>khi tách một thao tác thành hai giao dịch database riêng, ta chấp nhận mất tính nguyên tử của thao tác tổng thể</mark>. Điều này đặc biệt đau khi di chuyển một hệ thống vốn dựa vào atomicity — và đó là lúc người ta nghĩ ngay đến giao dịch phân tán.</p>
+    </div>
+    <figure class="lab" data-widget="ch5-split">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một database hay hai database?
+        <small>Chọn kiến trúc và điểm hỏng, bấm "Chạy thao tác". Quan sát trạng thái cuối cùng của hai bảng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Chú thích của Hình 5-2 trong bản thảo ghi "Invoice and Order" dù hình vẽ là Customer và PendingEnrollments — dấu vết của một ví dụ cũ. Ý của hình không đổi: hai thay đổi giờ nằm trong hai phạm vi giao dịch khác nhau.</p></aside>
+  </article>
+
+  <!-- ==================== 5.3 ==================== -->
+  <article class="topic" id="ch5-two-phase-commit" data-num="5.3" data-short="Two-phase commit (2PC)" data-keywords="2pc two phase commit coordinator worker voting phase commit phase lock rollback">
+    <p class="eyebrow">5.3 · Two-Phase Commits</p>
+    <h2>Two-phase commit: pha bỏ phiếu và pha commit <span class="vi">Two-Phase Commits</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="two-phase-commit">2PC</dfn> là thuật toán phổ biến nhất để làm <dfn data-term="distributed-transaction">giao dịch phân tán</dfn>.</li>
+      <li><dfn data-term="voting-phase">Pha bỏ phiếu</dfn>: <dfn data-term="transaction-coordinator">coordinator</dfn> hỏi mọi worker "có làm được thay đổi này không?". Một phiếu "không" là huỷ cả giao dịch.</li>
+      <li>Phiếu "có" là lời hứa sẽ làm được trong tương lai — để giữ lời hứa, worker thường phải <b>khoá</b> bản ghi.</li>
+      <li><dfn data-term="commit-phase">Pha commit</dfn>: nếu tất cả đồng ý, thay đổi mới thực sự được áp dụng và khoá được nhả.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Thuật toán two-phase commit (2PC) thường được các đội chuyển sang microservice nhắc tới như lời giải cho bài toán thay đổi nhiều tiến trình trong một thao tác. Như tên gọi, nó có hai pha.</p>
+      <h3>Pha 1 — bỏ phiếu</h3>
+      <p>Một coordinator trung tâm liên hệ mọi worker tham gia giao dịch và hỏi liệu thay đổi trạng thái có thực hiện được không. Ở Hình 5-3, có hai yêu cầu: đổi trạng thái khách sang <code>VERIFIED</code> (Worker A) và xoá một dòng trong <code>PendingEnrollments</code> (Worker B). Nếu mọi worker đồng ý, thuật toán sang pha tiếp theo; nếu có worker từ chối — chẳng hạn vì thay đổi vi phạm một điều kiện cục bộ — toàn bộ thao tác bị huỷ.</p>
+      <p>Điểm tinh tế: khi Worker A trả lời "được", thay đổi <em>chưa</em> có hiệu lực. Worker A chỉ <b>đảm bảo</b> rằng nó sẽ làm được vào một thời điểm sau. Làm sao đảm bảo? Nếu giữa chừng có thao tác khác xoá dòng đó, hoặc sửa nó khiến việc đổi sang <code>VERIFIED</code> không còn hợp lệ, lời hứa sẽ bị phá. Vì vậy Worker A gần như chắc chắn phải <b>khoá</b> bản ghi.</p>
+      <h3>Pha 2 — commit hoặc rollback</h3>
+      <p>Nếu có worker không bỏ phiếu thuận, coordinator gửi thông điệp rollback tới mọi bên để họ dọn dẹp cục bộ và nhả khoá. Nếu tất cả đồng ý, coordinator gửi lệnh commit (Hình 5-4): thay đổi được áp dụng thật và khoá được giải phóng.</p>
+    </div>
+    <figure class="lab" data-widget="ch5-2pc">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Chạy từng bước một giao dịch 2PC
+        <small>Chọn phiếu của từng worker rồi bấm "Chạy 2PC". Để ý ổ khoá xuất hiện ngay ở pha bỏ phiếu và chỉ được nhả ở pha thứ hai.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Phiếu "có" trong 2PC không phải là "đã làm" mà là "hứa sẽ làm". Lời hứa đó được giữ bằng khoá — và khoá chính là nguồn gốc của phần lớn rắc rối phía sau.</p></aside>
+  </article>
+
+  <!-- ==================== 5.4 ==================== -->
+  <article class="topic" id="ch5-2pc-pitfalls" data-num="5.4" data-short="Cái giá của 2PC" data-keywords="2pc latency distributed locks deadlock inconsistency window isolation failure modes">
+    <p class="eyebrow">5.4 · Two-Phase Commits (continued)</p>
+    <h2>Cái giá của 2PC: cửa sổ bất nhất, khoá phân tán và độ trễ <span class="vi">The Problems with Two-Phase Commits</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Lệnh commit đến mỗi worker vào thời điểm khác nhau → có <dfn data-term="inconsistency-window">cửa sổ bất nhất</dfn>; isolation của ACID không còn.</li>
+      <li>Bản chất 2PC là điều phối <dfn data-term="distributed-lock">khoá phân tán</dfn> — đã khó trong một tiến trình, càng khó khi nhiều bên.</li>
+      <li>Có những chế độ hỏng không tự gỡ được: worker bỏ phiếu "có" rồi im lặng khi được bảo commit.</li>
+      <li>Càng nhiều bên tham gia, càng nhiều độ trễ, khoá càng giữ lâu → 2PC chỉ hợp với thao tác rất ngắn.</li>
+    </ul></div>
+    <div class="prose">
+      <p><b>Không có commit đồng thời.</b> Coordinator phải gửi lệnh commit tới từng worker, và các thông điệp đến nơi, được xử lý vào những thời điểm khác nhau. Nếu ai đó nhìn vào trạng thái của các worker từ bên ngoài coordinator, họ có thể thấy thay đổi đã có ở Worker A nhưng chưa có ở Worker B. Độ trễ giữa coordinator và worker càng lớn, worker xử lý càng chậm, cửa sổ này càng rộng. Isolation — thuộc tính đảm bảo không ai thấy trạng thái trung gian — đã mất.</p>
+      <p><b>Thực chất là khoá phân tán.</b> Khi 2PC chạy đúng, phần lớn việc nó làm là điều phối khoá: các worker khoá tài nguyên cục bộ để chắc chắn commit được ở pha hai. Quản lý khoá và tránh <dfn data-term="deadlock">deadlock</dfn> trong một tiến trình đã chẳng vui vẻ gì; điều phối khoá giữa nhiều bên, theo lời Sam, "không đẹp đẽ gì".</p>
+      <p><b>Nhiều chế độ hỏng.</b> Ví dụ: một worker đã bỏ phiếu đồng ý, nhưng không phản hồi khi được yêu cầu commit. Làm gì bây giờ? Một số tình huống được xử lý tự động, số khác để lại hệ thống trong trạng thái phải <b>gỡ tay</b>.</p>
+      <p><b>Độ trễ và quy mô.</b> Càng nhiều bên tham gia, càng nhiều độ trễ, 2PC càng gặp nhiều vấn đề. Nó là cách nhanh chóng để "bơm" độ trễ lớn vào hệ thống, nhất là khi phạm vi khoá rộng hoặc giao dịch kéo dài. Vì vậy 2PC thường chỉ dùng cho thao tác rất ngắn — <mark>thao tác càng lâu, tài nguyên càng bị khoá lâu</mark>.</p>
+    </div>
+    <figure class="lab" data-widget="ch5-2pc-timeline">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Dòng thời gian khoá và cửa sổ bất nhất
+        <small>Tăng số worker và độ trễ mạng (số liệu minh hoạ). Mỗi thanh là khoảng thời gian worker giữ khoá; dấu chấm là lúc commit có hiệu lực. Thử bật "worker im lặng sau khi bỏ phiếu".</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>2PC trông như một "giao dịch ACID trải rộng", nhưng nó không cho bạn isolation, và đổi lại bạn phải gánh khoá phân tán cùng những ca hỏng cần can thiệp thủ công.</p></aside>
+  </article>
+
+  <!-- ==================== 5.5 ==================== -->
+  <article class="topic" id="ch5-just-say-no" data-num="5.5" data-short="Giao dịch phân tán: nói Không" data-keywords="distributed transactions just say no do not split data monolith">
+    <p class="eyebrow">5.5 · Distributed Transactions—Just Say No</p>
+    <h2>Giao dịch phân tán — cứ nói "Không" <span class="vi">Distributed Transactions — Just Say No</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Sam khuyên mạnh mẽ: tránh dùng giao dịch phân tán như 2PC để điều phối thay đổi trạng thái giữa các microservice.</li>
+      <li>Lựa chọn đầu tiên: <b>đừng tách dữ liệu</b>. Nếu một phần trạng thái thật sự cần nguyên tử, để nó ở một database, do một service (hoặc monolith) quản lý.</li>
+      <li>Đang tách monolith? Có thể tạm gác phần dữ liệu khó, làm chỗ khác trước rồi quay lại sau.</li>
+      <li>Nếu buộc phải tách, và thao tác kéo dài nhiều phút, nhiều ngày, thậm chí nhiều tháng — hãy nghĩ tới saga.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Với tất cả lý do ở hai mục trước, lời khuyên của Sam rất dứt khoát: tránh giao dịch phân tán. Vậy còn làm gì được?</p>
+      <p><b>Cách thứ nhất: đừng tách dữ liệu ngay từ đầu.</b> Nếu có những mảnh trạng thái bạn muốn quản lý một cách thực sự nguyên tử và nhất quán, và bạn không nghĩ ra cách hợp lý để có được điều đó mà không cần giao dịch kiểu ACID, thì hãy để trạng thái ấy trong một database, và chức năng quản lý nó trong một service (hoặc trong monolith của bạn).</p>
+      <p>Nếu đang trong quá trình tìm chỗ cắt monolith và đánh giá phần nào dễ, phần nào khó, bạn hoàn toàn có thể kết luận rằng tách dữ liệu đang được quản lý trong một giao dịch là <em>quá khó vào lúc này</em>. Hãy làm việc ở phần khác của hệ thống và quay lại sau.</p>
+      <p><b>Cách thứ hai:</b> nếu thật sự phải tách dữ liệu nhưng không muốn gánh nỗi đau của giao dịch phân tán — làm sao thực hiện thao tác trên nhiều service mà không khoá? Nhất là khi thao tác kéo dài hàng phút, hàng ngày, thậm chí hàng tháng? Đó là lúc ta xét đến <dfn data-term="saga">saga</dfn>.</p>
+    </div>
+    <figure class="lab" data-widget="ch5-decide">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bạn có nên tách phần dữ liệu này?
+        <small>Trả lời bốn câu hỏi theo tình huống của bạn; khuyến nghị thay đổi theo lập luận của Sam trong mục này.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>"Không tách" là một quyết định kiến trúc hợp lệ, không phải thất bại. Ranh giới dịch vụ nên đi theo những chỗ bạn chấp nhận được việc mất atomicity.</p></aside>
+  </article>
+
+  <!-- ==================== 5.6 ==================== -->
+  <article class="topic" id="ch5-sagas" data-num="5.6" data-short="Saga & giao dịch sống lâu" data-keywords="saga long lived transaction llt garcia-molina salem 1987 lock contention">
+    <p class="eyebrow">5.6 · Sagas</p>
+    <h2>Saga: chia giao dịch sống lâu thành chuỗi giao dịch ngắn <span class="vi">Sagas and Long-Lived Transactions</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Saga điều phối nhiều thay đổi trạng thái <b>mà không khoá tài nguyên lâu</b>, bằng cách mô hình các bước thành hoạt động độc lập.</li>
+      <li>Ý tưởng gốc từ bài báo "Sagas" của Hector Garcia-Molina và Kenneth Salem (1987), nhằm giải bài toán <dfn data-term="long-lived-transaction">giao dịch sống lâu (LLT)</dfn>.</li>
+      <li>Mỗi <dfn data-term="local-transaction">giao dịch con</dfn> ngắn hơn và chỉ đụng một phần dữ liệu → giảm <dfn data-term="lock-contention">tranh chấp khoá</dfn>.</li>
+      <li>Saga <b>không</b> cho atomicity ở cấp saga; nó cho đủ thông tin để biết saga đang ở trạng thái nào.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Khác 2PC, saga được thiết kế để điều phối nhiều thay đổi trạng thái mà tránh khoá tài nguyên trong thời gian dài. Ta làm điều đó bằng cách mô hình các bước liên quan thành những hoạt động rời rạc, có thể thực thi độc lập. Lợi ích kèm theo: saga buộc ta phải <b>mô hình hoá tường minh quy trình nghiệp vụ</b>.</p>
+      <p>Bài báo năm 1987 của Garcia-Molina và Salem quan tâm tới những giao dịch kéo dài hàng phút, hàng giờ, thậm chí hàng ngày, và trong quá trình đó phải thay đổi database. Nếu ánh xạ thẳng một LLT thành một giao dịch database bình thường, giao dịch đó sẽ trải suốt vòng đời LLT — nhiều dòng, thậm chí cả bảng, bị khoá trong thời gian dài, gây hậu quả nghiêm trọng cho mọi tiến trình khác muốn đọc hoặc sửa các tài nguyên đó.</p>
+      <p>Đề xuất của các tác giả: chia LLT thành một <b>chuỗi giao dịch</b>, mỗi cái xử lý độc lập. Mỗi giao dịch con ngắn hơn và chỉ sửa một phần dữ liệu, nên phạm vi và thời gian khoá giảm mạnh. Saga vốn được nghĩ ra cho LLT trên <em>một</em> database, nhưng mô hình này áp dụng rất tốt cho việc điều phối thay đổi giữa nhiều service: một quy trình nghiệp vụ được chia thành chuỗi lời gọi tới các service cộng tác.</p>
+    </div>
+    <figure class="lab" data-widget="ch5-llt">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một giao dịch dài so với chuỗi giao dịch con
+        <small>Kéo "số giao dịch con" từ 1 (một giao dịch khổng lồ) lên 4–6 (saga). Các request khác đến ngẫu nhiên và phải chờ nếu tài nguyên chúng cần đang bị khoá (số liệu minh hoạ).</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Saga không cho atomicity theo nghĩa ACID ở cấp toàn bộ saga. Từng giao dịch con có thể là ACID, nhưng saga chỉ cho bạn đủ thông tin để suy luận nó đang ở đâu — xử lý hệ quả là việc của bạn.</p></aside>
+  </article>
+
+  <!-- ==================== 5.7 ==================== -->
+  <article class="topic" id="ch5-order-saga" data-num="5.7" data-short="Saga xử lý đơn hàng" data-keywords="order fulfillment musiccorp warehouse payment gateway loyalty reservation table">
+    <p class="eyebrow">5.7 · Sagas · Order Fulfillment Example</p>
+    <h2>Luồng xử lý đơn hàng của MusicCorp dưới dạng saga <span class="vi">An Order Fulfillment Saga</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Quy trình xử lý đơn (Hình 5-5) được biểu diễn thành một saga; mỗi bước do một service khác nhau đảm nhiệm.</li>
+      <li>Bên trong mỗi service, thay đổi trạng thái vẫn nằm trong giao dịch ACID cục bộ (vd. Warehouse ghi dòng vào bảng <code>Reservation</code>).</li>
+      <li>Giữa các bước, saga có những trạng thái trung gian nhìn thấy được: đã trừ tiền nhưng chưa gửi hàng.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Hình 5-5 vẽ một luồng xử lý đơn hàng đơn giản của MusicCorp, và các service chịu trách nhiệm cho từng bước: kiểm tra và giữ hàng trong kho (<code>Warehouse</code>), thu tiền (<code>Payment Gateway</code>), cộng điểm thưởng (<code>Loyalty</code>), đóng gói và gửi hàng (<code>Warehouse</code>).</p>
+      <p>Toàn bộ quy trình là <b>một saga</b>. Mỗi bước là một thao tác có thể do service khác nhau thực hiện, và bên trong mỗi service mọi thay đổi trạng thái được xử lý bằng giao dịch ACID cục bộ. Ví dụ, khi Warehouse kiểm tra và giữ hàng, nó có thể tạo một dòng trong bảng <code>Reservation</code> cục bộ; thay đổi đó nằm trong một giao dịch bình thường.</p>
+      <p>Điều đáng chú ý là khoảng <em>giữa</em> các bước: không có khoá nào giữ toàn bộ đơn hàng. Sau bước 2, tiền đã bị trừ nhưng hàng chưa đi — và mọi người khác đều có thể thấy trạng thái đó. Saga chấp nhận điều này một cách có ý thức và bù lại bằng việc ghi nhận rõ ràng mình đang ở bước nào.</p>
+    </div>
+    <figure class="lab" data-widget="ch5-order-saga">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đi từng bước qua saga xử lý đơn
+        <small>Bấm "Bước tiếp" để chạy từng giao dịch cục bộ. Bảng bên phải là trạng thái mà bên ngoài nhìn thấy sau mỗi bước.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Saga = nhiều giao dịch ACID cục bộ, nối với nhau bởi một quy trình nghiệp vụ được mô hình hoá tường minh. Atomicity tồn tại ở từng bước, không ở cả chuỗi.</p></aside>
+  </article>
+
+  <!-- ==================== 5.8 ==================== -->
+  <article class="topic" id="ch5-failure-modes" data-num="5.8" data-short="Phục hồi lùi & tiến" data-keywords="saga failure modes backward recovery forward recovery retry fail forward human intervention">
+    <p class="eyebrow">5.8 · Saga Failure Modes · Mixing Fail-Backward and Fail-Forward</p>
+    <h2>Khi saga thất bại: phục hồi lùi và phục hồi tiến <span class="vi">Backward and Forward Recovery</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="backward-recovery">Backward recovery</dfn>: hoàn tác lỗi và dọn dẹp — cần các hành động bù trừ cho những giao dịch đã commit.</li>
+      <li><dfn data-term="forward-recovery">Forward recovery</dfn>: tiếp tục từ điểm hỏng — cần thử lại được, nghĩa là phải lưu đủ thông tin để thử lại.</li>
+      <li>Trộn hai kiểu là hoàn toàn hợp lý: không gửi được hàng hôm nay thì thử lại ngày mai, rồi nhờ <b>con người can thiệp</b>, chứ không huỷ cả đơn.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Vì saga được chia thành nhiều giao dịch riêng, ta phải nghĩ trước cách phục hồi khi có lỗi. Bài báo gốc mô tả hai kiểu:</p>
+      <ul>
+        <li><b>Phục hồi lùi</b> — đảo ngược lỗi rồi dọn dẹp, tức một kiểu rollback. Để làm được, cần định nghĩa các hành động bù trừ cho phép "hoàn tác" những giao dịch đã commit trước đó.</li>
+        <li><b>Phục hồi tiến</b> — nhặt lại từ điểm hỏng và xử lý tiếp. Để làm được, ta phải thử lại được giao dịch, tức hệ thống cần lưu đủ thông tin để lần thử lại diễn ra.</li>
+      </ul>
+      <p>Tuỳ bản chất quy trình nghiệp vụ, một lỗi có thể kích hoạt phục hồi lùi, phục hồi tiến, hoặc kết hợp cả hai.</p>
+      <h3>Trộn fail-backward và fail-forward</h3>
+      <p>Ví dụ của sách: khi đã thu tiền và đóng gói xong, chỉ còn bước gửi hàng. Nếu không gửi được — chẳng hạn hãng vận chuyển hết chỗ trên xe hôm nay — huỷ toàn bộ đơn thì thật kỳ quặc. Hợp lý hơn là thử lại việc gửi (có thể xếp hàng đợi sang ngày hôm sau), và nếu vẫn thất bại thì cần con người vào xử lý.</p>
+    </div>
+    <figure class="lab" data-widget="ch5-recovery">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Chính sách phục hồi cho từng bước
+        <small>Đặt chính sách "lùi" hoặc "tiến" cho mỗi bước, chọn bước bị lỗi và kết quả của các lần thử lại, rồi bấm "Chạy saga".</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Phục hồi tiến chỉ khả thi khi bước đó idempotent hoặc đủ an toàn để chạy lại, và khi trạng thái saga được lưu bền vững để biết chính xác phải thử lại từ đâu.</p></aside>
+  </article>
+
+  <!-- ==================== 5.9 ==================== -->
+  <article class="topic" id="ch5-compensating" data-num="5.9" data-short="Giao dịch bù trừ" data-keywords="saga rollback compensating transaction semantic rollback email refund back order">
+    <p class="eyebrow">5.9 · Saga Rollbacks</p>
+    <h2>Rollback trong saga: giao dịch bù trừ và rollback ngữ nghĩa <span class="vi">Compensating Transactions and Semantic Rollback</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Với saga, một số giao dịch đã commit trước khi ta quyết định huỷ — không có "rollback" đơn giản cho cả thao tác.</li>
+      <li><dfn data-term="compensating-transaction">Giao dịch bù trừ</dfn> là một thao tác <em>mới</em> đảo ngược tác động của giao dịch đã commit.</li>
+      <li>Đó là <dfn data-term="semantic-rollback">rollback ngữ nghĩa</dfn>: không xoá được lịch sử. Email đã gửi thì không "thu hồi" được — chỉ gửi thêm email xin lỗi.</li>
+      <li>Giữ lại thông tin về đơn bị huỷ là hoàn toàn đúng, thậm chí rất quan trọng.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Với giao dịch ACID, gặp vấn đề thì ta <dfn data-term="rollback">rollback</dfn> trước khi commit, và sau đó như thể chưa có gì xảy ra. Saga thì có nhiều giao dịch, một số đã commit trước khi ta quyết định huỷ toàn bộ. Rollback những thứ đã commit bằng cách nào?</p>
+      <p>Quay lại luồng xử lý đơn: ta đã đi đến bước đóng gói thì phát hiện không tìm thấy hàng trong kho (Hình 5-6) — hệ thống tưởng hàng còn, nhưng trên kệ không có! Giả sử ta quyết định huỷ cả đơn thay vì cho khách chọn đặt chờ hàng (<em class="en">back order</em>). Vấn đề: ta đã thu tiền và đã cộng điểm thưởng. Nếu tất cả nằm trong một giao dịch database, một lệnh rollback là xong. Nhưng mỗi bước do một service khác xử lý, mỗi cái một phạm vi giao dịch.</p>
+      <p>Giải pháp là cài đặt giao dịch bù trừ cho từng bước đã commit và kích hoạt chúng (Hình 5-7). Lưu ý rằng chúng không giống rollback của database: rollback xảy ra trước commit, còn ở đây các giao dịch gốc <em>đã thật sự xảy ra</em>. Ta tạo giao dịch mới để đảo ngược hậu quả, chứ không quay ngược được thời gian. Vì thế người ta gọi đây là rollback ngữ nghĩa: không phải lúc nào cũng dọn sạch được mọi thứ, nhưng làm đủ cho ngữ cảnh của saga.</p>
+      <p>Ví dụ kinh điển: một bước đã gửi email báo khách "đơn hàng đang trên đường". Bạn không thể "huỷ gửi" email (chú thích của Sam: "thật sự không được đâu, tôi đã thử rồi!"). Giao dịch bù trừ sẽ là gửi email thứ hai báo đơn gặp sự cố và đã bị huỷ. Và hoàn toàn nên giữ thông tin về rollback trong hệ thống — ví dụ lưu bản ghi đơn bị huỷ trong service <code>Order</code> cùng lý do.</p>
+    </div>
+    <figure class="lab" data-widget="ch5-compensate">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Rollback database so với rollback ngữ nghĩa
+        <small>Bấm "Đóng gói thất bại → huỷ đơn". So sánh những gì khách hàng và hệ thống nhìn thấy trong hai thế giới.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Giao dịch bù trừ được chạy theo thứ tự ngược với các bước đã commit, và để lại dấu vết. Dấu vết ấy (hoàn tiền, email xin lỗi, bản ghi đơn huỷ) là dữ liệu nghiệp vụ có giá trị, không phải rác.</p></aside>
+  </article>
+
+  <!-- ==================== 5.10 ==================== -->
+  <article class="topic" id="ch5-reordering" data-num="5.10" data-short="Sắp lại bước để ít rollback" data-keywords="reordering steps reduce rollbacks fail early award points after dispatch">
+    <p class="eyebrow">5.10 · Reordering Steps to Reduce Rollbacks</p>
+    <h2>Sắp xếp lại các bước để giảm rollback <span class="vi">Reordering Steps to Reduce Rollbacks</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Đổi thứ tự bước có thể làm kịch bản rollback đơn giản hơn nhiều.</li>
+      <li>Hình 5-8: chỉ cộng điểm thưởng khi đơn đã thực sự được gửi → bước cộng điểm không bao giờ cần bù trừ.</li>
+      <li>Kéo những bước dễ thất bại lên trước: thất bại sớm thì các bước sau chưa từng chạy, nên không cần bù trừ.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Trong Hình 5-7, các kịch bản rollback có thể gọn hơn chỉ bằng cách đổi thứ tự. Thay đổi đơn giản nhất: chỉ cộng điểm thưởng khi đơn đã được gửi đi (Hình 5-8). Như vậy, nếu có vấn đề khi đóng gói và gửi hàng, ta chẳng cần lo rollback bước cộng điểm.</p>
+      <p>Nguyên tắc tổng quát: <mark>kéo những bước dễ thất bại nhất lên trước để thất bại sớm</mark>. Những bước phía sau khi đó chưa hề được kích hoạt, nên không có gì để bù trừ. Nếu cài đặt giao dịch bù trừ cho một bước rất khó, bạn có thể đẩy bước đó về cuối quy trình, tới vị trí mà nó không bao giờ cần rollback — và thế là khỏi phải viết giao dịch bù trừ cho nó.</p>
+    </div>
+    <figure class="lab" data-widget="ch5-reorder">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đổi thứ tự các bước và đếm số giao dịch bù trừ
+        <small>Dùng nút ↑ ↓ để đổi thứ tự. Xác suất lỗi của từng bước là số liệu minh hoạ. Thử hai preset "Hình 5-7" và "Hình 5-8".</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Không phải thứ tự nào cũng được phép: không thể đóng gói trước khi giữ hàng, và thường không gửi hàng trước khi thu tiền. Sắp xếp lại là bài toán nghiệp vụ, cần bàn với người hiểu quy trình.</p></aside>
+  </article>
+
+  <!-- ==================== 5.11 ==================== -->
+  <article class="topic" id="ch5-orchestration" data-num="5.11" data-short="Saga điều phối (Orchestration)" data-keywords="orchestrated saga orchestrator order processor command and control domain coupling anemic bpm camunda zeebe">
+    <p class="eyebrow">5.11 · Implementing Sagas · Orchestrated Sagas · BPM Tools?</p>
+    <h2>Saga điều phối tập trung <span class="vi">Orchestrated Sagas</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="orchestrated-saga">Saga điều phối</dfn> dùng một <dfn data-term="orchestrator">orchestrator</dfn> trung tâm quyết định thứ tự và kích hoạt bù trừ — kiểu <dfn data-term="command-and-control">command-and-control</dfn>.</li>
+      <li>Ưu: quy trình được mô hình tường minh ở một chỗ, dễ nhìn trạng thái của từng saga, dễ cho người mới.</li>
+      <li>Nhược: <dfn data-term="domain-coupling">domain coupling</dfn> cao; logic dễ bị hút vào orchestrator, để lại các <dfn data-term="anemic-service">service thiếu máu</dfn>.</li>
+      <li>Giảm tập trung hoá bằng cách dùng orchestrator khác nhau cho các luồng khác nhau. Về <dfn data-term="bpm">công cụ BPM</dfn>: Sam thích viết bằng code hơn.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Có hai kiểu cài đặt saga. Kiểu điều phối (orchestrated) bám sát lời giải gốc và dựa chủ yếu vào điều phối, theo dõi tập trung. Một orchestrator xác định thứ tự thực thi và kích hoạt mọi hành động bù trừ cần thiết. Nó kiểm soát việc gì xảy ra và khi nào, nên cũng cho ta tầm nhìn tốt về việc đang xảy ra với từng saga.</p>
+      <p>Ở Hình 5-9, <code>Order Processor</code> đóng vai orchestrator: nó biết cần service nào, quyết định khi nào gọi, và nếu lời gọi thất bại thì quyết định xử lý ra sao. Các orchestrator kiểu này thường dùng nhiều lời gọi <dfn data-term="request-response">request-response</dfn>: gửi yêu cầu tới service (như <code>Payment Gateway</code>) và chờ phản hồi cho biết thành công hay không, kèm kết quả.</p>
+      <p>Có quy trình nghiệp vụ được mô hình tường minh trong <code>Order Processor</code> là lợi thế lớn: nhìn vào một chỗ là hiểu quy trình phải chạy thế nào, giúp onboarding người mới và hiểu phần lõi của hệ thống.</p>
+      <h3>Hai nhược điểm</h3>
+      <p>Thứ nhất, đây là cách tiếp cận khá ràng buộc: <code>Order Processor</code> phải biết mọi service liên quan, tức domain coupling cao. Không hẳn là xấu, nhưng ta muốn giữ nó ở mức tối thiểu.</p>
+      <p>Thứ hai, tinh tế hơn: logic lẽ ra thuộc về các service bắt đầu bị hút vào orchestrator. Khi đó các service trở nên "thiếu máu" — ít hành vi riêng, chỉ nhận lệnh. Hãy nhớ các service trong luồng điều phối vẫn là thực thể có trạng thái và hành vi riêng, tự chịu trách nhiệm về máy trạng thái cục bộ của mình. Lời cảnh báo của Sam: <mark>nếu logic có chỗ để tập trung, nó sẽ bị tập trung!</mark></p>
+      <p>Một cách hạn chế: cho các service khác nhau đóng vai orchestrator cho các luồng khác nhau — <code>Order Processor</code> cho đặt hàng, <code>Returns</code> cho đổi trả và hoàn tiền, <code>Goods Receiving</code> cho nhập hàng lên kệ. <code>Warehouse</code> được tất cả các orchestrator đó dùng, nên chức năng dễ được giữ lại trong chính <code>Warehouse</code> để tái sử dụng.</p>
+      <h3>Còn công cụ BPM thì sao?</h3>
+      <p>Công cụ mô hình hoá quy trình nghiệp vụ (BPM) đã có nhiều năm, thường cho phép người không phải lập trình viên kéo thả để nối các khối do lập trình viên viết thành quy trình. Nghe rất khớp với saga điều phối. Nhưng Sam "rất không thích" chúng: tiền đề "người không phải dev sẽ định nghĩa quy trình" gần như chưa bao giờ đúng. Rốt cuộc dev vẫn dùng chúng, và gặp đủ vấn đề — phải sửa qua GUI, luồng khó hoặc không thể đưa vào version control, không được thiết kế để test. Lời khuyên: để dev viết quy trình bằng code; nếu cần hình ảnh trực quan, sinh sơ đồ từ code dễ hơn nhiều so với dùng sơ đồ để mô tả code. Nếu vẫn muốn thử, Sam gợi ý Camunda và Zeebe — hai framework điều phối mã nguồn mở hướng tới dev microservice.</p>
+    </div>
+    <figure class="lab" data-widget="ch5-orchestration">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Order Processor điều phối saga bằng request-response
+        <small>Chọn điểm lỗi và bấm "Chạy saga điều phối". Orchestrator gửi yêu cầu, chờ phản hồi, và tự quyết định bù trừ. Chuyển sang "Nhiều luồng" để thấy Warehouse được ba orchestrator dùng chung.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Orchestrator phình to dần thành "bộ não" chứa mọi luật nghiệp vụ, còn các service chỉ là CRUD. Khi đó bạn có một monolith phân tán với một điểm nghẽn ở giữa.</p></aside>
+  </article>
+
+  <!-- ==================== 5.12 ==================== -->
+  <article class="topic" id="ch5-choreography" data-num="5.12" data-short="Saga vũ đạo & Correlation ID" data-keywords="choreographed saga events message broker topic correlation id trust but verify insufficient stock recommendation">
+    <p class="eyebrow">5.12 · Choreographed Sagas</p>
+    <h2>Saga vũ đạo: phối hợp bằng sự kiện <span class="vi">Choreographed Sagas</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="choreographed-saga">Saga vũ đạo</dfn> phân tán trách nhiệm cho các service cộng tác — kiến trúc <dfn data-term="trust-but-verify">trust-but-verify</dfn>, dùng nhiều <dfn data-term="event">sự kiện</dfn>.</li>
+      <li><dfn data-term="message-broker">Message broker</dfn> và <dfn data-term="topic">topic</dfn> đảm bảo phát sự kiện tin cậy; không service nào biết service nào khác → domain coupling giảm mạnh.</li>
+      <li>Cái giá: khó dựng mô hình tư duy về quy trình và khó biết saga đang ở trạng thái nào.</li>
+      <li>Lời giải: gắn <dfn data-term="correlation-id">correlation ID</dfn> vào mọi sự kiện và có một service "hút" sự kiện để dựng view trạng thái.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Saga vũ đạo phân tán trách nhiệm vận hành saga cho nhiều service. Nếu orchestration là command-and-control thì choreography là trust-but-verify. Trong Hình 5-10, các microservice <b>phản ứng với sự kiện</b>. Như đã bàn ở <a href="#ch3">Chương 3</a>, bạn không "gửi" sự kiện cho một microservice; bạn phát nó ra, và service nào quan tâm sẽ nhận và hành động.</p>
+      <p>Khi <code>Warehouse</code> nhận sự kiện <code>Order Placed</code> đầu tiên, nó biết việc của mình là giữ hàng phù hợp và phát một sự kiện khi xong. Nếu không giữ được hàng, nó phát một sự kiện thích hợp (chẳng hạn <code>Insufficient Stock</code>), có thể dẫn tới việc huỷ đơn.</p>
+      <p>Thường ta dùng một message broker để quản lý việc phát và giao sự kiện tin cậy. Nhiều microservice có thể phản ứng với cùng một sự kiện — đó là lúc dùng topic. Bên quan tâm đăng ký topic mà không cần biết sự kiện từ đâu tới; broker lo tính bền của topic và việc giao tới subscriber. Ví dụ, một service <code>Recommendation</code> cũng nghe <code>Order Placed</code> để xây cơ sở dữ liệu gu âm nhạc bạn có thể thích.</p>
+      <p>Không service nào biết về service khác; chúng chỉ cần biết làm gì khi nhận một loại sự kiện. Domain coupling giảm đáng kể, và vì không có chỗ để tập trung logic, <mark>logic sẽ không bị tập trung</mark>.</p>
+      <h3>Mặt trái: ai biết saga đang ở đâu?</h3>
+      <p>Với orchestration, quy trình được mô hình tường minh trong orchestrator. Ở đây, để hiểu quy trình bạn phải đọc hành vi từng service rồi tự ráp lại trong đầu. Tệ hơn, ta thiếu chỗ để hỏi "saga này đang ở trạng thái nào?", điều cần thiết cho một số kiểu phục hồi.</p>
+      <p>Cách đơn giản nhất: <b>chiếu (project) một view</b> trạng thái saga từ chính các sự kiện đang được phát. Sinh một ID duy nhất cho saga và đưa nó vào mọi sự kiện thuộc saga — đó là correlation ID. Rồi có một service chuyên "hút" mọi sự kiện, hiển thị mỗi đơn đang ở trạng thái nào, và có thể tự động xử lý sự cố nếu các service khác không tự xử lý được. Sam coi correlation ID là <b>thiết yếu</b> cho saga vũ đạo.</p>
+    </div>
+    <figure class="lab" data-widget="ch5-choreography">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ba đơn hàng chạy xen kẽ trên một broker
+        <small>Bấm "Phát sự kiện" để chạy ba saga đồng thời; ORD-2 sẽ gặp Insufficient Stock. Tắt "Gắn correlation ID" để thấy service theo dõi không còn ghép được sự kiện về đúng đơn.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Choreography đổi tầm nhìn tập trung lấy coupling thấp. Correlation ID cùng một service chiếu trạng thái là cách lấy lại phần lớn tầm nhìn đã mất.</p></aside>
+  </article>
+
+  <!-- ==================== 5.13 ==================== -->
+  <article class="topic" id="ch5-choosing" data-num="5.13" data-short="Chọn Orchestration hay Choreography" data-keywords="mixing styles tracing calls log aggregation choose choreography orchestration team ownership nested sagas">
+    <p class="eyebrow">5.13 · Mixing Styles · Tracing Calls · Should I Use Choreography or Orchestration?</p>
+    <h2>Trộn phong cách và chọn giữa orchestration với choreography <span class="vi">Mixing Styles and Choosing</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Hai phong cách không loại trừ nhau: có thể dùng orchestration bên trong Warehouse dù cả saga là choreography.</li>
+      <li>Trộn thì vẫn phải có cách rõ ràng để biết điều gì đã xảy ra — correlation ID và <dfn data-term="log-aggregation">log aggregation</dfn> giúp truy vết.</li>
+      <li>Sở thích của Sam: lợi ích của coupling lỏng gần như luôn lớn hơn chi phí theo dõi saga vũ đạo.</li>
+      <li>Quy tắc thực dụng: <b>một đội</b> sở hữu cả saga → orchestration ổn; <b>nhiều đội</b> → ưu tiên choreography.</li>
+    </ul></div>
+    <div class="prose">
+      <h3>Trộn phong cách</h3>
+      <p>Orchestration và choreography trông như hai thái cực, nhưng bạn hoàn toàn có thể kết hợp. Một số quy trình tự nhiên hợp kiểu này hơn kiểu kia; thậm chí một saga có thể pha trộn. Ví dụ, bên trong ranh giới <code>Warehouse</code>, việc đóng gói và gửi hàng có thể là một luồng điều phối, dù yêu cầu ban đầu đến từ một saga vũ đạo lớn hơn. (Garcia-Molina và cộng sự còn bàn về saga lồng nhau — <em class="en">nested sagas</em> — cho quy trình phức tạp hơn.)</p>
+      <p>Điều kiện: phải luôn có cách rõ ràng để hiểu điều gì đã xảy ra trong saga. Thiếu nó, hiểu các chế độ hỏng trở nên phức tạp và phục hồi rất khó. Dù chọn kiểu nào, ta đều muốn truy vết mọi lời gọi thuộc một quy trình — để biết quy trình có chạy đúng không, hoặc để chẩn đoán sự cố. Correlation ID và log aggregation (sẽ bàn ở chương sau về quan sát hệ thống) là công cụ chính.</p>
+      <h3>Nên chọn kiểu nào?</h3>
+      <p>Choreography thường kéo theo những ý tưởng có thể còn lạ với đội của bạn, vì nó giả định dùng nhiều cộng tác hướng sự kiện — thứ chưa được hiểu rộng rãi. Dù vậy, theo kinh nghiệm của Sam, chi phí theo dõi tiến độ saga gần như luôn bị lấn át bởi lợi ích của kiến trúc ít ràng buộc.</p>
+      <p>Gác sở thích cá nhân sang bên, lời khuyên chung của ông là: <b>rất thoải mái với orchestration khi một đội sở hữu việc cài đặt toàn bộ saga</b> — kiến trúc ràng buộc hơn dễ quản lý trong ranh giới một đội. <b>Khi có nhiều đội tham gia, ông ưu tiên choreography</b>, vì dễ chia trách nhiệm cho các đội và kiến trúc lỏng giúp các đội làm việc độc lập hơn.</p>
+    </div>
+    <figure class="lab" data-widget="ch5-choose">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Gợi ý phong cách cho saga của bạn
+        <small>Điều chỉnh số đội sở hữu các bước và các yếu tố khác. Bảng bên dưới tô sáng ưu thế của từng phong cách theo lựa chọn của bạn.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Ranh giới đội là tín hiệu mạnh nhất. Orchestration xuyên nhiều đội nghĩa là đội sở hữu orchestrator phải liên tục phối hợp với mọi đội khác mỗi khi quy trình đổi.</p></aside>
+  </article>
+
+  <!-- ==================== 5.14 ==================== -->
+  <article class="topic" id="ch5-sagas-vs-2pc" data-num="5.14" data-short="Saga so với giao dịch phân tán" data-keywords="sagas versus distributed transactions pat helland airplane engines availability enterprise integration patterns">
+    <p class="eyebrow">5.14 · Sagas Versus Distributed Transactions · Summary</p>
+    <h2>Saga so với giao dịch phân tán <span class="vi">Sagas Versus Distributed Transactions</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Pat Helland: trong đa số hệ giao dịch phân tán, một node hỏng làm việc commit bị treo — hệ càng lớn càng dễ "chết".</li>
+      <li>Ẩn dụ máy bay: nếu cần <em>mọi</em> động cơ chạy, thêm một động cơ lại <b>giảm</b> độ sẵn sàng.</li>
+      <li>Mô hình hoá quy trình thành saga tránh được phần lớn vấn đề đó và biến quy trình ngầm thành khái niệm hạng nhất trong code.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ngoài một số tình huống rất đặc thù, Sam tránh giao dịch phân tán. Pat Helland, người tiên phong về hệ phân tán, tóm gọn vấn đề trong bài "Life Beyond Distributed Transactions": trong hầu hết hệ thống giao dịch phân tán, sự cố của một node khiến commit bị treo, và ứng dụng bị kẹt theo. Hệ thống càng lớn thì càng dễ ngừng hoạt động — giống như máy bay cần tất cả động cơ đều chạy: thêm động cơ là giảm độ sẵn sàng.</p>
+      <p>Mô hình hoá quy trình thành saga tránh được nhiều thách thức đó, đồng thời biến những quy trình vốn được mô hình ngầm thành thứ tường minh, hiển nhiên với dev. Đưa quy trình nghiệp vụ cốt lõi thành <dfn data-term="business-process">khái niệm hạng nhất</dfn> mang lại nhiều lợi ích. Để đào sâu orchestration và choreography, Sam giới thiệu Chương 4 của ấn bản đầu <i>Building Microservices</i> và cuốn <i>Enterprise Integration Patterns</i>.</p>
+      <h3>Tổng kết của chương</h3>
+      <p>Con đường cài đặt workflow trong kiến trúc microservice quy về <b>mô hình hoá tường minh</b> quy trình ta muốn hiện thực. Nếu ranh giới microservice được định nghĩa chủ yếu theo miền nghiệp vụ (<a href="#ch2">Chương 2</a>), thì mô hình hoá tường minh cả quy trình nghiệp vụ là bước đi tự nhiên tiếp theo.</p>
+    </div>
+    <figure class="lab" data-widget="ch5-helland">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Máy bay của Pat Helland: thêm động cơ, giảm độ sẵn sàng
+        <small>Kéo số bên tham gia và độ sẵn sàng của từng node (số liệu minh hoạ). 2PC cần mọi bên sống cùng lúc; saga chỉ cần bước hiện tại sống, bước hỏng có thể thử lại sau.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Độ sẵn sàng của thứ "cần tất cả cùng sống" là tích của các độ sẵn sàng. Mỗi bên tham gia thêm vào giao dịch phân tán là thêm một thừa số nhỏ hơn 1.</p></aside>
+  </article>
+
+  <!-- ==================== Review ==================== -->
+  <article class="topic" id="ch5-review" data-num="5.★" data-short="Tổng kết & kiểm tra">
+    <p class="eyebrow">5.★ · Summary</p>
+    <h2>Tổng kết và kiểm tra <span class="vi">Chapter Review</span></h2>
+    <div class="prose">
+      <p>Khi chức năng bị chia sang nhiều microservice, giao dịch ACID vẫn còn nhưng chỉ trong phạm vi từng database — atomicity của thao tác tổng thể là thứ mất đi đầu tiên. Phản xạ đầu tiên thường là giao dịch phân tán kiểu two-phase commit, nhưng 2PC thực chất là điều phối khoá phân tán: nó không cho isolation, có cửa sổ bất nhất, có những ca hỏng phải gỡ tay, và càng nhiều bên càng chậm, càng kém sẵn sàng. Lời khuyên của Sam: nói "Không" — hoặc đừng tách dữ liệu, hoặc dùng saga.</p>
+      <p>Saga chia một quy trình dài thành chuỗi giao dịch cục bộ ngắn. Nó không cho atomicity ở cấp saga, nhưng cho biết saga đang ở đâu. Khi hỏng, ta phục hồi lùi bằng giao dịch bù trừ (rollback ngữ nghĩa, không xoá được lịch sử) hoặc phục hồi tiến bằng thử lại; sắp xếp lại bước giúp giảm số thứ phải bù trừ. Saga có thể cài theo kiểu điều phối (orchestrator, request-response, dễ nhìn nhưng coupling cao) hoặc vũ đạo (sự kiện, coupling thấp nhưng cần correlation ID để theo dõi). Một đội sở hữu cả saga thì orchestration ổn; nhiều đội thì nghiêng về choreography.</p>
+    </div>
+    <div class="quiz">
+      <div class="q" data-answer="2">
+        <p>Khi tách bảng <code>Customer</code> và <code>PendingEnrollments</code> sang hai database của hai microservice, thuộc tính nào mất đi ở cấp toàn bộ thao tác onboarding?</p>
+        <ol><li>Durability — dữ liệu đã commit có thể mất khi mất điện</li><li>Mỗi microservice không còn được dùng giao dịch ACID nữa</li><li>Atomicity — hai giao dịch có thể thành công hoặc thất bại độc lập</li><li>Không mất gì nếu sắp đúng thứ tự hai bước</li></ol>
+        <p class="explain">Mỗi service vẫn có ACID cục bộ, nhưng thao tác tổng thể giờ gồm hai giao dịch độc lập. Sắp thứ tự giúp giảm rủi ro nhưng không khôi phục atomicity — bạn vẫn phải tự xử lý khi bước sau hỏng.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Trong pha bỏ phiếu của 2PC, Worker A trả lời "đồng ý". Điều đó có nghĩa là gì?</p>
+        <ol><li>Thay đổi đã được ghi xuống database của Worker A</li><li>Worker A hứa sẽ làm được thay đổi về sau, và thường phải khoá bản ghi để giữ lời hứa</li><li>Coordinator có thể bỏ qua pha commit với Worker A</li><li>Worker B tự động được coi là đồng ý</li></ol>
+        <p class="explain">Phiếu thuận là một cam kết cho tương lai. Để không ai phá cam kết (xoá dòng, sửa trạng thái), worker khoá tài nguyên cho tới khi nhận commit hoặc rollback.</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>Vì sao 2PC làm mất tính isolation mà ACID vốn đảm bảo?</p>
+        <ol><li>Vì coordinator không lưu log</li><li>Vì các worker không được phép khoá bản ghi</li><li>Vì pha bỏ phiếu có thể bị bỏ qua</li><li>Vì lệnh commit tới các worker vào thời điểm khác nhau, nên bên ngoài có thể thấy thay đổi ở A mà chưa thấy ở B</li></ol>
+        <p class="explain">Không có commit đồng thời. Độ trễ mạng và tốc độ xử lý tạo ra một cửa sổ bất nhất, trong đó trạng thái trung gian nhìn thấy được — đúng điều isolation muốn ngăn.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Đơn hàng thất bại ở bước đóng gói (không thấy hàng trên kệ); bước trước đó đã gửi email "đơn đang trên đường". Giao dịch bù trừ hợp lý cho bước email là gì?</p>
+        <ol><li>Gửi email thứ hai báo đơn gặp sự cố và đã bị huỷ</li><li>Thu hồi email đã gửi khỏi hộp thư khách</li><li>Không cần làm gì vì email không phải dữ liệu</li><li>Rollback giao dịch database của service gửi email</li></ol>
+        <p class="explain">Đây là rollback ngữ nghĩa: không thể quay ngược thời gian hay "unsend" email, nên ta tạo hành động mới đảo ngược hậu quả ở mức nghiệp vụ.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Theo Hình 5-8, thay đổi nào giúp giảm số giao dịch bù trừ trong saga xử lý đơn?</p>
+        <ol><li>Thu tiền trước khi kiểm tra kho</li><li>Gộp mọi bước vào một giao dịch 2PC</li><li>Chỉ cộng điểm thưởng sau khi đơn đã được gửi đi</li><li>Gửi email xác nhận ngay khi khách đặt hàng</li></ol>
+        <p class="explain">Đặt bước cộng điểm ở cuối, tới vị trí không bao giờ cần rollback, nên khỏi phải bù trừ nó khi đóng gói hay gửi hàng thất bại. Nguyên tắc chung: kéo bước dễ hỏng lên trước, đẩy bước khó bù trừ về sau.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Hãng vận chuyển hết chỗ trên xe hôm nay, không gửi được đơn đã thu tiền và đóng gói xong. Cách xử lý mà Sam gợi ý?</p>
+        <ol><li>Phục hồi lùi: hoàn tiền, trả hàng lên kệ, huỷ đơn</li><li>Phục hồi tiến: thử lại (vd. xếp sang ngày hôm sau), nếu vẫn hỏng thì cần con người can thiệp</li><li>Dùng 2PC giữa Warehouse và hãng vận chuyển</li><li>Bỏ qua lỗi và đánh dấu đơn là đã gửi</li></ol>
+        <p class="explain">Ở bước cuối, huỷ cả đơn là kỳ quặc. Trộn fail-backward cho các bước đầu và fail-forward cho bước gửi hàng là hoàn toàn hợp lý.</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>Nhược điểm tinh tế của saga điều phối mà Sam cảnh báo là gì?</p>
+        <ol><li>Không thể dùng request-response</li><li>Không thể kích hoạt giao dịch bù trừ</li><li>Không biết saga đang ở trạng thái nào</li><li>Logic nghiệp vụ dần bị hút vào orchestrator, khiến các service trở nên "thiếu máu"</li></ol>
+        <p class="explain">"Nếu logic có chỗ để tập trung, nó sẽ bị tập trung." Orchestration lại cho tầm nhìn trạng thái rất tốt — chính choreography mới là kiểu khó biết trạng thái saga.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Bốn đội khác nhau sở hữu Order Processor, Warehouse, Payment Gateway và Loyalty. Theo lời khuyên chung của Sam, nên cài saga xử lý đơn thế nào, và cần gì đi kèm?</p>
+        <ol><li>Ưu tiên choreography bằng sự kiện, kèm correlation ID để chiếu trạng thái saga</li><li>Orchestration bằng một công cụ BPM kéo thả để người nghiệp vụ tự sửa luồng</li><li>Two-phase commit qua bốn database</li><li>Orchestration, vì có nhiều đội nên cần một bộ não trung tâm</li></ol>
+        <p class="explain">Nhiều đội → choreography giúp chia trách nhiệm và giảm coupling. Correlation ID là thiết yếu để biết mỗi saga đang ở đâu. Orchestration hợp khi một đội sở hữu cả saga.</p>
+      </div>
+    </div>
+  </article>
+</section>

@@ -1,0 +1,478 @@
+<style>
+#ch7 .nodes { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 8px; }
+#ch7 .node { border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; background: var(--bg); min-width: 0; }
+#ch7 .node > b { display: flex; justify-content: space-between; gap: 6px; align-items: baseline; font-size: var(--t-xs); margin-bottom: 6px; }
+#ch7 .node > b small { font-weight: 500; color: var(--ink-3); }
+#ch7 .node.clickable { cursor: pointer; }
+#ch7 .node.clickable:hover { border-color: var(--accent); }
+#ch7 .node.dead { background: var(--bad-soft); border-color: var(--bad); border-style: dashed; }
+#ch7 .node.hit { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+#ch7 .node.hot { border-color: var(--bad); box-shadow: inset 0 0 0 1px var(--bad); }
+#ch7 .node.newn { border-color: var(--violet); box-shadow: inset 0 0 0 1px var(--violet); }
+#ch7 .node.dim { opacity: .55; }
+#ch7 .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+#ch7 .chip { display: inline-flex; align-items: center; gap: 3px; font: 600 .7rem/1.5 var(--f-mono); padding: 1px 6px; border-radius: 4px; background: var(--surface-2); color: var(--ink-2); border: 1px solid transparent; white-space: nowrap; }
+#ch7 .chip.lead { background: var(--accent); color: var(--accent-ink); }
+#ch7 .chip.foll { background: var(--accent-soft); color: var(--ink); }
+#ch7 .chip.promo { background: var(--mark-soft); color: var(--ink); border-color: var(--mark); }
+#ch7 .chip.lost { background: var(--bad-soft); color: var(--bad); border-color: var(--bad); }
+#ch7 .chip.moved { background: var(--mark-soft); color: var(--ink); border-color: var(--mark); }
+#ch7 .chip.hitc { background: var(--accent-soft); color: var(--ink); border-color: var(--accent); }
+#ch7 .chip.vio { background: var(--violet-soft); color: var(--ink); }
+#ch7 .chip.off { opacity: .4; }
+#ch7 .bars { display: flex; flex-direction: column; gap: 6px; }
+#ch7 .bar-row { display: grid; grid-template-columns: minmax(64px, 120px) minmax(0, 1fr); gap: 8px; align-items: center; font-size: var(--t-xs); }
+#ch7 .bar-row > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#ch7 .track { position: relative; height: 22px; background: var(--surface-2); border-radius: 5px; overflow: hidden; }
+#ch7 .fill { position: absolute; inset: 0 auto 0 0; border-radius: 5px; background: var(--accent); transition: width .25s; }
+#ch7 .fill.warn { background: var(--warn); } #ch7 .fill.bad { background: var(--bad); } #ch7 .fill.mark { background: var(--mark); } #ch7 .fill.violet { background: var(--violet); } #ch7 .fill.soft { background: var(--accent-soft); }
+#ch7 .track > em { position: absolute; left: 8px; top: 0; font: 600 .72rem/22px var(--f-mono); font-style: normal; color: var(--ink); white-space: nowrap; }
+#ch7 .track > i.cap { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--bad); }
+#ch7 .bar-row.sel > span:first-child { font-weight: 700; color: var(--accent); }
+#ch7 .row-inline { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+#ch7 .row-inline input[type="text"] { flex: 1 1 160px; min-width: 0; }
+#ch7 .keys { font: 400 .7rem/1.5 var(--f-mono); color: var(--ink-3); overflow-wrap: anywhere; margin-top: 4px; }
+#ch7 .mini { width: 100%; border-collapse: collapse; font: 400 .72rem/1.45 var(--f-mono); }
+#ch7 .mini td { padding: 2px 4px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+#ch7 .mini tr.m td { background: var(--mark-soft); color: var(--ink); }
+#ch7 .mini tr.x td { color: var(--ink-3); }
+#ch7 .idx { margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--line); font: 400 .7rem/1.55 var(--f-mono); }
+#ch7 .idx div { overflow-wrap: anywhere; }
+#ch7 .idx .q { background: var(--mark-soft); color: var(--ink); border-radius: 3px; padding: 0 3px; }
+#ch7 .idx .pend { color: var(--warn); }
+#ch7 .cells { display: grid; grid-template-columns: repeat(20, minmax(0, 1fr)); gap: 2px; }
+#ch7 .cells i { display: block; aspect-ratio: 1; border-radius: 2px; background: var(--accent-soft); }
+#ch7 .cells i.mv { background: var(--bad); }
+#ch7 .path { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: var(--t-xs); }
+#ch7 .path .arrow { color: var(--ink-3); }
+#ch7 .route-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2fr); gap: 8px; }
+#ch7 .route-grid .col { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+#ch7 .route-grid .col > h5 { margin: 0; font: 700 .68rem var(--f-display); text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); }
+#ch7 .actor { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; background: var(--bg); font-size: var(--t-xs); min-width: 0; transition: background .2s, border-color .2s; }
+#ch7 .actor b { display: block; }
+#ch7 .actor.on { border-color: var(--accent); background: var(--accent-soft); }
+#ch7 .actor.bad { border-color: var(--bad); background: var(--bad-soft); }
+#ch7 .actor.off { opacity: .4; }
+#ch7 .actor .map { font: 400 .68rem/1.5 var(--f-mono); color: var(--ink-2); overflow-wrap: anywhere; }
+@media (max-width: 560px) { #ch7 .route-grid { grid-template-columns: minmax(0, 1fr); } #ch7 .cells { grid-template-columns: repeat(10, minmax(0, 1fr)); } }
+</style>
+
+<section class="chapter" id="ch7" data-chapter="7" data-title="Phân vùng dữ liệu" data-edition="1e">
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 7 <span class="ed-badge">Nguồn: ấn bản 1 · Chương 6</span></p>
+    <h1>Partitioning <span class="vi">Phân vùng dữ liệu</span></h1>
+    <blockquote class="epigraph">Clearly, we must break away from the sequential and not limit the computers. We must state definitions and provide for priorities and descriptions of data. We must state relationships, not procedures.<cite>— Grace Murray Hopper, Management and the Computer of the Future (1962)</cite></blockquote>
+    <p class="lede">Sao chép (Chương 6) cho mỗi node một bản đầy đủ của dữ liệu. Khi dữ liệu quá lớn cho một máy, hoặc lượng truy vấn vượt sức một máy, ta phải cắt dữ liệu thành nhiều phần nhỏ đặt trên nhiều node. Chương này hỏi ba câu: chia dữ liệu theo cách nào để tải đều, secondary index sống ở đâu khi dữ liệu đã bị cắt, và làm sao di chuyển các phần khi cụm thêm bớt máy mà client vẫn tìm được đúng chỗ.</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- 7.1 -->
+  <article class="topic" id="ch7-intro" data-num="7.1" data-short="Phân vùng và sao chép" data-keywords="partition shard region tablet vnode vbucket replication leader follower scalability">
+    <p class="eyebrow">7.1 · Partitioning and Replication</p>
+    <h2>Phân vùng là gì, và nó sống chung với sao chép thế nào <span class="vi">Partitioning and Replication</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="partition">Partition</dfn> (còn gọi là <dfn data-term="sharding">shard</dfn>) là một mảnh của cơ sở dữ liệu: mỗi bản ghi thuộc đúng một partition, và mỗi partition giống như một database nhỏ.</li>
+      <li>Lý do chính để phân vùng là khả năng mở rộng: các partition đặt trên các node khác nhau của một cụm <dfn data-term="shared-nothing">shared-nothing</dfn>, nên cả dữ liệu lẫn tải truy vấn được chia ra nhiều đĩa, nhiều CPU.</li>
+      <li>Phân vùng gần như luôn đi kèm sao chép: mỗi partition có nhiều bản sao trên nhiều node. Một node thường là leader của vài partition và follower của vài partition khác.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Cùng một khái niệm nhưng mỗi hệ thống gọi một tên: <em class="en">shard</em> trong MongoDB, Elasticsearch, SolrCloud; <em class="en">region</em> trong HBase; <em class="en">tablet</em> trong Bigtable; <em class="en">vnode</em> trong Cassandra và Riak; <em class="en">vBucket</em> trong Couchbase. Sách dùng chữ <em class="en">partition</em> vì đây là thuật ngữ lâu đời nhất. Cũng đừng nhầm với <em>network partition</em> (mạng bị chia cắt), một loại lỗi mạng sẽ gặp ở <a href="#ch9">Chương 9</a>. Ở đây, partition là việc <strong>cố ý</strong> chia một database lớn thành nhiều database nhỏ.</p>
+      <p>Với truy vấn chỉ chạm một partition, mỗi node tự xử lý phần của mình, nên thông lượng tăng gần tuyến tính khi thêm node. Truy vấn lớn chạm nhiều partition có thể chạy song song, nhưng khó hơn nhiều. Ý tưởng này không mới: Teradata và Tandem NonStop SQL đã làm từ thập niên 1980, rồi được NoSQL và các kho dữ liệu trên Hadoop “phát hiện lại”.</p>
+      <h3>Kết hợp với sao chép</h3>
+      <p>Mỗi bản ghi thuộc đúng một partition, nhưng partition đó có thể được lưu trên vài node để chịu lỗi. Với mô hình leader–follower (xem <a href="#ch6">Chương 6</a>), leader của mỗi partition nằm trên một node, các follower nằm trên node khác (Hình 6-1 trong sách). Mọi thứ về sao chép áp dụng nguyên vẹn cho từng partition, và cách chọn sơ đồ phân vùng gần như độc lập với cách chọn sơ đồ sao chép, nên phần còn lại của chương tạm bỏ qua sao chép.</p>
+    </div>
+    <figure class="lab" data-widget="part-replicas">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Partition và bản sao trên các node
+        <small>Bấm vào một node để làm nó chết (bấm lại để hồi phục). Xem partition nào mất leader, follower nào được đề bạt, và khi nào dữ liệu thực sự không còn bản nào.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Phân vùng giải quyết <em>kích thước và thông lượng</em>; sao chép giải quyết <em>chịu lỗi và độ trễ đọc</em>. Hai cơ chế trực giao và hầu hết hệ thống thật dùng cả hai: với hệ số sao chép 3, mất một node không làm mất partition nào.</p></aside>
+  </article>
+
+  <!-- 7.2 -->
+  <article class="topic" id="ch7-keyrange" data-num="7.2" data-short="Phân vùng theo khoảng khoá" data-keywords="key range partitioning encyclopedia volume boundaries bigtable hbase rethinkdb mongodb sensor timestamp hot spot skew">
+    <p class="eyebrow">7.2 · Partitioning by Key Range</p>
+    <h2>Phân vùng theo khoảng khoá <span class="vi">Partitioning by Key Range</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Mục tiêu của phân vùng là chia đều dữ liệu và tải. Chia lệch gọi là <dfn data-term="skew">skew</dfn>; partition chịu tải cao bất thường là <dfn data-term="hot-spot">hot spot</dfn>.</li>
+      <li><dfn data-term="key-range-partitioning">Phân vùng theo khoảng khoá</dfn>: mỗi partition giữ một dải khoá liên tục, như các tập của bộ bách khoa toàn thư giấy. Ranh giới phải theo phân bố dữ liệu, không chia đều theo bảng chữ cái.</li>
+      <li>Ưu điểm: khoá được sắp xếp, nên <dfn data-term="range-scan">range scan</dfn> rất rẻ. Nhược điểm: một số mẫu truy cập dồn hết vào một partition, ví dụ khoá là timestamp của cảm biến. Cách chữa: đặt tên cảm biến lên trước timestamp.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Cách đơn giản nhất để tránh hot spot là đặt mỗi bản ghi lên một node ngẫu nhiên. Dữ liệu sẽ rất đều, nhưng khi đọc một bản ghi bạn không biết nó ở đâu, nên phải hỏi mọi node. Ta cần một quy tắc tất định: từ khoá suy ra partition.</p>
+      <p>Quy tắc đầu tiên là gán cho mỗi partition một dải khoá từ giá trị nhỏ nhất đến lớn nhất. Biết ranh giới thì biết khoá nằm ở partition nào; biết partition nằm ở node nào thì gửi thẳng request tới node đó, giống như lấy đúng tập sách trên kệ. Ranh giới có thể do quản trị viên đặt tay hoặc database tự chọn (xem 7.11). Bigtable, HBase, RethinkDB và MongoDB trước 2.4 dùng cách này.</p>
+      <p>Trong mỗi partition, khoá được giữ theo thứ tự (như SSTable ở <a href="#ch4">Chương 4</a>). Vì vậy có thể coi khoá như một concatenated index để lấy nhiều bản ghi liên quan trong một lần quét.</p>
+    </div>
+    <figure class="lab" data-widget="encyclopedia">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Chia bộ bách khoa toàn thư thành các tập
+        <small>So sánh “mỗi tập hai chữ cái” với “ranh giới theo dữ liệu”. Gõ một từ tiếng Anh để xem nó nằm ở tập nào.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Khi khoá là timestamp: hot spot</h3>
+      <p>Một mạng cảm biến lưu số đo với khoá là thời điểm đo (năm-tháng-ngày-giờ-phút-giây). Range scan rất tiện: lấy mọi số đo của một tháng chỉ là một lần quét liên tục. Nhưng nếu partition tương ứng với dải thời gian, ví dụ mỗi ngày một partition, thì mọi lần ghi lúc này đều rơi vào partition của <em>hôm nay</em>. Partition đó quá tải còn các partition khác ngồi chơi.</p>
+      <p>Cách chữa là đổi thành phần đầu của khoá: <code>tên_cảm_biến + timestamp</code>. Nếu nhiều cảm biến cùng hoạt động, lượng ghi rải ra nhiều partition. Cái giá: muốn lấy số đo của nhiều cảm biến trong một khoảng thời gian, bạn phải chạy một range query riêng cho từng cảm biến.</p>
+    </div>
+    <figure class="lab" data-widget="sensor-hotspot">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Cảm biến ghi dữ liệu: timestamp hay tên cảm biến đứng đầu?
+        <small>Đổi cách tạo khoá rồi bấm “Ghi thêm 1 phút dữ liệu”. Quan sát partition nào nhận lượng ghi, và một truy vấn “mọi cảm biến trong 1 giờ” cần bao nhiêu range query.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Khoá tăng dần đơn điệu (timestamp, ID tự tăng) là kẻ thù của phân vùng theo khoảng khoá: lượng ghi mới luôn dồn vào partition “cuối cùng”. Đây là lỗi kinh điển khi thiết kế khoá cho HBase hay Bigtable.</p></aside>
+  </article>
+
+  <!-- 7.3 -->
+  <article class="topic" id="ch7-hash" data-num="7.3" data-short="Phân vùng theo hash" data-keywords="hash partitioning md5 fnv fowler noll vo hashcode range query scatter gather riak couchbase voldemort">
+    <p class="eyebrow">7.3 · Partitioning by Hash of Key</p>
+    <h2>Phân vùng theo hash của khoá <span class="vi">Partitioning by Hash of Key</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Một <dfn data-term="hash-function">hàm hash</dfn> tốt biến dữ liệu lệch thành phân bố đều: hai chuỗi gần giống nhau vẫn cho hash cách xa nhau. Mỗi partition giữ một dải <em>hash</em> thay vì một dải khoá.</li>
+      <li>Không cần hash mật mã: Cassandra, MongoDB dùng MD5, Voldemort dùng Fowler–Noll–Vo. Nhưng hash có sẵn như <code>Object.hashCode()</code> của Java có thể khác nhau giữa các process, nên không dùng được.</li>
+      <li>Cái giá của <dfn data-term="hash-partitioning">hash partitioning</dfn>: mất thứ tự khoá. Range query phải gửi đến mọi partition (<dfn data-term="scatter-gather">scatter/gather</dfn>), hoặc không được hỗ trợ (Riak, Couchbase, Voldemort).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Vì nguy cơ skew, nhiều kho dữ liệu phân tán băm khoá trước khi chọn partition. Một hàm hash 32 bit nhận chuỗi và trả về một số trông như ngẫu nhiên trong khoảng 0 đến 2<sup>32</sup> − 1. Chia khoảng này thành các dải (đều nhau, hoặc chọn ngẫu nhiên), mỗi partition giữ một dải; khoá nào có hash rơi vào dải nào thì thuộc partition đó (Hình 6-3).</p>
+      <p>Hàm hash phải cho cùng kết quả ở mọi process, mọi máy, mọi lần khởi động. <code>hashCode()</code> của Java hay <code>Object#hash</code> của Ruby không đảm bảo điều này, nên một khoá có thể bị gửi đến hai partition khác nhau bởi hai client khác nhau. Ví dụ dưới đây dùng FNV-1a 32 bit, cùng họ với hàm Voldemort dùng.</p>
+      <p>Đổi lại sự đều đặn, khoá liền kề nhau giờ bị rải khắp các partition. Range query trên khoá chính không còn biết hỏi partition nào, nên phải hỏi tất cả: trong MongoDB bật chế độ hash-based sharding, mọi range query đều phải gửi đến mọi partition.</p>
+    </div>
+    <figure class="lab" data-widget="range-vs-hash">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Phân bố khoá: theo khoảng khoá hay theo hash
+        <small>Thêm khoá bằng tay hoặc sinh hàng loạt, rồi đổi chiến lược. Histogram cho biết mỗi partition giữ bao nhiêu khoá; ô range query cho biết phải hỏi bao nhiêu partition.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Khoảng khoá: range query rẻ, dễ có hot spot. Hash: tải đều, range query thành scatter/gather. Không có lựa chọn nào thắng tuyệt đối; nó phụ thuộc vào việc ứng dụng của bạn có cần quét theo thứ tự khoá hay không.</p></aside>
+  </article>
+
+  <!-- 7.4 -->
+  <article class="topic" id="ch7-consistent" data-num="7.4" data-short="Consistent hashing" data-keywords="consistent hashing karger cdn ring token random boundaries ketama">
+    <p class="eyebrow">7.4 · Consistent Hashing</p>
+    <h2>“Consistent hashing” thực sự là gì <span class="vi">Consistent Hashing</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="consistent-hashing">Consistent hashing</dfn> (Karger và cộng sự, 1997) là cách chia tải cho một hệ thống cache cỡ Internet như CDN, bằng cách chọn <strong>ngẫu nhiên</strong> ranh giới partition để không cần điều phối trung tâm hay đồng thuận.</li>
+      <li>Chữ “consistent” ở đây không liên quan gì đến tính nhất quán của bản sao hay chữ C trong ACID. Nó mô tả một cách <em>rebalancing</em>.</li>
+      <li>Cách này không hợp với database lắm nên hiếm khi được dùng đúng nghĩa; tài liệu nhiều database dùng chữ này không chính xác. Sách khuyên: tránh thuật ngữ, gọi là <em>hash partitioning</em>.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Hình dung không gian hash 0 … 2<sup>32</sup> − 1 uốn thành một vòng tròn. Mỗi node tự chọn vài điểm ngẫu nhiên trên vòng (gọi là <em>token</em>); một khoá thuộc về token gần nhất đi theo chiều kim đồng hồ. Không ai cần phân công: node mới chỉ cần chọn token của mình và lấy phần vòng ngay trước các token đó. Chỉ những khoá nằm trong phần đó phải di chuyển, phần còn lại giữ nguyên.</p>
+      <p>Vấn đề là sự ngẫu nhiên. Với ít token mỗi node, các đoạn vòng có độ dài rất chênh lệch, nên có node giữ gấp đôi, gấp ba phần của node khác. Phải dùng nhiều token mỗi node (Cassandra mặc định 256) thì sự chênh mới trung bình hoá đi. Đây chính là chiến lược “số partition tỉ lệ với số node” ở 7.12; các hàm hash mới hơn (như jump consistent hash của Lamping và Veach) đạt hiệu quả tương tự với ít metadata hơn.</p>
+    </div>
+    <figure class="lab" data-widget="hash-ring">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Vòng hash với ranh giới ngẫu nhiên
+        <small>Tăng số token mỗi node và xem tải giữa các node đều dần. Bấm “Thêm một node” để xem node mới lấy bao nhiêu dữ liệu, và so với hash mod N.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Tác giả cố tình không dùng “consistent hashing” cho phần còn lại của chương vì chữ “consistent” đã bị dùng cho quá nhiều thứ khác (replica consistency ở <a href="#ch6">Chương 6</a>, ACID ở <a href="#ch8">Chương 8</a>, linearizability ở <a href="#ch10">Chương 10</a>).</p></aside>
+  </article>
+
+  <!-- 7.5 -->
+  <article class="topic" id="ch7-compound" data-num="7.5" data-short="Khoá chính phức hợp" data-keywords="cassandra compound primary key partition key clustering column concatenated index user_id update_timestamp one-to-many">
+    <p class="eyebrow">7.5 · Partitioning by Hash of Key (Cassandra)</p>
+    <h2>Khoá chính phức hợp: thỏa hiệp của Cassandra <span class="vi">Compound Primary Keys</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Cassandra cho phép <dfn data-term="compound-primary-key">khoá chính phức hợp</dfn> gồm nhiều cột. Chỉ cột đầu được hash để chọn partition; các cột sau làm <dfn data-term="concatenated-index">concatenated index</dfn> để sắp xếp dữ liệu trong SSTable.</li>
+      <li>Không thể range query trên cột đầu, nhưng nếu cố định cột đầu thì range scan trên các cột sau rất hiệu quả.</li>
+      <li>Rất hợp với quan hệ một-nhiều: khoá <code>(user_id, update_timestamp)</code> cho phép lấy mọi bài của một người trong một khoảng thời gian, đã sắp xếp, từ đúng một partition.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Đây là cách lấy cả hai điều tốt: phần hash (user_id) rải người dùng đều ra các partition, phần sắp xếp (timestamp) giữ bài của <em>cùng một người</em> liền nhau trên một partition. Người dùng khác nhau có thể nằm ở partition khác nhau, nhưng bài của một người thì luôn nằm cạnh nhau theo thứ tự thời gian.</p>
+<pre class="code"><span class="k">CREATE TABLE</span> updates (
+  user_id          <span class="k">bigint</span>,
+  update_timestamp <span class="k">timestamp</span>,
+  body             <span class="k">text</span>,
+  <span class="k">PRIMARY KEY</span> ((<mark>user_id</mark>), update_timestamp)  <span class="c">-- (partition key), clustering column</span>
+);</pre>
+    </div>
+    <figure class="lab" data-widget="compound-key">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Truy vấn trên khoá (user_id, update_timestamp)
+        <small>Chọn người dùng và khoảng ngày. Khi có user_id, chỉ một partition bị chạm và các dòng khớp nằm liền nhau. Bỏ user_id để thấy điều gì xảy ra.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Trong CQL, truy vấn không cố định partition key (chỉ lọc theo timestamp) bị Cassandra từ chối trừ khi bạn thêm <code>ALLOW FILTERING</code>, tức là chấp nhận quét toàn cụm. Thiết kế bảng Cassandra thường bắt đầu từ câu hỏi “truy vấn nào sẽ chạy” để chọn partition key cho đúng.</p></aside>
+  </article>
+
+  <!-- 7.6 -->
+  <article class="topic" id="ch7-skew" data-num="7.6" data-short="Workload lệch và khoá nóng" data-keywords="skewed workload hot key celebrity random suffix split key justin bieber">
+    <p class="eyebrow">7.6 · Skewed Workloads and Relieving Hot Spots</p>
+    <h2>Workload lệch và khoá nóng <span class="vi">Skewed Workloads and Relieving Hot Spots</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Hash chỉ rải các khoá <em>khác nhau</em>. Nếu mọi request đều vào <em>cùng một khoá</em>, chúng vẫn vào cùng một partition: hash của hai ID giống nhau vẫn giống nhau.</li>
+      <li>Ví dụ: một người nổi tiếng có hàng triệu follower làm gì đó, tạo một cơn bão ghi vào một <dfn data-term="hot-key">khoá nóng</dfn>.</li>
+      <li>Cách chữa ở tầng ứng dụng: thêm số ngẫu nhiên vào đầu hoặc cuối khoá nóng. Hai chữ số thập phân chia lượng ghi ra 100 khoá. Cái giá: đọc phải gom 100 khoá, và phải ghi sổ khoá nào đang bị tách.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Hầu hết hệ thống dữ liệu hiện nay không tự bù được loại skew này, nên ứng dụng phải tự xử lý. Kỹ thuật đơn giản: với khoá biết là rất nóng, mỗi lần ghi gắn thêm một hậu tố ngẫu nhiên <code>00</code>–<code>99</code>. Một khoá thành 100 khoá, có hash khác nhau, rải ra nhiều partition.</p>
+      <p>Nhưng mọi lần đọc giờ phải đọc cả 100 khoá rồi gộp lại. Và chỉ nên làm thế với số ít khoá nóng; làm với mọi khoá là lãng phí. Vì vậy cần thêm một chỗ ghi nhớ khoá nào đang bị tách. Sách hy vọng tương lai database sẽ tự phát hiện và bù skew; hiện tại, bạn phải tự cân nhắc trade-off cho ứng dụng của mình.</p>
+    </div>
+    <figure class="lab" data-widget="hot-key">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một người nổi tiếng đăng bài
+        <small>Kéo “số chữ số ngẫu nhiên” từ 0 lên 2. Xem lượng ghi rải ra các partition thế nào, và mỗi lần đọc khoá đó phải làm thêm bao nhiêu việc.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Một bài báo năm 2010 mà sách trích dẫn có tiêu đề “3% máy chủ của Twitter dành riêng cho Justin Bieber”. Dù con số chính xác thế nào, nó minh hoạ đúng vấn đề: một khoá duy nhất có thể chiếm tải của cả một nhóm máy.</p></aside>
+  </article>
+
+  <!-- 7.7 -->
+  <article class="topic" id="ch7-index-doc" data-num="7.7" data-short="Index theo document (local)" data-keywords="secondary index document partitioned local index scatter gather mongodb riak cassandra elasticsearch solr voltdb used cars color red">
+    <p class="eyebrow">7.7 · Partitioning Secondary Indexes by Document</p>
+    <h2>Secondary index phân vùng theo document <span class="vi">Partitioning Secondary Indexes by Document</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="secondary-index">Secondary index</dfn> không xác định duy nhất một bản ghi mà tìm mọi bản ghi có một giá trị: mọi xe màu đỏ, mọi bài chứa chữ <em>hogwash</em>. Nó không ánh xạ gọn vào partition theo khoá chính.</li>
+      <li><dfn data-term="local-index">Index cục bộ</dfn> (document-partitioned): mỗi partition giữ index chỉ cho document của chính nó. Ghi chỉ chạm một partition.</li>
+      <li>Đọc thì đắt: xe đỏ có thể ở mọi partition, nên truy vấn phải gửi tới tất cả rồi gộp (scatter/gather), dễ bị <dfn data-term="tail-latency-amplification">khuếch đại độ trễ đuôi</dfn>. Vẫn được dùng rất rộng: MongoDB, Riak, Cassandra, Elasticsearch, SolrCloud, VoltDB.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ví dụ của sách: một trang bán xe cũ (Hình 6-4). Mỗi tin đăng có một document ID, và database được phân vùng theo ID: 0–499 ở partition 0, 500–999 ở partition 1, và cứ thế. Người dùng muốn lọc theo màu và hãng, nên ta khai báo secondary index trên <code>color</code> và <code>make</code>. Khi một xe đỏ được thêm vào, partition chứa nó tự thêm ID vào danh sách của mục index <code>color:red</code>.</p>
+      <p>Với index cục bộ, mỗi partition hoàn toàn tách biệt: nó không quan tâm partition khác chứa gì. Thêm, sửa, xoá một document chỉ cần chạm partition chứa document đó. Nhưng trừ khi bạn làm gì đặc biệt với document ID, không có lý do gì để mọi xe đỏ nằm chung một partition. Tìm xe đỏ nghĩa là hỏi mọi partition. Kể cả khi hỏi song song, thời gian trả lời bằng partition <em>chậm nhất</em> (xem percentile ở <a href="#ch2">Chương 2</a>).</p>
+      <p>Các nhà cung cấp database khuyên bạn thiết kế sơ đồ phân vùng sao cho truy vấn secondary index phục vụ được từ một partition, nhưng điều đó không phải lúc nào cũng làm được, nhất là khi một truy vấn dùng nhiều index cùng lúc (lọc theo cả màu lẫn hãng).</p>
+    </div>
+    <figure class="lab" data-widget="sec-index">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Tìm xe “màu đỏ”: index cục bộ hay toàn cục
+        <small>Chọn truy vấn và bấm “Chạy truy vấn”. Partition nào được hỏi sẽ sáng viền. Đổi sang index toàn cục (7.8) để so sánh số partition phải hỏi và thời gian chờ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Nếu database của bạn chỉ có key-value, bạn có thể bị cám dỗ tự xây secondary index trong code ứng dụng (ánh xạ giá trị → danh sách ID). Race condition và lỗi ghi giữa chừng rất dễ làm index lệch khỏi dữ liệu thật; xem phần giao dịch nhiều đối tượng ở <a href="#ch8">Chương 8</a>.</p></aside>
+  </article>
+
+  <!-- 7.8 -->
+  <article class="topic" id="ch7-index-term" data-num="7.8" data-short="Index theo term (global)" data-keywords="term partitioned global index asynchronous dynamodb riak search oracle full-text">
+    <p class="eyebrow">7.8 · Partitioning Secondary Indexes by Term</p>
+    <h2>Secondary index phân vùng theo term <span class="vi">Partitioning Secondary Indexes by Term</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="global-index">Index toàn cục</dfn> (term-partitioned) phủ dữ liệu của mọi partition, nhưng bản thân nó cũng được phân vùng, theo <dfn data-term="index-term">term</dfn> (ví dụ <code>color:red</code>) chứ không theo khoá chính.</li>
+      <li>Đọc nhanh hơn: chỉ cần hỏi partition giữ term cần tìm. Ghi chậm và phức tạp hơn: một document có nhiều term, mỗi term có thể nằm ở partition khác, trên node khác.</li>
+      <li>Muốn index luôn tức thời đúng thì cần giao dịch phân tán. Thực tế, index toàn cục thường được cập nhật <strong>bất đồng bộ</strong>: đọc ngay sau khi ghi có thể chưa thấy thay đổi (DynamoDB: thường dưới một giây).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Không thể đặt cả index toàn cục lên một node, vì node đó sẽ thành nút cổ chai và phá mục đích phân vùng. Nên index toàn cục cũng được chia, nhưng theo cách khác với dữ liệu. Trong Hình 6-5, các màu bắt đầu bằng a–r nằm ở partition 0 của index, s–z ở partition 1; index theo hãng xe chia ở giữa f và h. Tên “term” đến từ full-text index, nơi các term là những từ xuất hiện trong văn bản.</p>
+      <p>Cũng như với khoá chính, có thể chia index theo chính term (tiện cho range scan, ví dụ giá xe) hoặc theo hash của term (tải đều hơn). Ưu điểm lớn nhất là đọc: thay vì scatter/gather, client chỉ hỏi đúng một partition cho mỗi term. Nhược điểm nằm ở đường ghi: một lần ghi document có thể phải cập nhật nhiều partition index. Giữ chúng đồng bộ tức thì đòi hỏi giao dịch phân tán (xem <a href="#ch8">Chương 8</a> và <a href="#ch10">Chương 10</a>), mà không phải database nào cũng hỗ trợ.</p>
+      <p>Các ví dụ khác dùng index theo term: tính năng search của Riak, và kho dữ liệu Oracle (cho chọn giữa index local và global). Sách quay lại cách hiện thực index theo term ở <a href="#ch13">Chương 13</a>.</p>
+    </div>
+    <figure class="lab" data-widget="global-write">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ghi một tin đăng xe mới rồi đọc ngay
+        <small>Chọn màu, hãng và kiểu index, rồi bấm “Đăng tin và tìm ngay”. Với index toàn cục bất đồng bộ, lần tìm đầu tiên có thể chưa thấy chiếc xe vừa đăng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th></th><th>Index cục bộ (theo document)</th><th>Index toàn cục (theo term)</th></tr></thead>
+      <tbody>
+        <tr><td>Ghi một document</td><td>1 partition, đồng bộ dễ</td><td>Nhiều partition index; thường bất đồng bộ</td></tr>
+        <tr><td>Đọc theo một giá trị</td><td>Scatter/gather mọi partition</td><td>1 partition cho mỗi term</td></tr>
+        <tr><td>Độ tươi của index</td><td>Luôn khớp dữ liệu</td><td>Có thể trễ (eventual)</td></tr>
+        <tr><td>Ví dụ</td><td>MongoDB, Cassandra, Elasticsearch, SolrCloud</td><td>DynamoDB GSI, Riak Search, Oracle global index</td></tr>
+      </tbody>
+    </table></div>
+  </article>
+
+  <!-- 7.9 -->
+  <article class="topic" id="ch7-modn" data-num="7.9" data-short="Rebalancing và hash mod N" data-keywords="rebalancing hash mod n modulo 123456 add node move keys requirements">
+    <p class="eyebrow">7.9 · Rebalancing Partitions · How not to do it: hash mod N</p>
+    <h2>Rebalancing, và vì sao đừng dùng hash mod N <span class="vi">Rebalancing Partitions</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Thông lượng tăng, dữ liệu lớn lên, máy hỏng: tất cả đòi hỏi chuyển dữ liệu và request giữa các node. Quá trình đó gọi là <dfn data-term="rebalancing">rebalancing</dfn>.</li>
+      <li>Yêu cầu tối thiểu: sau rebalancing tải phải đều; trong lúc rebalancing vẫn đọc ghi được; không di chuyển nhiều hơn mức cần thiết.</li>
+      <li><dfn data-term="hash-mod-n">hash mod N</dfn> vi phạm yêu cầu thứ ba: khi N đổi, gần như mọi khoá phải chuyển node. Từ 10 lên 11 node, khoảng 10/11 số khoá di chuyển, trong khi tối thiểu chỉ cần 1/11.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ở 7.3 ta chia không gian hash thành các <em>dải</em> và gán mỗi dải cho một partition. Sao không dùng phép <code>%</code> cho gọn? <code>hash(key) mod 10</code> cho số từ 0 đến 9, tức chữ số cuối của hash; có 10 node thì gán luôn.</p>
+      <p>Ví dụ của sách: <code>hash(key) = 123456</code>. Với 10 node, khoá ở node 6 (123456 mod 10 = 6). Lên 11 node, nó phải sang node 3 (123456 mod 11 = 3). Lên 12 node, lại sang node 0. Gần như mọi khoá đều nhảy như vậy mỗi lần thêm máy, nên rebalancing đắt khủng khiếp. Ta cần một cách không di chuyển dữ liệu nhiều hơn cần thiết.</p>
+    </div>
+    <figure class="lab" data-widget="mod-n">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đếm số khoá phải chuyển khi thêm một node
+        <small>Chọn số node hiện tại N. Mỗi ô là một khoá mẫu; ô đỏ là khoá phải chuyển node khi lên N + 1. So sánh mod N với “số partition cố định”.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Rebalancing là tốn kém thật sự: mỗi khoá di chuyển là đọc đĩa, gửi qua mạng, ghi đĩa ở đầu kia, trong khi cụm vẫn phải phục vụ request. Số khoá phải di chuyển là thước đo đầu tiên của một chiến lược rebalancing.</p></aside>
+  </article>
+
+  <!-- 7.10 -->
+  <article class="topic" id="ch7-fixed" data-num="7.10" data-short="Số partition cố định" data-keywords="fixed number of partitions 1000 partitions 10 nodes steal riak elasticsearch couchbase voldemort">
+    <p class="eyebrow">7.10 · Fixed number of partitions</p>
+    <h2>Số partition cố định <span class="vi">Fixed Number of Partitions</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Tạo nhiều partition hơn hẳn số node ngay từ đầu, ví dụ 1.000 partition cho 10 node (≈ 100 partition mỗi node). Khoá → partition không bao giờ đổi; chỉ partition → node đổi.</li>
+      <li>Node mới “lấy trộm” vài partition từ mỗi node cũ cho đến khi đều. Chỉ cả partition được di chuyển; trong lúc chuyển, các lần đọc ghi vẫn dùng phân công cũ.</li>
+      <li>Số partition là giới hạn số node tối đa. Chọn quá ít thì không lớn được, chọn quá nhiều thì tốn chi phí quản lý; khó chọn đúng khi kích thước dữ liệu biến động mạnh. Riak, Elasticsearch, Couchbase, Voldemort dùng cách này.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Đây là lời giải khá đơn giản cho vấn đề của mod N (Hình 6-6). Vì phân công khoá → partition cố định, thêm node chỉ cần chuyển một số partition nguyên vẹn sang node mới. Có thể tính cả phần cứng không đồng đều: node mạnh hơn nhận nhiều partition hơn và gánh nhiều tải hơn.</p>
+      <p>Mặt trái: mỗi partition chứa một tỉ lệ cố định của toàn bộ dữ liệu, nên kích thước partition tăng tỉ lệ với dữ liệu. Partition quá to thì rebalancing và khôi phục sau lỗi rất đắt; quá nhỏ thì chi phí quản lý cao. Hiệu năng tốt nhất khi kích thước “vừa phải”, điều khó đạt được nếu số partition cố định mà dữ liệu thay đổi nhiều. Về nguyên tắc có thể tách và gộp partition, nhưng nhiều database loại này chọn không làm vì cố định thì vận hành đơn giản hơn.</p>
+    </div>
+    <figure class="lab" data-widget="fixed-parts">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Thêm node vào cụm có 20 partition cố định
+        <small>Bấm “Thêm node” và xem node mới lấy partition từ mỗi node cũ (viền vàng). Bật “node mới mạnh gấp đôi” để nó nhận phần lớn hơn.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 7.11 -->
+  <article class="topic" id="ch7-dynamic" data-num="7.11" data-short="Phân vùng động" data-keywords="dynamic partitioning split merge hbase 10 gb rethinkdb mongodb pre-splitting b-tree">
+    <p class="eyebrow">7.11 · Dynamic partitioning</p>
+    <h2>Phân vùng động: tách và gộp <span class="vi">Dynamic Partitioning</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Với phân vùng theo khoảng khoá, ranh giới cố định mà chọn sai thì có thể toàn bộ dữ liệu dồn vào một partition. Nên HBase, RethinkDB <dfn data-term="dynamic-partitioning">tạo partition động</dfn>.</li>
+      <li>Partition vượt ngưỡng (HBase mặc định 10 GB) thì <dfn data-term="partition-split">tách đôi</dfn> sao cho mỗi bên khoảng một nửa dữ liệu; co dưới ngưỡng thì gộp với hàng xóm. Giống tầng trên cùng của B-tree.</li>
+      <li>Số partition tự theo khối lượng dữ liệu. Nhưng database rỗng bắt đầu với một partition, nên mọi lần ghi vào một node cho đến lần tách đầu tiên; <dfn data-term="pre-splitting">pre-splitting</dfn> giảm bớt vấn đề này.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Sau khi tách, một nửa có thể được chuyển sang node khác để cân tải; HBase chuyển file của partition qua HDFS. Ưu điểm là chi phí luôn tương xứng: ít dữ liệu thì ít partition, nhiều dữ liệu thì mỗi partition vẫn bị giới hạn ở một kích thước tối đa.</p>
+      <p>Nhược điểm là lúc đầu: database rỗng không biết vẽ ranh giới ở đâu, nên chỉ có một partition trên một node trong khi các node khác ngồi chơi. HBase và MongoDB cho phép cấu hình sẵn một tập partition ban đầu (pre-splitting), nhưng với khoảng khoá thì bạn phải biết trước phân bố khoá. Phân vùng động không chỉ dành cho khoảng khoá: MongoDB từ 2.4 hỗ trợ cả khoảng khoá lẫn hash, và tách partition động trong cả hai trường hợp.</p>
+    </div>
+    <figure class="lab" data-widget="dyn-split">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ghi dữ liệu và xem partition tự tách
+        <small>Bấm ghi vài lần, xem partition vượt 10 GB tự tách đôi và nửa mới chuyển sang node rảnh hơn. “Bắt đầu lại” để thấy cụm rỗng chỉ có một partition; bật pre-splitting để so sánh.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 7.12 -->
+  <article class="topic" id="ch7-proportional" data-num="7.12" data-short="Partition tỉ lệ với số node" data-keywords="partitioning proportionally to nodes cassandra 256 ketama vnodes token allocation partition size">
+    <p class="eyebrow">7.12 · Partitioning proportionally to nodes</p>
+    <h2>Số partition tỉ lệ với số node <span class="vi">Partitioning Proportionally to Nodes</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Phân vùng động: số partition tỉ lệ với dữ liệu. Số partition cố định: <em>kích thước</em> partition tỉ lệ với dữ liệu. Cả hai đều độc lập với số node.</li>
+      <li>Lựa chọn thứ ba (Cassandra, Ketama): <dfn data-term="partitions-per-node">số partition cố định trên mỗi node</dfn>. Thêm node thì partition nhỏ lại; vì dữ liệu nhiều thường kéo theo nhiều node, kích thước partition khá ổn định.</li>
+      <li>Node mới chọn ngẫu nhiên một số partition để tách đôi và lấy một nửa. Ngẫu nhiên có thể không công bằng, nhưng trung bình trên 256 partition mỗi node (mặc định của Cassandra) thì đều. Cách này cần hash partitioning và gần với định nghĩa gốc của consistent hashing.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ba chiến lược khác nhau ở chỗ cái gì cố định và cái gì trôi theo kích thước dữ liệu. Biểu đồ dưới vẽ kích thước partition trung bình theo khối lượng dữ liệu cho cả ba. Với “tỉ lệ với node”, giả định cụm thêm node khi dữ liệu lớn lên; bạn có thể tắt giả định đó để thấy partition phình ra.</p>
+      <p>Chọn ranh giới ngẫu nhiên chỉ làm được khi không gian khoá là các số do hàm hash sinh ra, nên chiến lược này đi cùng hash partitioning. Cassandra 3.0 bổ sung một thuật toán phân bổ token khác để tránh các lần tách không công bằng.</p>
+    </div>
+    <figure class="lab" data-widget="strategy-compare">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Kích thước partition theo khối lượng dữ liệu, ba chiến lược
+        <small>Kéo khối lượng dữ liệu. Bảng cho biết số partition và kích thước trung bình của mỗi chiến lược; dải tô màu là vùng “vừa phải” (số liệu minh hoạ).</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th>Chiến lược</th><th>Cố định</th><th>Thay đổi theo dữ liệu</th><th>Dùng ở</th></tr></thead>
+      <tbody>
+        <tr><td>Số partition cố định</td><td>Số partition</td><td>Kích thước partition</td><td>Riak, Elasticsearch, Couchbase, Voldemort</td></tr>
+        <tr><td>Phân vùng động</td><td>Kích thước tối đa của partition</td><td>Số partition</td><td>HBase, RethinkDB, MongoDB</td></tr>
+        <tr><td>Tỉ lệ với số node</td><td>Số partition mỗi node</td><td>Kích thước partition (cho đến khi thêm node)</td><td>Cassandra, Ketama</td></tr>
+      </tbody>
+    </table></div>
+  </article>
+
+  <!-- 7.13 -->
+  <article class="topic" id="ch7-ops" data-num="7.13" data-short="Rebalancing tự động hay thủ công" data-keywords="automatic manual rebalancing failure detection cascading failure human in the loop couchbase riak voldemort">
+    <p class="eyebrow">7.13 · Operations: Automatic or Manual Rebalancing</p>
+    <h2>Rebalancing tự động hay thủ công <span class="vi">Automatic or Manual Rebalancing</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Có một dải từ hoàn toàn tự động (hệ thống tự quyết khi nào chuyển partition) đến hoàn toàn thủ công (quản trị viên cấu hình phân công). Couchbase, Riak, Voldemort ở giữa: tự đề xuất, người duyệt.</li>
+      <li>Tự động tiện nhưng khó đoán: rebalancing đắt (định tuyến lại, chuyển nhiều dữ liệu) và có thể làm quá tải mạng, node.</li>
+      <li>Nguy hiểm nhất khi kết hợp với tự phát hiện lỗi: node chỉ chậm bị coi là chết, cụm chuyển tải khỏi nó, thêm tải cho chính nó và mọi node khác, dẫn đến <dfn data-term="cascading-failure">lỗi dây chuyền</dfn>. Có người trong vòng lặp thì chậm hơn nhưng ít bất ngờ hơn.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Kịch bản của sách: một node bị quá tải và tạm thời trả lời chậm. Các node khác kết luận nó đã chết và tự động rebalance để dời tải đi. Nhưng việc rebalance đó cần chính node đang quá tải gửi dữ liệu đi, đồng thời các node nhận và mạng cũng tốn thêm tài nguyên. Tình hình xấu hơn, có thể thêm node bị coi là chết, và vòng lặp tự khuếch đại.</p>
+      <p>Thử chạy cùng một sự cố với hai chính sách. Con số tải là minh hoạ; điều quan trọng là hình dạng của các đường.</p>
+    </div>
+    <figure class="lab" data-widget="auto-rebalance">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Node C quá tải tạm thời: tự động rebalance hay chờ người duyệt
+        <small>Chọn chính sách rồi bấm “Chạy kịch bản”. Biểu đồ vẽ tải của bốn node theo thời gian, nhật ký cho biết hệ thống quyết định gì ở mỗi bước.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Phát hiện lỗi không thể phân biệt “chết” với “chậm” (xem <a href="#ch9">Chương 9</a>). Một hành động khắc phục tốn kém, nếu được kích hoạt bởi một chẩn đoán có thể sai, phải được thiết kế để không biến sự cố nhỏ thành sự cố lớn.</p></aside>
+  </article>
+
+  <!-- 7.14 -->
+  <article class="topic" id="ch7-routing" data-num="7.14" data-short="Định tuyến request" data-keywords="request routing service discovery routing tier partition aware client zookeeper gossip helix espresso mongos config server moxi dns">
+    <p class="eyebrow">7.14 · Request Routing</p>
+    <h2>Định tuyến request đến đúng partition <span class="vi">Request Routing</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Client muốn đọc khoá “foo”: kết nối tới IP và cổng nào? Phân công partition thay đổi khi rebalancing, nên ai đó phải theo dõi. Đây là một trường hợp của <dfn data-term="service-discovery">service discovery</dfn>.</li>
+      <li>Ba cách: (1) gửi tới node bất kỳ, node đó chuyển tiếp; (2) qua một <dfn data-term="routing-tier">tầng định tuyến</dfn> biết partition; (3) <dfn data-term="partition-aware-client">client tự biết partition</dfn> và kết nối thẳng.</li>
+      <li>Vấn đề cốt lõi: bên ra quyết định định tuyến học về thay đổi phân công thế nào. Nhiều hệ thống dùng <dfn data-term="zookeeper">ZooKeeper</dfn>; Cassandra và Riak dùng <dfn data-term="gossip-protocol">gossip protocol</dfn> giữa các node.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Mọi bên tham gia phải đồng ý về phân công, nếu không request sẽ tới nhầm node. Giao thức đồng thuận thì khó viết đúng (<a href="#ch10">Chương 10</a>), nên nhiều hệ thống giao việc này cho một dịch vụ điều phối riêng. Mỗi node đăng ký mình với ZooKeeper; ZooKeeper giữ bản đồ partition → node chính thức; tầng định tuyến hoặc client đăng ký theo dõi và được báo mỗi khi partition đổi chủ (Hình 6-8).</p>
+      <ul>
+        <li>LinkedIn Espresso dùng Helix (dựa trên ZooKeeper) với một tầng định tuyến. HBase, SolrCloud, Kafka cũng dùng ZooKeeper. MongoDB có kiến trúc tương tự với config server riêng và các tiến trình <code>mongos</code> làm tầng định tuyến.</li>
+        <li>Cassandra và Riak lan truyền trạng thái cụm bằng gossip; request gửi đến node bất kỳ và được chuyển tiếp (cách 1). Phức tạp hơn trong node, nhưng không phụ thuộc dịch vụ ngoài.</li>
+        <li>Couchbase không tự rebalance, nên đơn giản hơn; tầng định tuyến <code>moxi</code> học thay đổi từ các node.</li>
+      </ul>
+      <p>Với tầng định tuyến hay node ngẫu nhiên, client vẫn cần biết IP để kết nối. Các IP này đổi chậm hơn nhiều so với phân công partition, nên thường dùng DNS là đủ.</p>
+    </div>
+    <figure class="lab" data-widget="routing">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ba cách đưa request “foo” đến đúng node
+        <small>Chọn cách định tuyến, gõ khoá và bấm “Gửi request”. Rồi bấm “Chuyển partition sang node khác” để xem ZooKeeper (hoặc gossip) cập nhật bản đồ; bật “thông báo bị trễ” để thấy request đến nhầm chỗ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 7.15 -->
+  <article class="topic" id="ch7-parallel" data-num="7.15" data-short="Thực thi truy vấn song song" data-keywords="parallel query execution mpp massively parallel processing data warehouse join aggregation stages">
+    <p class="eyebrow">7.15 · Parallel Query Execution</p>
+    <h2>Thực thi truy vấn song song <span class="vi">Parallel Query Execution</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Hầu hết kho NoSQL phân tán chỉ hỗ trợ đọc ghi một khoá (cộng scatter/gather cho index cục bộ).</li>
+      <li>Database quan hệ <dfn data-term="mpp">MPP</dfn> (massively parallel processing) dùng cho phân tích hỗ trợ truy vấn phức tạp: join, lọc, nhóm, tổng hợp. Bộ tối ưu tách truy vấn thành nhiều giai đoạn và partition, chạy song song trên nhiều node.</li>
+      <li>Truy vấn quét phần lớn dữ liệu được lợi nhiều nhất. Kỹ thuật cụ thể được bàn ở <a href="#ch11">Chương 11</a>.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Một truy vấn kho dữ liệu điển hình như “tổng doanh thu theo vùng” có thể chạy thế này: mỗi node quét và lọc partition của mình, tổng hợp cục bộ; các kết quả trung gian được trộn lại (<em>shuffle</em>) theo khoá nhóm; cuối cùng một node gộp lại. Giai đoạn quét chia đều được cho số node, nhưng phối hợp và trao đổi qua mạng thì không, nên tốc độ tăng chậm dần khi thêm node.</p>
+<pre class="code"><span class="k">SELECT</span> s.region, <span class="fn">SUM</span>(o.amount)
+<span class="k">FROM</span> orders o <span class="k">JOIN</span> stores s <span class="k">ON</span> o.store_id = s.id
+<span class="k">WHERE</span> o.order_date >= <span class="s">'2017-01-01'</span>
+<span class="k">GROUP BY</span> s.region;</pre>
+    </div>
+    <figure class="lab" data-widget="mpp">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Chia một truy vấn phân tích cho N node
+        <small>Kéo số node. Thanh trên cho biết thời gian từng giai đoạn; biểu đồ dưới so sánh tốc độ thực với tốc độ tuyến tính lý tưởng (số liệu minh hoạ).</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Chương kết lại bằng câu hỏi bỏ ngỏ: các partition được thiết kế để hoạt động gần như độc lập, nhưng thao tác ghi vào nhiều partition thì sao, nếu một bên thành công và bên kia thất bại? Đó là chủ đề của <a href="#ch8">Chương 8 — Transactions</a> và các chương sau.</p></aside>
+  </article>
+
+  <!-- review -->
+  <article class="topic" id="ch7-review" data-num="7.★" data-short="Tổng kết & kiểm tra" data-keywords="summary quiz review partitioning">
+    <p class="eyebrow">Chương 7 · Summary</p>
+    <h2>Tổng kết chương và tự kiểm tra <span class="vi">Summary</span></h2>
+    <div class="prose">
+      <p>Phân vùng cần thiết khi dữ liệu nhiều đến mức một máy không lưu hay xử lý nổi. Mục tiêu là chia đều dữ liệu và tải truy vấn, tránh hot spot. Điều đó đòi hỏi chọn sơ đồ phân vùng hợp với dữ liệu, và rebalance khi thêm bớt node.</p>
+      <ul>
+        <li><strong>Theo khoảng khoá:</strong> khoá được sắp xếp, mỗi partition giữ một dải. Range query hiệu quả, nhưng có nguy cơ hot spot khi ứng dụng hay truy cập các khoá gần nhau. Thường rebalance động bằng cách tách dải quá lớn.</li>
+        <li><strong>Theo hash:</strong> mỗi partition giữ một dải hash. Mất thứ tự khoá nên range query kém, nhưng tải đều hơn. Thường tạo trước số partition cố định, mỗi node nhiều partition, di chuyển cả partition khi thêm bớt node; cũng có thể dùng phân vùng động.</li>
+        <li><strong>Lai:</strong> khoá phức hợp, một phần chọn partition, phần kia quyết định thứ tự sắp xếp.</li>
+        <li><strong>Secondary index:</strong> cục bộ (theo document) thì ghi một partition, đọc scatter/gather; toàn cục (theo term) thì ghi nhiều partition, đọc một partition.</li>
+        <li><strong>Định tuyến:</strong> từ cân bằng tải biết partition đơn giản đến bộ thực thi truy vấn song song phức tạp.</li>
+      </ul>
+      <p>Mỗi partition hoạt động gần như độc lập, đó là thứ cho phép mở rộng ra nhiều máy. Thao tác ghi nhiều partition thì khó suy luận hơn nhiều; các chương tiếp theo sẽ trả lời câu hỏi đó.</p>
+    </div>
+    <div class="quiz">
+      <div class="q" data-answer="2">
+        <p>Bạn lưu số đo cảm biến trong HBase với khoá là timestamp. Mọi lượng ghi đều dồn vào một region. Cách sửa mà sách đề xuất là gì?</p>
+        <ol><li>Chuyển sang hash của timestamp để mọi range query vẫn nhanh.</li><li>Tăng ngưỡng tách region lên 100 GB.</li><li>Đặt tên cảm biến lên trước timestamp trong khoá, chấp nhận mỗi cảm biến cần một range query riêng.</li><li>Thêm node mới cho region đang nóng.</li></ol>
+        <p class="explain">Khoá <code>tên_cảm_biến + timestamp</code> rải lượng ghi theo cảm biến, vẫn giữ range scan theo thời gian cho từng cảm biến. Hash timestamp sẽ làm mất range query theo thời gian. Thêm node không giúp vì một region chỉ thuộc một node.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Cụm dùng <code>hash(key) mod N</code> có 10 node, thêm node thứ 11. Khoảng bao nhiêu phần trăm số khoá phải chuyển node?</p>
+        <ol><li>Khoảng 9% (1/11)</li><li>Khoảng 91% (10/11)</li><li>Khoảng 50%</li><li>0%, chỉ khoá mới vào node mới</li></ol>
+        <p class="explain">Một khoá giữ nguyên node khi <code>h mod 10 = h mod 11</code>, xảy ra với khoảng 1/11 số khoá. Vậy ~91% phải chuyển. Mức tối thiểu cần thiết chỉ là ~9%, đúng bằng phần node mới phải nhận; số partition cố định đạt được mức đó.</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>Truy vấn “tìm mọi xe màu đỏ” trên database dùng secondary index cục bộ (theo document) với 8 partition sẽ chạm bao nhiêu partition?</p>
+        <ol><li>1, partition giữ term color:red</li><li>Chỉ những partition có xe đỏ</li><li>2, partition dữ liệu và partition index</li><li>Cả 8 (scatter/gather)</li></ol>
+        <p class="explain">Mỗi partition chỉ biết document của mình, nên database không biết trước partition nào có xe đỏ. Nó phải hỏi tất cả rồi gộp. Index toàn cục mới cho phép hỏi đúng một partition.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Bạn ghi một document mới rồi ngay lập tức tìm nó qua global secondary index của DynamoDB nhưng không thấy. Vì sao?</p>
+        <ol><li>Index toàn cục thường được cập nhật bất đồng bộ, nên có độ trễ lan truyền.</li><li>Ghi bị mất do hash partitioning.</li><li>Index toàn cục chỉ chứa document của một partition.</li><li>Document chưa được sao chép sang follower.</li></ol>
+        <p class="explain">Cập nhật đồng bộ mọi partition index cần giao dịch phân tán. DynamoDB chọn cập nhật bất đồng bộ, thường trong vòng dưới một giây, lâu hơn khi hạ tầng có sự cố.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Một bài viết của người nổi tiếng nhận hàng triệu lượt bình luận, mọi lượt ghi vào cùng một khoá. Database dùng hash partitioning. Điều gì đúng?</p>
+        <ol><li>Hash tự rải các lượt ghi này ra mọi partition.</li><li>Chỉ cần tăng số partition.</li><li>Mọi lượt ghi vẫn vào một partition; ứng dụng có thể thêm hậu tố ngẫu nhiên vào khoá nóng, đổi lại đọc phải gộp nhiều khoá.</li><li>Phải chuyển sang phân vùng theo khoảng khoá.</li></ol>
+        <p class="explain">Hash của cùng một khoá luôn giống nhau. Tách khoá nóng thành 100 khoá (hậu tố 00–99) rải lượng ghi, nhưng mỗi lần đọc phải đọc 100 khoá và cần ghi sổ khoá nào đang bị tách.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Vì sao sách khuyên tránh thuật ngữ “consistent hashing”?</p>
+        <ol><li>Vì nó là thương hiệu riêng của Cassandra.</li><li>Vì chữ “consistent” dễ nhầm với consistency của bản sao hay ACID, trong khi nó chỉ mô tả một cách rebalancing với ranh giới ngẫu nhiên, và tài liệu nhiều database dùng chữ này không chính xác.</li><li>Vì consistent hashing không phân bố khoá đều.</li><li>Vì nó yêu cầu đồng thuận phân tán.</li></ol>
+        <p class="explain">Karger định nghĩa consistent hashing cho cache cỡ Internet, dùng ranh giới ngẫu nhiên để <em>không</em> cần điều phối trung tâm. Nó ít liên quan tới “nhất quán”, và hiếm khi được database dùng đúng nghĩa. Gọi là hash partitioning cho rõ.</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>Trong cách định tuyến nào client kết nối thẳng tới node đúng mà không qua trung gian?</p>
+        <ol><li>Gửi tới node bất kỳ qua load balancer round-robin.</li><li>Qua tầng định tuyến như <code>mongos</code>.</li><li>Qua DNS.</li><li>Client biết partition (partition-aware client) và theo dõi bản đồ partition, ví dụ qua ZooKeeper.</li></ol>
+        <p class="explain">Client tự biết phân công partition → node thì đi thẳng, một bước mạng. Đổi lại client phức tạp hơn và phải được cập nhật kịp khi partition đổi chủ.</p>
+      </div>
+    </div>
+  </article>
+</section>

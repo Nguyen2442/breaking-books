@@ -1,0 +1,545 @@
+<style>
+#ch9 .pk-row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; min-height: 30px; }
+#ch9 .pk { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 26px; padding: 0 6px; border-radius: 6px; font: 600 .78rem/1 var(--f-mono); background: var(--accent-soft); color: var(--ink); border: 1px solid var(--accent); }
+#ch9 .pk.dup { background: var(--warn-soft); border-color: var(--warn); }
+#ch9 .pk.lost { background: transparent; border-style: dashed; border-color: var(--bad); color: var(--bad); }
+#ch9 .pk.re { background: var(--violet-soft); border-color: var(--violet); }
+#ch9 .row-lbl { font-size: var(--t-xs); color: var(--ink-2); font-weight: 600; margin: 0 0 4px; }
+#ch9 .mx { border-collapse: collapse; font: 600 var(--t-xs) var(--f-display); }
+#ch9 .mx th, #ch9 .mx td { border: 1px solid var(--line); padding: 5px 8px; text-align: center; white-space: nowrap; }
+#ch9 .mx td.ok { background: var(--ok-soft); color: var(--ok); }
+#ch9 .mx td.warn { background: var(--warn-soft); color: var(--warn); }
+#ch9 .mx td.bad { background: var(--bad-soft); color: var(--bad); }
+#ch9 .mx td.self { background: var(--surface-2); color: var(--ink-3); }
+#ch9 .opt-list { display: flex; flex-direction: column; gap: 6px; }
+#ch9 .opt-list button { text-align: left; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); cursor: pointer; font: 500 var(--t-sm)/1.4 var(--f-display); }
+#ch9 .opt-list button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+#ch9 .opt-list button.good { border-color: var(--ok); background: var(--ok-soft); }
+#ch9 .opt-list button.badc { border-color: var(--bad); background: var(--bad-soft); }
+#ch9 .kv { display: grid; grid-template-columns: minmax(90px, 150px) minmax(0, 1fr); gap: 4px 12px; font-size: var(--t-sm); }
+#ch9 .kv dt { color: var(--ink-2); font-size: var(--t-xs); font-weight: 600; padding-top: 2px; }
+#ch9 .kv dd { margin: 0; }
+#ch9 pre.code .ln { display: block; padding: 0 4px; border-radius: 3px; }
+#ch9 pre.code .ln.hl { background: var(--mark-soft); }
+#ch9 pre.code .ln.pz { background: var(--bad-soft); }
+#ch9 .step-desc { padding: 10px 12px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line); min-height: 48px; }
+#ch9 .step-desc b { color: var(--accent); }
+#ch9 .prop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+#ch9 .prop { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--bg); display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+#ch9 .prop p { margin: 0; font-size: var(--t-sm); line-height: 1.45; }
+#ch9 .prop.right { border-color: var(--ok); background: var(--ok-soft); }
+#ch9 .prop.wrong { border-color: var(--bad); background: var(--bad-soft); }
+#ch9 .prop .why { font-size: var(--t-xs); color: var(--ink-2); }
+#ch9 .model-rows { display: flex; flex-direction: column; gap: 6px; }
+#ch9 .model-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; align-items: center; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); font-size: var(--t-sm); }
+#ch9 .model-row.broken { border-color: var(--bad); background: var(--bad-soft); }
+@media (max-width: 560px) { #ch9 .model-row { grid-template-columns: minmax(0, 1fr); } #ch9 .kv { grid-template-columns: minmax(0, 1fr); } }
+</style>
+
+<section class="chapter" id="ch9" data-chapter="9" data-title="Rắc rối của hệ phân tán" data-edition="1e">
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 9 <span class="ed-badge">Nguồn: ấn bản 1 · Chương 8</span></p>
+    <h1>The Trouble with Distributed Systems <span class="vi">Rắc rối của hệ phân tán</span></h1>
+    <blockquote class="epigraph">Hey I just met you<br>The network’s laggy<br>But here’s my data<br>So store it maybe<cite>— Kyle Kingsbury, Carly Rae Jepsen and the Perils of Network Partitions (2013)</cite></blockquote>
+    <p class="lede">Các chương trước vẫn còn lạc quan. Chương này giả định mọi thứ có thể hỏng thì sẽ hỏng: mạng làm mất hoặc giữ gói tin bao lâu tuỳ ý, đồng hồ của mỗi máy chạy một kiểu, và một tiến trình có thể đứng hình cả phút mà không hề hay biết. Hiểu rõ ta <em>không thể</em> dựa vào điều gì là bước bắt buộc trước khi đến với các thuật toán đồng thuận ở <a href="#ch10">Chương 10</a>.</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- 9.1 -->
+  <article class="topic" id="ch9-partial-failures" data-num="9.1" data-short="Lỗi cục bộ" data-keywords="partial failure supercomputer HPC cloud checkpoint reliable unreliable TCP IP error-correcting">
+    <p class="eyebrow">9.1 · Faults and Partial Failures</p>
+    <h2>Lỗi cục bộ: hỏng một phần, chạy một phần <span class="vi">Faults and Partial Failures</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Một máy tính đơn lẻ được thiết kế để hoặc chạy đúng hoàn toàn, hoặc sập hẳn. Hệ phân tán thì có <dfn data-term="partial-failure">lỗi cục bộ</dfn>: vài phần hỏng theo cách khó đoán trong khi phần còn lại vẫn chạy.</li>
+      <li>Lỗi cục bộ là <em>bất định</em>: cùng một thao tác lúc thành công lúc thất bại, và đôi khi bạn còn không biết nó đã thành công hay chưa.</li>
+      <li>Siêu máy tính (<dfn data-term="hpc">HPC</dfn>) xử lý lỗi bằng cách dừng cả cụm và chạy lại từ checkpoint. Dịch vụ internet chạy trên <dfn data-term="cloud-computing">cloud</dfn> không được phép dừng, nên phải chịu lỗi ngay trong phần mềm.</li>
+      <li>Có thể xây hệ đáng tin cậy từ linh kiện không đáng tin cậy (TCP trên IP, mã sửa lỗi), nhưng luôn có giới hạn: TCP che được mất gói, không che được độ trễ.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Trên một máy, phần mềm tốt là <em>tất định</em>: cùng thao tác, cùng kết quả. Nếu phần cứng có vấn đề (RAM hỏng, lỏng đầu cắm), hệ thường sập hẳn (kernel panic, màn hình xanh) chứ không trả về kết quả sai. Đây là lựa chọn có chủ đích: kết quả sai khó xử lý hơn nhiều so với một cú sập rõ ràng. Máy tính che giấu thế giới vật lý lộn xộn bên dưới và trình ra một mô hình lý tưởng.</p>
+      <p>Khi phần mềm chạy trên nhiều máy nối mạng, lớp che giấu đó biến mất. Coda Hale kể đã gặp phân vùng mạng kéo dài trong một datacenter, hỏng bộ chia điện, hỏng switch, cả rack bị tắt bật nhầm, mất điện toàn datacenter, và một tài xế hạ đường huyết lao xe bán tải vào hệ thống điều hoà của datacenter. Trong hệ phân tán, một số phần có thể hỏng trong khi các phần khác vẫn ổn.</p>
+      <h3>Siêu máy tính và cloud</h3>
+      <p>Siêu máy tính chạy các tác vụ tính toán nặng (dự báo thời tiết, mô phỏng phân tử). Tác vụ định kỳ ghi checkpoint; khi một node hỏng, cả cụm dừng, sửa xong thì chạy lại từ checkpoint gần nhất. Nó biến lỗi cục bộ thành lỗi toàn phần, giống kernel panic trên một máy. Dịch vụ internet khác hẳn:</p>
+      <ul>
+        <li>Phải <em>online</em> mọi lúc với độ trễ thấp; dừng cụm để sửa là không chấp nhận được.</li>
+        <li>Chạy trên máy phổ thông: rẻ hơn nhờ quy mô nhưng hỏng thường xuyên hơn. Mạng là IP/Ethernet kiểu Clos chứ không phải mesh hay torus chuyên dụng.</li>
+        <li>Hệ càng lớn càng chắc chắn có thứ đang hỏng. Nếu chiến lược là “bỏ cuộc rồi làm lại”, hệ lớn sẽ dành phần lớn thời gian để phục hồi.</li>
+        <li>Chịu được node hỏng thì vận hành dễ: nâng cấp cuốn chiếu (<em class="en">rolling upgrade</em>, xem <a href="#ch5">Chương 5</a>), hoặc giết một VM chậm rồi xin VM mới.</li>
+        <li>Triển khai đa vùng địa lý nghĩa là đi qua internet, chậm và kém tin cậy hơn mạng nội bộ.</li>
+      </ul>
+      <p>Thử so hai chiến lược với cùng một cụm máy. Kéo số node lên vài nghìn: cụm HPC mất ngày càng nhiều thời gian vào việc chạy lại, còn dịch vụ cloud vẫn phục vụ gần như đủ công suất.</p>
+    </div>
+    <figure class="lab" data-widget="hpc-vs-cloud">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một tuần của cụm máy: dừng tất cả hay chịu lỗi?
+        <small>Đổi số node, độ bền mỗi node và chu kỳ checkpoint. Đường xanh là phần công việc HPC thực sự làm được; đường tím là công suất dịch vụ cloud vẫn phục vụ. Số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Xây hệ tin cậy từ linh kiện không tin cậy</h3>
+      <p>Trực giác bảo hệ chỉ tin cậy bằng mắt xích yếu nhất. Không đúng: mã sửa lỗi truyền dữ liệu chính xác qua kênh thỉnh thoảng lật bit; TCP biến IP (có thể làm mất, trễ, nhân đôi, đảo thứ tự gói) thành một luồng byte đáng tin. Nhưng luôn có giới hạn: nhiễu quá lớn thì mã sửa lỗi cũng chịu, và TCP không thể xoá đi độ trễ. Lớp trên vẫn hữu ích vì nó gánh các lỗi vặt ở tầng thấp, để những lỗi còn lại dễ suy luận hơn.</p>
+    </div>
+    <figure class="lab" data-widget="tcp-over-ip">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> TCP xây trên IP không tin cậy
+        <small>Tăng tỉ lệ mất, nhân đôi và đảo thứ tự gói. Hàng trên là thứ IP giao tới; hàng dưới là thứ TCP giao cho ứng dụng. Để ý thời gian hoàn tất.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Lỗi cục bộ và tính bất định là đặc trưng định nghĩa của hệ phân tán. Xử lý lỗi phải là một phần của thiết kế, và nên chủ động tạo lỗi trong môi trường thử nghiệm. Trong hệ phân tán, nghi ngờ, bi quan và hoang tưởng là đức tính.</p></aside>
+  </article>
+
+  <!-- 9.2 -->
+  <article class="topic" id="ch9-unreliable-networks" data-num="9.2" data-short="Mạng không tin cậy" data-keywords="unreliable network request lost queued crashed paused response lost delayed timeout asynchronous packet network figure 8-1">
+    <p class="eyebrow">9.2 · Unreliable Networks</p>
+    <h2>Gửi request mà không nhận được phản hồi <span class="vi">Unreliable Networks</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Hệ trong sách là <dfn data-term="shared-nothing">shared-nothing</dfn>: các máy chỉ nói chuyện được với nhau qua mạng.</li>
+      <li>Internet và mạng datacenter là <dfn data-term="async-packet-network">mạng gói bất đồng bộ</dfn>: không bảo đảm gói tới lúc nào, thậm chí có tới hay không.</li>
+      <li>Khi không nhận được phản hồi, bạn không thể phân biệt request bị mất, bị kẹt hàng đợi, node chết, node tạm dừng, phản hồi bị mất hay phản hồi tới muộn.</li>
+      <li>Cách xử lý thông thường là <dfn data-term="timeout">timeout</dfn>, nhưng hết timeout bạn vẫn không biết request đã được xử lý hay chưa.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Shared-nothing không phải cách duy nhất để xây hệ, nhưng nó thống trị dịch vụ internet: rẻ vì không cần phần cứng đặc biệt, tận dụng được cloud, và đạt độ tin cậy nhờ dư thừa qua nhiều datacenter. Cái giá là mạng trở thành kênh duy nhất, và kênh đó không hứa hẹn gì.</p>
+      <p>Hình 8-1 của sách liệt kê những gì có thể xảy ra khi bạn gửi một request và chờ phản hồi:</p>
+      <ol>
+        <li>Request bị mất (ai đó rút dây mạng).</li>
+        <li>Request đang nằm trong hàng đợi và sẽ tới sau (mạng hoặc máy nhận quá tải).</li>
+        <li>Node đích đã chết (crash, mất điện).</li>
+        <li>Node đích tạm ngừng phản hồi (ví dụ GC pause dài, xem <a href="#ch9-process-pauses">9.12</a>) rồi sẽ chạy tiếp.</li>
+        <li>Node đã xử lý request nhưng phản hồi bị mất trên mạng (switch cấu hình sai).</li>
+        <li>Node đã xử lý request nhưng phản hồi bị trễ và sẽ tới sau.</li>
+      </ol>
+      <p>Bên gửi không có cách nào biết gói đã tới hay chưa, trừ khi bên nhận trả lời; mà câu trả lời cũng có thể mất hoặc trễ. Thông tin duy nhất bạn có là <mark>“chưa nhận được phản hồi”</mark>. Thử từng tình huống dưới đây, rồi bật chế độ bí ẩn và tự đoán xem.</p>
+    </div>
+    <figure class="lab" data-widget="request-fates">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Sáu cách một request có thể thất bại
+        <small>Chọn tình huống rồi bấm “Gửi request”. Ô “Góc nhìn của client” giống hệt nhau ở cả sáu tình huống lỗi. Bật “Chế độ bí ẩn” để thử đoán khi chỉ thấy những gì client thấy.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Ở tình huống 2, 4 và 6, request vẫn có thể được xử lý <em>sau khi</em> client đã bỏ cuộc. Nếu client gửi lại, thao tác có thể chạy hai lần. Vì thế thao tác cần idempotent hoặc có cơ chế khử trùng lặp (xem <a href="#ch13">Chương 13</a>).</p></aside>
+  </article>
+
+  <!-- 9.3 -->
+  <article class="topic" id="ch9-network-faults" data-num="9.3" data-short="Lỗi mạng trong thực tế" data-keywords="network faults in practice partition netsplit asymmetric NIC sharks rack switch chaos monkey">
+    <p class="eyebrow">9.3 · Network Faults in Practice</p>
+    <h2>Lỗi mạng xảy ra thường hơn bạn nghĩ <span class="vi">Network Faults in Practice</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Một nghiên cứu ở datacenter cỡ vừa ghi nhận khoảng 12 sự cố mạng mỗi tháng: một nửa ngắt một máy, một nửa ngắt cả rack.</li>
+      <li>Thêm thiết bị mạng dự phòng không giảm lỗi nhiều như mong đợi, vì nó không chống được lỗi con người (cấu hình switch sai).</li>
+      <li>Lỗi có thể lạ lùng: cá mập cắn cáp biển, card mạng rơi mọi gói đến nhưng vẫn gửi đi được. Mạng chạy được một chiều không có nghĩa chạy được chiều ngược lại.</li>
+      <li>Phần mềm phải biết mình phản ứng thế nào khi có <dfn data-term="network-partition">phân vùng mạng</dfn>, và phải phục hồi được khi mạng trở lại.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ta đã xây mạng máy tính hàng chục năm mà vẫn chưa làm chúng tin cậy được. Cloud công cộng như EC2 nổi tiếng với các trục trặc mạng chập chờn; datacenter riêng quản lý tốt thì ổn định hơn, nhưng không ai miễn nhiễm. Một lần nâng cấp phần mềm switch từng làm cấu hình lại topo mạng và giữ gói tin hơn một phút.</p>
+      <p>Khi một phần mạng bị cắt khỏi phần còn lại, người ta gọi là <em>network partition</em> hay <em>netsplit</em>. Sách dùng từ chung hơn là <dfn data-term="network-fault">lỗi mạng</dfn> để khỏi nhầm với partition (shard) của hệ lưu trữ ở <a href="#ch7">Chương 7</a>.</p>
+      <p>Nếu cách xử lý lỗi mạng không được định nghĩa và kiểm thử, chuyện tồi tệ tuỳ ý có thể xảy ra: cụm bị deadlock vĩnh viễn kể cả khi mạng đã hồi phục, hoặc xoá sạch dữ liệu. “Xử lý” không nhất thiết là “chịu đựng”: nếu mạng thường ổn, hiện thông báo lỗi cho người dùng trong lúc sự cố cũng là một lựa chọn hợp lệ. Điều bắt buộc là bạn biết hệ sẽ làm gì. Đó là ý tưởng của Chaos Monkey: cố ý gây lỗi mạng để xem hệ phản ứng ra sao.</p>
+      <p>Thử cắt dây trong cụm hai rack dưới đây. Trạng thái mở đầu là ví dụ lạ trong sách: card mạng của A1 rơi mọi gói <em>đến</em> nhưng vẫn gửi gói <em>đi</em> bình thường.</p>
+    </div>
+    <figure class="lab" data-widget="link-cutter">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Cắt dây mạng trong cụm hai rack
+        <small>Bấm vào một đường nối để đổi trạng thái: bình thường → một chiều → đứt. Bảng bên dưới cho biết ai gửi request và nhận được phản hồi từ ai.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Một request cần cả hai chiều: chiều đi cho request, chiều về cho phản hồi. Với lỗi mạng một chiều, node bên kia vẫn nhận và xử lý request của bạn, nhưng bạn không bao giờ biết. Tình huống này sẽ quay lại ở <a href="#ch9-majority">9.13</a>.</p></aside>
+  </article>
+
+  <!-- 9.4 -->
+  <article class="topic" id="ch9-detecting-faults" data-num="9.4" data-short="Phát hiện lỗi" data-keywords="detecting faults RST FIN ICMP destination unreachable HBase load balancer leader failover TCP ACK">
+    <p class="eyebrow">9.4 · Detecting Faults</p>
+    <h2>Làm sao biết một node đã chết? <span class="vi">Detecting Faults</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Load balancer cần ngừng gửi request tới node chết; hệ single-leader cần thăng cấp follower khi leader chết. Cả hai đều cần phát hiện lỗi tự động.</li>
+      <li>Đôi khi có tín hiệu rõ: OS trả về RST/FIN khi không có tiến trình nghe cổng, script báo node khác khi tiến trình crash, switch báo link down, router gửi ICMP Destination Unreachable.</li>
+      <li>Nhưng không thể trông chờ vào những tín hiệu đó. TCP đã ACK không có nghĩa ứng dụng đã xử lý. Muốn chắc chắn thành công, cần phản hồi tích cực từ chính ứng dụng.</li>
+      <li>Trường hợp chung: không có phản hồi nào cả. Thử lại vài lần, chờ timeout, rồi tuyên bố node đã chết.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Sự không chắc chắn của mạng làm việc phân biệt “node chết” với “node chậm” trở nên khó. Một số tình huống cho bạn phản hồi nhanh, nhưng mỗi tình huống đều có giới hạn: nếu node crash giữa lúc xử lý request, bạn không biết nó đã xử lý được bao nhiêu; nếu đi qua internet hoặc ở datacenter dùng chung, bạn không có quyền hỏi switch; và router cũng không có phép màu phát hiện lỗi, nó chịu cùng giới hạn như mọi thành phần khác trên mạng.</p>
+      <p>Chọn từng tình huống để xem client nhận được tín hiệu gì, nhanh tới đâu, và điều gì nó <em>vẫn</em> không biết.</p>
+    </div>
+    <figure class="lab" data-widget="fault-detect">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Tín hiệu báo lỗi ở từng tầng
+        <small>Chọn một tình huống. Sơ đồ đánh dấu tầng bị lỗi và tầng gửi tín hiệu (nếu có). Bật/tắt quyền truy cập switch để thấy khác biệt.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Phản hồi nhanh về lỗi là món quà, không phải điều được bảo đảm. Thiết kế phải giả định trường hợp xấu nhất: im lặng hoàn toàn, và timeout là công cụ duy nhất chắc chắn có.</p></aside>
+  </article>
+
+  <!-- 9.5 -->
+  <article class="topic" id="ch9-timeouts" data-num="9.5" data-short="Timeout và độ trễ vô hạn" data-keywords="timeout unbounded delay false positive premature declaring dead cascading failure 2d+r phi accrual">
+    <p class="eyebrow">9.5 · Timeouts and Unbounded Delays</p>
+    <h2>Timeout nên dài bao nhiêu? <span class="vi">Timeouts and Unbounded Delays</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Timeout dài: lâu mới phát hiện node chết, người dùng phải chờ hoặc thấy lỗi. Timeout ngắn: phát hiện nhanh nhưng dễ tuyên bố nhầm một node chỉ đang chậm tạm thời.</li>
+      <li>Tuyên bố chết nhầm gây hại: thao tác có thể chạy hai lần (gửi email hai lần), và việc chuyển tải sang node khác có thể gây <dfn data-term="cascading-failure">lỗi dây chuyền</dfn>.</li>
+      <li>Nếu mạng bảo đảm trễ tối đa <code>d</code> và node xử lý trong <code>r</code>, timeout <code>2d + r</code> là hợp lý. Nhưng mạng bất đồng bộ có <dfn data-term="unbounded-delay">độ trễ không giới hạn</dfn>.</li>
+      <li>Chỉ “nhanh trong đa số trường hợp” là không đủ: một đợt tăng vọt RTT thoáng qua cũng làm hệ mất cân bằng.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Khi node bị tuyên bố chết, trách nhiệm của nó được chuyển sang node khác, tạo thêm tải cho các node đó và cho mạng. Nếu hệ đang quá tải, node “chết” có khi chỉ chậm vì quá tải; chuyển tải của nó đi càng làm các node còn lại quá tải, và trong trường hợp cực đoan, mọi node tuyên bố nhau đã chết, cả hệ ngừng.</p>
+      <p>Hãy tưởng tượng một hệ hư cấu có mạng bảo đảm mỗi gói hoặc tới trong thời gian <code>d</code>, hoặc mất, không bao giờ lâu hơn; và mỗi node còn sống luôn xử lý request trong <code>r</code>. Khi đó mọi request thành công có phản hồi trong <code>2d + r</code>, và không nhận được trong khoảng đó nghĩa là chắc chắn có lỗi. Thực tế không có cả hai bảo đảm này.</p>
+      <p>Mô phỏng dưới đây có phân bố thời gian phản hồi của một node <em>còn sống</em>, với đuôi dài do các đợt nghẽn thoáng qua. Kéo timeout và xem đánh đổi giữa báo chết nhầm và thời gian phát hiện lỗi thật. Rồi bật “Tải tăng đột biến” với timeout cố định.</p>
+    </div>
+    <figure class="lab" data-widget="timeout-sim">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Chọn timeout cho failure detector
+        <small>Phần đỏ của biểu đồ là heartbeat của node còn sống nhưng tới sau timeout, tức bị tuyên bố chết nhầm. Heartbeat mỗi giây. Số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Thay vì timeout cố định, hệ có thể liên tục đo thời gian phản hồi và độ dao động (<dfn data-term="jitter">jitter</dfn>), rồi tự điều chỉnh timeout theo phân bố quan sát được. Đó là <dfn data-term="phi-accrual">Phi Accrual failure detector</dfn>, dùng trong Akka và Cassandra. Timeout truyền lại của TCP cũng hoạt động tương tự.</p></aside>
+  </article>
+
+  <!-- 9.6 -->
+  <article class="topic" id="ch9-congestion" data-num="9.6" data-short="Nghẽn mạng và hàng đợi" data-keywords="network congestion queueing switch queue figure 8-2 TCP flow control backpressure UDP VoIP noisy neighbor">
+    <p class="eyebrow">9.6 · Network congestion and queueing</p>
+    <h2>Độ trễ thay đổi chủ yếu vì xếp hàng <span class="vi">Network Congestion and Queueing</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Như kẹt xe trên đường, độ trễ mạng dao động chủ yếu vì <dfn data-term="network-congestion">xếp hàng</dfn>: ở switch, ở OS khi CPU bận, ở hypervisor khi VM bị tạm dừng, và ở chính bên gửi do <dfn data-term="tcp-flow-control">điều khiển luồng</dfn> của TCP.</li>
+      <li>Khi hàng đợi switch đầy, gói bị rơi và phải gửi lại, dù mạng hoạt động hoàn toàn bình thường.</li>
+      <li>Gần công suất tối đa, hàng đợi dài ra rất nhanh. Trong cloud dùng chung, một <dfn data-term="noisy-neighbor">hàng xóm ồn ào</dfn> có thể chiếm hết đường truyền.</li>
+      <li>Vì vậy timeout chỉ chọn được bằng thực nghiệm: đo phân bố RTT trong thời gian dài trên nhiều máy.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Hình 8-2 trong sách: các cổng 1, 2 và 4 của một switch cùng gửi tới cổng 3. Switch phải xếp hàng các gói và đẩy từng gói một vào đường ra. Trên đường truyền bận, gói phải chờ tới lượt; hàng đợi đầy thì gói bị rơi. Sau đó tới máy đích, nếu mọi lõi CPU đang bận, OS lại xếp request vào hàng đợi cho tới khi ứng dụng sẵn sàng.</p>
+      <p>TCP coi một gói là mất nếu không được ACK trong một khoảng timeout (tính từ RTT quan sát được) và tự động gửi lại. Ứng dụng không thấy việc mất gói, nhưng thấy rõ độ trễ: chờ timeout, rồi chờ gói gửi lại được ACK.</p>
+      <p>Kéo tải của ba cổng nguồn. Khi tổng tải tiến gần 100% công suất cổng 3, độ trễ xếp hàng tăng vọt theo hình “gậy khúc côn cầu”, và vượt 100% thì gói bắt đầu bị rơi.</p>
+    </div>
+    <figure class="lab" data-widget="switch-queue">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hàng đợi ở switch khi ba cổng cùng gửi tới cổng 3
+        <small>Mỗi lượt, cổng 3 chuyển đi được một gói. Kéo tải từng cổng và kích thước buffer. Biểu đồ dưới cùng cho thấy độ trễ trung bình theo tổng tải. Số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách: TCP và UDP</b><p>Gọi video và VoIP dùng UDP: không điều khiển luồng, không gửi lại gói mất, nên tránh được một số nguyên nhân gây trễ biến động (vẫn chịu hàng đợi switch và lập lịch). UDP hợp khi dữ liệu trễ là vô giá trị: trong cuộc gọi, gói mất được thay bằng im lặng, và việc “thử lại” diễn ra ở tầng con người: “Anh nói lại được không, tiếng vừa mất?”</p></aside>
+  </article>
+
+  <!-- 9.7 -->
+  <article class="topic" id="ch9-sync-async" data-num="9.7" data-short="Mạng đồng bộ và bất đồng bộ" data-keywords="synchronous asynchronous network circuit switched packet switched ISDN telephone bounded delay ATM InfiniBand QoS utilization resource partitioning">
+    <p class="eyebrow">9.7 · Synchronous Versus Asynchronous Networks</p>
+    <h2>Vì sao mạng điện thoại không trễ mà internet thì có? <span class="vi">Synchronous Versus Asynchronous Networks</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Mạng điện thoại cố định là <dfn data-term="circuit-switching">chuyển mạch kênh</dfn>: mỗi cuộc gọi được giữ trước một lượng băng thông cố định trên cả tuyến, nên không có hàng đợi và có <dfn data-term="bounded-delay">độ trễ có giới hạn</dfn>.</li>
+      <li>Ethernet và IP là <dfn data-term="packet-switching">chuyển mạch gói</dfn>: gói tận dụng băng thông đang rảnh, chịu hàng đợi, nên độ trễ không giới hạn.</li>
+      <li>Chuyển mạch gói tối ưu cho lưu lượng bùng nổ (web, email, file): không cần đoán trước băng thông, dùng đường truyền hiệu quả hơn.</li>
+      <li>Độ trễ biến động không phải quy luật tự nhiên mà là một đánh đổi chi phí: chia tài nguyên tĩnh thì đắt nhưng có bảo đảm; chia động thì rẻ nhưng trễ dao động.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Mạng ISDN chạy ở 4.000 khung mỗi giây. Khi thiết lập cuộc gọi, nó được cấp 16 bit trong mỗi khung, mỗi chiều. Suốt cuộc gọi, mỗi bên chắc chắn gửi được đúng 16 bit âm thanh mỗi 250 micro giây. Mạng như vậy là <em>đồng bộ</em>: dữ liệu qua nhiều router mà không xếp hàng, vì chỗ cho nó ở chặng sau đã được giữ sẵn.</p>
+      <p>Kết nối TCP khác hẳn: nó tham lam dùng mọi băng thông đang có, và không dùng gì khi rảnh. Nếu muốn truyền file qua một kênh, bạn phải đoán băng thông: đoán thấp thì truyền chậm vô ích dù đường truyền còn trống, đoán cao thì kênh không lập được. Có những nỗ lực lai ghép như ATM, InfiniBand; với QoS và kiểm soát nhập (<em class="en">admission control</em>) có thể giả lập chuyển mạch kênh trên mạng gói, nhưng các cơ chế này chưa được bật trong datacenter dùng chung, cloud công cộng hay internet.</p>
+      <h3>Độ trễ và mức tận dụng tài nguyên</h3>
+      <p>Một sợi dây giữa hai tổng đài chứa được 10.000 cuộc gọi đồng thời. Dù chỉ có mình bạn gọi và 9.999 khe kia trống, bạn vẫn chỉ được một khe. Internet thì chia băng thông động: các bên gửi chen nhau, switch quyết định từng khoảnh khắc. Cái giá là hàng đợi; cái lợi là đường truyền được dùng tối đa, nên mỗi byte rẻ hơn. CPU cũng vậy: chia lõi động giữa các thread thì có lúc thread phải chờ, nhưng phần cứng được tận dụng tốt hơn; đó cũng là động lực của máy ảo.</p>
+      <p>Mô phỏng dưới đây thu nhỏ sợi dây còn 10 khe, chia cho 4 cuộc gọi thoại đều đặn và 6 người tải file bùng nổ.</p>
+    </div>
+    <figure class="lab" data-widget="circuit-vs-packet">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một sợi dây 10 khe: chuyển mạch kênh hay chuyển mạch gói?
+        <small>Mỗi lượt là một khung ISDN 250 µs. Đổi chế độ để xem biểu đồ sử dụng dây; bảng so sánh luôn tính cả hai. Kéo tần suất tải file. Số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Công nghệ đang triển khai không cho phép bảo đảm gì về độ trễ hay độ tin cậy của mạng. Phải giả định nghẽn, xếp hàng và trễ không giới hạn sẽ xảy ra. Không có giá trị timeout “đúng”, chỉ có giá trị được chọn bằng thực nghiệm.</p></aside>
+  </article>
+
+  <!-- 9.8 -->
+  <article class="topic" id="ch9-clocks" data-num="9.8" data-short="Đồng hồ thời gian và đơn điệu" data-keywords="unreliable clocks time-of-day monotonic clock_gettime CLOCK_REALTIME CLOCK_MONOTONIC currentTimeMillis nanoTime NTP slewing jump leap second">
+    <p class="eyebrow">9.8 · Unreliable Clocks · Monotonic Versus Time-of-Day Clocks</p>
+    <h2>Hai loại đồng hồ trong mỗi máy <span class="vi">Monotonic Versus Time-of-Day Clocks</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Ứng dụng dùng thời gian theo hai cách: đo <em>khoảng thời gian</em> (request đã timeout chưa, p99 là bao nhiêu) và xác định <em>thời điểm</em> (bài viết đăng lúc nào, cache hết hạn khi nào).</li>
+      <li><dfn data-term="time-of-day-clock">Đồng hồ thời gian thực</dfn> (wall-clock) trả về ngày giờ theo lịch, được đồng bộ bằng <dfn data-term="ntp">NTP</dfn>, nhưng có thể bị đặt lại và nhảy lùi.</li>
+      <li><dfn data-term="monotonic-clock">Đồng hồ đơn điệu</dfn> luôn tiến về phía trước, hợp để đo khoảng thời gian, nhưng giá trị tuyệt đối vô nghĩa và không so được giữa hai máy.</li>
+      <li>NTP chỉ có thể <dfn data-term="clock-slewing">chỉnh tốc độ</dfn> đồng hồ đơn điệu (tối đa 0,05%), không làm nó nhảy.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Mỗi máy có đồng hồ phần cứng riêng, thường là một tinh thể thạch anh. Nó không chính xác tuyệt đối, nên mỗi máy có khái niệm thời gian riêng, nhanh hơn hoặc chậm hơn máy khác một chút. Thêm vào đó, tin nhắn qua mạng mất thời gian không xác định, nên rất khó biết thứ tự các sự kiện trên nhiều máy.</p>
+      <p><code>clock_gettime(CLOCK_REALTIME)</code> trên Linux và <code>System.currentTimeMillis()</code> trong Java trả về số giây (mili giây) kể từ epoch, nửa đêm UTC ngày 1/1/1970, không tính giây nhuận. Nếu đồng hồ cục bộ chạy trước NTP quá xa, nó có thể bị ép đặt lại và nhảy lùi. Những cú nhảy này, cùng việc thường bỏ qua giây nhuận, làm đồng hồ thời gian thực không hợp để đo khoảng thời gian. Trên Windows cũ, nó còn nhảy theo bước 10 ms.</p>
+      <p><code>clock_gettime(CLOCK_MONOTONIC)</code> và <code>System.nanoTime()</code> là đồng hồ đơn điệu. Bạn đọc nó hai lần và lấy hiệu; giá trị tuyệt đối có thể là số nano giây từ lúc máy bật. Trên máy nhiều socket CPU, OS cố gắng che giấu chênh lệch giữa các timer, nhưng nên nghi ngờ bảo đảm đơn điệu một chút.</p>
+      <p>Thử đo một thao tác kéo dài đúng 5 giây bằng cả hai đồng hồ, trong khi NTP đặt lại giờ ở giữa chừng.</p>
+    </div>
+    <figure class="lab" data-widget="two-clocks">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đo một thao tác 5 giây bằng hai loại đồng hồ
+        <small>Thao tác chạy từ giây thứ 2 đến giây thứ 7 (thời gian thật). Chọn sự kiện, kéo thời điểm và độ lớn cú nhảy. Đường nét đứt là thời gian thật.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Đo timeout, độ trễ, thời gian phản hồi: dùng đồng hồ đơn điệu. Nó không giả định đồng bộ giữa các node và không nhạy với sai số nhỏ. Đồng hồ thời gian thực chỉ dùng khi bạn thực sự cần một thời điểm trên lịch.</p></aside>
+  </article>
+
+  <!-- 9.9 -->
+  <article class="topic" id="ch9-clock-sync" data-num="9.9" data-short="Đồng bộ đồng hồ" data-keywords="clock synchronization accuracy drift 200 ppm quartz NTP firewall leap second smearing VM MiFID II 100 microseconds GPS PTP">
+    <p class="eyebrow">9.9 · Clock Synchronization and Accuracy</p>
+    <h2>Đồng bộ đồng hồ khó hơn bạn tưởng <span class="vi">Clock Synchronization and Accuracy</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Thạch anh bị <dfn data-term="clock-drift">trôi</dfn> theo nhiệt độ. Google giả định 200 ppm: 6 ms nếu đồng bộ mỗi 30 giây, 17 giây nếu đồng bộ mỗi ngày.</li>
+      <li>NTP chỉ chính xác bằng độ trễ mạng: khoảng 35 ms qua internet, có lúc đột biến tới cả giây. Server NTP có thể sai hàng giờ; node bị firewall chặn NTP có thể không ai để ý.</li>
+      <li><dfn data-term="leap-second">Giây nhuận</dfn> từng làm sập nhiều hệ lớn. Máy ảo thấy đồng hồ nhảy tới khi bị tạm dừng. Thiết bị người dùng có thể bị chỉnh giờ tuỳ ý.</li>
+      <li>Có thể đạt độ chính xác rất cao (MiFID II đòi 100 µs so với UTC) bằng GPS, <dfn data-term="ptp">PTP</dfn> và giám sát cẩn thận, nhưng tốn công và chuyên môn.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Danh sách các cách đồng bộ đồng hồ có thể hỏng trong sách khá dài:</p>
+      <ul>
+        <li>Đồng hồ lệch quá xa so với server NTP có thể từ chối đồng bộ, hoặc bị đặt lại cưỡng bức. Ứng dụng quan sát trước và sau sẽ thấy thời gian nhảy lùi hoặc nhảy tới.</li>
+        <li>Server NTP cấu hình sai, báo giờ lệch hàng giờ. Client NTP khá bền vì hỏi nhiều server và loại giá trị ngoại lai, nhưng đặt cược tính đúng đắn vào giờ do người lạ trên internet báo thì vẫn đáng lo.</li>
+        <li>Giây nhuận tạo ra phút có 59 hoặc 61 giây. Cách xử lý tốt nhất có lẽ là để server NTP “nói dối”, rải phần điều chỉnh dần trong cả ngày (<dfn data-term="leap-smearing">smearing</dfn>).</li>
+        <li>Trong máy ảo, đồng hồ phần cứng được ảo hoá; khi lõi CPU được chia cho VM khác, VM bị dừng hàng chục mili giây và ứng dụng thấy đồng hồ đột ngột nhảy tới.</li>
+      </ul>
+      <p>Kéo các tham số bên dưới để tự tính sai số tối đa. Thử chặn NTP bằng firewall và xem sai số lớn dần không giới hạn.</p>
+    </div>
+    <figure class="lab" data-widget="clock-drift">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đồng hồ trôi bao xa giữa hai lần đồng bộ?
+        <small>Đồ thị răng cưa là độ lệch so với giờ chuẩn: tăng dần do trôi, rồi kéo về khi NTP đồng bộ (còn lại sai số của NTP). Số đo trôi và sai số NTP theo sách; dạng đồ thị minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>CPU hỏng hay mạng sai cấu hình thì máy thường ngừng chạy và được sửa nhanh. Thạch anh hỏng hay NTP sai cấu hình thì mọi thứ trông vẫn ổn trong khi đồng hồ trôi dần xa thực tế. Nếu phần mềm dựa vào đồng hồ đồng bộ, hậu quả thường là mất dữ liệu âm thầm chứ không phải sập rõ ràng. Hãy giám sát độ lệch đồng hồ giữa các máy, và loại khỏi cụm node nào lệch quá xa.</p></aside>
+  </article>
+
+  <!-- 9.10 -->
+  <article class="topic" id="ch9-lww" data-num="9.10" data-short="Timestamp và thứ tự sự kiện" data-keywords="timestamps ordering events last write wins LWW clock skew multi-leader Cassandra Riak figure 8-3 logical clock Lamport causality">
+    <p class="eyebrow">9.10 · Relying on Synchronized Clocks · Timestamps for ordering events</p>
+    <h2>Last write wins với đồng hồ lệch <span class="vi">Timestamps for Ordering Events</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Dùng timestamp từ đồng hồ thời gian thực để quyết định ghi nào “mới hơn” là cám dỗ nhưng nguy hiểm.</li>
+      <li>Hình 8-3: lệch đồng hồ chưa tới 3 ms đã đủ để ghi <code>x = 2</code> (xảy ra sau về nhân quả) mang timestamp nhỏ hơn ghi <code>x = 1</code>. Với <dfn data-term="lww">LWW</dfn>, phép tăng của client B biến mất mà không báo lỗi.</li>
+      <li>LWW không phân biệt được ghi nối tiếp nhanh với ghi thực sự đồng thời, và cần tie-breaker khi trùng timestamp.</li>
+      <li><dfn data-term="logical-clock">Đồng hồ logic</dfn> (bộ đếm tăng dần) an toàn hơn để sắp thứ tự sự kiện.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Đồng hồ trông đơn giản nhưng đầy bẫy: một ngày không nhất thiết có 86.400 giây, đồng hồ thời gian thực có thể chạy lùi, và giờ trên hai node có thể khác nhau nhiều. Phần mềm phải được thiết kế để chịu được đồng hồ sai, giống như chịu được mạng lỗi.</p>
+      <p>Ví dụ trong sách (tương tự Hình 5-9 ở <a href="#ch6">Chương 6</a>): cơ sở dữ liệu multi-leader. Client A ghi <code>x = 1</code> trên node 1; ghi được sao chép sang node 3; client B đọc và tăng <code>x</code> trên node 3 thành <code>x = 2</code>; cuối cùng cả hai ghi được sao chép sang node 2. Mỗi ghi mang timestamp theo đồng hồ của node nơi nó phát sinh. Đồng bộ ở đây rất tốt (lệch dưới 3 ms), thế mà <code>x = 1</code> mang 42,004 s còn <code>x = 2</code> mang 42,003 s. Node 2 kết luận <code>x = 1</code> mới hơn và bỏ <code>x = 2</code>.</p>
+      <p>LWW được dùng rộng rãi trong multi-leader và trong các cơ sở dữ liệu leaderless như Cassandra và Riak. Sinh timestamp ở client thay vì server cũng không thay đổi vấn đề gốc: node có đồng hồ chậm không thể ghi đè giá trị do node có đồng hồ nhanh ghi, cho tới khi hết khoảng lệch. Kéo độ lệch đồng hồ và xem lúc nào ghi của B bị mất.</p>
+    </div>
+    <figure class="lab" data-widget="lww-skew">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hình 8-3: ghi xảy ra sau lại bị bỏ
+        <small>Trục ngang là thời gian thật (giây 42,000 trở đi). Kéo độ lệch đồng hồ của node 1 so với node 3. Đổi sang đồng hồ logic để so sánh. Giá trị mặc định khớp với ví dụ trong sách.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <p>Liệu NTP có thể đủ chính xác để chuyện này không xảy ra? Có lẽ không: độ chính xác của NTP bị giới hạn bởi chính RTT của mạng, cộng với trôi thạch anh. Muốn sắp thứ tự đúng, nguồn đồng hồ phải chính xác hơn hẳn thứ bạn đang đo (tức độ trễ mạng). Thậm chí bạn có thể gửi một gói lúc 100 ms theo đồng hồ bên gửi và nó tới lúc 99 ms theo đồng hồ bên nhận: gói tới trước khi được gửi.</p>
+      <p>Đồng hồ logic không đo giờ hay số giây trôi qua, chỉ đo thứ tự tương đối (sự kiện nào xảy ra trước). Đồng hồ thời gian thực và đồng hồ đơn điệu thì được gọi là <dfn data-term="physical-clock">đồng hồ vật lý</dfn>. Chương 10 sẽ quay lại chuyện thứ tự.</p>
+    </div>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Với LWW, “mới nhất” được định nghĩa bằng một đồng hồ cục bộ có thể sai. Dữ liệu có thể bị bỏ một lượng tuỳ ý mà ứng dụng không nhận được lỗi nào. Muốn phát hiện ghi đồng thời và tôn trọng nhân quả, cần version vector (xem <a href="#ch6">Chương 6</a>).</p></aside>
+  </article>
+
+  <!-- 9.11 -->
+  <article class="topic" id="ch9-truetime" data-num="9.11" data-short="Khoảng tin cậy và TrueTime" data-keywords="confidence interval clock uncertainty TrueTime Spanner earliest latest commit wait snapshot isolation global snapshot transaction ID">
+    <p class="eyebrow">9.11 · Clock readings have a confidence interval · Synchronized clocks for global snapshots</p>
+    <h2>Mỗi lần đọc đồng hồ là một khoảng, không phải một điểm <span class="vi">Confidence Intervals and Spanner’s TrueTime</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Đọc được đồng hồ với độ phân giải micro giây không có nghĩa nó chính xác tới micro giây. Qua NTP internet, sai số tốt nhất cũng hàng chục mili giây. Nên nghĩ về mỗi lần đọc như một <dfn data-term="clock-confidence">khoảng tin cậy</dfn>.</li>
+      <li>Hầu hết API (như <code>clock_gettime()</code>) không cho biết sai số: bạn không biết khoảng tin cậy là 5 ms hay 5 năm.</li>
+      <li><dfn data-term="truetime">TrueTime</dfn> của Google Spanner trả về <code>[earliest, latest]</code>. Hai khoảng không chồng lên nhau thì thứ tự chắc chắn.</li>
+      <li>Spanner cố ý chờ hết độ dài khoảng tin cậy trước khi commit (<dfn data-term="commit-wait">commit wait</dfn>), nên cần GPS hoặc đồng hồ nguyên tử trong mỗi datacenter để giữ khoảng khoảng 7 ms.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Hệ có thể tự tin 95% rằng bây giờ là giữa giây 10,3 và 10,5 của phút, nhưng không biết chính xác hơn. Nếu chỉ biết giờ ±100 ms, các chữ số micro giây trong timestamp gần như vô nghĩa. Với đồng hồ GPS hoặc nguyên tử gắn trực tiếp, nhà sản xuất cho biết sai số. Với đồng hồ lấy từ server, sai số xấp xỉ bằng độ trôi thạch anh kể từ lần đồng bộ cuối, cộng sai số của server NTP, cộng RTT tới server.</p>
+      <h3>Dùng đồng hồ để tạo snapshot toàn cục</h3>
+      <p>Snapshot isolation (xem <a href="#ch8">Chương 8</a>) cần ID giao dịch tăng đơn điệu, phản ánh nhân quả: nếu giao dịch B đọc giá trị do A ghi, B phải có ID lớn hơn A. Trên một node, bộ đếm là đủ; trên nhiều datacenter, một bộ đếm toàn cục là nút thắt cổ chai. Có thể dùng timestamp từ đồng hồ đồng bộ làm ID không? Được, nếu xử lý được sự không chắc chắn. Spanner làm vậy: nếu <code>A = [A<sub>earliest</sub>, A<sub>latest</sub>]</code> và <code>B = [B<sub>earliest</sub>, B<sub>latest</sub>]</code> không chồng nhau, B chắc chắn xảy ra sau A. Spanner chờ đúng độ dài khoảng tin cậy trước khi commit để mọi giao dịch đọc dữ liệu đó có khoảng không chồng lên.</p>
+    </div>
+    <figure class="lab" data-widget="truetime">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> TrueTime và commit wait
+        <small>Giao dịch A ghi; giao dịch B đọc dữ liệu của A ngay sau đó. Độ rộng khoảng tin cậy = 2 × (sai số nguồn + 200 ppm × thời gian từ lần đồng bộ cuối). Bật/tắt commit wait và xem hai khoảng có chồng nhau không.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Khoảng tin cậy càng hẹp thì commit wait càng ngắn, nên Google đầu tư đồng hồ GPS và nguyên tử để đạt khoảng 7 ms. Ở thời điểm sách viết, ý tưởng dùng đồng hồ đồng bộ cho ngữ nghĩa giao dịch phân tán vẫn là chủ đề nghiên cứu và chưa có trong các cơ sở dữ liệu phổ biến ngoài Google.</p></aside>
+  </article>
+
+  <!-- 9.12 -->
+  <article class="topic" id="ch9-process-pauses" data-num="9.12" data-short="Tiến trình bị tạm dừng" data-keywords="process pauses lease leader GC stop-the-world pause VM suspend live migration steal time swapping thrashing SIGSTOP real-time RTOS garbage collection">
+    <p class="eyebrow">9.12 · Process Pauses</p>
+    <h2>Một thread có thể ngủ 15 giây mà không biết <span class="vi">Process Pauses</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Leader giữ một <dfn data-term="lease">lease</dfn> (khoá có thời hạn) và phải gia hạn trước khi hết. Đoạn code kiểm tra lease rồi xử lý request trông an toàn nhưng không phải vậy.</li>
+      <li>Thread có thể bị dừng ở bất kỳ dòng nào: <dfn data-term="stop-the-world">GC stop-the-world</dfn> (có lúc vài phút), VM bị suspend hay live-migrate, đóng nắp laptop, context switch và <dfn data-term="steal-time">steal time</dfn>, I/O đĩa chậm, swap đến mức <dfn data-term="thrashing">thrashing</dfn>, <code>SIGSTOP</code>.</li>
+      <li>Trong lúc dừng, thế giới vẫn chạy và có thể tuyên bố node đã chết. Khi tỉnh lại, node không hề biết mình đã ngủ.</li>
+      <li>Hệ <dfn data-term="hard-real-time">thời gian thực cứng</dfn> có bảo đảm thời gian phản hồi nhưng rất đắt. Với hệ server, cách thực tế là giảm tác động của GC.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Vòng lặp xử lý request của leader trong sách:</p>
+<pre class="code"><span class="k">while</span> (<span class="k">true</span>) {
+    request = <span class="fn">getIncomingRequest</span>();
+    <span class="c">// Ensure that the lease always has at least 10 seconds remaining</span>
+    <span class="k">if</span> (lease.expiryTimeMillis - System.<span class="fn">currentTimeMillis</span>() &lt; <span class="n">10000</span>) {
+        lease = lease.<span class="fn">renew</span>();
+    }
+    <span class="k">if</span> (lease.<span class="fn">isValid</span>()) {
+        <span class="fn">process</span>(request);
+    }
+}</pre>
+      <p>Có hai lỗi. Thứ nhất, thời điểm hết hạn do một máy khác đặt (ví dụ giờ hiện tại cộng 30 giây) nhưng được so với đồng hồ cục bộ: lệch vài giây là code bắt đầu làm chuyện lạ. Thứ hai, kể cả khi chỉ dùng đồng hồ đơn điệu cục bộ, code giả định gần như không có thời gian trôi giữa lúc kiểm tra giờ và lúc <code>process(request)</code>. Nếu thread dừng 15 giây quanh dòng <code>lease.isValid()</code>, lease đã hết hạn và node khác đã thành leader, nhưng thread không biết cho tới vòng lặp sau, khi nó đã làm điều không an toàn.</p>
+    </div>
+    <figure class="lab" data-widget="lease-pause">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Lease 30 giây và một cú tạm dừng
+        <small>Request tới mỗi 6 giây. Cú dừng xảy ra ở request lúc giây 16. Chọn nguyên nhân (hoặc kéo độ dài), vị trí dừng trong code và độ lệch đồng hồ của node 1. Chấm đỏ là request được xử lý khi node 2 đã là leader.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <p>Trên một máy, ta có mutex, semaphore, biến atomic để viết code an toàn đa luồng. Trong hệ phân tán, các công cụ đó không áp dụng trực tiếp vì không có bộ nhớ chung, chỉ có thông điệp qua mạng không tin cậy. Một node phải giả định việc thực thi của nó có thể bị dừng đáng kể ở bất kỳ điểm nào, kể cả giữa một hàm.</p>
+      <h3>Bảo đảm thời gian phản hồi</h3>
+      <p>Phần mềm điều khiển máy bay, tên lửa, robot, xe hơi phải phản hồi trong hạn chót, nếu không có thể gây thảm hoạ: bạn không muốn túi khí bung muộn vì một cú GC. Hệ như vậy cần RTOS cấp phát CPU có bảo đảm, thư viện ghi rõ thời gian chạy tệ nhất, hạn chế hoặc cấm cấp phát động, và rất nhiều kiểm thử. Lưu ý “real-time” ở đây khác với “real-time” trên web (đẩy dữ liệu tới client, xem <a href="#ch12">Chương 12</a>), và real-time không đồng nghĩa hiệu năng cao: thông lượng có thể còn thấp hơn.</p>
+      <h3>Giảm tác động của garbage collection</h3>
+      <p>Một ý tưởng: coi GC như một đợt ngừng ngắn có kế hoạch. Nếu runtime báo trước rằng node sắp cần GC, ứng dụng ngừng gửi request mới tới node đó, chờ nó xử lý xong các request đang chạy, rồi mới GC. Một số hệ giao dịch tài chính dùng cách này. Biến thể khác: chỉ dùng GC cho đối tượng sống ngắn, và khởi động lại tiến trình định kỳ trước khi phải GC toàn bộ, mỗi lần một node, giống rolling upgrade.</p>
+    </div>
+    <figure class="lab" data-widget="gc-aware">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Định tuyến biết trước GC
+        <small>4 node, mỗi node định kỳ dừng để GC. So sánh load balancer gửi đều (request trúng lúc GC phải chờ) với load balancer được báo trước và tránh node sắp GC. Số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Các biện pháp này không loại bỏ hoàn toàn GC pause, chỉ giảm tác động lên ứng dụng (đặc biệt ở các percentile cao). Tính đúng đắn của hệ vẫn phải đứng vững khi một tiến trình bị dừng tuỳ ý lâu.</p></aside>
+  </article>
+
+  <!-- 9.13 -->
+  <article class="topic" id="ch9-majority" data-num="9.13" data-short="Sự thật do đa số quyết định" data-keywords="knowledge truth lies majority quorum declare dead asymmetric fault GC pause zombie split brain">
+    <p class="eyebrow">9.13 · Knowledge, Truth, and Lies · The Truth Is Defined by the Majority</p>
+    <h2>Sự thật do đa số quyết định <span class="vi">The Truth Is Defined by the Majority</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Một node không thể biết chắc điều gì; nó chỉ đoán dựa trên thông điệp nhận được (hoặc không nhận được).</li>
+      <li>Ta nêu rõ các giả định thành một <em>mô hình hệ thống</em> và chứng minh thuật toán đúng trong mô hình đó.</li>
+      <li>Node không thể tin vào phán đoán của chính nó. Các quyết định quan trọng, kể cả tuyên bố một node đã chết, dùng <dfn data-term="quorum">quorum</dfn>: bỏ phiếu giữa các node.</li>
+      <li>Quorum đa số (hơn một nửa) chịu được một node lỗi với 3 node, hai node lỗi với 5 node; và không thể có hai đa số mâu thuẫn cùng lúc.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Sách kể ba cơn ác mộng. Một node có lỗi mạng bất đối xứng: nhận được mọi thông điệp nhưng không gửi được gì. Nó chạy tốt, nhưng sau timeout các node khác tuyên bố nó chết; nó bị kéo ra nghĩa địa trong khi gào “tôi chưa chết!” mà không ai nghe. Kịch bản nhẹ hơn: node nhận ra thông điệp của mình không được xác nhận, hiểu có lỗi mạng, nhưng vẫn không làm gì được. Kịch bản thứ ba: GC dừng mọi thread một phút; các node khác chờ, thử lại, rồi tuyên bố nó chết. GC xong, node “ngóc đầu dậy từ quan tài” và vui vẻ nói chuyện tiếp, không hề biết cả phút đã trôi qua.</p>
+      <p>Bài học: hệ phân tán không thể dựa riêng vào một node. Nếu đa số tuyên bố một node đã chết, nó phải bị coi là chết, dù nó cảm thấy mình rất khoẻ; node đó phải tuân theo quyết định và rút lui. Thử chia cụm bằng một vết cắt mạng và tắt vài node.</p>
+    </div>
+    <figure class="lab" data-widget="majority">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hai phía của một vết cắt mạng
+        <small>Chọn số node, kéo vết cắt và bấm vào node để làm nó crash. Node 1 ban đầu là leader. Dù cắt thế nào, không bao giờ có hai phía cùng có đa số.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Quorum cho đọc và ghi đã gặp ở <a href="#ch6">Chương 6</a>. Chương 10 dùng quorum làm nền cho các thuật toán đồng thuận.</p></aside>
+  </article>
+
+  <!-- 9.14 -->
+  <article class="topic" id="ch9-fencing" data-num="9.14" data-short="Leader, khoá và fencing token" data-keywords="leader lock lease split brain HBase fencing token 33 34 ZooKeeper zxid cversion storage reject figure 8-4 8-5">
+    <p class="eyebrow">9.14 · The leader and the lock · Fencing tokens</p>
+    <h2>Khi node tưởng mình vẫn là “người được chọn” <span class="vi">The Leader and the Lock, Fencing Tokens</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Nhiều thứ chỉ được có một: một leader mỗi partition (tránh <dfn data-term="split-brain">split brain</dfn>), một client giữ khoá mỗi tài nguyên, một người đăng ký mỗi username.</li>
+      <li>Node tin mình là người được chọn chưa chắc đã được đa số đồng ý: nó có thể đã bị hạ cấp trong lúc bị dừng.</li>
+      <li>Hình 8-4 (lỗi có thật của HBase): client 1 bị dừng, lease hết hạn, client 2 lấy lease và ghi; client 1 tỉnh dậy và cũng ghi. File hỏng.</li>
+      <li>Cách sửa: <dfn data-term="fencing-token">fencing token</dfn>, số tăng dần mỗi lần cấp khoá. Storage từ chối mọi ghi có token nhỏ hơn token đã thấy: token 33 bị từ chối sau 34.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Nếu một node tiếp tục hành xử như người được chọn trong khi đa số đã tuyên bố nó chết, nó có thể gửi thông điệp với tư cách tự phong, và nếu các node khác tin, cả hệ làm sai. Hình 8-4: muốn đảm bảo mỗi lúc chỉ một client truy cập một file trong dịch vụ lưu trữ, bạn bắt client xin lease từ dịch vụ khoá trước khi ghi. Nhưng như đã thấy ở <a href="#ch9-process-pauses">9.12</a>, client giữ lease có thể bị dừng lâu tới mức lease hết hạn.</p>
+      <p>Hình 8-5 sửa lỗi bằng fencing: mỗi lần cấp lease, dịch vụ khoá trả kèm một token tăng dần; mỗi request ghi tới storage phải gửi kèm token. Storage nhớ token lớn nhất đã xử lý và từ chối token cũ hơn. Đi từng bước để thấy khác biệt.</p>
+    </div>
+    <figure class="lab" data-widget="fencing">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hình 8-4 và 8-5 từng bước
+        <small>Chọn có hoặc không có fencing token, rồi bấm “Bước tiếp” hoặc “Chạy hết”. Ban đầu hiển thị kịch bản đầy đủ không có fencing.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <p>Nếu dùng ZooKeeper làm dịch vụ khoá, có thể dùng transaction ID <code>zxid</code> hoặc phiên bản node <code>cversion</code> làm fencing token, vì chúng được bảo đảm tăng đơn điệu. Lưu ý: chính tài nguyên phải chủ động kiểm tra token; để client tự kiểm tra trạng thái khoá của mình là không đủ. Với tài nguyên không hỗ trợ fencing, có thể lách, ví dụ đưa token vào tên file.</p>
+    </div>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Kiểm tra token ở phía server thoạt nhìn là gánh nặng, nhưng là điều tốt: không nên giả định client luôn cư xử đúng, vì client thường do những người có ưu tiên rất khác vận hành. Dịch vụ nào cũng nên tự bảo vệ khỏi client vô tình gây hại.</p></aside>
+  </article>
+
+  <!-- 9.15 -->
+  <article class="topic" id="ch9-byzantine" data-num="9.15" data-short="Lỗi Byzantine" data-keywords="Byzantine faults generals problem two generals traitors supermajority two-thirds aerospace radiation blockchain Bitcoin weak forms of lying checksum NTP multiple servers">
+    <p class="eyebrow">9.15 · Byzantine Faults</p>
+    <h2>Khi node có thể nói dối <span class="vi">Byzantine Faults</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Sách giả định node <em>không đáng tin nhưng trung thực</em>: có thể chậm, im lặng, có trạng thái cũ, nhưng nếu trả lời thì làm đúng giao thức theo hiểu biết của nó.</li>
+      <li><dfn data-term="byzantine-fault">Lỗi Byzantine</dfn> là khi node “nói dối”: gửi phản hồi sai hoặc giả mạo. Đạt đồng thuận trong môi trường đó là <dfn data-term="byzantine-generals">bài toán các tướng Byzantine</dfn>.</li>
+      <li>Hệ <dfn data-term="bft">chịu lỗi Byzantine</dfn> cần siêu đa số: hơn hai phần ba node hoạt động đúng. BFT cần thiết trong hàng không vũ trụ (bức xạ) và hệ nhiều tổ chức không tin nhau (blockchain), nhưng thường không đáng công trong datacenter của bạn.</li>
+      <li>Vẫn nên chống các dạng “nói dối” nhẹ: checksum ở tầng ứng dụng, kiểm tra input, NTP với nhiều server.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Fencing token chặn được node vô tình làm sai, nhưng nếu node cố ý phá hệ, nó chỉ cần gửi token giả. Bài toán tướng Byzantine tổng quát hoá bài toán hai vị tướng (sẽ gặp ở Chương 10): n vị tướng cần thống nhất kế hoạch, trong đó có vài kẻ phản bội gửi thông điệp giả, và không ai biết trước kẻ phản bội là ai. Cái tên lấy từ nghĩa “Byzantine” là rắc rối, quan liêu, xảo quyệt; Lamport chọn nó để không xúc phạm độc giả nào.</p>
+      <p>Trong hệ của sách, có thể giả định không có lỗi Byzantine: mọi node do tổ chức của bạn kiểm soát, và bức xạ không đủ lớn để làm hỏng bộ nhớ. Ứng dụng web phải đề phòng client độc hại (SQL injection, XSS), nhưng cách làm là để server làm trọng tài, không phải dùng giao thức BFT. Một bug phần mềm có thể coi là lỗi Byzantine, nhưng nếu mọi node chạy cùng phần mềm thì BFT không cứu được; bạn sẽ cần bốn bản cài đặt độc lập. Tương tự, kẻ tấn công chiếm được một node thì có lẽ chiếm được tất cả, nên xác thực, phân quyền, mã hoá và firewall vẫn là lớp bảo vệ chính.</p>
+    </div>
+    <figure class="lab" data-widget="byzantine">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Siêu đa số và NTP nhiều server
+        <small>Bên trái: kéo số node và số kẻ phản bội để xem điều kiện n ≥ 3f + 1. Bên phải: đánh dấu server NTP cấu hình sai (cùng báo lệch 3 giờ) và xem client có loại được chúng không.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Gói tin đôi khi bị hỏng do phần cứng hoặc bug trong OS, driver, router mà checksum của TCP/UDP không bắt được. Một checksum đơn giản ở tầng ứng dụng thường là đủ. Đó không phải BFT, nhưng là bước thực dụng hướng tới độ tin cậy tốt hơn.</p></aside>
+  </article>
+
+  <!-- 9.16 -->
+  <article class="topic" id="ch9-system-models" data-num="9.16" data-short="Mô hình hệ thống, safety, liveness" data-keywords="system model synchronous partially synchronous asynchronous crash-stop crash-recovery Byzantine safety liveness correctness uniqueness monotonic availability eventually">
+    <p class="eyebrow">9.16 · System Model and Reality</p>
+    <h2>Mô hình hệ thống, safety và liveness <span class="vi">System Model and Reality</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="system-model">Mô hình hệ thống</dfn> là phần trừu tượng mô tả thuật toán được giả định những gì.</li>
+      <li>Về thời gian: đồng bộ (mọi thứ có giới hạn, không thực tế), <dfn data-term="partial-synchrony">bán đồng bộ</dfn> (thường có giới hạn, đôi khi vượt), bất đồng bộ (không giả định gì, không cả đồng hồ).</li>
+      <li>Về node: <dfn data-term="crash-stop">crash-stop</dfn>, <dfn data-term="crash-recovery">crash-recovery</dfn> (có ổ lưu trữ bền), Byzantine. Hữu ích nhất cho hệ thực: bán đồng bộ + crash-recovery.</li>
+      <li>Tính đúng đắn được mô tả bằng thuộc tính. <dfn data-term="safety">Safety</dfn>: điều xấu không xảy ra, vi phạm thì chỉ ra được thời điểm. <dfn data-term="liveness">Liveness</dfn>: điều tốt cuối cùng sẽ xảy ra, luôn còn hy vọng.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Thuật toán cần được viết mà không phụ thuộc quá nhiều vào chi tiết phần cứng và cấu hình. Muốn vậy, ta hình thức hoá các loại lỗi có thể xảy ra. Mô hình đồng bộ không có nghĩa đồng hồ khớp tuyệt đối hay trễ bằng 0, chỉ là trễ mạng, thời gian dừng và sai số đồng hồ không bao giờ vượt một ngưỡng cố định. Mô hình bán đồng bộ thực tế hơn: đa phần thời gian mạng và tiến trình cư xử tốt (nếu không thì chẳng làm được gì), nhưng mọi giả định về thời gian đôi khi bị phá vỡ, và khi đó trễ có thể lớn tuỳ ý.</p>
+      <p>Chọn một tổ hợp mô hình để xem những hiện tượng nào của chương này mô hình cho phép xảy ra, và hiện tượng nào bị giả định là không thể. Hàng đỏ là chỗ thực tế phá vỡ giả định của mô hình.</p>
+    </div>
+    <figure class="lab" data-widget="system-models">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đối chiếu mô hình hệ thống với thực tế
+        <small>Chọn mô hình thời gian và mô hình lỗi node. Mặc định là tổ hợp sách khuyên dùng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Safety và liveness</h3>
+      <p>Với fencing token, ta có thể đòi hỏi: <em>uniqueness</em> (không hai request nào nhận cùng token), <em>monotonic sequence</em> (nếu x hoàn tất trước khi y bắt đầu thì t<sub>x</sub> &lt; t<sub>y</sub>), và <em>availability</em> (node xin token và không crash thì cuối cùng sẽ nhận được phản hồi). Hai thuộc tính đầu là safety, thuộc tính cuối là liveness. Dấu hiệu nhận biết: liveness hay có chữ “cuối cùng” (<em class="en">eventually</em>). Và đúng vậy, eventual consistency là một thuộc tính liveness.</p>
+      <p>Định nghĩa chính xác: nếu safety bị vi phạm, ta chỉ ra được thời điểm nó bị phá (thao tác trả về token trùng), và không thể sửa lại. Liveness thì có thể chưa thoả tại một thời điểm, nhưng luôn còn hy vọng thoả trong tương lai. Thuật toán phân tán thường đòi safety luôn đúng trong mọi tình huống của mô hình, kể cả khi mọi node crash; còn liveness được phép kèm điều kiện, ví dụ chỉ khi đa số node còn sống và mạng cuối cùng hồi phục.</p>
+    </div>
+    <figure class="lab" data-widget="safety-liveness">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Safety hay liveness?
+        <small>Hai thẻ đầu đã được giải sẵn làm mẫu (theo ví dụ fencing token trong sách). Phân loại các thẻ còn lại; mỗi thẻ hiện giải thích ngay.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Mô hình và thực tế</h3>
+      <p>Khi cài đặt, thực tế lại cắn bạn. Thuật toán crash-recovery giả định dữ liệu trên ổ bền sống sót qua crash; nếu đĩa hỏng, bị xoá do cấu hình sai, hay firmware không nhận ổ sau reboot thì sao? Thuật toán quorum dựa vào việc node nhớ dữ liệu nó đã nhận lưu; node “mất trí nhớ” phá vỡ điều kiện quorum. Code thực tế vẫn phải xử lý trường hợp “không thể xảy ra”, dù chỉ là <code>printf("Sucks to be you")</code> và <code>exit(666)</code> để con người dọn dẹp. Đó có lẽ là khác biệt giữa khoa học máy tính và kỹ nghệ phần mềm. Mô hình vẫn vô cùng hữu ích: chứng minh thuật toán đúng trong mô hình không bảo đảm cài đặt luôn đúng, nhưng là bước đầu rất tốt. Phân tích lý thuyết và kiểm thử thực nghiệm quan trọng ngang nhau.</p>
+    </div>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Safety phải đúng ngay cả trong tình huống tệ nhất; liveness được phép chờ mạng và node hồi phục. Khi đọc về một thuật toán phân tán, luôn hỏi: nó giả định mô hình nào, thuộc tính nào là safety, và liveness đi kèm điều kiện gì?</p></aside>
+  </article>
+
+  <!-- review -->
+  <article class="topic" id="ch9-review" data-num="9.★" data-short="Tổng kết & kiểm tra" data-keywords="summary review quiz">
+    <p class="eyebrow">9.★ · Summary</p>
+    <h2>Tổng kết chương <span class="vi">Summary</span></h2>
+    <div class="prose">
+      <p>Chương này liệt kê những gì có thể hỏng trong hệ phân tán:</p>
+      <ul>
+        <li>Mỗi lần gửi gói qua mạng, nó có thể bị mất hoặc trễ tuỳ ý; phản hồi cũng vậy. Không nhận được phản hồi thì không biết thông điệp có tới không.</li>
+        <li>Đồng hồ của một node có thể lệch đáng kể so với node khác (dù đã cài NTP), có thể nhảy tới hay lùi, và dựa vào nó là nguy hiểm vì bạn hiếm khi biết khoảng sai số của nó.</li>
+        <li>Một tiến trình có thể bị dừng lâu ở bất kỳ điểm nào, bị node khác tuyên bố chết, rồi sống lại mà không biết mình đã bị dừng.</li>
+      </ul>
+      <p>Lỗi cục bộ là đặc trưng định nghĩa của hệ phân tán. Phát hiện lỗi đã khó: hầu hết hệ dựa vào timeout, mà timeout không phân biệt được lỗi mạng với lỗi node. Còn có node “khập khiễng” (<dfn data-term="limping-node">limping</dfn>): card mạng Gigabit tụt xuống 1 Kb/s vì bug driver, còn khó xử lý hơn node chết hẳn. Phát hiện xong, chịu được lỗi cũng khó: không có biến toàn cục, bộ nhớ chung hay trạng thái chung; các node còn không thống nhất được bây giờ là mấy giờ. Quyết định quan trọng không thể do một node đưa ra, nên ta cần giao thức nhờ các node khác và tìm quorum.</p>
+      <p>Độ không tin cậy của mạng, đồng hồ và tiến trình không phải quy luật tự nhiên: có thể có bảo đảm thời gian thực cứng và trễ có giới hạn, nhưng rất đắt và tận dụng phần cứng kém. Phần lớn hệ không quan trọng về an toàn chọn rẻ mà không tin cậy. Nếu giải quyết được bài toán trên một máy, thường đáng làm vậy; nhưng khả năng chịu lỗi và độ trễ thấp (đặt dữ liệu gần người dùng) là những lý do không thể đạt bằng một node. Chương 10 chuyển sang giải pháp: các thuật toán được thiết kế để sống sót trong thế giới này.</p>
+    </div>
+    <div class="quiz">
+      <div class="q" data-answer="2">
+        <p>Client gửi request tới một node và không nhận được phản hồi trước timeout. Client có thể kết luận gì?</p>
+        <ol><li>Node đã chết và cần chuyển tải sang node khác.</li><li>Request đã bị mất trên mạng, gửi lại là an toàn.</li><li>Không kết luận được gì chắc chắn; request có thể đã được xử lý hoặc sẽ được xử lý sau.</li><li>Phản hồi bị mất, nghĩa là node đã xử lý xong.</li></ol>
+        <p class="explain">Trong mạng bất đồng bộ, request mất, request kẹt hàng đợi, node chết, node tạm dừng, phản hồi mất hay phản hồi trễ đều trông giống hệt nhau từ phía client. Gửi lại có thể làm thao tác chạy hai lần.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Vì sao giảm timeout của failure detector xuống rất thấp có thể làm hệ đang quá tải tệ hơn?</p>
+        <ol><li>Vì timeout ngắn làm TCP gửi lại nhiều gói hơn.</li><li>Vì node chỉ chậm do quá tải bị tuyên bố chết, tải của nó dồn sang các node khác vốn cũng đang quá tải, có thể gây lỗi dây chuyền.</li><li>Vì timeout ngắn đòi hỏi đồng hồ đồng bộ chính xác hơn.</li></ol>
+        <p class="explain">Tuyên bố chết sớm vừa có thể khiến thao tác chạy hai lần, vừa chuyển trách nhiệm và tải sang node khác. Khi hệ đã quá tải, điều này lan rộng tới mức mọi node tuyên bố nhau chết.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Vì sao datacenter và internet dùng chuyển mạch gói dù nó gây độ trễ không giới hạn?</p>
+        <ol><li>Vì lưu lượng web, email, file là bùng nổ; chia băng thông động tận dụng đường truyền tốt hơn nên rẻ hơn.</li><li>Vì chuyển mạch kênh không thể truyền dữ liệu số.</li><li>Vì chuyển mạch gói bảo đảm độ trễ tối đa thấp hơn.</li></ol>
+        <p class="explain">Chuyển mạch kênh buộc bạn đoán băng thông trước, lãng phí khe khi rảnh. Độ trễ biến động là kết quả của một đánh đổi chi phí, không phải quy luật tự nhiên.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Bạn cần đo thời gian một request chạy mất bao lâu trên server. Nên dùng gì?</p>
+        <ol><li><code>System.currentTimeMillis()</code>, vì nó được NTP đồng bộ.</li><li>Hiệu hai timestamp lấy từ hai server khác nhau.</li><li><code>System.nanoTime()</code> (đồng hồ đơn điệu) trên cùng một máy.</li></ol>
+        <p class="explain">Đồng hồ thời gian thực có thể bị NTP đặt lại và nhảy lùi. Đồng hồ đơn điệu luôn tiến tới (NTP chỉ chỉnh tốc độ), nhưng giá trị của nó chỉ có nghĩa trên cùng một máy.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Trong ví dụ Hình 8-3, đồng hồ node 1 và node 3 lệch chưa tới 3 ms. Điều gì xảy ra với ghi <code>x = 2</code> của client B?</p>
+        <ol><li>Được giữ lại vì nó xảy ra sau.</li><li>Bị node 2 bỏ đi vì mang timestamp nhỏ hơn <code>x = 1</code>, và không có lỗi nào được báo.</li><li>Gây xung đột và được trả về cho ứng dụng để tự giải quyết.</li></ol>
+        <p class="explain">Last write wins tin vào timestamp; timestamp của ghi sau về nhân quả lại nhỏ hơn do lệch đồng hồ, nên phép tăng của B mất âm thầm.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Spanner làm gì để bảo đảm timestamp giao dịch phản ánh nhân quả?</p>
+        <ol><li>Chờ hết độ dài khoảng tin cậy của TrueTime trước khi commit, để khoảng của giao dịch sau không chồng lên.</li><li>Dùng một bộ đếm toàn cục duy nhất cho mọi datacenter.</li><li>Dùng NTP qua internet với nhiều server.</li></ol>
+        <p class="explain">Hai khoảng [earliest, latest] không chồng nhau thì thứ tự chắc chắn. Commit wait đảm bảo điều đó; khoảng càng hẹp (GPS, đồng hồ nguyên tử, ~7 ms) thì chờ càng ngắn.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Client 1 giữ lease với token 33, bị GC pause, lease hết hạn; client 2 lấy lease với token 34 và đã ghi. Client 1 tỉnh lại và ghi với token 33. Ai cần ngăn ghi này?</p>
+        <ol><li>Client 1, bằng cách kiểm tra lại lease trước khi ghi.</li><li>Dịch vụ khoá, bằng cách gửi thông báo thu hồi tới client 1.</li><li>Storage, bằng cách từ chối mọi ghi có token nhỏ hơn token lớn nhất đã xử lý.</li></ol>
+        <p class="explain">Client có thể bị dừng ngay sau khi tự kiểm tra, và thông báo thu hồi có thể không tới. Chỉ tài nguyên mới đứng ở vị trí kiểm tra token một cách tin cậy.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>“Mọi request tới một node không crash cuối cùng sẽ nhận được phản hồi” là thuộc tính gì?</p>
+        <ol><li>Safety, vì nó bảo vệ người dùng khỏi điều xấu.</li><li>Liveness: tại một thời điểm có thể chưa thoả nhưng luôn còn hy vọng thoả trong tương lai.</li><li>Không phải cả hai; đây là giả định của mô hình hệ thống.</li></ol>
+        <p class="explain">Dấu hiệu là chữ “cuối cùng”. Không có thời điểm nào mà ta chỉ ra được nó đã bị vi phạm không thể cứu vãn, vì phản hồi vẫn có thể tới.</p>
+      </div>
+    </div>
+  </article>
+</section>

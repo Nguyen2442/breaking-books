@@ -1,0 +1,479 @@
+<section class="chapter" id="ch2" data-chapter="2" data-title="Mô hình hóa ranh giới Microservices">
+  <style>
+    #ch2 .f-ok-soft { fill: var(--ok-soft); }
+    #ch2 .f-warn-soft { fill: var(--warn-soft); }
+    #ch2 .s-w2 { stroke-width: 2; }
+    #ch2 .s-w3 { stroke-width: 3; }
+    #ch2 .viz svg text.t-mid { text-anchor: middle; }
+    #ch2 .viz svg text.t-end { text-anchor: end; }
+    #ch2 .viz svg text.t-sm { font-size: 9.5px; }
+    #ch2 .viz svg text.t-dim { fill: var(--ink-3); }
+    #ch2 .viz svg text.t-ok { fill: var(--ok); }
+    #ch2 .viz svg text.t-bad { fill: var(--bad); }
+    #ch2 .viz svg text.t-warn { fill: var(--warn); }
+    #ch2 .viz svg text.t-accent { fill: var(--accent); }
+    #ch2 .viz svg text.t-on { fill: var(--accent-ink); }
+    #ch2 .c2-ctl { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    #ch2 .c2-ctl > span { font-size: var(--t-xs); color: var(--ink-2); font-weight: 600; }
+    #ch2 .c2-list { margin: 0; padding-left: 18px; }
+    #ch2 .c2-list li { margin: 3px 0; }
+    #ch2 .c2-chk { display: flex; flex-direction: column; gap: 6px; }
+    #ch2 .c2-verdict { padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); }
+    #ch2 .c2-verdict.ok { border-color: var(--ok); background: var(--ok-soft); }
+    #ch2 .c2-verdict.warn { border-color: var(--warn); background: var(--warn-soft); }
+    #ch2 .c2-verdict.bad { border-color: var(--bad); background: var(--bad-soft); }
+    #ch2 .c2-verdict b { display: block; margin-bottom: 2px; }
+    #ch2 .c2-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    #ch2 .c2-chips .btn { height: auto; padding: 6px 10px; font-size: var(--t-xs); }
+    #ch2 .c2-chips .btn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+    #ch2 .c2-assign { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; align-items: center; }
+    #ch2 .c2-assign .seg button { padding: 4px 9px; }
+    #ch2 .c2-code { font: 400 .78rem/1.55 var(--f-mono); background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin: 0; white-space: pre; overflow-x: auto; }
+    #ch2 .c2-code .k { color: var(--violet); }
+    #ch2 .c2-code .s { color: var(--ok); }
+    #ch2 .c2-code .c { color: var(--ink-3); }
+    #ch2 .c2-code .hl { background: var(--mark-soft); }
+    #ch2 .c2-sticky { display: inline-block; padding: 4px 8px; margin: 2px; border-radius: 4px; font-size: var(--t-xs); font-weight: 600; border: 1px solid var(--line); }
+    #ch2 .c2-sticky.ev { background: var(--mark-soft); border-color: var(--mark); }
+    #ch2 .c2-sticky.cmd { background: var(--violet-soft); border-color: var(--violet); }
+    #ch2 .c2-sticky.agg { background: var(--warn-soft); border-color: var(--warn); }
+    #ch2 .c2-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+    #ch2 .c2-board .box { display: flex; flex-direction: column; gap: 4px; }
+    #ch2 .c2-board .box.bc { border: 2px dashed var(--accent); }
+  </style>
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 2</p>
+    <h1>How to Model Microservices <span class="vi">Mô hình hóa ranh giới Microservices</span></h1>
+    <blockquote class="epigraph">“My opponent’s reasoning reminds me of the heathen, who, being asked on what the world stood, replied, ‘On a tortoise.’ But on what does the tortoise stand? ‘On another tortoise.’”<cite>— Joseph Barker (1854)</cite></blockquote>
+    <p class="lede">Biết microservice là gì rồi, câu hỏi tiếp theo là: cắt hệ thống ở đâu? Chương này trả lời bằng ba ý tưởng cũ nhưng rất bền: che giấu thông tin, cohesion và coupling. Từ đó Sam Newman phân loại bốn dạng coupling từ lỏng đến chặt, điểm qua các cách tách hệ thống khác ngoài domain, rồi giới thiệu “vừa đủ” Domain-Driven Design (aggregate, bounded context, event storming) để tìm ra những đường nối ổn định. Mọi ví dụ đều xoay quanh MusicCorp, cửa hàng đĩa nhạc sẽ đi cùng ta suốt cuốn sách.</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- 2.1 -->
+  <article class="topic" id="ch2-good-boundary" data-num="2.1" data-short="MusicCorp & che giấu thông tin" data-keywords="MusicCorp good boundary information hiding Parnas assumptions modules development time comprehensibility flexibility">
+    <p class="eyebrow">2.1 · Introducing MusicCorp · What Makes a Good Microservice Boundary? · Information Hiding</p>
+    <h2>MusicCorp và ý tưởng nền: che giấu thông tin <span class="vi">A good boundary starts with information hiding</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>MusicCorp là ví dụ hư cấu xuyên suốt sách: một cửa hàng đĩa nhạc truyền thống chuyển sang bán online, muốn thay đổi hệ thống càng dễ càng tốt.</li>
+      <li>Mục tiêu của ranh giới tốt: mỗi microservice thay đổi, triển khai và phát hành được một cách độc lập.</li>
+      <li>Microservice chỉ là một dạng phân rã module có mạng ở giữa, nên ta mượn được kinh nghiệm hàng chục năm về module: che giấu thông tin, cohesion, coupling.</li>
+      <li>Theo Parnas, kết nối giữa các module chính là những giả định chúng đặt vào nhau. Càng ít giả định, càng dễ đổi một bên mà không làm vỡ bên kia.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Newman giới thiệu MusicCorp với giọng hài hước: một nhà bán lẻ từng có cửa hàng thật, đến khi thị trường đĩa than sụp đổ thì dồn sức sang mảng online. Họ tin rằng nghe nhạc trên điện thoại chỉ là mốt nhất thời, rằng khách hàng sẵn lòng chờ đĩa CD giao tới tận cửa. Hơi chậm chân, nhưng họ có một quyết định đúng: muốn thống trị thế giới thì phải thay đổi được hệ thống thật dễ dàng. Và thế là microservices.</p>
+      <h3>Ranh giới tốt phục vụ việc thay đổi độc lập</h3>
+      <p>Trước khi đội MusicCorp lao đi tạo hết service này đến service khác, cần dừng lại ở ý quan trọng nhất: ta muốn thay đổi, triển khai và phát hành chức năng của một microservice một cách độc lập (<dfn data-term="independent-deployability">independent deployability</dfn>). Về bản chất, microservice chỉ là một dạng phân rã module (<dfn data-term="modular-decomposition">modular decomposition</dfn>), khác ở chỗ các module nói chuyện qua mạng. Vì thế ta tận dụng được rất nhiều kinh nghiệm từ lập trình có cấu trúc. Ba khái niệm then chốt là che giấu thông tin, cohesion và coupling.</p>
+      <h3>Parnas và che giấu thông tin</h3>
+      <p>Che giấu thông tin (<dfn data-term="information-hiding">information hiding</dfn>) do David Parnas phát triển, với ý tưởng giấu càng nhiều chi tiết càng tốt phía sau ranh giới module. Parnas chỉ ra module về lý thuyết mang lại ba lợi ích:</p>
+      <ul>
+        <li><strong>Rút ngắn thời gian phát triển</strong>: các module được làm song song, thêm người vào dự án ít gây xáo trộn hơn.</li>
+        <li><strong>Dễ hiểu</strong>: mỗi module có thể được đọc và hiểu riêng, nhờ đó hiểu cả hệ thống dễ hơn.</li>
+        <li><strong>Linh hoạt</strong>: đổi một module mà không phải đổi module khác, và ghép các module theo cách mới để tạo chức năng mới.</li>
+      </ul>
+      <p>Nhưng chỉ có module thôi thì chưa đủ để đạt ba điều đó. Kết quả phụ thuộc nhiều vào cách vạch ranh giới, và Parnas nhận ra che giấu thông tin là kỹ thuật then chốt. Câu nói nổi tiếng của ông: <em>“The connections between modules are the assumptions which the modules make about each other.”</em> Mỗi giả định mà bên gọi đặt lên bên kia là một sợi dây trói hai bên lại với nhau. Giảm số giả định thì người sửa module biết rõ bên ngoài đang dùng gì, và thay đổi được một cách an toàn. Với microservice, lợi ích còn được khuếch đại vì ta triển khai được phần đã sửa mà không phải triển khai thứ gì khác.</p>
+    </div>
+    <figure class="lab" data-widget="ch2-assumptions">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đếm giả định: Warehouse lộ ra những gì?
+        <small>Đánh dấu chi tiết nào của Warehouse bị lộ cho các service khác. Mỗi chi tiết lộ ra là một giả định bên ngoài có thể dựa vào. Sau đó xem những thay đổi nội bộ nào còn làm được mà không ai phải sửa theo.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Newman nói rằng giờ ông coi microservice đơn giản là một kiểu kiến trúc module nữa. Adrian Colyer từng đọc lại loạt bài báo 1971 của Parnas dưới góc nhìn microservices, và Newman khuyên nên đọc các bản tóm tắt đó.</p></aside>
+  </article>
+
+  <!-- 2.2 -->
+  <article class="topic" id="ch2-cohesion-coupling" data-num="2.2" data-short="Cohesion, coupling & ổn định" data-keywords="cohesion coupling code that changes together stays together loose coupling chatty Constantine law stability structured design">
+    <p class="eyebrow">2.2 · Cohesion · Coupling · The Interplay of Coupling and Cohesion</p>
+    <h2>Cohesion mạnh, coupling lỏng thì ranh giới ổn định <span class="vi">Cohesion, coupling and Constantine’s law</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Cohesion: “code thay đổi cùng nhau thì ở cùng nhau”. Hành vi liên quan đặt cùng chỗ để mỗi thay đổi chỉ chạm vào ít nơi.</li>
+      <li>Coupling lỏng: đổi một service không bắt service khác đổi theo. Service càng biết ít về đối tác càng tốt; giao tiếp lắt nhắt (<em>chatty</em>) dễ dẫn tới coupling chặt.</li>
+      <li>Định luật Constantine: cấu trúc ổn định khi cohesion mạnh và coupling thấp. Ổn định ở đây nghĩa là hợp đồng giữa các service ít bị phá vỡ.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Định nghĩa gọn nhất về <dfn data-term="cohesion">cohesion</dfn> mà Newman từng nghe: <em>“the code that changes together, stays together.”</em> Ta tối ưu kiến trúc microservice cho việc thay đổi chức năng nghiệp vụ, nên muốn mỗi thay đổi chỉ chạm vào càng ít chỗ càng tốt. Nếu một hành vi nằm rải rác ở nhiều service, mỗi lần đổi ta phải phát hành nhiều service, có khi cùng lúc. Sửa nhiều nơi thì chậm, triển khai nhiều service một lúc thì rủi ro. Chức năng liên quan bị phân tán là cohesion yếu; ta nhắm tới cohesion mạnh.</p>
+      <p>Với <dfn data-term="coupling">coupling</dfn>, các service được gọi là ghép lỏng (<dfn data-term="loose-coupling">loose coupling</dfn>) khi đổi một service không đòi hỏi đổi service khác. Lỗi kinh điển là chọn một kiểu tích hợp trói chặt service này vào service kia, khiến thay đổi bên trong một service buộc bên dùng nó đổi theo. Service ghép lỏng chỉ biết về đối tác đúng mức cần thiết. Vì vậy cũng nên hạn chế số loại lời gọi giữa hai service: ngoài chuyện hiệu năng, giao tiếp lắt nhắt (<em>chatty</em>) thường kéo theo coupling chặt.</p>
+      <h3>Hai mặt của cùng một đồng xu</h3>
+      <p>Nếu chức năng liên quan bị rải khắp hệ thống, thay đổi sẽ lan qua các ranh giới, tức là coupling chặt hơn. <dfn data-term="constantines-law">Định luật Constantine</dfn> (đặt theo tên Larry Constantine, người tiên phong về thiết kế có cấu trúc) tóm gọn điều này: <em>“A structure is stable if cohesion is strong and coupling is low.”</em> Ổn định quan trọng vì muốn triển khai độc lập, làm song song và ít phải phối hợp giữa các đội thì ranh giới phải tương đối ổn định. Nếu hợp đồng của một service liên tục thay đổi theo kiểu không tương thích ngược, các <dfn data-term="upstream-consumer">consumer phía thượng nguồn</dfn> cũng phải liên tục sửa theo.</p>
+      <p>Có một ngoại lệ: đôi khi một phần hệ thống thay đổi dữ dội đến mức không thể ổn định nổi. Ta sẽ gặp ví dụ SnapCI ở mục 2.13.</p>
+    </div>
+    <figure class="lab" data-widget="ch2-constantine">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Xếp 8 chức năng MusicCorp vào 3 service
+        <small>Chọn cách chia (theo lớp kỹ thuật, theo nghiệp vụ, hoặc tự xếp từng chức năng). Đường cắt ngang ranh giới là coupling; nhóm “thay đổi cùng nhau” bị tách là cohesion yếu. Bấm một yêu cầu thay đổi để xem nó lan sang bao nhiêu service.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Cohesion và coupling không độc lập với nhau: kéo chức năng liên quan về một chỗ (cohesion mạnh) cũng chính là bớt các sợi dây chạy qua ranh giới (coupling lỏng). Hãy đánh giá hai thứ cùng lúc.</p></aside>
+  </article>
+
+  <!-- 2.3 -->
+  <article class="topic" id="ch2-coupling-types" data-num="2.3" data-short="Bốn dạng coupling" data-keywords="types of coupling domain pass through common content structured programming prior art Page-Jones Yourdon spectrum loose tight">
+    <p class="eyebrow">2.3 · Types of Coupling</p>
+    <h2>Bản đồ các dạng coupling, từ lỏng đến chặt <span class="vi">Domain, pass-through, common, content</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Không phải mọi coupling đều xấu: một mức coupling là không tránh khỏi. Mục tiêu là giảm nó.</li>
+      <li>Newman tổng hợp từ lập trình có cấu trúc thành bốn dạng cho microservices, xếp từ lỏng (mong muốn) đến chặt (không mong muốn): domain → pass-through → common → content.</li>
+      <li>Coupling theo thời gian (<em>temporal coupling</em>) là chuyện runtime nên không nằm trên thang này, nhưng vẫn đáng lưu ý.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Đọc đến đây có thể nghĩ mọi coupling đều xấu. Không hẳn. Hệ thống nào cũng có coupling; việc của ta là giảm nó. Lập trình có cấu trúc (<dfn data-term="structured-programming">structured programming</dfn>) đã nghiên cứu kỹ đề tài này, nhưng cho phần mềm module chạy trong một tiến trình. Các mô hình đánh giá coupling khi đó lại chồng chéo hoặc mâu thuẫn nhau, và chủ yếu nói ở mức code. Newman chọn lọc chúng thành một mô hình làm việc cho microservices: chỗ nào khớp thì giữ tên cũ, chỗ nào không khớp thì đặt tên mới.</p>
+      <div class="table-wrap"><table class="data">
+        <thead><tr><th>Dạng</th><th>Khi nào xảy ra</th><th>Ví dụ MusicCorp</th></tr></thead>
+        <tbody>
+          <tr><td><b>Domain coupling</b> (lỏng nhất)</td><td>Service A cần dùng chức năng của service B.</td><td>Order Processor gọi Warehouse để giữ hàng, gọi Payment để thu tiền.</td></tr>
+          <tr><td><b>Pass-through coupling</b></td><td>A gửi dữ liệu cho B chỉ vì C ở xa hơn cần nó.</td><td>Order Processor gửi Shipping Manifest qua Warehouse để tới Shipping.</td></tr>
+          <tr><td><b>Common coupling</b></td><td>Nhiều service dùng chung một bộ dữ liệu.</td><td>Order Processor và Warehouse cùng sửa cột <code>STATUS</code> của bảng Order.</td></tr>
+          <tr><td><b>Content coupling</b> (chặt nhất)</td><td>A thò tay vào bên trong B và sửa trạng thái nội bộ của nó.</td><td>Warehouse ghi thẳng vào bảng nội bộ của Order service.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Bốn mục tiếp theo đi lần lượt qua từng dạng. Trước hết, thử tự phân loại vài tình huống.</p>
+    </div>
+    <figure class="lab" data-widget="ch2-coupling-classify">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đây là coupling loại gì?
+        <small>Đọc tình huống, chọn dạng coupling. Thang phía trên đánh dấu vị trí của dạng bạn chọn và dạng đúng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Newman ghi nhận nguồn gốc: cuốn <em>Structured Design</em> của Larry Constantine và Edward Yourdon, và <em>Practical Guide to Structured Systems Design</em> của Meilir Page-Jones. Cả hai đã tuyệt bản và không có bản ebook, thêm một lý do để ủng hộ thư viện địa phương.</p></aside>
+  </article>
+
+  <!-- 2.4 -->
+  <article class="topic" id="ch2-domain-coupling" data-num="2.4" data-short="Domain & temporal coupling" data-keywords="domain coupling temporal coupling order processor warehouse payment synchronous HTTP message broker asynchronous fan-out">
+    <p class="eyebrow">2.4 · Domain Coupling · A Brief Note on Temporal Coupling</p>
+    <h2>Domain coupling: không tránh được, nhưng nên ít <span class="vi">Domain coupling and temporal coupling</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Domain coupling: một service cần chức năng do service khác cung cấp. Trong kiến trúc microservice dạng này gần như không tránh khỏi và được coi là lỏng.</li>
+      <li>Một service phụ thuộc quá nhiều service hạ nguồn là dấu hiệu nó đang làm quá nhiều việc, logic bị tập trung quá mức.</li>
+      <li>Temporal coupling: khi gọi đồng bộ, cả hai bên phải cùng sống ở cùng thời điểm. Gọi bất đồng bộ qua message broker là một cách gỡ.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Trong Hình 2-2 của sách, Order Processor của MusicCorp gọi Warehouse để giữ hàng và gọi Payment để thu tiền. Order Processor vì vậy phụ thuộc vào hai service đó cho thao tác này. Warehouse và Payment thì không phụ thuộc nhau vì chúng không tương tác. Đó là <dfn data-term="domain-coupling">domain coupling</dfn>: hệ microservices vận hành nhờ các service cộng tác, nên kiểu phụ thuộc này là bình thường.</p>
+      <p>Dù vậy vẫn nên giữ nó ở mức tối thiểu. Khi thấy một service phụ thuộc vào nhiều service hạ nguồn, hãy để ý: có thể nó đang ôm quá nhiều logic. Domain coupling cũng bắt đầu có vấn đề khi dữ liệu gửi qua lại ngày càng phức tạp, thường là dấu hiệu của các dạng coupling tệ hơn ở các mục sau. Nhớ nguyên tắc che giấu thông tin: chỉ chia sẻ cái thật sự cần, và gửi lượng dữ liệu tối thiểu.</p>
+      <h3>Ghi chú nhỏ về temporal coupling</h3>
+      <p><dfn data-term="temporal-coupling">Temporal coupling</dfn> không nằm trên thang ở mục 2.3 vì nó thuộc về runtime. Khi Order Processor gọi HTTP đồng bộ tới Warehouse, Warehouse phải đang chạy và truy cập được đúng lúc đó, nếu không thao tác thất bại vì không giữ được đĩa CD để gửi đi. Order Processor còn phải chặn chờ phản hồi, có thể gây tranh chấp tài nguyên. Temporal coupling không phải lúc nào cũng xấu, nhưng khi số service và độ phức tạp tương tác tăng, nó có thể làm hệ thống khó mở rộng và khó giữ cho chạy được. Một cách tránh là giao tiếp bất đồng bộ qua <dfn data-term="message-broker">message broker</dfn>; Chương 3 sẽ đi sâu chủ đề này.</p>
+    </div>
+    <figure class="lab" data-widget="ch2-temporal">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đặt một đơn CD khi Warehouse đang sập
+        <small>Bật/tắt từng service hạ nguồn, đổi giữa gọi HTTP đồng bộ và gửi qua message broker, rồi bấm “Đặt đơn hàng”. Kéo thanh số service phụ thuộc để thấy khi nào Order Processor bắt đầu “làm quá nhiều”.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Domain coupling là dạng coupling “lành” nhất, nhưng không phải miễn phí. Đếm số phụ thuộc hạ nguồn và để ý kích thước dữ liệu gửi đi là hai cách kiểm tra nhanh.</p></aside>
+  </article>
+
+  <!-- 2.5 -->
+  <article class="topic" id="ch2-pass-through" data-num="2.5" data-short="Pass-through coupling" data-keywords="pass through coupling tramp coupling shipping manifest customs declaration warehouse shipping order processor blob lock-step">
+    <p class="eyebrow">2.5 · Pass-Through Coupling</p>
+    <h2>Dữ liệu “đi nhờ” qua service trung gian <span class="vi">Pass-through coupling and the Shipping Manifest</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Pass-through coupling: A gửi dữ liệu cho B chỉ vì C ở hạ nguồn cần. A vô tình biết rằng B gọi C, và cả cách C hoạt động.</li>
+      <li>Hệ quả: C đổi định dạng dữ liệu thì cả B lẫn A phải đổi theo, có khi phải phát hành đồng loạt cả ba.</li>
+      <li>Ba cách xử lý: A gọi thẳng C; để B tự dựng dữ liệu cho C; hoặc B chuyển tiếp dữ liệu như một blob mà không đọc nội dung.</li>
+    </ul></div>
+    <div class="prose">
+      <p><dfn data-term="pass-through-coupling">Pass-through coupling</dfn> (Page-Jones gọi là <dfn data-term="tramp-coupling">tramp coupling</dfn>; Newman đổi tên cho dễ hiểu hơn) là một trong những dạng coupling triển khai phiền nhất. Ở MusicCorp, Order Processor gửi yêu cầu chuẩn bị giao hàng tới Warehouse, kèm một <code>Shipping Manifest</code> gồm địa chỉ khách và kiểu giao hàng. Warehouse không dùng gì trong đó mà chỉ chuyển nguyên manifest sang Shipping. Nếu Shipping cần đổi định dạng hay nội dung manifest, cả Warehouse lẫn Order Processor đều phải sửa.</p>
+      <h3>Ba cách gỡ</h3>
+      <ol>
+        <li><strong>Đi thẳng tới đích</strong>: Order Processor nói chuyện trực tiếp với Shipping. Domain coupling của Order Processor tăng lên, nếu chỉ có vậy thì còn chấp nhận được. Nhưng hàng phải được giữ ở Warehouse trước khi Shipping gửi đi, rồi cập nhật tồn kho sau khi gửi. Logic vốn nằm gọn trong Warehouse giờ dồn sang Order Processor.</li>
+        <li><strong>Giấu hẳn manifest</strong>: Warehouse nhận thông tin cần thiết qua hợp đồng của chính nó rồi tự dựng <code>Shipping Manifest</code>. Shipping đổi hợp đồng thì Order Processor không thấy gì, miễn Warehouse vẫn có đủ dữ liệu.</li>
+        <li><strong>Chuyển tiếp như blob</strong>: Order Processor vẫn gửi manifest qua Warehouse, nhưng Warehouse coi nó là một khối dữ liệu không đọc. Manifest đổi định dạng thì Order Processor và Shipping phải sửa, còn Warehouse thì không.</li>
+      </ol>
+      <p>Cách 2 cũng có giới hạn. Khi MusicCorp muốn giao hàng quốc tế, Shipping cần thêm một <code>Customs Declaration</code> trong manifest. Nếu trường này là tuỳ chọn, chỉ cần triển khai Shipping bản mới. Nếu bắt buộc, Warehouse phải tạo ra nó, và nếu thiếu thông tin thì Order Processor phải gửi thêm. Ta chưa loại bỏ được việc đổi cả ba, nhưng đã giành được quyền chọn <em>khi nào</em> và <em>bằng cách nào</em> đổi. Với thiết kế ban đầu, thay đổi đó có thể buộc phát hành đồng loạt (<dfn data-term="lock-step-release">lock-step</dfn>) cả ba service.</p>
+    </div>
+    <figure class="lab" data-widget="ch2-pass-through">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Shipping đổi hợp đồng: ai phải sửa?
+        <small>Chọn một trong bốn thiết kế (ban đầu và ba cách gỡ), rồi chọn thay đổi ở phía Shipping. Sơ đồ tô đỏ service phải sửa và cho biết có buộc phát hành đồng loạt không.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Cách “đi thẳng tới đích” nghe gọn nhưng dễ kéo logic điều phối ra khỏi service sở hữu nó. Giảm một dạng coupling mà làm cohesion yếu đi thì chưa chắc đã lời.</p></aside>
+  </article>
+
+  <!-- 2.6 -->
+  <article class="topic" id="ch2-common-coupling" data-num="2.6" data-short="Common coupling & state machine" data-keywords="common coupling shared database static reference data countries order table status PLACED PAID PICKING SHIPPED COMPLETED finite state machine CRUD wrapper resource contention">
+    <p class="eyebrow">2.6 · Common Coupling</p>
+    <h2>Dùng chung dữ liệu: khi nào chấp nhận được <span class="vi">Common coupling and the order state machine</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Common coupling: hai hay nhiều service dùng chung một bộ dữ liệu (database chung, bộ nhớ chung, hệ thống file chung). Đổi cấu trúc dữ liệu là ảnh hưởng tới tất cả.</li>
+      <li>Dữ liệu tham chiếu tĩnh, chỉ đọc (danh sách quốc gia) dùng chung thì khá lành. Nhiều service cùng đọc-ghi một bảng Order mới là vấn đề thật.</li>
+      <li>Cách gỡ: để một service duy nhất sở hữu state machine của đơn hàng. Bên khác chỉ gửi <em>yêu cầu</em>, và yêu cầu có thể bị từ chối.</li>
+      <li>Nguồn dữ liệu chung còn là điểm tranh chấp tài nguyên: một truy vấn SQL đắt có thể quật ngã cả database.</li>
+    </ul></div>
+    <div class="prose">
+      <p><dfn data-term="common-coupling">Common coupling</dfn> phổ biến nhất ở dạng nhiều service dùng chung một <dfn data-term="shared-database">database chung</dfn>. MusicCorp bán hàng khắp thế giới nên cần thông tin về các quốc gia. Nhiều service cùng đọc dữ liệu tham chiếu tĩnh này từ một database. Nếu schema đổi theo kiểu không tương thích ngược, mọi consumer đều phải sửa, nên trên thực tế dữ liệu kiểu này rất khó đổi. Tuy vậy Newman khá thoải mái với trường hợp này vì dữ liệu tham chiếu tĩnh hiếm khi đổi và chỉ được đọc.</p>
+      <h3>Hai service cùng sửa một cột STATUS</h3>
+      <p>Chuyện khác hẳn khi Order Processor và Warehouse cùng đọc-ghi bảng Order. Order Processor đặt trạng thái <code>PLACED</code>, <code>PAID</code>, <code>COMPLETED</code>; Warehouse đặt <code>PICKING</code>, <code>SHIPPED</code>. Khi sửa Order Processor, làm sao chắc mình không đổi dữ liệu theo cách làm vỡ góc nhìn của Warehouse, hoặc ngược lại?</p>
+      <p>Một cách đảm bảo trạng thái đổi đúng là dùng máy trạng thái hữu hạn (<dfn data-term="finite-state-machine">finite state machine</dfn>): đơn hàng được đi từ <code>PLACED</code> sang <code>PAID</code>, nhưng không được nhảy thẳng từ <code>PLACED</code> sang <code>PICKING</code>. Vấn đề là ở đây cả hai service cùng chịu trách nhiệm cho state machine đó. Làm sao để chúng đồng ý với nhau về chuyển trạng thái nào là hợp lệ? (Chương 5 sẽ bàn về saga.)</p>
+      <p>Giải pháp Newman đề xuất là một <strong>Order service</strong> duy nhất làm <dfn data-term="source-of-truth">nguồn sự thật</dfn> cho đơn hàng. Order Processor và Warehouse gửi yêu cầu cập nhật trạng thái, và Order service tự quyết yêu cầu nào hợp lệ. Nhận yêu cầu chuyển từ <code>PLACED</code> thẳng sang <code>COMPLETED</code>, nó có quyền từ chối.</p>
+      <p>Phương án ngược lại mà Newman hay gặp: Order service chỉ là lớp vỏ mỏng bọc các thao tác CRUD (<dfn data-term="crud-wrapper">CRUD wrapper</dfn>), yêu cầu nào cũng ánh xạ thẳng thành câu lệnh UPDATE. Giống một object có field private nhưng getter/setter đều public: hành vi rò ra ngoài cho consumer, cohesion giảm, và ta lại quay về cảnh nhiều service cùng quản lý chuyển trạng thái.</p>
+      <h3>Tranh chấp tài nguyên</h3>
+      <p>Nguồn common coupling cũng là nguồn tranh chấp tài nguyên (<dfn data-term="resource-contention">resource contention</dfn>). Nhiều consumer có thể chạy truy vấn tuỳ ý với hiệu năng rất khác nhau trên cùng database. Newman thừa nhận từng thấy hơn một database bị một câu SQL đắt quật ngã, và chú thích rằng thủ phạm đôi khi là chính ông, “nhiều hơn một hai lần”.</p>
+    </div>
+    <figure class="lab" data-widget="ch2-order-fsm">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ai giữ state machine của đơn hàng?
+        <small>Ở chế độ “bảng Order dùng chung”, mỗi service ghi thẳng cột STATUS. Ở chế độ “Order service sở hữu”, mọi thay đổi là yêu cầu và có thể bị từ chối. Thử gửi các chuyển trạng thái sai thứ tự ở cả hai chế độ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Nếu một microservice trông như lớp vỏ mỏng quanh các thao tác CRUD, đó là dấu hiệu cohesion yếu và coupling chặt: logic lẽ ra phải nằm trong service đó để quản lý dữ liệu đã bị rải sang nơi khác.</p></aside>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Một yêu cầu gửi tới microservice là thứ mà service hạ nguồn <em>được phép từ chối</em> nếu nó không hợp lệ.</p></aside>
+  </article>
+
+  <!-- 2.7 -->
+  <article class="topic" id="ch2-content-coupling" data-num="2.7" data-short="Content coupling" data-keywords="content coupling pathological coupling database internals order service warehouse direct table access contract hidden shared">
+    <p class="eyebrow">2.7 · Content Coupling</p>
+    <h2>Thò tay vào nội tạng service khác <span class="vi">Content coupling — the pathological kind</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Content coupling: service bên ngoài truy cập thẳng phần nội bộ của service khác, thường là đọc-ghi trực tiếp database của nó.</li>
+      <li>Khác common coupling ở chỗ ranh giới sở hữu bị xoá nhoà: database nội bộ vô tình trở thành một phần hợp đồng, mà là phần không ai biết đổi được gì.</li>
+      <li>Hậu quả: logic kiểm tra bị lặp hoặc lệch nhau, đơn hàng rơi vào trạng thái kỳ quặc, refactor schema thành việc nguy hiểm. Lời khuyên: tránh hẳn.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Thoạt nhìn <dfn data-term="content-coupling">content coupling</dfn> giống common coupling: hai service cùng đọc-ghi một bộ dữ liệu. Khác biệt nằm ở quyền sở hữu. Với common coupling, ta biết mình đang dùng một phụ thuộc bên ngoài, không thuộc quyền kiểm soát của mình. Với content coupling, ranh giới sở hữu mờ đi và lập trình viên khó thay đổi hệ thống hơn.</p>
+      <p>Quay lại MusicCorp: Order service lẽ ra quản lý mọi chuyển trạng thái của đơn hàng. Order Processor làm đúng, gửi yêu cầu và để Order service quyết định. Nhưng Warehouse thì cập nhật thẳng vào bảng lưu đơn hàng, bỏ qua mọi kiểm tra của Order service. Trường hợp tốt nhất là logic kiểm tra bị lặp lại ở Warehouse. Trường hợp xấu nhất là hai bộ logic lệch nhau và đơn hàng rơi vào những trạng thái rất khó hiểu.</p>
+      <p>Cấu trúc bảng nội bộ cũng bị lộ cho bên ngoài. Muốn đổi bảng đó, đội Order phải cực kỳ cẩn thận, và đó là khi họ còn <em>biết</em> có người ngoài đang truy cập nó. Cách sửa đơn giản: cho Warehouse gửi yêu cầu tới Order service, nơi yêu cầu được kiểm tra và chi tiết nội bộ được giấu đi.</p>
+      <h3>Biết rõ cái gì đổi tự do, cái gì không</h3>
+      <p>Khi làm một microservice, phải phân biệt rõ phần nào thuộc hợp đồng (<dfn data-term="service-contract">service contract</dfn>) lộ ra ngoài, và phần nào đổi thoải mái được. Cho người ngoài truy cập thẳng database tức là biến database thành một phần hợp đồng mà ta không thể suy luận được đổi gì thì an toàn. Che giấu thông tin bị vứt bỏ. Vì thế có người gọi dạng này là <dfn data-term="pathological-coupling">pathological coupling</dfn>.</p>
+    </div>
+    <figure class="lab" data-widget="ch2-content-refactor">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đội Order refactor bảng nội bộ
+        <small>Chọn cách Warehouse truy cập dữ liệu đơn hàng (qua API hay ghi thẳng vào bảng), rồi áp từng thay đổi nội bộ của Order service. Xem thay đổi nào làm vỡ Warehouse và đơn hàng nào lọt qua kiểm tra.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Content coupling mang mọi vấn đề của common coupling, cộng thêm việc mất khả năng định nghĩa cái gì được chia sẻ và cái gì được giấu. Tóm lại: tránh content coupling.</p></aside>
+  </article>
+
+  <!-- 2.8 -->
+  <article class="topic" id="ch2-volatility-data" data-num="2.8" data-short="Tách theo volatility & dữ liệu" data-keywords="alternatives domain-oriented decomposition volatility bimodal IT Gartner mode 1 mode 2 systems of record PII GDPR PaymentCo PCI Level 1 red zone green zone">
+    <p class="eyebrow">2.8 · Alternatives to Domain-Oriented Decomposition — Volatility · Data</p>
+    <h2>Tách theo tần suất thay đổi và theo loại dữ liệu <span class="vi">Volatility and data as decomposition drivers</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Domain là cơ chế chính để tìm ranh giới vì dễ khớp với tổ chức, dễ ghép chức năng và thường ổn định hơn. Nhưng có những cơ chế khác, dùng thay thế hoặc bổ sung.</li>
+      <li>Volatility: tách phần thay đổi thường xuyên ra service riêng. Hữu ích nếu mục tiêu là ra thị trường nhanh, vô ích nếu vấn đề là mở rộng tải. Newman không ưa Bimodal IT.</li>
+      <li>Dữ liệu: PaymentCo tách riêng phần xử lý dữ liệu thẻ đầy đủ vào “vùng đỏ” để thu hẹp phạm vi kiểm toán PCI Level 1.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Đến đây ta mới bàn cohesion và coupling cho những service đã có sẵn. Cơ chế chính để tìm ranh giới, như Chương 1 đã nói, là bản thân domain. Ranh giới theo domain dễ khớp với cơ cấu tổ chức, dễ ghép chức năng theo cách mới để phục vụ người dùng, và thực tế cho thấy chúng ổn định hơn các kiểu phân rã khác. Dù vậy, đôi khi các cơ chế khác cũng có ích.</p>
+      <h3>Volatility</h3>
+      <p>Có những người phản đối cách tách theo domain và đề xuất lấy tính biến động (<dfn data-term="volatility-based-decomposition">volatility-based decomposition</dfn>) làm động lực chính: tìm phần nào đổi thường xuyên nhất rồi tách ra để làm việc với nó hiệu quả hơn. Newman không phản đối ý tưởng, chỉ phản đối việc coi đó là cách <em>duy nhất</em>. Nếu vấn đề lớn nhất là khả năng mở rộng, tách theo volatility khó đem lại nhiều lợi ích.</p>
+      <p>Tư duy này cũng thấy trong <dfn data-term="bimodal-it">Bimodal IT</dfn> của Gartner: “Mode 1” (<em>Systems of Record</em>) ít đổi, ít cần nghiệp vụ tham gia; “Mode 2” (<em>Systems of Innovation</em>) đổi nhanh và cần nghiệp vụ sát sao. Newman không thích mô hình này. Nó đơn giản hoá quá mức, cho rằng thế giới đứng yên, và thành cái hộp tiện lợi để vứt mọi thứ khó đổi vào rồi bảo “đó là Mode 1, khỏi lo”. Nó còn bỏ qua chuyện thay đổi ở Mode 2 thường kéo theo thay đổi ở Mode 1. Hãy nhớ MusicCorp: giữa thập niên 90 website chỉ là danh mục hàng, đặt mua thì gọi điện, chẳng khác quảng cáo trên báo. Rồi khi bán online thì cả kho hàng vốn chạy trên giấy phải số hoá. Theo kinh nghiệm của Newman, tổ chức áp dụng bimodal IT rốt cuộc có hai tốc độ: chậm và chậm hơn.</p>
+      <h3>Dữ liệu: câu chuyện PaymentCo</h3>
+      <p>Bản chất dữ liệu cũng dẫn tới cách tách khác, ví dụ giới hạn số service chạm vào thông tin định danh cá nhân (<dfn data-term="pii">PII</dfn>) để giảm rủi ro rò rỉ và đơn giản hoá việc tuân thủ <dfn data-term="gdpr">GDPR</dfn>. Một khách hàng của Newman, tạm gọi là PaymentCo, xử lý dữ liệu thẻ tín dụng với khối lượng đủ lớn để phải tuân thủ <dfn data-term="pci-dss">PCI</dfn> Level 1, mức nghiêm ngặt nhất, kèm đánh giá từ bên ngoài <strong>mỗi quý</strong>. Yêu cầu toàn bộ hệ thống tuân thủ và chịu kiểm toán là quá nặng, nên họ tách phần xử lý dữ liệu thẻ đầy đủ ra.</p>
+      <p>Service ở <strong>vùng xanh</strong> không bao giờ thấy dữ liệu thẻ đầy đủ; dữ liệu đó chỉ tồn tại trong các tiến trình (và mạng) thuộc <strong>vùng đỏ</strong>. Gateway điều hướng lời gọi tới đúng vùng, và vì dữ liệu thẻ đi qua nó nên gateway cũng nằm trong vùng đỏ. Nhờ vậy toàn bộ vùng xanh được miễn kiểm toán PCI đầy đủ. Điều kiện sống còn: dữ liệu thẻ không được chảy sang vùng xanh, dù do service xanh tự hỏi hay do service đỏ gửi ngược lại.</p>
+    </div>
+    <figure class="lab" data-widget="ch2-pci-zones">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Thu hẹp phạm vi PCI của PaymentCo
+        <small>Bật/tắt việc mỗi service có nhận dữ liệu thẻ đầy đủ hay không. Service nào chạm vào dữ liệu thẻ sẽ bị kéo vào vùng đỏ. Thêm luồng “trả dữ liệu thẻ về vùng xanh” để xem ranh giới sụp đổ. Danh sách service là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Nhóm thiết kế PaymentCo cố hết sức thu hẹp vùng đỏ. Nhiều yêu cầu PCI chỉ là lẽ thường, nhưng chi phí kiểm toán tỉ lệ với phạm vi. Mỗi service để ngoài vùng đỏ là một service khỏi phải chịu đánh giá hằng quý.</p></aside>
+  </article>
+
+  <!-- 2.9 -->
+  <article class="topic" id="ch2-tech-org" data-num="2.9" data-short="Công nghệ, tổ chức & trộn mô hình" data-keywords="technology rust three-tier organizational Conway law onion architecture California Brazil horizontal vertical slice RPC chatty layering inside outside different goals mixing models dogma C++ Kotlin">
+    <p class="eyebrow">2.9 · Technology · Organizational · Different Goals, Different Drivers · Mixing Models</p>
+    <h2>Công nghệ, tổ chức, và vì sao không có cách duy nhất <span class="vi">Technology, organization and mixing models</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Công nghệ: cần runtime khác (ví dụ Rust để vắt thêm hiệu năng) là lực ép tách service. Nhưng gom theo công nghệ thành nguyên tắc chung sẽ dẫn tới kiến trúc ba tầng.</li>
+      <li>Tổ chức: theo định luật Conway, ranh giới mà nhiều đội cùng sở hữu khó cho kết quả tốt. Ví dụ “kiến trúc củ hành”: cắt ngang tầng giữa California và Brazil thay vì cắt dọc theo nghiệp vụ.</li>
+      <li>Microservices không phải là mục tiêu. Mục tiêu quyết định cơ chế tách; thường cần trộn vài cơ chế. Ai nói “cách duy nhất là X” thì đang bán giáo điều.</li>
+    </ul></div>
+    <div class="prose">
+      <h3>Công nghệ</h3>
+      <p>Một service có thể dùng nhiều database, nhưng trộn nhiều runtime trong một service thì khó. Nếu một phần chức năng cần viết bằng Rust để vắt thêm hiệu năng, đó là lực ép mạnh để tách. Tuy vậy, lấy công nghệ làm cơ chế phân rã chung sẽ dẫn tới <dfn data-term="three-tier-architecture">kiến trúc ba tầng</dfn> kinh điển, nơi các thứ cùng công nghệ được gom chung. Như Chương 1 đã bàn, đó thường không phải kiến trúc lý tưởng.</p>
+      <h3>Tổ chức</h3>
+      <p><dfn data-term="conways-law">Định luật Conway</dfn> nói rằng cấu trúc tổ chức và kiến trúc hệ thống ảnh hưởng qua lại. Ranh giới service mà quyền sở hữu vắt ngang nhiều đội khó cho kết quả mong muốn. Vì vậy phải tính tới cơ cấu tổ chức khi vạch ranh giới, đôi khi còn phải đổi cơ cấu tổ chức để có kiến trúc mình muốn.</p>
+      <p>Ngay cả khi tôn trọng cơ cấu tổ chức, vẫn có thể vạch sai. Newman kể về một khách hàng ở California có ứng dụng công khai với lượng khách toàn cầu lớn. Hệ thống lớn dần, và công ty giao một phần việc cho một nhóm lập trình viên mới ở Brazil. Hệ thống bị tách đôi: nửa trước là website không trạng thái, nửa sau chỉ là một giao diện <dfn data-term="rpc">RPC</dfn> bọc quanh kho dữ liệu, như thể lấy tầng repository trong codebase ra làm một service riêng. Hai service thường xuyên phải sửa cùng lúc. Lời gọi RPC mức thấp dễ vỡ, giao diện lại lắt nhắt đến mức phải chế ra cơ chế gom batch RPC phức tạp. Newman gọi đó là <dfn data-term="onion-architecture">onion architecture</dfn>: nhiều lớp, và cắt qua thì muốn khóc.</p>
+      <p>Chia hệ thống theo địa lý/tổ chức là hợp lý. Sai ở chỗ đội đã cắt <em>ngang</em> một API vốn chạy trong tiến trình. Tốt hơn là mỗi đội nhận một lát cắt <em>dọc</em> (<dfn data-term="vertical-slice">vertical slice</dfn>) từ đầu đến cuối theo nghiệp vụ, gồm cả phần front end lẫn truy cập dữ liệu liên quan.</p>
+      <h3>Mục tiêu khác, động lực khác; trộn mô hình</h3>
+      <p>Microservices không phải là đích đến; có microservices không có nghĩa là thắng. Bạn muốn đạt điều gì quyết định nơi dồn thời gian, mức độ mạnh tay khi tách, và cơ chế tìm ranh giới nào hợp nhất. PaymentCo bị chi phối bởi dữ liệu. Volatility hợp khi cần tốc độ giao hàng, nhưng nếu tách ra một service vắt ngang ranh giới tổ chức thì tốc độ sẽ giảm vì <dfn data-term="delivery-contention">delivery contention</dfn>. Một Warehouse service đẹp theo domain vẫn phải tách tiếp nếu một phần phải viết bằng C++ và phần khác bằng Kotlin. Với Newman, ranh giới theo tổ chức và domain là điểm xuất phát mặc định, nhưng hiếm khi domain là yếu tố duy nhất.</p>
+    </div>
+    <figure class="lab" data-widget="ch2-onion">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> California và Brazil: cắt ngang hay cắt dọc?
+        <small>So sánh hai cách chia hệ thống cho hai đội. Bấm từng yêu cầu tính năng để xem nó phải sửa ở đâu, bao nhiêu đội phải phối hợp và bao nhiêu lời gọi qua mạng mỗi request. Các con số là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách: phân tầng bên trong và bên ngoài</b><p>Newman không chống lại việc phân tầng. Bên trong một microservice, chia tầng để code dễ quản lý là hoàn toàn hợp lý. Vấn đề chỉ xuất hiện khi phân tầng trở thành cơ chế vạch ranh giới microservice và ranh giới sở hữu.</p></aside>
+  </article>
+
+  <!-- 2.10 -->
+  <article class="topic" id="ch2-ubiquitous-language" data-num="2.10" data-short="DDD & ngôn ngữ chung" data-keywords="domain-driven design DDD Eric Evans Simula ubiquitous language corporate liquidity haircut end-of-day sweep IBM banking model arrangement">
+    <p class="eyebrow">2.10 · Just Enough Domain-Driven Design · Ubiquitous Language</p>
+    <h2>Viết code bằng chính ngôn ngữ của người dùng <span class="vi">Ubiquitous language</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Domain-Driven Design (Eric Evans) cung cấp cách mô hình hoá domain để tìm ranh giới service. Chương này chỉ lấy phần “vừa đủ”.</li>
+      <li>Ngôn ngữ chung: dùng trong code đúng các thuật ngữ người dùng dùng, để đội phát triển và người dùng hiểu nhau và mô hình gần với thế giới thật.</li>
+      <li>Phản ví dụ: ngân hàng dùng “IBM banking model”, nơi khoản vay, cổ phiếu hay thẻ tín dụng đều là một “arrangement”. Code mất hết ý nghĩa nghiệp vụ, BA phải giải thích đi giải thích lại.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Mong muốn chương trình phản ánh thế giới thật không mới: các ngôn ngữ hướng đối tượng như Simula ra đời để mô hình hoá domain thật. Nhưng cần nhiều hơn tính năng ngôn ngữ. Cuốn <em>Domain-Driven Design</em> của Eric Evans đưa ra một loạt ý tưởng giúp biểu diễn domain tốt hơn trong chương trình (<dfn data-term="domain-driven-design">domain-driven design</dfn>). Newman chỉ tóm lược những ý quan trọng nhất cho microservices.</p>
+      <h3>Ngôn ngữ chung</h3>
+      <p><dfn data-term="ubiquitous-language">Ubiquitous language</dfn> nghĩa là cố dùng trong code đúng những thuật ngữ mà người dùng dùng. Có chung ngôn ngữ giữa đội giao hàng và người dùng thật thì mô hình hoá domain dễ hơn và giao tiếp cũng tốt hơn.</p>
+      <p>Phản ví dụ của Newman đến từ một ngân hàng lớn toàn cầu, mảng thanh khoản doanh nghiệp (<em>corporate liquidity</em>), về cơ bản là chuyển tiền giữa các tài khoản của cùng một pháp nhân. Product owner hiểu sản phẩm rất sâu, và các cuộc trao đổi xoay quanh những khái niệm như <em>haircut</em> hay <em>end-of-day sweep</em>, có nghĩa rõ ràng với khách hàng của cô. Code thì không có chữ nào như vậy. Trước đó ai đó đã quyết định dùng một mô hình dữ liệu chuẩn, gọi là “IBM banking model”, với một khái niệm lỏng lẻo là “arrangement”. Vay tiền? Arrangement. Mua cổ phiếu? Arrangement. Mở thẻ tín dụng? Cũng là arrangement.</p>
+      <p>Mô hình dữ liệu đó làm code mất hết hiểu biết về hệ thống đang xây. Họ không xây một ứng dụng ngân hàng chung chung, mà một hệ thống quản lý thanh khoản doanh nghiệp. Mỗi khái niệm giàu nghĩa của product owner phải được dịch sang khái niệm code chung chung, và BA mất thời gian giải thích cùng một thứ lặp đi lặp lại. Khi đưa ngôn ngữ thật vào code, mọi thứ dễ hơn hẳn: lập trình viên nhận một story viết bằng thuật ngữ của product owner có khả năng hiểu đúng và biết phải làm gì cao hơn nhiều.</p>
+    </div>
+    <figure class="lab" data-widget="ch2-language">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một user story, hai bộ từ vựng
+        <small>Chọn một story của product owner và xem code trông ra sao khi dùng mô hình “arrangement” chung chung so với ngôn ngữ chung. Đếm số lần phải “dịch” khái niệm.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Nếu đội phải giữ một “bảng tra” để chuyển từ lời của người dùng sang tên trong code, đó là chi phí trả mỗi ngày cho mỗi story. Đặt tên đúng ngay từ đầu rẻ hơn nhiều.</p></aside>
+  </article>
+
+  <!-- 2.11 -->
+  <article class="topic" id="ch2-aggregate" data-num="2.11" data-short="Aggregate" data-keywords="aggregate order line items invoice stock item life cycle state machine identity customer wishlist foreign key URI reference ledger payment">
+    <p class="eyebrow">2.11 · Aggregate</p>
+    <h2>Aggregate: khái niệm có trạng thái, danh tính và vòng đời <span class="vi">Aggregates and their relationships</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Aggregate là biểu diễn của một khái niệm domain thật (Order, Invoice, Stock Item…), có trạng thái, danh tính và vòng đời, nên hợp để cài như một state machine.</li>
+      <li>Một aggregate chỉ do một microservice quản lý; một microservice có thể quản lý nhiều aggregate.</li>
+      <li>Bên ngoài muốn đổi aggregate thì gửi yêu cầu hoặc để aggregate tự phản ứng với sự kiện. Aggregate có quyền nói không.</li>
+      <li>Quan hệ giữa aggregate trong cùng service có thể là khoá ngoại; khác service thì cần một tham chiếu như URI.</li>
+    </ul></div>
+    <div class="prose">
+      <p><dfn data-term="aggregate">Aggregate</dfn> trong DDD là khái niệm khá dễ gây rối, với nhiều định nghĩa khác nhau. Cách Newman thấy hiệu quả là coi aggregate trước hết như biểu diễn của một khái niệm domain thật, như Order, Invoice hay Stock Item. Ở MusicCorp, aggregate Order có thể chứa nhiều dòng hàng (<em>line item</em>), và các dòng hàng này chỉ có nghĩa khi nằm trong Order.</p>
+      <p>Aggregate nên được đối xử như một đơn vị tự chứa: code xử lý chuyển trạng thái nằm cùng với trạng thái. Vì vậy một aggregate nên do một microservice quản lý, dù một microservice có thể quản lý nhiều aggregate. Khi service khác muốn đổi aggregate, nó gửi yêu cầu trực tiếp, hoặc aggregate tự khởi động chuyển trạng thái khi nghe sự kiện từ service khác. Điểm then chốt: aggregate có thể từ chối. Lý tưởng nhất là cài đặt sao cho chuyển trạng thái bất hợp lệ không thể xảy ra.</p>
+      <h3>Quan hệ giữa các aggregate</h3>
+      <p>Một aggregate Customer có thể gắn với một hoặc nhiều Order và một hoặc nhiều Wishlist. Nếu chúng cùng nằm trong một microservice dùng database quan hệ, quan hệ được lưu bằng khoá ngoại. Nếu nằm ở các microservice khác nhau, cần cách khác. Ví dụ trong sách là một bút toán trong sổ cái tài chính (có thể là aggregate Payment) ghi cho một khách hàng: bảng ledger lưu tham chiếu tới khách hàng dưới dạng URI, như khi xây hệ thống REST. Chương 3 sẽ quay lại loại tham chiếu này.</p>
+      <p>Có nhiều cách chia hệ thống thành aggregate, và nhiều lựa chọn khá chủ quan. Về sau có thể định hình lại vì hiệu năng hay vì dễ cài đặt. Nhưng lúc đầu, Newman để mô hình trong đầu người dùng dẫn đường, đặt chuyện cài đặt xuống hàng thứ yếu.</p>
+    </div>
+    <figure class="lab" data-widget="ch2-aggregate-refs">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Customer, Order, Wishlist, Payment: ai sở hữu gì?
+        <small>Gán mỗi aggregate cho một microservice. Quan hệ trong cùng service hiện thành khoá ngoại; quan hệ vượt ranh giới hiện thành tham chiếu URI. Thử để hai service cùng ghi một aggregate để xem cảnh báo.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Ba câu hỏi để nhận ra aggregate: nó có trạng thái không, có danh tính không, có vòng đời được hệ thống quản lý không? Thường thì nó ứng với một khái niệm có thật trong thế giới người dùng.</p></aside>
+  </article>
+
+  <!-- 2.12 -->
+  <article class="topic" id="ch2-bounded-context" data-num="2.12" data-short="Bounded context" data-keywords="bounded context warehouse finance forklift picker shelf stock item stock count general ledger hidden models shared models customer recipient context diagram">
+    <p class="eyebrow">2.12 · Bounded Context · Hidden Models · Shared Models</p>
+    <h2>Bounded context: giấu mô hình nội bộ, chỉ chia sẻ phần cần thiết <span class="vi">Warehouse and Finance</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Bounded context thường ứng với một ranh giới tổ chức lớn, có trách nhiệm rõ ràng và giao diện tường minh với bên ngoài. Nó chứa một hay nhiều aggregate, có cái lộ ra, có cái giấu đi.</li>
+      <li>Kho hàng và phòng tài chính MusicCorp là hai bounded context. Xe nâng, người nhặt hàng, vị trí kệ là chuyện nội bộ của kho.</li>
+      <li>Mô hình chia sẻ nên là bản rút gọn: Stock Item nội bộ có vị trí kệ, bản chia sẻ chỉ có số lượng (đặt tên khác đi: Stock Count).</li>
+      <li>Một khái niệm có thể mang nghĩa và tên khác nhau ở từng context: Customer ở Finance, Recipient ở Warehouse.</li>
+    </ul></div>
+    <div class="prose">
+      <p><dfn data-term="bounded-context">Bounded context</dfn> thường đại diện cho một ranh giới tổ chức lớn, bên trong có những trách nhiệm cụ thể phải làm. Ở MusicCorp, kho hàng là nơi nhộn nhịp: chuyển đơn đi (thỉnh thoảng nhận hàng trả lại), nhận hàng mới về, và đua xe nâng. Phòng tài chính có vẻ ít vui hơn nhưng giữ vai trò quan trọng: trả lương, thanh toán tiền vận chuyển. <em>Domain</em> là toàn bộ công việc kinh doanh, từ kho tới quầy lễ tân, từ tài chính tới đặt hàng; ta có thể mô hình hoá hết hoặc không, nhưng đó vẫn là domain ta đang làm việc trong đó.</p>
+      <h3>Mô hình ẩn</h3>
+      <p>Bounded context che giấu chi tiết cài đặt. Loại xe nâng nào đang dùng chỉ có người trong kho quan tâm. Kho và tài chính đều có giao diện tường minh với bên ngoài (báo cáo tồn kho, phiếu lương…) và có những chi tiết chỉ mình cần biết (<dfn data-term="hidden-model">mô hình ẩn</dfn>): Picker (người nhặt hàng) và kệ hàng ở kho, bút toán sổ cái ở tài chính.</p>
+      <p>Tài chính không cần biết kho vận hành ra sao, nhưng cần biết mức tồn kho để định giá công ty và cập nhật sổ sách. Stock Item vì thế trở thành <dfn data-term="shared-model">mô hình chia sẻ</dfn> giữa hai context. Không cần phơi hết: bên trong kho, Stock Item có tham chiếu tới vị trí kệ; bản chia sẻ chỉ có số lượng. Khi biểu diễn trong và ngoài khác nhau, nên đặt tên khác nhau cho khỏi nhầm, ví dụ gọi bản chia sẻ là Stock Count.</p>
+      <h3>Một khái niệm, hai nghĩa</h3>
+      <p>Khách hàng xuất hiện ở cả hai context. Có phải bị sao chép? Nên nghĩ thế này: tài chính cần biết các khoản thanh toán (hoặc hoàn tiền) của khách; kho cần biết khách ở mức đủ để theo dõi gói hàng đã gửi. Ở Finance vẫn gọi là “customer”, còn ở Warehouse có thể gọi là “recipient” vì đó là vai trò của họ trong context này. Hai nơi lưu thông tin khác nhau, nhưng vẫn có thể nối về một customer toàn cục (ví dụ bằng tham chiếu URI như mục 2.11) để tra tên hay email.</p>
+    </div>
+    <figure class="lab" data-widget="ch2-context-map">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Stock Item nội bộ và Stock Count chia sẻ
+        <small>Chọn những trường nào của Stock Item được lộ sang Finance. Bảng bên phải là thứ Finance nhìn thấy; mỗi trường lộ ra thêm là một giả định có thể làm vỡ Finance khi kho đổi cách làm. Bấm “Kho đổi cách xếp kệ” để thử.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Bounded context là che giấu thông tin ở mức tổ chức: lộ ra một hợp đồng hẹp, giữ phần lớn mô hình ở bên trong. Khi các context nối với nhau qua service, quan hệ giữa các context trở thành phụ thuộc giữa các service.</p></aside>
+  </article>
+
+  <!-- 2.13 -->
+  <article class="topic" id="ch2-nesting-premature" data-num="2.13" data-short="Lồng ranh giới & tách quá sớm" data-keywords="mapping aggregates bounded contexts microservices turtles all the way down nested inventory shipping coarse-grained API stubs testing premature decomposition SnapCI Go-CD ThoughtWorks">
+    <p class="eyebrow">2.13 · Mapping Aggregates and Bounded Contexts · Turtles All the Way Down · The Dangers of Premature Decomposition</p>
+    <h2>Bắt đầu thô, tách dần, và đừng tách khi chưa hiểu domain <span class="vi">Nested contexts and the SnapCI story</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Aggregate và bounded context đều là đơn vị cohesion có giao diện rõ, đều có thể làm ranh giới service. Lúc đầu nhắm service bao trọn một bounded context; về sau tách nhỏ theo aggregate.</li>
+      <li>Bounded context có thể chứa context con (“rùa chồng lên rùa”). Tách Warehouse thành Inventory và Shipping nhưng vẫn giữ một API Warehouse thô cho bên ngoài là một dạng che giấu thông tin, và giúp kiểm thử dễ hơn.</li>
+      <li>SnapCI của ThoughtWorks tách microservices quá sớm, ranh giới sai, chi phí thay đổi cao. Họ gộp lại thành monolith, một năm sau mới tách lại được với ranh giới ổn định.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Aggregate là một state machine tự chứa tập trung vào một khái niệm domain; bounded context là một tập aggregate liên quan, cũng có giao diện tường minh. Cả hai đều làm ranh giới service được. Lúc mới bắt đầu nên giảm số service phải làm việc, nên hãy nhắm tới service bao trọn một bounded context. Khi đã vững chân và muốn tách nhỏ hơn, hãy tách theo ranh giới aggregate.</p>
+      <h3>Rùa chồng lên rùa</h3>
+      <p>Như câu chuyện con rùa ở đầu chương, bounded context có thể chứa bounded context. Warehouse có thể được chia thành các năng lực xử lý đơn (<em>order fulfillment</em>), quản lý tồn kho, nhận hàng. Nghĩ theo context thô trước, rồi chia theo context lồng bên trong khi cần lợi ích của việc tách. Mẹo là ngay cả khi đã chia service Warehouse thành Inventory (quản lý Stock Item) và Shipping (quản lý Shipment), vẫn có thể giấu quyết định đó sau một API thô: với bên ngoài vẫn chỉ có “Warehouse”. Quyết định tách nhỏ là chi tiết cài đặt, nên giấu được thì cứ giấu. Lợi ích thêm là kiểm thử: service nào dùng Warehouse chỉ cần stub một API thô, không phải stub từng service bên trong.</p>
+      <h3>Nguy cơ tách quá sớm</h3>
+      <p>SnapCI là công cụ CI/CD dạng hosted của ThoughtWorks. Đội làm SnapCI từng làm Go-CD, một công cụ continuous delivery tương tự (nay đã mã nguồn mở) chạy tại chỗ thay vì trên cloud. Dù gần như là codebase mới, kinh nghiệm cũ khiến họ tự tin vạch ranh giới nhanh và xây ngay một tập microservices. Vài tháng sau mới rõ các use case của SnapCI khác đủ để ranh giới ban đầu không còn đúng. Thay đổi phải làm xuyên nhiều service, chi phí rất cao. Cuối cùng họ gộp lại thành một monolith để có thời gian hiểu ranh giới nên nằm đâu. Một năm sau họ tách lại thành microservices, lần này ranh giới ổn định hơn hẳn. Đây là lý do tách từ một codebase sẵn có thường dễ hơn làm microservices từ đầu, nhất là khi còn mới với domain (<dfn data-term="premature-decomposition">premature decomposition</dfn>).</p>
+    </div>
+    <figure class="lab" data-widget="ch2-nesting">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Tách lúc nào, và có lộ việc tách ra ngoài không?
+        <small>Chọn chiến lược tách và mức hiểu domain của đội, rồi chạy 12 yêu cầu thay đổi. Khi hiểu domain còn ít, ranh giới đoán sai nhiều hơn. Xem số thay đổi phải làm xuyên service, số thay đổi consumer nhìn thấy, và số stub cần khi kiểm thử. Tỉ lệ là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Newman nói SnapCI không phải ví dụ duy nhất ông thấy. Tách hệ thống quá sớm có thể rất tốn kém, đặc biệt khi bạn còn mới với domain. Gộp lại để học domain rồi tách sau không phải thất bại; đó là cách SnapCI có được ranh giới đúng.</p></aside>
+  </article>
+
+  <!-- 2.14 -->
+  <article class="topic" id="ch2-event-storming" data-num="2.14" data-short="Event storming" data-keywords="communication in terms of business concepts forms event storming Alberto Brandolini domain events orange commands blue aggregates yellow bounded contexts post-it brown paper">
+    <p class="eyebrow">2.14 · Communication in Terms of Business Concepts · Event Storming</p>
+    <h2>Event storming: cùng nhau dựng mô hình domain <span class="vi">From sticky notes to bounded contexts</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Nếu service được tách theo bounded context, thay đổi nghiệp vụ thường gói gọn trong một service. Giao tiếp giữa các service cũng nên dùng khái niệm nghiệp vụ, như những biểu mẫu chuyền tay trong tổ chức.</li>
+      <li>Event storming (Alberto Brandolini) là buổi động não chung giữa người kỹ thuật và người nghiệp vụ, thay vì để một kiến trúc sư ngồi góc phòng tự vẽ mô hình.</li>
+      <li>Trình tự: domain event (cam) → command (xanh dương) → aggregate (vàng) → gom thành bounded context.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Phần lớn thay đổi ta làm là thay đổi mà nghiệp vụ muốn với hành vi hệ thống, tức các năng lực phơi ra cho khách hàng. Nếu hệ thống được tách theo các bounded context phản ánh domain, thay đổi dễ gói gọn trong một microservice, ít chỗ phải sửa và triển khai được nhanh. Mô hình hoá theo domain cũng không nên dừng ở ranh giới: các thuật ngữ được chia sẻ giữa các bộ phận nên xuất hiện trong interface. Hãy hình dung các microservice gửi cho nhau những “biểu mẫu”, như biểu mẫu được chuyền đi trong một tổ chức.</p>
+      <h3>Event storming</h3>
+      <p><dfn data-term="event-storming">Event storming</dfn> do Alberto Brandolini phát triển. Thay vì một kiến trúc sư ngồi góc phòng tự nghĩ ra mô hình domain (Newman thừa nhận mình cũng từng làm vậy), event storming đưa người kỹ thuật và người không kỹ thuật vào một bài tập chung, để mô hình cuối cùng là một góc nhìn chung. Mô hình thu được map rất thẳng sang hệ thống hướng sự kiện, nhưng cũng dùng được cho hệ thống request/response.</p>
+      <p><strong>Hậu cần.</strong> Bước khó nhất là đưa mọi người vào cùng một phòng: người dùng, chuyên gia nghiệp vụ, product owner, đại diện cho mọi phần domain cần mô hình hoá. Brandolini đề nghị bỏ hết ghế để ai cũng phải đứng dậy tham gia; Newman, vốn bị đau lưng, hiểu nhưng cho rằng không hợp với tất cả mọi người. Cần một không gian rộng, thường là dán cuộn giấy nâu khổ lớn khắp tường, và công cụ chính là giấy note nhiều màu.</p>
+      <p><strong>Quy trình.</strong></p>
+      <ol>
+        <li><strong>Domain event</strong> (<dfn data-term="domain-event">domain event</dfn>, giấy cam): những sự thật mà ta quan tâm, như “Order Placed”, “Payment Received”. Newman phàn nàn rằng event là thứ nhiều nhất, mà giấy note màu cam lại khó mua đến bất ngờ.</li>
+        <li><strong>Command</strong> (<dfn data-term="command">command</dfn>, giấy xanh dương): quyết định của con người gây ra event. Bước này giúp hiểu ranh giới hệ thống và các tác nhân chính. Người kỹ thuật nên lắng nghe, đừng để cách cài đặt hiện tại bóp méo cách nhìn domain.</li>
+        <li><strong>Aggregate</strong> (giấy vàng): danh từ trong event thường gợi ra aggregate. “Order Placed” gợi Order là aggregate, còn “Placed” là một bước trong vòng đời của nó. Command và event được dời tới gom quanh aggregate tương ứng, và ta thấy event của aggregate này có thể kích hoạt hành vi ở aggregate khác.</li>
+        <li><strong>Bounded context</strong>: gom các aggregate thành bounded context, thường bám theo cơ cấu tổ chức, và người tham gia là những người hiểu rõ nhất bộ phận nào dùng aggregate nào.</li>
+      </ol>
+    </div>
+    <figure class="lab" data-widget="ch2-event-storming">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một buổi event storming thu nhỏ cho MusicCorp
+        <small>Đi qua bốn bước bằng nút “Bước tiếp theo”. Mỗi bước thêm một loại giấy note và sắp xếp lại bức tường; bước cuối gom aggregate thành bounded context.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Newman viết phần này trong đợt phong toả vì COVID ở Anh, và lưu ý rằng việc tụ tập mọi người trong một phòng có thể còn khó hơn trong tương lai. Ông giới thiệu cuốn <em>Event Storming</em> (Brandolini, Leanpub) để tìm hiểu kỹ, và <em>Implementing Domain-Driven Design</em> của Vaughn Vernon cho phần thực hành DDD.</p></aside>
+  </article>
+
+  <!-- Review -->
+  <article class="topic" id="ch2-review" data-num="2.★" data-short="Tổng kết & kiểm tra" data-keywords="summary review quiz coupling cohesion information hiding DDD aggregate bounded context">
+    <p class="eyebrow">Summary</p>
+    <h2>Tổng kết chương 2 <span class="vi">Summary & quiz</span></h2>
+    <div class="prose">
+      <p>Ranh giới microservice tốt cho phép mỗi service thay đổi và phát hành độc lập. Để có nó, ta dựa vào ba ý tưởng từ thời lập trình có cấu trúc: <strong>che giấu thông tin</strong> (ít giả định giữa các module), <strong>cohesion mạnh</strong> (code thay đổi cùng nhau thì ở cùng nhau) và <strong>coupling lỏng</strong>. Định luật Constantine nối chúng lại: cohesion mạnh, coupling thấp thì cấu trúc ổn định.</p>
+      <p>Coupling có bốn dạng, từ lỏng đến chặt: <strong>domain</strong> (gần như không tránh được, giữ ở mức tối thiểu), <strong>pass-through</strong> (dữ liệu đi nhờ, gỡ bằng cách đi thẳng, giấu đi, hoặc chuyển như blob), <strong>common</strong> (dữ liệu dùng chung; dữ liệu tham chiếu tĩnh thì tạm được, cùng ghi một bảng thì không) và <strong>content</strong> (thò tay vào nội tạng service khác, cần tránh). Temporal coupling là chuyện runtime, gỡ bằng giao tiếp bất đồng bộ.</p>
+      <p>Domain là điểm xuất phát mặc định để tìm ranh giới, nhưng volatility, dữ liệu (PaymentCo và PCI), công nghệ và tổ chức đều có thể là động lực tách, và thường phải trộn chúng tuỳ mục tiêu. DDD cho ta công cụ: ngôn ngữ chung, aggregate (một aggregate, một service sở hữu), bounded context (giấu mô hình nội bộ, chia sẻ bản rút gọn), ranh giới lồng nhau giấu sau API thô, và event storming để cùng nhau tìm ra mô hình. Câu chuyện SnapCI nhắc rằng tách quá sớm khi chưa hiểu domain có thể rất đắt. Chương 3 sẽ đi vào các kiểu giao tiếp giữa microservices.</p>
+    </div>
+    <figure class="lab" data-widget="ch2-boundary-checklist">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Khám nhanh ranh giới một service của bạn
+        <small>Đánh dấu những triệu chứng bạn thấy ở một service đang làm. Bảng chẩn đoán cho biết đó là dạng coupling nào và chương này gợi ý làm gì.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="quiz">
+      <div class="q" data-answer="2">
+        <p>Theo Parnas, “kết nối” giữa các module thực chất là gì?</p>
+        <ol><li>Số lời gọi hàm giữa các module</li><li>Các bảng database mà module dùng chung</li><li>Những giả định mà các module đặt vào nhau</li><li>Giao thức mạng các module dùng để nói chuyện</li></ol>
+        <p class="explain">Parnas viết: “The connections between modules are the assumptions which the modules make about each other.” Giảm số giả định là giảm kết nối, nhờ đó đổi một module mà không ảnh hưởng module khác. Lời gọi hàm hay database chung chỉ là những nơi giả định hình thành.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Xếp bốn dạng coupling theo thứ tự từ lỏng nhất đến chặt nhất:</p>
+        <ol><li>Common → domain → pass-through → content</li><li>Domain → pass-through → common → content</li><li>Domain → common → pass-through → content</li><li>Pass-through → domain → content → common</li></ol>
+        <p class="explain">Hình 2-1 xếp: domain (lỏng, gần như không tránh được) → pass-through → common → content (chặt nhất, “pathological”).</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>Warehouse chỉ chuyển Shipping Manifest từ Order Processor sang Shipping. Cách gỡ nào giúp Warehouse <em>không phải đổi</em> khi định dạng manifest đổi, nhưng Order Processor và Shipping vẫn phải đổi?</p>
+        <ol><li>Order Processor gọi thẳng Shipping</li><li>Warehouse tự dựng manifest từ thông tin trong hợp đồng của nó</li><li>Dùng database chung để lưu manifest</li><li>Warehouse chuyển tiếp manifest như một blob không đọc nội dung</li></ol>
+        <p class="explain">Khi Warehouse coi manifest là blob, nó không phụ thuộc vào cấu trúc bên trong nên không phải đổi; hai đầu tạo và đọc manifest vẫn phải đổi. Cách “tự dựng manifest” làm điều ngược lại: giấu manifest khỏi Order Processor, Warehouse phải đổi.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Order Processor và Warehouse cùng cập nhật cột STATUS của bảng Order dùng chung. Newman đề xuất gì?</p>
+        <ol><li>Để một Order service duy nhất quản lý state machine; bên khác chỉ gửi yêu cầu và yêu cầu có thể bị từ chối</li><li>Bọc bảng Order bằng một service CRUD mỏng để hai bên gọi UPDATE qua API</li><li>Cho mỗi service một bản sao bảng Order và đồng bộ hằng đêm</li><li>Thêm trigger trong database để chặn chuyển trạng thái sai</li></ol>
+        <p class="explain">Order service trở thành nguồn sự thật và tự quyết chuyển trạng thái nào hợp lệ. Lớp vỏ CRUD mỏng chỉ như getter/setter public: logic vẫn rò ra ngoài và cohesion vẫn yếu.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Điều gì làm content coupling tệ hơn common coupling?</p>
+        <ol><li>Nó luôn gây tranh chấp tài nguyên nghiêm trọng hơn</li><li>Nó chỉ xảy ra với dữ liệu ghi, không phải dữ liệu đọc</li><li>Ranh giới sở hữu bị xoá nhoà: database nội bộ thành một phần hợp đồng mà không ai biết đổi gì thì an toàn</li><li>Nó buộc phải giao tiếp đồng bộ</li></ol>
+        <p class="explain">Với common coupling, ta biết mình đang dùng một phụ thuộc bên ngoài. Với content coupling, một service khác truy cập nội tạng của bạn, nên bạn mất khả năng định nghĩa cái gì được chia sẻ, cái gì được giấu.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Vì sao PaymentCo tách riêng phần xử lý dữ liệu thẻ tín dụng đầy đủ?</p>
+        <ol><li>Để viết phần đó bằng Rust cho nhanh hơn</li><li>Để chỉ một phần nhỏ hệ thống (vùng đỏ) nằm trong phạm vi kiểm toán PCI Level 1 hằng quý</li><li>Vì phần đó thay đổi thường xuyên nhất (volatility)</li><li>Vì đội ở Brazil sở hữu phần đó</li></ol>
+        <p class="explain">Đây là phân rã theo dữ liệu. Miễn là dữ liệu thẻ không bao giờ chảy vào vùng xanh, các service ở đó được miễn kiểm toán PCI đầy đủ.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Newman gọi hệ thống bị tách thành website không trạng thái và một giao diện RPC bọc kho dữ liệu là gì, và lẽ ra nên làm sao?</p>
+        <ol><li>“Onion architecture”; nên cắt dọc theo nghiệp vụ để mỗi đội có một lát end-to-end</li><li>“Distributed monolith”; nên dùng message broker thay RPC</li><li>“Bimodal IT”; nên giao Mode 1 cho đội Brazil</li><li>“Big ball of mud”; nên viết lại toàn bộ</li></ol>
+        <p class="explain">Cắt ngang một API vốn chạy trong tiến trình tạo ra nhiều lớp, giao diện lắt nhắt và thay đổi phải làm ở cả hai phía. Cắt dọc cho mỗi đội (California, Brazil) một lát gồm cả front end lẫn truy cập dữ liệu liên quan.</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>Bài học chính từ câu chuyện SnapCI là gì?</p>
+        <ol><li>Microservices không phù hợp với công cụ CI/CD</li><li>Phải dùng lại code từ sản phẩm cũ (Go-CD)</li><li>Đã gộp về monolith thì không nên tách lại</li><li>Tách microservices khi chưa hiểu rõ domain có thể rất đắt; tách từ codebase sẵn có thường dễ hơn</li></ol>
+        <p class="explain">Đội SnapCI vạch ranh giới quá sớm dựa trên kinh nghiệm Go-CD, rồi phải sửa xuyên service liên tục. Họ gộp lại, học domain, và một năm sau tách lại với ranh giới ổn định hơn nhiều.</p>
+      </div>
+    </div>
+  </article>
+</section>

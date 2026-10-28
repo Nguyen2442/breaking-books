@@ -1,0 +1,439 @@
+<section class="chapter" id="ch1" data-chapter="1" data-title="Trade-off trong kiến trúc hệ thống dữ liệu">
+  <style>
+    #ch1 .bb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+    #ch1 .bb { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--bg); transition: background .2s, border-color .2s; min-width: 0; }
+    #ch1 .bb b { display: block; font-size: var(--t-sm); }
+    #ch1 .bb small { color: var(--ink-3); font-size: var(--t-xs); }
+    #ch1 .bb.on { border-color: var(--accent); background: var(--accent-soft); }
+    #ch1 .bb.on small { color: var(--ink-2); }
+    #ch1 .bb .why { display: block; margin-top: 6px; font-size: var(--t-xs); color: var(--ink); }
+    #ch1 .route-list { display: flex; flex-direction: column; gap: 8px; }
+    #ch1 .route-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+    #ch1 .route-row .meta { font-size: var(--t-xs); color: var(--ink-3); display: block; }
+    @media (max-width: 560px) { #ch1 .route-row { grid-template-columns: 1fr; } }
+    #ch1 .spectrum { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+    #ch1 .spectrum button { text-align: left; padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; font: 600 var(--t-xs)/1.35 var(--f-display); min-width: 0; }
+    #ch1 .spectrum button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+    #ch1 .spectrum button span { display: block; font-weight: 400; color: var(--ink-2); margin-top: 4px; }
+    @media (max-width: 600px) { #ch1 .spectrum { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    #ch1 .meter { height: 10px; border-radius: 5px; background: var(--surface-2); overflow: hidden; }
+    #ch1 .meter i { display: block; height: 100%; width: 0; transition: width .25s; }
+    #ch1 .meter.val i { background: var(--accent); }
+    #ch1 .meter.risk i { background: var(--bad); }
+    #ch1 .field-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; align-items: center; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+    #ch1 .field-row:last-child { border-bottom: 0; }
+    #ch1 .field-row .meta { font-size: var(--t-xs); color: var(--ink-3); }
+    #ch1 .field-row.off { opacity: .55; }
+    #ch1 .mini-table { border-collapse: collapse; width: 100%; font-size: var(--t-xs); }
+    #ch1 .mini-table th, #ch1 .mini-table td { padding: 4px 6px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+    #ch1 .mini-table th { color: var(--ink-2); font-weight: 600; }
+    #ch1 .mini-table td.num { text-align: right; font-variant-numeric: tabular-nums; font-family: var(--f-mono); }
+    #ch1 .stale { background: var(--warn-soft); }
+    #ch1 .gone { color: var(--ink-3); font-style: italic; }
+    #ch1 .ops-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+    #ch1 .ops-item.right { border-color: var(--ok); background: var(--ok-soft); }
+    #ch1 .ops-item.wrong { border-color: var(--bad); background: var(--bad-soft); }
+    #ch1 .ops-item .explain { grid-column: 1 / -1; font-size: var(--t-xs); color: var(--ink-2); }
+    @media (max-width: 560px) { #ch1 .ops-item, #ch1 .field-row { grid-template-columns: 1fr; } }
+    #ch1 .req-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 6px 14px; }
+  </style>
+
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 1</p>
+    <h1>Trade-offs in Data Systems Architecture <span class="vi">Trade-off trong kiến trúc hệ thống dữ liệu</span></h1>
+    <blockquote class="epigraph">There are no solutions, there are only trade-offs. […] But you try to get the best trade-off you can get, and that’s all you can hope for.<cite>— Thomas Sowell, phỏng vấn với Fred Barnes (2005)</cite></blockquote>
+    <p class="lede">Chương mở đầu không đi vào kỹ thuật sâu. Nó đặt ra bốn cặp lựa chọn mà gần như đội nào làm hệ thống dữ liệu cũng gặp: vận hành hay phân tích, cloud hay tự host, phân tán hay một máy, và nhu cầu kinh doanh hay quyền của người dùng. Mỗi cặp đều có ưu và nhược. Chương này cũng giới thiệu bộ thuật ngữ mà cả cuốn sách sẽ dùng.</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- 1.1 -->
+  <article class="topic" id="ch1-intro" data-num="1.1" data-short="Ứng dụng data-intensive" data-keywords="data-intensive compute-intensive building blocks frontend backend stateless">
+    <p class="eyebrow">1.1 · Introduction</p>
+    <h2>Ứng dụng “data-intensive” là gì? <span class="vi">Data-intensive applications and their building blocks</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Một ứng dụng là <em>data-intensive</em> khi việc quản lý dữ liệu là thách thức chính: lượng dữ liệu lớn, dữ liệu thay đổi liên tục, phải nhất quán khi có lỗi, phải luôn sẵn sàng.</li>
+      <li>Ứng dụng thường được ghép từ các khối có sẵn: database, cache, search index, stream processing, batch processing.</li>
+      <li>Khó khăn thật sự là chọn đúng công cụ và ghép chúng lại khi một công cụ không đủ.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Khi dữ liệu còn nhỏ và nằm vừa một máy, mọi thứ khá đơn giản. Khi lượng dữ liệu hoặc số truy vấn tăng, dữ liệu phải chia ra nhiều máy. Khi nhu cầu phức tạp hơn, một hệ thống không còn đủ, và bạn phải kết hợp nhiều hệ thống có khả năng khác nhau.</p>
+      <p>Tác giả phân biệt hai loại hệ thống. Ở hệ <dfn data-term="compute-intensive">compute-intensive</dfn>, cái khó là song song hoá một phép tính rất lớn. Ở hệ <dfn data-term="data-intensive">data-intensive</dfn>, cái khó là lưu và xử lý khối lượng dữ liệu lớn, quản lý thay đổi, giữ nhất quán khi có lỗi và truy cập đồng thời, và đảm bảo dịch vụ luôn sẵn sàng.</p>
+      <h3>Các khối xây dựng chuẩn</h3>
+      <ul>
+        <li><strong>Database</strong>: lưu dữ liệu để chính ứng dụng hoặc ứng dụng khác tìm lại sau.</li>
+        <li><strong>Cache</strong>: nhớ kết quả của thao tác tốn kém để đọc nhanh hơn.</li>
+        <li><strong>Search index</strong>: cho phép tìm theo từ khoá hoặc lọc theo nhiều cách.</li>
+        <li><strong>Stream processing</strong>: xử lý sự kiện và thay đổi dữ liệu ngay khi chúng xảy ra.</li>
+        <li><strong>Batch processing</strong>: định kỳ xử lý một lượng lớn dữ liệu đã tích luỹ.</li>
+      </ul>
+      <p>Phần lớn những gì sách bàn thuộc về <dfn data-term="backend">backend</dfn>: mã phía server xử lý request từ người dùng. Frontend chỉ lo dữ liệu của một người dùng, còn backend quản lý dữ liệu thay mặt tất cả người dùng. Mã ứng dụng ở backend thường <dfn data-term="stateless">stateless</dfn>: xử lý xong một request HTTP là quên request đó. Thông tin nào cần sống qua nhiều request phải được lưu ở client hoặc trong <em>data infrastructure</em> phía server (database, cache, message queue…).</p>
+    </div>
+    <figure class="lab" data-widget="building-blocks">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một cửa hàng online được ghép từ những khối nào?
+        <small>Chọn một hành động của người dùng hoặc của công ty. Các khối được dùng sẽ sáng lên kèm lý do.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Hầu như không có ứng dụng thật nào chỉ dùng một hệ thống dữ liệu. Câu hỏi của sách luôn là: dùng công cụ nào cho việc nào, và làm sao để chúng phối hợp với nhau.</p></aside>
+  </article>
+
+  <!-- 1.2 -->
+  <article class="topic" id="ch1-oltp-olap" data-num="1.2" data-short="OLTP và OLAP" data-keywords="operational analytical OLTP OLAP point query aggregate business analyst data scientist data engineer">
+    <p class="eyebrow">1.2 · Transaction Processing versus Analytics</p>
+    <h2>Hệ thống vận hành và hệ thống phân tích <span class="vi">Operational (OLTP) vs Analytical (OLAP) systems</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><strong>OLTP</strong>: tra vài bản ghi theo key (<em>point query</em>), ghi/sửa/xoá từng bản ghi theo thao tác của người dùng.</li>
+      <li><strong>OLAP</strong>: quét rất nhiều bản ghi để tính tổng, đếm, trung bình. Phục vụ phân tích và ra quyết định.</li>
+      <li>Hai kiểu truy cập khác nhau đến mức người ta thường tách thành hai loại hệ thống riêng.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Trong một doanh nghiệp có ba nhóm người làm việc với dữ liệu. <strong>Backend engineer</strong> xây dịch vụ đọc và cập nhật dữ liệu cho người dùng. <strong>Business analyst</strong> làm báo cáo giúp ban lãnh đạo ra quyết định (<em>business intelligence</em>, BI). <strong>Data scientist</strong> tìm insight mới hoặc làm tính năng dựa trên phân tích và ML, ví dụ “người mua X cũng mua Y”, chấm điểm rủi ro, lọc spam. Hai nhóm sau cùng làm <em>analytics</em>: họ đọc dữ liệu người dùng và backend tạo ra, gần như không sửa nó.</p>
+      <p>Từ đó có hai loại hệ thống. <dfn data-term="operational-system">Hệ thống vận hành</dfn> là nơi dữ liệu được tạo ra, mã ứng dụng vừa đọc vừa sửa dữ liệu theo hành động của người dùng. <dfn data-term="analytical-system">Hệ thống phân tích</dfn> giữ một bản sao chỉ-đọc của dữ liệu vận hành, được tối ưu cho kiểu xử lý mà phân tích cần. Khi hai thế giới này trưởng thành, xuất hiện thêm hai vai trò: <strong>data engineer</strong> (tích hợp hệ vận hành với hệ phân tích, lo hạ tầng dữ liệu) và <strong>analytics engineer</strong> (mô hình hoá, biến đổi dữ liệu để người dùng cuối truy vấn dễ hơn).</p>
+      <p>Chữ <em>transaction</em> vốn chỉ giao dịch thương mại, sau này nghĩa rộng ra thành “một nhóm lệnh đọc/ghi tạo thành một đơn vị logic”. Kiểu truy cập tương tác này gọi là <dfn data-term="oltp">OLTP</dfn>. Ngược lại, truy vấn phân tích quét số lượng bản ghi khổng lồ và trả về số liệu tổng hợp, gọi là <dfn data-term="olap">OLAP</dfn>. Ví dụ: tổng doanh thu từng cửa hàng tháng Một, chuối bán thêm bao nhiêu trong đợt khuyến mãi, hãng đồ ăn dặm nào hay được mua cùng tã hãng X.</p>
+    </div>
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th>Thuộc tính</th><th>Hệ vận hành (OLTP)</th><th>Hệ phân tích (OLAP)</th></tr></thead>
+      <tbody>
+        <tr><td>Kiểu đọc chính</td><td>Point query: lấy từng bản ghi theo key</td><td>Tổng hợp trên số lượng lớn bản ghi</td></tr>
+        <tr><td>Kiểu ghi chính</td><td>Tạo, sửa, xoá từng bản ghi</td><td>Nạp hàng loạt (ETL) hoặc luồng sự kiện</td></tr>
+        <tr><td>Người dùng điển hình</td><td>Người dùng cuối của app web/mobile</td><td>Analyst nội bộ, hỗ trợ ra quyết định</td></tr>
+        <tr><td>Máy dùng, ví dụ</td><td>Kiểm tra một hành động có được phép không</td><td>Phát hiện mẫu gian lận/lạm dụng</td></tr>
+        <tr><td>Loại truy vấn</td><td>Tập truy vấn cố định, định sẵn trong code</td><td>Analyst tự viết truy vấn tuỳ ý</td></tr>
+        <tr><td>Dữ liệu thể hiện</td><td>Trạng thái mới nhất (hiện tại)</td><td>Lịch sử sự kiện theo thời gian</td></tr>
+        <tr><td>Kích thước dữ liệu</td><td>Gigabyte đến terabyte</td><td>Terabyte đến petabyte</td></tr>
+      </tbody>
+    </table></div>
+    <figure class="lab" data-widget="oltp-olap">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Cùng một bảng 1.600 đơn hàng, hai kiểu truy vấn
+        <small>Mỗi ô là một bản ghi. Chạy point query rồi chạy truy vấn phân tích, so sánh số bản ghi phải đọc.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Ở hệ OLTP, người dùng không được tự viết SQL. Lý do thứ nhất là bảo mật: họ có thể đọc hay sửa dữ liệu không thuộc quyền mình. Lý do thứ hai là hiệu năng: một truy vấn quét toàn bảng có thể làm chậm mọi người dùng khác. Vì vậy OLTP chạy một tập truy vấn cố định nằm sẵn trong code. Hệ phân tích thì ngược lại, cho analyst viết SQL tuỳ ý hoặc dùng Tableau, Looker, Power BI.</p></aside>
+  </article>
+
+  <!-- 1.3 -->
+  <article class="topic" id="ch1-warehouse" data-num="1.3" data-short="Data warehouse & ETL" data-keywords="data warehouse ETL ELT data silo HTAP Fivetran Airbyte">
+    <p class="eyebrow">1.3 · Data Warehousing</p>
+    <h2>Data warehouse và ETL <span class="vi">Data warehousing, ETL, ELT, HTAP</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Analyst không nên truy vấn trực tiếp hàng chục, hàng trăm hệ OLTP. Dữ liệu được sao sang một <em>data warehouse</em> riêng.</li>
+      <li>Đường đi của dữ liệu là <strong>Extract → Transform → Load</strong>. Nếu biến đổi sau khi nạp vào warehouse thì gọi là ELT.</li>
+      <li>HTAP gộp hai việc vào một hệ, nhưng bên trong thường vẫn là hai engine. Sự phân biệt OLTP/OLAP vẫn quan trọng.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Lúc đầu, cùng một database phục vụ cả giao dịch lẫn phân tích, vì SQL làm được cả hai. Cuối thập niên 1980, đầu 1990, các công ty bắt đầu chạy phân tích trên một hệ riêng gọi là <dfn data-term="data-warehouse">data warehouse</dfn>. Lý do là một doanh nghiệp lớn có rất nhiều hệ OLTP (website, máy POS ở cửa hàng, kho, lộ trình xe, nhà cung cấp, nhân sự…), mỗi hệ một đội vận hành, gần như độc lập. Truy vấn thẳng vào chúng gặp bốn vấn đề:</p>
+      <ol>
+        <li>Dữ liệu cần dùng nằm rải rác ở nhiều hệ, khó gộp trong một truy vấn. Đây là vấn đề <dfn data-term="data-silo">data silo</dfn>.</li>
+        <li>Schema và cách bố trí dữ liệu tốt cho OLTP lại không hợp cho phân tích.</li>
+        <li>Truy vấn phân tích tốn kém, chạy trên OLTP sẽ làm chậm người dùng khác.</li>
+        <li>Hệ OLTP có thể nằm trong mạng riêng mà analyst không được truy cập vì bảo mật hoặc tuân thủ.</li>
+      </ol>
+      <p>Warehouse chứa bản sao chỉ-đọc của dữ liệu từ mọi hệ OLTP. Dữ liệu được trích ra (dump định kỳ hoặc luồng cập nhật liên tục), biến đổi sang schema thân thiện với phân tích, làm sạch, rồi nạp vào. Quy trình này là <dfn data-term="etl">ETL</dfn>. Nếu nạp trước rồi biến đổi trong warehouse thì gọi là <dfn data-term="elt">ELT</dfn>. Khi nguồn là sản phẩm SaaS (CRM, email marketing, xử lý thẻ), bạn chỉ có API của nhà cung cấp, và các dịch vụ connector như Fivetran, Singer, Airbyte lo phần này.</p>
+      <p>Một số hệ hỗ trợ <dfn data-term="htap">HTAP</dfn>, làm cả OLTP và phân tích trong một hệ, không cần ETL. Nhưng nhiều hệ HTAP thực chất là một hệ OLTP ghép với một hệ phân tích sau một giao diện chung. Thêm nữa, mỗi hệ vận hành nên có database riêng, nên một công ty có thể có hàng trăm database vận hành nhưng thường chỉ có <strong>một</strong> warehouse để analyst gộp dữ liệu từ nhiều nguồn trong một truy vấn.</p>
+    </div>
+    <figure class="lab" data-widget="etl-pipeline">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Theo dấu một đơn hàng từ ba nguồn vào warehouse
+        <small>Bấm từng bước để xem bản ghi thay đổi ra sao. Đổi sang ELT để thấy bước Transform chuyển vào bên trong warehouse.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Càng ở quy mô lớn, hệ thống càng chuyên hoá. Hệ đa năng xử lý tốt dữ liệu nhỏ. Khi tải nặng lên, bạn sẽ có các hệ chuyên cho từng kiểu workload. Việc tách OLTP và OLAP là một ví dụ của xu hướng đó.</p></aside>
+  </article>
+
+  <!-- 1.4 -->
+  <article class="topic" id="ch1-lake" data-num="1.4" data-short="Data lake & lakehouse" data-keywords="data lake lakehouse sushi principle reverse ETL data products feature engineering Hive Spark Presto Trino">
+    <p class="eyebrow">1.3 · From data warehouse to data lake</p>
+    <h2>Từ data warehouse đến data lake và xa hơn <span class="vi">Data lake, lakehouse, streams, reverse ETL</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Warehouse dùng mô hình quan hệ và SQL, hợp với analyst nhưng không hợp lắm với data scientist (feature engineering, NLP, computer vision).</li>
+      <li><em>Data lake</em> chỉ chứa file, không áp đặt định dạng hay mô hình dữ liệu. Dữ liệu thô tốt hơn (“sushi principle”).</li>
+      <li><em>Lakehouse</em> chạy SQL thẳng trên file trong lake. Kết quả phân tích có thể chảy ngược về hệ vận hành (<em>reverse ETL</em>).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Data scientist thường cần những việc khó diễn đạt bằng SQL. Họ biến hàng và cột thành vector số (<em>features</em>) để huấn luyện mô hình (<em>feature engineering</em>). Họ dùng NLP để rút thông tin có cấu trúc từ văn bản như review sản phẩm, hoặc dùng computer vision để rút thông tin từ ảnh. Nhiều người thích pandas, scikit-learn, R hay Spark hơn là làm việc trong một database quan hệ.</p>
+      <p>Lời giải là <dfn data-term="data-lake">data lake</dfn>: một kho tập trung chứa bản sao của mọi dữ liệu có thể hữu ích cho phân tích, lấy từ hệ vận hành qua ETL. Khác với warehouse, lake chỉ chứa <strong>file</strong>. Có thể là bản ghi database dạng Avro hay Parquet, nhưng cũng có thể là text, ảnh, video, dữ liệu cảm biến, ma trận thưa, vector đặc trưng, chuỗi gen. ETL được tổng quát hoá thành <em>data pipeline</em>, và lake đôi khi là trạm trung gian trên đường từ hệ vận hành tới warehouse. Mỗi bên dùng có thể tự biến đổi dữ liệu thô theo cách hợp với mình. Người ta gọi đây là <em>sushi principle</em>: “raw data is better”.</p>
+      <p>Có thể chạy luôn workload kiểu warehouse (SQL, BI) trên file của lake, song song với data science và ML. Kiến trúc này gọi là <dfn data-term="lakehouse">lakehouse</dfn>, cần thêm một query engine và một tầng metadata (quản lý schema) trên lớp lưu trữ file. Apache Hive, Spark SQL, Presto và Trino là ví dụ.</p>
+      <h3>Xa hơn data lake</h3>
+      <p>Các tổ chức ngày càng quan tâm tới vận hành pipeline (DataOps), quản trị, quyền riêng tư và tuân thủ GDPR/CCPA. Dữ liệu phân tích cũng có thể ở dạng <strong>luồng sự kiện</strong>. Phân tích trên file thì chạy lại định kỳ (ví dụ hằng ngày), còn stream processing phản ứng trong vài giây, hữu ích để chặn gian lận. Cuối cùng, đầu ra của hệ phân tích có thể được đưa ngược về hệ vận hành, gọi là <dfn data-term="reverse-etl">reverse ETL</dfn>. Ví dụ: mô hình gợi ý được huấn luyện trong hệ phân tích rồi deploy lên production. Những đầu ra như vậy gọi là <dfn data-term="data-product">data product</dfn>, và có các công cụ như TFX, Kubeflow, MLflow để deploy chúng.</p>
+    </div>
+    <figure class="lab" data-widget="lake-or-warehouse">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đưa từng loại dữ liệu vào warehouse hay lake?
+        <small>Chọn nơi lưu cho mỗi loại dữ liệu. Bảng bên dưới cho biết ai dùng được nó và mất gì khi ép dữ liệu vào bảng quan hệ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Câu “người mua X cũng mua Y” trên trang thương mại điện tử là một data product điển hình. Mô hình được huấn luyện trên lịch sử mua hàng trong hệ phân tích, rồi chạy trong hệ vận hành để trả gợi ý cho từng người dùng.</p></aside>
+  </article>
+
+  <!-- 1.5 -->
+  <article class="topic" id="ch1-derived" data-num="1.5" data-short="System of record & derived" data-keywords="system of record source of truth derived data cache index materialized view denormalized">
+    <p class="eyebrow">1.4 · Systems of Record and Derived Data</p>
+    <h2>Nguồn sự thật và dữ liệu dẫn xuất <span class="vi">Systems of record and derived data</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><em>System of record</em> giữ phiên bản chính thức. Dữ liệu mới được ghi vào đây trước, mỗi sự thật chỉ xuất hiện một lần.</li>
+      <li><em>Derived data</em> được tính ra từ dữ liệu khác: cache, index, materialized view, mô hình ML. Mất thì dựng lại được từ nguồn.</li>
+      <li>Một database là nguồn hay dẫn xuất tuỳ vào cách bạn dùng nó, không tuỳ vào loại công cụ.</li>
+    </ul></div>
+    <div class="prose">
+      <p><dfn data-term="system-of-record">System of record</dfn> (còn gọi là <em>source of truth</em>) giữ phiên bản chuẩn của dữ liệu. Thường dữ liệu ở đây được chuẩn hoá (<em>normalized</em>), mỗi sự thật chỉ biểu diễn đúng một lần. Nếu hệ khác mâu thuẫn với nó thì theo định nghĩa, giá trị ở system of record là đúng.</p>
+      <p><dfn data-term="derived-data">Derived data</dfn> là kết quả của việc lấy dữ liệu từ hệ khác rồi biến đổi. Ví dụ kinh điển là cache: có thì dùng, không có thì quay về database gốc. Index, <dfn data-term="materialized-view">materialized view</dfn>, giá trị phi chuẩn hoá, các dạng biểu diễn đã biến đổi và mô hình ML huấn luyện trên dữ liệu cũng thuộc loại này. Về kỹ thuật, dữ liệu dẫn xuất là dư thừa vì nó lặp lại thông tin đã có. Nhưng nó thường cần thiết để đọc nhanh, và từ một nguồn có thể dẫn ra nhiều góc nhìn khác nhau.</p>
+      <p>Hệ phân tích thường là hệ dẫn xuất. Hệ vận hành thì trộn cả hai: database chính là nguồn, còn index và cache để tăng tốc là dẫn xuất. Khi dữ liệu ở nguồn thay đổi, bạn cần một quy trình cập nhật dữ liệu dẫn xuất. Nhiều database được thiết kế như thể ứng dụng chỉ dùng mỗi nó, nên việc lan truyền thay đổi sang hệ khác không dễ. Sách sẽ quay lại chủ đề tích hợp dữ liệu ở các chương sau.</p>
+    </div>
+    <figure class="lab" data-widget="derived-data">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Sửa nguồn, xem dữ liệu dẫn xuất cũ đi
+        <small>Đổi giá hoặc tên một sản phẩm ở bảng nguồn. Cache, search index và bảng tổng theo danh mục sẽ bị lỗi thời cho tới khi bạn lan truyền thay đổi.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Chỉ cần nói rõ dữ liệu nào được dẫn ra từ dữ liệu nào, một kiến trúc đang rối sẽ dễ hiểu hơn nhiều. Khi vẽ sơ đồ hệ thống, hãy đánh dấu đâu là nguồn sự thật.</p></aside>
+  </article>
+
+  <!-- 1.6 -->
+  <article class="topic" id="ch1-cloud" data-num="1.6" data-short="Cloud hay tự host" data-keywords="cloud self-hosting build buy SaaS IaaS on-premises vendor lock-in cost">
+    <p class="eyebrow">1.5 · Cloud versus Self-Hosting</p>
+    <h2>Dùng cloud hay tự host? <span class="vi">Build or buy · Pros and cons of cloud services</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Đây thực chất là câu hỏi tự làm hay thuê ngoài. Thứ là năng lực cốt lõi thì nên tự làm, thứ phổ thông thì nên mua.</li>
+      <li>Cloud có lợi khi tải biến động mạnh hoặc khi đội chưa biết vận hành hệ đó. Tự host thường rẻ hơn khi tải ổn định và đội đã có kinh nghiệm.</li>
+      <li>Nhược điểm lớn nhất của cloud là mất quyền kiểm soát: thiếu tính năng, sự cố, khó debug, bị khoá vào nhà cung cấp.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Với phần mềm có hai quyết định: <strong>ai viết</strong> nó và <strong>ai vận hành</strong> nó. Hai quyết định này tạo thành một phổ lựa chọn (Hình 1-2). Một đầu là phần mềm tự viết, tự chạy. Đầu kia là <dfn data-term="saas">SaaS</dfn>, nhà cung cấp viết và vận hành, bạn chỉ dùng qua web hoặc API. Ở giữa là phần mềm có sẵn (mã nguồn mở hoặc thương mại) mà bạn tự cài, trên máy của mình (<em>on-premises</em>) hoặc trên máy ảo cloud (<dfn data-term="iaas">IaaS</dfn>).</p>
+    </div>
+    <figure class="lab" data-widget="build-buy-spectrum">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Phổ lựa chọn: ai viết, ai vận hành?
+        <small>Bấm vào từng điểm trên phổ để xem bạn còn kiểm soát gì và phải tự lo gì.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Khi nào cloud thật sự rẻ hơn?</h3>
+      <p>Điều đó phụ thuộc vào kỹ năng của đội và đặc điểm tải. Nếu đội đã biết vận hành hệ thống cần dùng và tải khá ổn định, tự mua máy thường rẻ hơn. Nếu phải học vận hành một hệ mới hoặc thuê và đào tạo người riêng cho nó, dùng dịch vụ cloud dễ và nhanh hơn. Nhà cung cấp chuyên một dịch vụ có kinh nghiệm từ rất nhiều khách hàng. Đổi lại, tự chạy thì bạn tinh chỉnh được cho đúng workload của mình.</p>
+      <p>Cloud đặc biệt có giá trị khi tải thay đổi nhiều. Hệ phân tích là ví dụ: một truy vấn lớn cần rất nhiều tài nguyên trong thời gian ngắn, sau đó tài nguyên nằm không. Mua máy đủ cho đỉnh thì phần lớn thời gian máy bỏ không.</p>
+      <p>Mặt trái là bạn không kiểm soát được dịch vụ. Thiếu tính năng thì chỉ biết xin nhà cung cấp. Dịch vụ sập thì chỉ biết chờ. Gặp bug hay vấn đề hiệu năng thì khó chẩn đoán vì không xem được log và metrics bên trong. Nếu dịch vụ bị khai tử, tăng giá hoặc đổi theo hướng bạn không thích, bạn buộc phải chuyển đi. Khi không có API chuẩn để thay thế, chi phí chuyển đổi rất cao. Đó là <dfn data-term="vendor-lock-in">vendor lock-in</dfn>.</p>
+    </div>
+    <figure class="lab" data-widget="cloud-cost">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ước tính chi phí hằng tháng: tự host hay cloud
+        <small>Số liệu minh hoạ. Kéo tỉ lệ đỉnh/trung bình và bật tắt kinh nghiệm của đội để thấy lập luận của sách thành con số.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Cloud sẽ không thay thế hết hệ tự host. Nhiều hệ cũ có trước thời cloud, và những yêu cầu đặc thù vẫn cần tự làm. Ví dụ, giao dịch tần suất cao (<em>high-frequency trading</em>) rất nhạy độ trễ nên cần toàn quyền kiểm soát phần cứng.</p></aside>
+  </article>
+
+  <!-- 1.7 -->
+  <article class="topic" id="ch1-cloud-native" data-num="1.7" data-short="Cloud-native" data-keywords="cloud-native object storage S3 Snowflake EBS separation of storage and compute disaggregated multitenancy Aurora Spanner BigQuery">
+    <p class="eyebrow">1.5 · Cloud-Native System Architecture</p>
+    <h2>Kiến trúc cloud-native <span class="vi">Layering of cloud services · Separation of storage and compute</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Hệ <em>cloud-native</em> được thiết kế từ đầu để tận dụng dịch vụ cloud: hiệu năng tốt hơn, phục hồi nhanh hơn, co giãn theo tải, chứa được dữ liệu lớn hơn.</li>
+      <li>Dịch vụ cao tầng được xây trên dịch vụ thấp tầng: object storage (S3) → Snowflake → dịch vụ xây trên Snowflake.</li>
+      <li>Ổ đĩa cục bộ chỉ được coi là cache tạm. Lưu trữ và tính toán tách ra hai nơi, nhiều khách hàng dùng chung phần cứng (<em>multitenancy</em>).</li>
+    </ul></div>
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th>Loại</th><th>Tự host</th><th>Cloud-native</th></tr></thead>
+      <tbody>
+        <tr><td>Vận hành / OLTP</td><td>MySQL, PostgreSQL, MongoDB</td><td>AWS Aurora, Azure SQL DB Hyperscale, Google Cloud Spanner</td></tr>
+        <tr><td>Phân tích / OLAP</td><td>Teradata, ClickHouse, Spark</td><td>Snowflake, Google BigQuery, Azure Synapse Analytics</td></tr>
+      </tbody>
+    </table></div>
+    <div class="prose">
+      <h3>Xếp tầng dịch vụ</h3>
+      <p>Phần mềm tự host thường chỉ cần tài nguyên rất chung: CPU, RAM, filesystem, mạng IP. Trên cloud, bạn chạy nó trên máy ảo IaaS. Máy ảo được cấp nhanh hơn máy vật lý và có nhiều cỡ hơn, nhưng về bản chất vẫn là một cái máy bạn phải tự quản trị. Ý tưởng của <dfn data-term="cloud-native">cloud-native</dfn> là xây dịch vụ cao tầng trên các dịch vụ cloud thấp tầng. <dfn data-term="object-storage">Object storage</dfn> như Amazon S3, Azure Blob Storage, Cloudflare R2 có API hạn chế hơn filesystem (chủ yếu đọc/ghi cả file), nhưng nó giấu máy vật lý đi: tự phân tán dữ liệu, không lo hết đĩa, đĩa hỏng cũng không mất dữ liệu. Snowflake lại xây trên S3, và có những dịch vụ xây trên Snowflake. Nguyên tắc chung: trừu tượng càng cao càng gắn với một số trường hợp sử dụng cụ thể. Nhu cầu khớp thì dùng sẵn cho đỡ vất vả. Không khớp thì phải tự ghép từ các thành phần thấp hơn.</p>
+      <h3>Tách lưu trữ và tính toán</h3>
+      <p>Truyền thống coi đĩa là bền và dùng RAID để chịu hỏng một đĩa. Trên cloud, đĩa gắn vào máy ảo sẽ mất khi máy hỏng hoặc khi bạn đổi sang máy to hơn hay nhỏ hơn, nên hệ cloud-native coi nó như cache tạm. Đĩa ảo kiểu Amazon EBS (một dịch vụ giả lập block device với block khoảng 4 KiB) giúp chạy phần mềm truyền thống trên cloud, nhưng thường chậm và khó mở rộng. Vì vậy hệ cloud-native thường dùng dịch vụ lưu trữ chuyên dụng: object store cho các khối lớn (từ vài trăm KB đến vài GB), còn giá trị nhỏ thì quản lý ở một dịch vụ khác. Lưu trữ và tính toán bị tách rời (<dfn data-term="storage-compute-separation">disaggregated</dfn>): S3 chỉ lưu file, muốn phân tích thì phải kéo dữ liệu qua mạng tới nơi chạy code.</p>
+      <p>Hệ cloud-native cũng thường <dfn data-term="multitenancy">multitenant</dfn>: dữ liệu và tính toán của nhiều khách hàng chạy trên cùng phần cứng, cùng dịch vụ. Cách này tận dụng phần cứng tốt hơn và dễ mở rộng, nhưng phải thiết kế cẩn thận để khách này không ảnh hưởng hiệu năng hay bảo mật của khách khác.</p>
+    </div>
+    <figure class="lab" data-widget="storage-compute">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Giết một node tính toán: dữ liệu đi đâu?
+        <small>So sánh kiến trúc truyền thống (đĩa gắn liền máy) với cloud-native (máy chỉ tính, dữ liệu nằm ở object store).</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Chạy một database truyền thống trên máy ảo cloud chưa phải là cloud-native. Bạn vẫn quản trị máy, vẫn phụ thuộc vào đĩa của máy đó. Hệ cloud-native khác ở chỗ chính kiến trúc bên trong dựa vào các dịch vụ cloud.</p></aside>
+  </article>
+
+  <!-- 1.8 -->
+  <article class="topic" id="ch1-ops" data-num="1.8" data-short="Vận hành thời cloud" data-keywords="operations DevOps SRE DBA sysadmin capacity planning cost optimization quotas">
+    <p class="eyebrow">1.5 · Operations in the Cloud Era</p>
+    <h2>Vận hành trong thời cloud <span class="vi">DevOps, SRE and what cannot be outsourced</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Mục tiêu của vận hành không đổi: dịch vụ chạy tin cậy, môi trường production ổn định. Công cụ và quy trình thì đổi.</li>
+      <li>DevOps/SRE đề cao tự động hoá, máy ảo dùng xong bỏ, cập nhật thường xuyên, học từ sự cố, giữ lại tri thức của tổ chức.</li>
+      <li>Dùng cloud vẫn cần vận hành: chọn dịch vụ, tích hợp, di chuyển, bảo mật, giám sát. Lập kế hoạch dung lượng trở thành lập kế hoạch tài chính.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ngày trước, người lo hạ tầng dữ liệu là DBA hoặc sysadmin. Nay nhiều tổ chức gộp phát triển và vận hành vào cùng một đội theo tinh thần DevOps. <dfn data-term="sre">SRE</dfn> là cách Google hiện thực ý tưởng này. Với hệ tự host, vận hành gồm nhiều việc ở cấp từng máy: theo dõi dung lượng đĩa và mua thêm trước khi hết, cấp máy mới, chuyển dịch vụ giữa các máy, vá hệ điều hành.</p>
+      <p>Dịch vụ cloud giấu từng cái máy sau một API. Lưu trữ cloud tính tiền theo dung lượng thực dùng, nên không cần đoán trước dung lượng. Vai trò vận hành tách đôi. Đội vận hành ở công ty hạ tầng chuyên lo cung cấp dịch vụ tin cậy cho rất nhiều khách. Khách hàng thì cố dành ít công sức nhất cho hạ tầng, nhưng vẫn phải chọn dịch vụ phù hợp, tích hợp các dịch vụ với nhau và di chuyển giữa chúng. Phải biết tài nguyên nào đang dùng cho việc gì để không lãng phí: <mark>capacity planning thành financial planning, tối ưu hiệu năng thành tối ưu chi phí</mark>. Cloud cũng có giới hạn và quota (ví dụ số tiến trình chạy đồng thời) mà bạn phải biết trước khi đụng phải.</p>
+    </div>
+    <figure class="lab" data-widget="ops-sort">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Dùng cloud rồi, việc nào vẫn là của bạn?
+        <small>Xếp từng việc vận hành vào một trong hai cột, rồi bấm “Kiểm tra” để xem giải thích.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Cloud làm thay đổi vai trò của vận hành, nhưng nhu cầu vận hành vẫn lớn như trước. Bảo mật ứng dụng và thư viện, tương tác giữa các dịch vụ của bạn, giám sát tải và truy tìm nguyên nhân sự cố vẫn là việc của bạn.</p></aside>
+  </article>
+
+  <!-- 1.9 -->
+  <article class="topic" id="ch1-distributed" data-num="1.9" data-short="Phân tán hay một máy" data-keywords="distributed system node single-node fault tolerance scalability latency elasticity data residency timeout retry observability tracing OpenTelemetry DuckDB SQLite">
+    <p class="eyebrow">1.6 · Distributed versus Single-Node Systems</p>
+    <h2>Hệ phân tán hay một máy? <span class="vi">Reasons to distribute · Problems with distributed systems</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Có nhiều lý do chính đáng để phân tán: chịu lỗi, mở rộng, độ trễ theo vùng địa lý, co giãn, phần cứng chuyên dụng, luật lưu trú dữ liệu.</li>
+      <li>Cái giá phải trả: mạng có thể hỏng, timeout không cho biết request đã được xử lý chưa, gọi qua mạng chậm hơn rất nhiều so với gọi hàm, debug khó, nhất quán giữa các dịch vụ khó.</li>
+      <li>Làm được trên một máy thì thường đơn giản hơn nhiều. Phần cứng ngày nay đủ mạnh cho rất nhiều workload.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Một <dfn data-term="distributed-system">hệ phân tán</dfn> gồm nhiều máy giao tiếp qua mạng. Mỗi tiến trình tham gia gọi là một <dfn data-term="node">node</dfn>. Lý do để phân tán:</p>
+      <ul>
+        <li><strong>Vốn đã phân tán</strong>: nhiều người dùng trên nhiều thiết bị thì buộc phải giao tiếp qua mạng.</li>
+        <li><strong>Request giữa các dịch vụ cloud</strong>: dữ liệu lưu ở dịch vụ này, xử lý ở dịch vụ khác.</li>
+        <li><strong>Chịu lỗi / sẵn sàng cao</strong>: một máy (hay cả datacenter) chết thì máy khác thay.</li>
+        <li><strong>Khả năng mở rộng</strong>: dữ liệu hoặc tính toán vượt sức một máy.</li>
+        <li><strong>Độ trễ</strong>: đặt server gần người dùng ở nhiều nơi trên thế giới.</li>
+        <li><strong>Co giãn (<em>elasticity</em>)</strong>: lúc bận thì thêm máy, lúc rảnh thì bớt, chỉ trả tiền phần đang dùng.</li>
+        <li><strong>Phần cứng chuyên dụng</strong>: object store cần nhiều đĩa ít CPU, hệ phân tích cần nhiều CPU và RAM, huấn luyện ML cần GPU.</li>
+        <li><strong>Tuân thủ pháp luật</strong>: luật <em>data residency</em> buộc dữ liệu của công dân một nước phải lưu và xử lý trong nước đó.</li>
+      </ul>
+      <h3>Những vấn đề đi kèm</h3>
+      <p>Mọi request qua mạng đều có thể lỗi: mạng đứt, dịch vụ quá tải hoặc đã crash. Request có thể timeout mà không có phản hồi, và khi đó bạn <strong>không biết</strong> server đã nhận và xử lý request hay chưa, nên retry một cách ngây thơ có thể không an toàn. Mạng trong datacenter nhanh, nhưng gọi sang dịch vụ khác vẫn chậm hơn rất nhiều so với gọi hàm trong cùng tiến trình. Với dữ liệu lớn, mang tính toán tới chỗ dữ liệu có thể nhanh hơn kéo dữ liệu đi. Thêm node không phải lúc nào cũng nhanh hơn: có trường hợp một chương trình đơn luồng trên một máy chạy nhanh hơn cả cluster hơn 100 lõi CPU.</p>
+      <p>Debug hệ phân tán khó: hệ chậm thì chậm ở đâu? Lĩnh vực <dfn data-term="observability">observability</dfn> thu thập dữ liệu về quá trình thực thi để truy vấn được cả metrics tổng lẫn từng sự kiện. Các công cụ tracing như OpenTelemetry cho biết client nào gọi server nào, thao tác gì, mất bao lâu. Khi mỗi dịch vụ có database riêng, việc giữ dữ liệu nhất quán giữa các dịch vụ trở thành bài toán của ứng dụng. Distributed transaction có thể giúp nhưng hiếm khi được dùng với microservices, vì nó đi ngược mục tiêu giữ các dịch vụ độc lập.</p>
+    </div>
+    <figure class="lab" data-widget="go-distributed">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bạn có thật sự cần hệ phân tán?
+        <small>Tích những yêu cầu đúng với hệ thống của bạn. Kết luận và danh sách cái giá phải trả cập nhật ngay.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <figure class="lab" data-widget="unsafe-retry">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Timeout: server đã trừ tiền hay chưa?
+        <small>Gửi yêu cầu thanh toán qua một mạng không tin cậy. Khi phản hồi bị mất, thử retry và xem chuyện gì xảy ra với số dư.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Nếu một máy làm được thì đừng vội phân tán. CPU, RAM và đĩa ngày càng lớn, nhanh và bền hơn. Kết hợp với database một node như DuckDB, SQLite hay KùzuDB, nhiều workload chạy tốt trên một máy.</p></aside>
+  </article>
+
+  <!-- 1.10 -->
+  <article class="topic" id="ch1-microservices" data-num="1.10" data-short="Microservices & serverless" data-keywords="microservices SOA service-oriented architecture serverless FaaS Kubernetes OpenAPI gRPC">
+    <p class="eyebrow">1.6 · Microservices and Serverless</p>
+    <h2>Microservices và serverless <span class="vi">Microservices and Serverless</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Microservices: mỗi dịch vụ một mục đích rõ, một API, một đội chịu trách nhiệm, database riêng.</li>
+      <li>Lợi ích: cập nhật độc lập, ít phối hợp giữa các đội. Cái giá: hạ tầng deploy và giám sát cho từng dịch vụ, test khó, API khó tiến hoá.</li>
+      <li>Microservices chủ yếu là lời giải kỹ thuật cho một vấn đề con người. Công ty nhỏ, ít đội thì nên làm theo cách đơn giản nhất.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Cách phổ biến nhất để chia hệ thống ra nhiều máy là client/server, thường qua HTTP. Một tiến trình có thể vừa là server vừa là client của dịch vụ khác. Cách xây dựng này trước gọi là <em>service-oriented architecture</em> (SOA), nay được tinh chỉnh thành <dfn data-term="microservices">microservices</dfn>. Mỗi dịch vụ có một mục đích rõ ràng (S3 thì là lưu file), một API gọi được qua mạng và một đội duy trì. Các dịch vụ thường không dùng chung database: dùng chung thì cả cấu trúc database trở thành một phần API và rất khó thay đổi, còn truy vấn của dịch vụ này có thể làm chậm dịch vụ kia.</p>
+      <p>Nhưng nhiều dịch vụ thì cũng sinh ra phức tạp. Mỗi dịch vụ cần hạ tầng deploy, điều chỉnh tài nguyên theo tải, thu log, giám sát, cảnh báo on-call. Kubernetes phổ biến vì nó làm nền cho những việc này. Test một dịch vụ cần chạy luôn các dịch vụ nó phụ thuộc. API khó tiến hoá: thêm hay bớt trường có thể làm client hỏng, và lỗi thường chỉ lộ ra muộn ở staging hoặc production. OpenAPI và gRPC giúp quản lý quan hệ giữa API phía client và phía server.</p>
+      <p><dfn data-term="serverless">Serverless</dfn> (<em>function-as-a-service</em>, FaaS) giao việc quản lý hạ tầng cho nhà cung cấp cloud. Với máy ảo, bạn tự quyết khi nào bật, khi nào tắt. Với serverless, nhà cung cấp tự cấp và thu hồi tài nguyên theo request đến. Tên gọi dễ gây hiểu nhầm: code vẫn chạy trên server, chỉ là lần chạy sau có thể ở server khác. Giống như lưu trữ cloud thay capacity planning bằng tính tiền theo dung lượng thực dùng, serverless đưa cách tính tiền đó sang việc chạy code: bạn chỉ trả cho thời gian code thực sự chạy.</p>
+    </div>
+    <figure class="lab" data-widget="services">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bao nhiêu đội thì microservices bắt đầu đáng?
+        <small>Số liệu minh hoạ. Kéo số đội kỹ sư để so chi phí phối hợp của monolith với chi phí vận hành của microservices. Bên dưới là hoá đơn VM so với serverless.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Áp dụng microservices ở một startup ba người chỉ vì “công ty lớn làm vậy” là trả cái giá vận hành mà không nhận được lợi ích. Lợi ích chính của microservices là để nhiều đội làm việc độc lập mà không phải phối hợp liên tục.</p></aside>
+  </article>
+
+  <!-- 1.11 -->
+  <article class="topic" id="ch1-hpc" data-num="1.11" data-short="Cloud và siêu máy tính" data-keywords="HPC supercomputing checkpoint RDMA commodity hardware Clos topology">
+    <p class="eyebrow">1.6 · Cloud Computing versus Supercomputing</p>
+    <h2>Cloud computing và siêu máy tính (HPC) <span class="vi">Cloud Computing versus Supercomputing</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>HPC chạy các batch job tính toán khoa học lớn. Gặp lỗi thì dừng cả job và chạy lại từ checkpoint gần nhất.</li>
+      <li>Dịch vụ cloud phải phục vụ người dùng liên tục, nên không thể dừng cả cluster mỗi khi một node hỏng.</li>
+      <li>Sách này tập trung vào các dịch vụ cần luôn sẵn sàng.</li>
+    </ul></div>
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th>Khía cạnh</th><th>Siêu máy tính (HPC)</th><th>Cloud / datacenter doanh nghiệp</th></tr></thead>
+      <tbody>
+        <tr><td>Công việc</td><td>Tính toán khoa học: dự báo thời tiết, động lực học phân tử, tối ưu, phương trình đạo hàm riêng</td><td>Dịch vụ online, hệ dữ liệu kinh doanh, phục vụ request với độ sẵn sàng cao</td></tr>
+        <tr><td>Khi một node hỏng</td><td>Dừng cả workload, sửa node, chạy lại từ checkpoint</td><td>Tiếp tục phục vụ, gián đoạn tối thiểu</td></tr>
+        <tr><td>Phần cứng</td><td>Chuyên dụng, từng node rất tin cậy</td><td>Máy phổ thông (<em>commodity</em>), rẻ nhờ quy mô nhưng tỉ lệ hỏng cao hơn</td></tr>
+        <tr><td>Giao tiếp</td><td>Shared memory và RDMA, băng thông cao, độ trễ thấp, giả định người dùng tin nhau</td><td>Mạng và máy dùng chung giữa các tổ chức không tin nhau, cần cách ly, mã hoá, xác thực</td></tr>
+        <tr><td>Topo mạng</td><td>Mesh hoặc torus nhiều chiều, hợp với mẫu giao tiếp biết trước</td><td>IP/Ethernet theo topo Clos để có băng thông chia đôi (<em>bisection bandwidth</em>) cao</td></tr>
+        <tr><td>Địa lý</td><td>Các node nằm gần nhau</td><td>Có thể trải trên nhiều vùng địa lý</td></tr>
+      </tbody>
+    </table></div>
+    <figure class="lab" data-widget="checkpoint">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một node hỏng giữa chừng: HPC và cloud phản ứng khác nhau
+        <small>Kéo khoảng cách giữa các checkpoint và chọn thời điểm node hỏng. Xem HPC mất bao nhiêu công việc và dịch vụ cloud bị gián đoạn ra sao.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Hệ phân tích quy mô lớn đôi khi giống siêu máy tính ở một số điểm, nên biết các kỹ thuật HPC cũng có ích nếu bạn làm mảng này.</p></aside>
+  </article>
+
+  <!-- 1.12 -->
+  <article class="topic" id="ch1-law" data-num="1.12" data-short="Dữ liệu, luật & xã hội" data-keywords="GDPR CCPA EU AI Act right to be forgotten data minimization Datensparsamkeit PCI SOC 2 privacy ethics">
+    <p class="eyebrow">1.7 · Data Systems, Law, and Society</p>
+    <h2>Hệ thống dữ liệu, pháp luật và xã hội <span class="vi">Data Systems, Law, and Society</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>GDPR, CCPA, EU AI Act trao cho người dùng quyền với dữ liệu cá nhân. Luật đang ảnh hưởng tới chính thiết kế của hệ thống dữ liệu.</li>
+      <li>Quyền được xoá dữ liệu mâu thuẫn với các cấu trúc bất biến như append-only log, và với dữ liệu dẫn xuất như dữ liệu huấn luyện ML.</li>
+      <li>Chi phí lưu dữ liệu không chỉ là hoá đơn lưu trữ mà còn là rủi ro rò rỉ, tiền phạt và an toàn của người dùng. Đôi khi tốt nhất là không lưu (<em>data minimization</em>).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Từ 2018, <dfn data-term="gdpr">GDPR</dfn> trao cho cư dân nhiều nước châu Âu quyền kiểm soát dữ liệu cá nhân. Các luật tương tự như CCPA ở California ra đời ở nhiều nơi, và luật về AI như EU AI Act đặt thêm giới hạn cho việc dùng dữ liệu cá nhân. Ngoài luật, hệ thống máy tính còn tác động lớn tới xã hội: mạng xã hội thay đổi cách người ta đọc tin tức, và hệ tự động quyết định ai được vay, ai được bảo hiểm, ai được gọi phỏng vấn, ai bị nghi phạm tội. Ai làm những hệ thống này cũng có phần trách nhiệm cân nhắc tác động đạo đức và tuân thủ luật.</p>
+      <p>Ví dụ, GDPR cho phép người dùng yêu cầu xoá dữ liệu (<dfn data-term="right-to-be-forgotten">right to be forgotten</dfn>). Nhưng nhiều hệ dữ liệu dựa trên cấu trúc bất biến như append-only log. Làm sao xoá một bản ghi nằm giữa một file vốn không được sửa? Làm sao xoá dữ liệu đã đi vào dữ liệu dẫn xuất, chẳng hạn dữ liệu huấn luyện mô hình ML? Luật cố ý không chỉ định công nghệ cụ thể, chỉ đặt ra nguyên tắc cấp cao để diễn giải, nên chưa có câu trả lời đơn giản về thế nào là “tuân thủ GDPR”.</p>
+      <p>Ta lưu dữ liệu vì tin giá trị của nó lớn hơn chi phí. Chi phí đó gồm cả rủi ro pháp lý và uy tín nếu bị rò rỉ, tiền phạt nếu xử lý sai luật, và nguy cơ chính quyền buộc công ty giao nộp dữ liệu. Nếu dữ liệu có thể tiết lộ hành vi bị coi là phạm pháp ở một nơi nào đó, ví dụ dữ liệu vị trí cho thấy ai đó tới phòng khám phá thai, việc lưu nó tạo ra rủi ro thật cho người dùng. Tính hết các rủi ro, có khi kết luận hợp lý là đừng lưu. Nguyên tắc <dfn data-term="data-minimization">data minimization</dfn> (tiếng Đức là <em>Datensparsamkeit</em>) đi ngược triết lý “big data” lưu thật nhiều phòng khi cần, nhưng khớp với GDPR: dữ liệu cá nhân chỉ được thu thập cho mục đích cụ thể, rõ ràng, không được dùng cho mục đích khác, và không giữ lâu hơn cần thiết.</p>
+      <p>Doanh nghiệp cũng tự đặt chuẩn. Công ty thẻ tín dụng yêu cầu bên xử lý thanh toán tuân thủ chuẩn <dfn data-term="pci">PCI</dfn> và được kiểm toán thường xuyên. Nhiều bên mua phần mềm yêu cầu nhà cung cấp đạt SOC 2 Type 2, cũng qua kiểm toán độc lập.</p>
+    </div>
+    <figure class="lab" data-widget="data-minimization">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Thiết kế dữ liệu cho một app chạy bộ
+        <small>Chọn lưu hay không lưu từng trường và mục đích sử dụng. Thanh giá trị và rủi ro thay đổi theo. Thử bấm “Người dùng yêu cầu xoá dữ liệu”.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Ngay cả log địa chỉ IP theo thời gian cũng cho biết vị trí gần đúng của một người. Một trường trông vô hại trong log có thể trở thành dữ liệu nhạy cảm khi ghép với dữ liệu khác.</p></aside>
+  </article>
+
+  <!-- review -->
+  <article class="topic" id="ch1-review" data-num="1.★" data-short="Tổng kết & kiểm tra" data-keywords="summary quiz">
+    <p class="eyebrow">Summary</p>
+    <h2>Tổng kết chương 1 <span class="vi">Summary &amp; self-check</span></h2>
+    <div class="prose">
+      <p>Chủ đề xuyên suốt của chương là <strong>trade-off</strong>: với nhiều câu hỏi không có một câu trả lời đúng, chỉ có nhiều cách tiếp cận, mỗi cách có ưu và nhược riêng.</p>
+      <ul>
+        <li><strong>OLTP và OLAP</strong> khác nhau về kiểu truy cập và về người dùng. Dữ liệu chảy từ hệ vận hành vào warehouse hoặc lake qua ETL. Các chương sau sẽ cho thấy hai loại hệ này bố trí dữ liệu bên trong rất khác nhau.</li>
+        <li><strong>Nguồn sự thật và dữ liệu dẫn xuất</strong> giúp bạn nói rõ dữ liệu chảy thế nào trong hệ thống.</li>
+        <li><strong>Cloud hay tự host</strong>: cái nào rẻ hơn tuỳ hoàn cảnh, nhưng cloud-native đang thay đổi cách kiến trúc hệ dữ liệu, ví dụ tách lưu trữ khỏi tính toán.</li>
+        <li><strong>Phân tán hay một máy</strong>: có lúc buộc phải phân tán, nhưng đừng vội nếu một máy còn đủ.</li>
+        <li><strong>Luật và xã hội</strong>: kiến trúc còn bị chi phối bởi luật bảo vệ quyền của người có dữ liệu bị xử lý, một khía cạnh nhiều kỹ sư hay bỏ qua.</li>
+      </ul>
+    </div>
+    <h3>Tự kiểm tra</h3>
+    <div class="quiz">
+      <div class="q" data-answer="1">
+        <p>Truy vấn “Tổng doanh thu của từng cửa hàng trong tháng Một” thuộc kiểu nào?</p>
+        <ol><li>OLTP, vì nó đọc dữ liệu bán hàng</li><li>OLAP, vì nó quét nhiều bản ghi và trả về số liệu tổng hợp</li><li>Point query, vì có điều kiện theo tháng</li></ol>
+        <p class="explain">Truy vấn phân tích quét rất nhiều bản ghi và tính tổng, đếm hoặc trung bình thay vì trả về từng bản ghi. Point query lấy một vài bản ghi theo key, ví dụ “đơn hàng #1042”.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Lý do nào KHÔNG nằm trong các lý do sách đưa ra để không cho analyst truy vấn trực tiếp hệ OLTP?</p>
+        <ol><li>Dữ liệu nằm rải rác ở nhiều hệ (data silo)</li><li>Truy vấn phân tích tốn kém, làm chậm người dùng khác</li><li>SQL không viết được truy vấn phân tích</li><li>Hệ OLTP nằm trong mạng riêng vì bảo mật</li></ol>
+        <p class="explain">Sách nói rõ SQL làm tốt cả hai kiểu truy vấn. Lý do tách ra là data silo, schema không phù hợp, hiệu năng và bảo mật/tuân thủ.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Khác biệt cốt lõi giữa data lake và data warehouse là gì?</p>
+        <ol><li>Lake chỉ chứa file, không áp đặt định dạng hay mô hình dữ liệu</li><li>Lake luôn rẻ hơn warehouse</li><li>Lake không thể chạy SQL</li></ol>
+        <p class="explain">Lake chứa file ở bất kỳ định dạng nào: Parquet, text, ảnh, vector đặc trưng… Lakehouse còn chạy được SQL trực tiếp trên file trong lake, nên phương án C sai.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Bạn xoá nhầm toàn bộ search index của sản phẩm. Điều gì đúng?</p>
+        <ol><li>Dữ liệu sản phẩm đã mất vĩnh viễn</li><li>Index là dữ liệu dẫn xuất, dựng lại được từ database nguồn</li><li>Phải khôi phục index từ cache</li></ol>
+        <p class="explain">Dữ liệu dẫn xuất (cache, index, materialized view) có thể tạo lại từ system of record. Mất nguồn mới là mất thật.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Trường hợp nào tự host thường rẻ hơn cloud theo lập luận của sách?</p>
+        <ol><li>Tải rất biến động, đội chưa từng vận hành hệ đó</li><li>Hệ phân tích chạy truy vấn tương tác lớn thỉnh thoảng</li><li>Tải dễ dự đoán và đội đã có kinh nghiệm vận hành hệ đó</li></ol>
+        <p class="explain">Khi tải ổn định, bạn không phải mua dư cho đỉnh. Khi đội đã biết vận hành, bạn không phải thuê và đào tạo thêm người. Hai trường hợp A và B là lúc cloud có lợi.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Request thanh toán gửi đi bị timeout. Bạn biết chắc điều gì?</p>
+        <ol><li>Không biết server đã xử lý request hay chưa</li><li>Server chưa nhận được request, cứ retry</li><li>Server đã xử lý xong, chỉ mất phản hồi</li></ol>
+        <p class="explain">Timeout không phân biệt được request bị mất, server đang chậm, hay phản hồi bị mất. Vì vậy retry có thể không an toàn, ví dụ trừ tiền hai lần.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Theo sách, microservices chủ yếu giải quyết vấn đề gì?</p>
+        <ol><li>Làm hệ thống chạy nhanh hơn</li><li>Cho phép nhiều đội làm việc độc lập mà ít phải phối hợp</li><li>Giảm chi phí hạ tầng</li></ol>
+        <p class="explain">Microservices là “lời giải kỹ thuật cho một vấn đề con người”. Ở công ty nhỏ ít đội, chúng thường là chi phí không cần thiết.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Nguyên tắc data minimization nói gì?</p>
+        <ol><li>Nén dữ liệu để tiết kiệm dung lượng</li><li>Chỉ lưu dữ liệu trên một máy</li><li>Chỉ thu thập dữ liệu cần cho mục đích rõ ràng, không giữ lâu hơn cần thiết, và không lưu thứ có rủi ro lớn hơn giá trị</li></ol>
+        <p class="explain">Datensparsamkeit đi ngược tư duy “lưu hết phòng khi cần” của big data, và khớp với yêu cầu giới hạn mục đích của GDPR.</p>
+      </div>
+    </div>
+  </article>
+</section>

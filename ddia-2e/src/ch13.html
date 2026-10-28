@@ -1,0 +1,742 @@
+<style>
+#ch13 .viz svg.wide { min-width: 560px; }
+#ch13 .viz svg.wide-s { min-width: 480px; }
+#ch13 .f-ok-soft { fill: var(--ok-soft); }
+#ch13 .f-warn-soft { fill: var(--warn-soft); }
+#ch13 .flash { animation: ch13-flash .9s ease-out; }
+@keyframes ch13-flash { from { background: var(--mark-soft); box-shadow: 0 0 0 2px var(--mark); } to { box-shadow: 0 0 0 0 transparent; } }
+#ch13 .derived-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+#ch13 .box.stale { border-color: var(--warn); background: var(--warn-soft); }
+#ch13 .box ul { margin: 0; padding-left: 1.1em; }
+#ch13 .box p { margin: 0 0 6px; }
+#ch13 .box p:last-child { margin-bottom: 0; }
+#ch13 .sheet td { padding: 5px 6px; }
+#ch13 .sheet input, #ch13 .sheet select { width: 100%; min-width: 4.5em; padding: 4px 6px; }
+#ch13 .sheet input.nm { min-width: 8em; }
+#ch13 .q2 { display: grid; grid-template-columns: minmax(64px, auto) minmax(0, 1fr) minmax(0, 1fr); gap: 6px; }
+#ch13 .q2 .hd { font-size: var(--t-xs); font-weight: 700; color: var(--ink-2); align-self: center; text-align: center; }
+#ch13 .q2 .cell { border: 1px solid var(--line); background: var(--bg); text-align: left; padding: 8px 10px; border-radius: 8px; cursor: pointer; font: 400 var(--t-xs)/1.45 var(--f-display); color: var(--ink); min-height: 76px; min-width: 0; }
+#ch13 .q2 .cell b { display: block; font-size: var(--t-sm); margin-bottom: 2px; }
+#ch13 .q2 .cell[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--accent); }
+#ch13 .q2 .cell.good { background: var(--ok-soft); }
+#ch13 .q2 .cell.warnc { background: var(--warn-soft); }
+#ch13 .q2 .cell.badc { background: var(--bad-soft); }
+#ch13 .rewrite { padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font-family: var(--f-body); font-size: 1rem; line-height: 1.7; overflow-wrap: anywhere; }
+#ch13 .hbars { display: flex; flex-direction: column; gap: 8px; }
+#ch13 .hbar { display: grid; grid-template-columns: minmax(90px, 170px) minmax(0, 1fr) minmax(64px, auto); gap: 8px; align-items: center; font-size: var(--t-xs); }
+#ch13 .hbar .track { height: 16px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+#ch13 .hbar .fill { height: 100%; background: var(--accent); transition: width .25s; }
+#ch13 .hbar .fill.bad { background: var(--bad); }
+#ch13 .hbar .fill.violet { background: var(--violet); }
+#ch13 .hbar .fill.ok { background: var(--ok); }
+#ch13 .hbar .fill.warn { background: var(--warn); }
+#ch13 .hbar .v { font-family: var(--f-mono); font-weight: 600; text-align: right; white-space: nowrap; }
+#ch13 .evlist { display: flex; flex-direction: column; gap: 4px; max-height: 280px; overflow: auto; }
+#ch13 .evlist .ev { display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); font: 400 var(--t-xs)/1.45 var(--f-display); color: var(--ink); text-align: left; width: 100%; }
+#ch13 .evlist button.ev { cursor: pointer; }
+#ch13 .evlist .ev.sel { border-color: var(--accent); background: var(--accent-soft); }
+#ch13 .evlist .ev.ref { border-color: var(--mark); background: var(--mark-soft); }
+#ch13 .evlist .ev.dim { opacity: .55; }
+#ch13 .evlist .ev .off { font-family: var(--f-mono); color: var(--ink-3); min-width: 2.2em; }
+#ch13 .parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+#ch13 .fieldlist { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 6px 14px; }
+#ch13 .fieldlist .chk-ctl { font-size: var(--t-xs); align-items: flex-start; }
+#ch13 .mono { font-family: var(--f-mono); font-size: .8rem; }
+#ch13 .pipe { font-family: var(--f-mono); font-size: .85rem; padding: 8px 10px; border-radius: 6px; background: var(--code-bg); border: 1px solid var(--line); overflow-x: auto; white-space: nowrap; }
+#ch13 .lab select { max-width: 100%; }
+</style>
+
+<section class="chapter" id="ch13" data-chapter="13" data-title="Tương lai của hệ thống dữ liệu" data-edition="1e">
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 13 <span class="ed-badge">Nguồn: ấn bản 1 · Chương 12</span></p>
+    <h1>The Future of Data Systems <span class="vi">Tương lai của hệ thống dữ liệu</span></h1>
+    <blockquote class="epigraph">If a thing be ordained to another as to its end, its last end cannot consist in the preservation of its being. Hence a captain does not intend as a last end, the preservation of the ship entrusted to him, since a ship is ordained to something else as its end, viz. to navigation. (Often quoted as: If the highest aim of a captain was to preserve his ship, he would keep it in port forever.)<cite>— St. Thomas Aquinas, Summa Theologica (1265–1274)</cite></blockquote>
+    <p class="lede">Chương cuối của ấn bản 1 chuyển từ “mọi thứ đang là thế nào” sang “mọi thứ nên thế nào”. Kleppmann gom các ý tưởng của cả cuốn sách lại thành một hướng thiết kế: một hệ thống ghi nhận duy nhất, mọi thứ khác là dữ liệu dẫn xuất chảy qua log; “tháo rời” cơ sở dữ liệu thành các thành phần ghép được; giữ tính đúng đắn bằng ID đầu-cuối và kiểm tra bất đồng bộ thay vì giao dịch phân tán; và cuối cùng là trách nhiệm đạo đức của người kỹ sư với dữ liệu về con người. Trong ấn bản 2, vị trí chương này mang tên <em class="en">“Doing the Right Thing”</em> và tập trung vào phần đạo đức; trang này viết theo toàn bộ Chương 12 của ấn bản 1. Tác giả nói rõ đây là quan điểm cá nhân, nên chương được viết ở ngôi thứ nhất.</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- 13.1 -->
+  <article class="topic" id="ch13-derived" data-num="13.1" data-short="Ghép công cụ bằng dữ liệu dẫn xuất" data-keywords="data integration derived data system of record search index cache warehouse machine learning">
+    <p class="eyebrow">13.1 · Data Integration · Combining Specialized Tools by Deriving Data</p>
+    <h2>Kết hợp các công cụ chuyên biệt bằng dữ liệu dẫn xuất <span class="vi">Combining Specialized Tools by Deriving Data</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Không có phần mềm nào hợp với mọi kiểu truy cập. Ngay cả CSDL “đa dụng” cũng được thiết kế cho một kiểu tải nhất định.</li>
+      <li>Ứng dụng phức tạp dùng cùng một dữ liệu theo nhiều cách, nên kiểu gì cũng phải ghép nhiều hệ: CSDL OLTP, chỉ mục tìm kiếm, cache, kho dữ liệu, hệ ML, thông báo.</li>
+      <li>Cách ghép bền vững: chọn một <dfn data-term="system-of-record">hệ thống ghi nhận</dfn>, mọi biểu diễn khác là <dfn data-term="derived-data">dữ liệu dẫn xuất</dfn> được tính lại từ nó.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Suốt cuốn sách, mỗi bài toán đều có nhiều lời giải với các đánh đổi khác nhau: log-structured, B-tree hay lưu theo cột (<a href="#ch4">Chương 4</a>); single-leader, multi-leader hay leaderless (<a href="#ch6">Chương 6</a>). Một phần mềm thường chỉ chọn được một hướng, vì làm một đường code chạy tốt đã khó, làm mọi thứ trong một phần mềm gần như chắc chắn sẽ làm dở. Thử thách đầu tiên là hiểu sản phẩm nào hợp với hoàn cảnh nào. Nhà cung cấp hiếm khi nói phần mềm của họ <em>không</em> hợp với loại tải nào, nên bạn phải tự đọc giữa các dòng bằng những câu hỏi mà các chương trước đã trang bị.</p>
+      <p>Thử thách thứ hai lớn hơn: cùng một dữ liệu được dùng theo nhiều cách. Ví dụ quen thuộc là ghép CSDL OLTP với chỉ mục tìm kiếm toàn văn. PostgreSQL có full-text search, đủ cho ứng dụng đơn giản, nhưng tìm kiếm phức tạp cần công cụ chuyên dụng; ngược lại, chỉ mục tìm kiếm thường không đủ bền để làm nơi lưu bản gốc. Rồi còn kho dữ liệu phân tích, cache và các bản phi chuẩn hoá, mô hình xếp hạng và gợi ý, hệ gửi thông báo khi dữ liệu thay đổi. Mỗi thứ là một bản sao dữ liệu theo một dạng khác.</p>
+      <p>Tác giả có một nhận xét thẳng: những câu kiểu “99% người dùng chỉ cần X” thường nói về kinh nghiệm của người nói hơn là về công nghệ. Phạm vi những gì người ta muốn làm với dữ liệu rộng đến chóng mặt. Nhu cầu tích hợp dữ liệu chỉ lộ ra khi bạn lùi lại nhìn luồng dữ liệu của cả tổ chức.</p>
+      <p>Sơ đồ dưới đây là kiến trúc mà phần còn lại của chương xây dựng: ứng dụng chỉ ghi vào hệ thống ghi nhận, các thay đổi được bắt lại thành một log có thứ tự (<dfn data-term="cdc">CDC</dfn> hoặc <dfn data-term="event-sourcing">event sourcing</dfn>, xem <a href="#ch12">Chương 12</a>), và mỗi hệ phía sau tự dẫn xuất góc nhìn riêng từ log đó.</p>
+    </div>
+    <figure class="lab" data-widget="dataflow-map">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bản đồ luồng dữ liệu của một tổ chức
+        <small>Bấm vào một node để xem những gì nuôi nó (màu xanh) và những gì nó nuôi (màu tím). Bấm “Ghi một thay đổi” để xem thay đổi lan đi. Bật “ghi thẳng vào chỉ mục” để thấy chỗ kiến trúc bị phá vỡ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Câu hỏi đầu tiên khi có nhiều bản sao dữ liệu: <em>dữ liệu được ghi vào đâu trước, và cái gì được dẫn xuất từ cái gì?</em> Nếu trả lời được rõ ràng, mọi hệ phía sau đều có thể xoá đi và dựng lại.</p></aside>
+  </article>
+
+  <!-- 13.2 -->
+  <article class="topic" id="ch13-ordering" data-num="13.2" data-short="Lập luận về dataflow & thứ tự" data-keywords="dual writes total order broadcast distributed transactions XA linearizability CDC idempotent">
+    <p class="eyebrow">13.2 · Reasoning About Dataflows · Derived Data vs. Distributed Transactions · The Limits of Total Ordering</p>
+    <h2>Lập luận về luồng dữ liệu và thứ tự toàn phần <span class="vi">Reasoning About Dataflows</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Nếu CDC là con đường <em>duy nhất</em> cập nhật chỉ mục, chỉ mục chắc chắn nhất quán với CSDL (trừ bug). Cho ứng dụng <dfn data-term="dual-writes">ghi kép</dfn> vào cả hai thì hai hệ có thể áp dụng ghi theo thứ tự khác nhau và lệch nhau vĩnh viễn.</li>
+      <li>Dồn mọi input qua một hệ quyết định thứ tự là ứng dụng của <dfn data-term="total-order-broadcast">total order broadcast</dfn>. Bộ dẫn xuất đọc log có thể làm cho tất định và <dfn data-term="idempotence">idempotent</dfn>, nên phục hồi sau lỗi dễ.</li>
+      <li>So với <dfn data-term="distributed-transaction">giao dịch phân tán</dfn>: cùng mục tiêu, khác phương tiện. Log-based thắng về chịu lỗi nhưng mất đảm bảo về thời điểm (như đọc lại dữ liệu mình vừa ghi).</li>
+      <li>Thứ tự toàn phần có giới hạn: vượt sức một leader, nhiều datacenter, microservice, client offline.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Khi duy trì nhiều bản sao của cùng dữ liệu, bạn cần rõ ràng về input và output. Ví dụ: dữ liệu được ghi trước vào CSDL hệ thống ghi nhận, các thay đổi được bắt bằng CDC rồi áp vào chỉ mục tìm kiếm <em>theo đúng thứ tự đó</em>. Ghi vào CSDL là cách duy nhất đưa input mới vào hệ thống.</p>
+      <p>Nếu ứng dụng ghi trực tiếp vào cả CSDL lẫn chỉ mục, ta gặp đúng vấn đề của Hình 11-4 trong sách (xem <a href="#ch12">Chương 12</a>): hai client ghi xung đột cùng lúc, hai hệ lưu trữ nhận chúng theo thứ tự khác nhau. Không ai “nắm quyền” quyết định thứ tự, nên mỗi bên quyết định một kiểu và chúng lệch nhau vĩnh viễn. Dùng CDC hay event sourcing không quan trọng bằng nguyên tắc: <mark>quyết định một thứ tự toàn phần</mark>, rồi mọi hệ dẫn xuất xử lý theo đúng thứ tự đó. Đó chính là state machine replication (xem <a href="#ch10">Chương 10</a>).</p>
+    </div>
+    <figure class="lab" data-widget="dual-write">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hai client cùng ghi một bản ghi: ghi kép và đi qua log
+        <small>Client X ghi giá trị A, client Y ghi giá trị B gần như cùng lúc. Đổi chế độ, đổi độ trễ mạng ngẫu nhiên, hoặc chạy 1.000 lần để đếm số lần CSDL và chỉ mục lệch nhau.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Dữ liệu dẫn xuất hay giao dịch phân tán?</h3>
+      <p>Cách cổ điển để giữ nhiều hệ nhất quán là giao dịch phân tán với 2PC (<a href="#ch10">Chương 10</a>). Ở mức trừu tượng hai cách đạt cùng mục tiêu:</p>
+    </div>
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th>Vấn đề</th><th>Giao dịch phân tán</th><th>Dữ liệu dẫn xuất qua log</th></tr></thead>
+      <tbody>
+        <tr><td>Quyết định thứ tự ghi</td><td>Khoá loại trừ (2PL, <a href="#ch8">Chương 8</a>)</td><td>Vị trí trong log</td></tr>
+        <tr><td>Bảo đảm thay đổi có hiệu lực đúng một lần</td><td>Atomic commit</td><td>Retry tất định + idempotence</td></tr>
+        <tr><td>Đảm bảo thời điểm</td><td>Thường linearizable, có read-your-writes</td><td>Cập nhật bất đồng bộ, mặc định không có</td></tr>
+        <tr><td>Khi một bên lỗi</td><td>Cả giao dịch abort, lỗi lan rộng</td><td>Lỗi bị cô lập, bên chậm đọc bù sau</td></tr>
+      </tbody>
+    </table></div>
+    <div class="prose">
+      <p>Tác giả cho rằng XA có khả năng chịu lỗi và hiệu năng kém, nên khi chưa có giao thức giao dịch phân tán tốt được hỗ trợ rộng rãi, dữ liệu dẫn xuất dựa trên log là hướng hứa hẹn nhất. Nhưng ông cũng không đồng ý với kiểu nói “eventual consistency là tất yếu, chịu đi”: các đảm bảo như đọc lại được dữ liệu mình vừa ghi là có ích, và phần 13.12–13.15 sẽ bàn cách lấy lại các đảm bảo mạnh hơn trên nền hệ bất đồng bộ.</p>
+      <h3>Giới hạn của thứ tự toàn phần</h3>
+      <p>Với hệ đủ nhỏ, một log có thứ tự toàn phần là hoàn toàn khả thi (CSDL single-leader làm đúng điều đó). Khi hệ lớn lên, giới hạn bắt đầu lộ ra:</p>
+      <ul>
+        <li><strong>Thông lượng:</strong> mọi sự kiện phải qua một leader. Vượt sức một máy thì phải chia partition (<a href="#ch12">Chương 12</a>), và thứ tự giữa hai partition trở nên mơ hồ.</li>
+        <li><strong>Nhiều datacenter:</strong> thường mỗi datacenter có leader riêng vì phối hợp đồng bộ xuyên vùng quá chậm (<a href="#ch6">Chương 6</a>), nên sự kiện từ hai datacenter không có thứ tự xác định.</li>
+        <li><strong>Microservice:</strong> mỗi service giữ trạng thái bền riêng, không chia sẻ. Hai sự kiện ở hai service không có thứ tự chung.</li>
+        <li><strong>Client offline:</strong> app cập nhật trạng thái cục bộ ngay khi người dùng thao tác, thậm chí khi không có mạng. Client và server gần như chắc chắn thấy sự kiện theo thứ tự khác nhau.</li>
+      </ul>
+      <p>Về hình thức, quyết định thứ tự toàn phần là total order broadcast, tương đương <dfn data-term="consensus">đồng thuận</dfn>. Hầu hết thuật toán đồng thuận giả định một node đủ sức xử lý cả luồng sự kiện; thiết kế thuật toán đồng thuận mở rộng vượt một node và chạy tốt khi phân tán địa lý vẫn là bài toán nghiên cứu mở.</p>
+    </div>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Thứ tự là thứ mà ghi kép đánh mất. Log không làm mạng nhanh hơn; nó chỉ bảo đảm mọi bên đồng ý về <em>cùng một</em> thứ tự, nên cùng hội tụ về một kết quả.</p></aside>
+  </article>
+
+  <!-- 13.3 -->
+  <article class="topic" id="ch13-causality" data-num="13.3" data-short="Thứ tự sự kiện & nhân quả" data-keywords="causality unfriend notification logical timestamp conflict resolution causal dependency">
+    <p class="eyebrow">13.3 · Ordering Events to Capture Causality</p>
+    <h2>Sắp thứ tự sự kiện để giữ quan hệ nhân quả <span class="vi">Ordering Events to Capture Causality</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Sự kiện không liên quan nhân quả thì thứ tự tuỳ ý cũng được. Các cập nhật của cùng một đối tượng thì gom về một partition theo ID là xong.</li>
+      <li>Rắc rối là <dfn data-term="causal-dependency">phụ thuộc nhân quả</dfn> giữa các nơi lưu khác nhau: “huỷ kết bạn” rồi “gửi tin nhắn” bị xử lý ngược thứ tự, và người yêu cũ nhận được thông báo.</li>
+      <li>Hướng giải: <dfn data-term="logical-timestamp">timestamp logic</dfn>, ghi lại ID của trạng thái người dùng đã thấy để sự kiện sau tham chiếu, thuật toán giải quyết xung đột (không cứu được hiệu ứng phụ ra bên ngoài).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ví dụ của sách: trên một mạng xã hội, hai người vừa chia tay. Một người xoá người kia khỏi danh sách bạn bè, <em>rồi</em> gửi tin nhắn cho những người bạn còn lại để than phiền về người yêu cũ. Ý định rất rõ: người yêu cũ không được thấy tin nhắn, vì nó được gửi sau khi đã huỷ kết bạn.</p>
+      <p>Nhưng nếu trạng thái bạn bè lưu ở một nơi và tin nhắn lưu ở nơi khác, phụ thuộc thứ tự giữa sự kiện “huỷ kết bạn” và “gửi tin” có thể mất. Dịch vụ thông báo về thực chất đang <em>join</em> giữa tin nhắn và danh sách bạn bè, nên gặp đúng vấn đề phụ thuộc thời gian của join ở <a href="#ch12">Chương 12</a>: nếu nó xử lý tin nhắn trước khi thấy sự kiện huỷ kết bạn, nó gửi thông báo cho người yêu cũ.</p>
+      <p>Theo tác giả, bài toán này không có lời giải đơn giản. Các điểm khởi đầu:</p>
+      <ul>
+        <li><strong>Timestamp logic</strong> cho thứ tự toàn phần mà không cần phối hợp, nhưng bên nhận vẫn phải xử lý sự kiện đến sai thứ tự và phải mang thêm metadata.</li>
+        <li><strong>Ghi lại trạng thái người dùng đã thấy</strong> thành một sự kiện có ID duy nhất; sự kiện sau tham chiếu ID đó để ghi lại phụ thuộc nhân quả. Ý này quay lại ở 13.11 (“đọc cũng là sự kiện”).</li>
+        <li><strong>Giải quyết xung đột</strong> giúp trạng thái hội tụ khi sự kiện đến sai thứ tự, nhưng không giúp gì nếu hành động đã gây hiệu ứng ra ngoài, như đã gửi thông báo cho một người.</li>
+      </ul>
+    </div>
+    <figure class="lab" data-widget="unfriend">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Huỷ kết bạn rồi gửi tin: thông báo có lọt đến người yêu cũ không?
+        <small>Lan huỷ kết bạn với Minh lúc 0 ms rồi gửi tin lúc 30 ms. Kéo độ trễ của partition bạn bè và đổi cách xử lý để xem Minh có nhận thông báo không.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Trạng thái có thể sửa lại sau, hiệu ứng ra bên ngoài thì không. Email, thông báo đẩy hay tiền đã chuyển cần được bảo vệ bằng thứ tự nhân quả <em>trước khi</em> xảy ra, vì không có “merge” nào thu hồi được chúng.</p></aside>
+  </article>
+
+  <!-- 13.4 -->
+  <article class="topic" id="ch13-reprocessing" data-num="13.4" data-short="Xử lý lại để tiến hoá ứng dụng" data-keywords="batch stream reprocessing schema migration railway gauge derived views gradual migration">
+    <p class="eyebrow">13.4 · Batch and Stream Processing · Maintaining Derived State · Reprocessing Data for Application Evolution</p>
+    <h2>Batch, stream và xử lý lại dữ liệu để ứng dụng tiến hoá <span class="vi">Reprocessing Data for Application Evolution</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Mục tiêu của tích hợp dữ liệu: dữ liệu có đúng dạng ở đúng nơi. Batch và stream là công cụ để làm việc đó; output của chúng là dữ liệu dẫn xuất.</li>
+      <li>Ranh giới batch/stream đang mờ: Spark chạy stream bằng microbatch trên engine batch, Flink chạy batch trên engine stream.</li>
+      <li>Hàm tất định, input bất biến và cập nhật bất đồng bộ giúp chịu lỗi và cô lập sự cố.</li>
+      <li><dfn data-term="reprocessing">Xử lý lại</dfn> toàn bộ lịch sử cho phép đổi cấu trúc dữ liệu triệt để, và chạy view cũ song song view mới để <dfn data-term="gradual-migration">chuyển dần</dfn>, lúc nào cũng quay lại được.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Batch (<a href="#ch11">Chương 11</a>) và stream (<a href="#ch12">Chương 12</a>) có chung nhiều nguyên lý; khác biệt cơ bản là stream chạy trên tập dữ liệu không giới hạn, còn batch chạy trên input hữu hạn đã biết kích thước. Về nguyên tắc, cái này giả lập được trên cái kia, dù hiệu năng khác nhau (microbatch xử lý kém với hopping window hay sliding window).</p>
+      <h3>Duy trì trạng thái dẫn xuất</h3>
+      <p>Batch mang đậm tính hàm: hàm tất định, thuần khiết, output chỉ phụ thuộc input, input bất biến, output chỉ ghi thêm. Stream giống vậy nhưng có thêm trạng thái được quản lý và chịu lỗi. Nghĩ theo kiểu “pipeline dẫn xuất cái này từ cái kia” giúp lập luận về luồng dữ liệu của cả tổ chức, dù output là chỉ mục, mô hình thống kê hay cache.</p>
+      <p>Về lý thuyết, có thể cập nhật dữ liệu dẫn xuất đồng bộ như CSDL cập nhật secondary index trong cùng giao dịch. Nhưng chính tính <em>bất đồng bộ</em> làm hệ dựa trên log bền vững: lỗi ở một chỗ bị khoanh lại, còn giao dịch phân tán abort khi bất kỳ bên nào lỗi, nên khuếch đại sự cố ra toàn hệ. Secondary index vắt qua nhiều partition (<a href="#ch7">Chương 7</a>) cũng tin cậy và mở rộng tốt nhất khi được duy trì bất đồng bộ.</p>
+      <h3>Xử lý lại: tiến hoá mà không cần “bật công tắc”</h3>
+      <p>Stream phản ánh thay đổi vào view với độ trễ thấp; batch cho phép xử lý lại lượng lớn dữ liệu lịch sử để dẫn xuất view mới. Không có xử lý lại, tiến hoá schema (<a href="#ch5">Chương 5</a>) chỉ giới hạn ở thay đổi đơn giản như thêm trường tuỳ chọn. Có xử lý lại, bạn có thể cấu trúc lại dữ liệu thành một mô hình hoàn toàn khác.</p>
+      <p>Sách kể chuyện đường sắt Anh thế kỷ 19: nhiều <em>khổ ray</em> (khoảng cách giữa hai thanh ray) cạnh tranh nhau, tàu khổ này không chạy được trên ray khổ kia. Năm 1846 một khổ chuẩn được chọn. Đổi khổ mà không đóng tuyến hàng năm trời thế nào? Thêm một thanh ray thứ ba để đường thành <em>khổ kép</em>, tàu hai khổ cùng chạy; khi mọi tàu đã đổi sang khổ chuẩn thì tháo ray thừa. Việc này đắt, nên khổ phi chuẩn vẫn còn đến nay, ví dụ hệ thống BART ở vùng vịnh San Francisco.</p>
+      <p>View dẫn xuất cho phép làm đúng như vậy với dữ liệu: giữ schema cũ và schema mới song song, như hai view độc lập dẫn xuất từ cùng dữ liệu gốc. Chuyển một ít người dùng sang view mới để thử hiệu năng và tìm bug, tăng dần tỉ lệ, cuối cùng bỏ view cũ. Điểm đẹp là mọi bước đều dễ đảo ngược, nên bạn tự tin đi nhanh hơn.</p>
+    </div>
+    <figure class="lab" data-widget="gauge-migration">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Chuyển dần sang schema mới, như đường ray khổ kép
+        <small>Kéo thanh “Tỉ lệ người dùng đọc view mới”. Bật “View mới có bug” để thấy việc quay lại dễ thế nào. Chỉ khi 100% đã chuyển mới xoá được view cũ, và sau đó không quay lại được nữa.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Migration nguy hiểm vì nó thường là một chiều. Dẫn xuất view mới từ log và chạy song song biến nó thành một thanh trượt kéo qua kéo lại được, cho đến bước cuối cùng.</p></aside>
+  </article>
+
+  <!-- 13.5 -->
+  <article class="topic" id="ch13-lambda" data-num="13.5" data-short="Lambda vs hợp nhất batch/stream" data-keywords="lambda architecture kappa hadoop storm summingbird beam flink exactly-once event time">
+    <p class="eyebrow">13.5 · The Lambda Architecture · Unifying Batch and Stream Processing</p>
+    <h2>Kiến trúc lambda và hợp nhất batch với stream <span class="vi">The Lambda Architecture</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="lambda-architecture">Kiến trúc lambda</dfn>: ghi sự kiện bất biến; chạy song song một hệ batch (Hadoop MapReduce) cho kết quả chính xác và một hệ stream (Storm) cho kết quả xấp xỉ nhanh.</li>
+      <li>Ý tưởng có ảnh hưởng tốt (view dẫn xuất từ sự kiện bất biến, xử lý lại khi cần) nhưng vướng: viết logic hai lần, trộn hai output, batch tăng dần gặp lại mọi vấn đề về thời gian.</li>
+      <li>Hướng mới: một engine làm cả hai, nhờ phát lại lịch sử, <dfn data-term="exactly-once">exactly-once</dfn> và cửa sổ theo <dfn data-term="event-time">event time</dfn>.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Nếu batch dùng để xử lý lại lịch sử và stream dùng cho cập nhật mới, ghép hai thứ thế nào? Lambda đề xuất: dữ liệu vào được ghi bằng cách nối thêm sự kiện bất biến vào một tập luôn lớn dần (giống event sourcing), rồi chạy hai hệ song song. Stream processor tiêu thụ sự kiện và nhanh chóng cập nhật view <em>xấp xỉ</em>; batch processor sau đó đọc cùng các sự kiện và tạo bản view <em>đã sửa đúng</em>. Lý do: batch đơn giản nên ít bug hơn, còn stream bị coi là kém tin cậy và khó chịu lỗi; stream có thể dùng thuật toán xấp xỉ nhanh, batch dùng thuật toán chính xác chậm hơn.</p>
+      <p>Tác giả thấy ba vấn đề thực tế:</p>
+      <ul>
+        <li><strong>Duy trì cùng logic ở hai framework</strong> tốn công đáng kể. Thư viện như Summingbird trừu tượng hoá phép tính để chạy được ở cả hai, nhưng độ phức tạp vận hành của hai hệ (debug, tinh chỉnh, bảo trì) vẫn còn nguyên.</li>
+        <li><strong>Phải trộn hai output</strong> để trả lời người dùng. Dễ nếu chỉ là phép cộng trên tumbling window; khó hơn hẳn với join, sessionization, hoặc output không phải chuỗi thời gian.</li>
+        <li><strong>Xử lý lại toàn bộ thường xuyên quá đắt</strong>, nên batch hay được chỉnh thành chạy tăng dần (mỗi giờ xử lý dữ liệu của giờ đó). Lập tức quay lại các vấn đề về thời gian ở <a href="#ch12">Chương 12</a>: sự kiện đến muộn, cửa sổ vắt qua ranh giới lô. Batch hết “đơn giản”.</li>
+      </ul>
+      <h3>Hợp nhất batch và stream</h3>
+      <p>Các hệ gần đây cho phép có ưu điểm của lambda mà không có nhược điểm, bằng cách chạy cả phép tính trên lịch sử lẫn trên sự kiện mới trong cùng một hệ. Cần ba thứ: (1) phát lại sự kiện lịch sử qua cùng engine xử lý luồng mới, ví dụ message broker dựa trên log phát lại được tin cũ, hoặc stream processor đọc từ HDFS; (2) exactly-once cho stream processor, tức output như thể không có lỗi nào, bằng cách bỏ output dở dang của tác vụ lỗi; (3) cửa sổ theo event time chứ không theo processing time, vì processing time vô nghĩa khi xử lý lại lịch sử. Apache Beam cung cấp API như vậy, chạy được trên Apache Flink hoặc Google Cloud Dataflow.</p>
+    </div>
+    <figure class="lab" data-widget="lambda-lab">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đếm sự kiện theo giờ: lambda và một engine hợp nhất
+        <small>Khung viền là số sự kiện thật của mỗi giờ; cột tô màu là con số người dùng được phục vụ. Kéo “giờ hiện tại”, sai số của stream layer, và bật/tắt sự kiện đến muộn.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Bài “Questioning the Lambda Architecture” của Jay Kreps (2014), được sách trích, đề xuất bỏ hẳn lớp batch: giữ log đủ lâu và khi cần xử lý lại thì chạy một job stream mới từ đầu log. Cách này thường được gọi là kiến trúc kappa.</p></aside>
+  </article>
+
+  <!-- 13.6 -->
+  <article class="topic" id="ch13-unbundling" data-num="13.6" data-short="Tháo rời cơ sở dữ liệu" data-keywords="unbundling databases federated polystore create index meta-database unix philosophy mysql elasticsearch">
+    <p class="eyebrow">13.6 · Unbundling Databases · Composing Data Storage Technologies</p>
+    <h2>Tháo rời cơ sở dữ liệu: ghép các công nghệ lưu trữ <span class="vi">Composing Data Storage Technologies</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>CSDL, Hadoop và hệ điều hành đều là hệ quản lý thông tin. Unix đưa trừu tượng tầng thấp (pipe, file là chuỗi byte); CSDL quan hệ đưa trừu tượng tầng cao (SQL, giao dịch).</li>
+      <li><code>CREATE INDEX</code> = xử lý lại dữ liệu có sẵn để dẫn xuất một view mới, rất giống dựng follower mới hay khởi động CDC. Cả tổ chức trông như một “siêu CSDL”.</li>
+      <li>Hai hướng ghép: <dfn data-term="federated-database">federated</dfn> (hợp nhất <em>đọc</em>) và <dfn data-term="unbundling">unbundled</dfn> (hợp nhất <em>ghi</em> qua log và CDC).</li>
+      <li>Nếu một sản phẩm đã làm được mọi thứ bạn cần, hãy dùng nó. Tháo rời chỉ đáng khi không có phần mềm nào đủ.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Unix và CSDL quan hệ tiếp cận việc quản lý thông tin bằng hai triết lý khác nhau, cùng ra đời đầu thập niên 1970 và vẫn còn giằng co. Unix “đơn giản” theo nghĩa là một lớp mỏng bọc phần cứng; CSDL quan hệ “đơn giản” theo nghĩa một câu truy vấn khai báo ngắn dùng được cả hạ tầng đồ sộ (tối ưu truy vấn, chỉ mục, phép join, kiểm soát đồng thời, replication) mà người viết không cần biết chi tiết. Tác giả hiểu phong trào NoSQL là áp cách nghĩ kiểu Unix vào lưu trữ OLTP phân tán.</p>
+      <h3>Tạo một chỉ mục</h3>
+      <p>Chuyện gì xảy ra khi chạy <code>CREATE INDEX</code>? CSDL quét một snapshot nhất quán của bảng, lấy các giá trị cần đánh chỉ mục, sắp xếp, ghi ra chỉ mục; xử lý phần ghi tồn đọng từ lúc chụp snapshot; rồi tiếp tục cập nhật chỉ mục mỗi khi có giao dịch ghi vào bảng. Quy trình này giống đến bất ngờ với hai việc khác trong sách:</p>
+    </div>
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th>Bước</th><th>CREATE INDEX</th><th>Dựng follower mới (<a href="#ch6">Ch.6</a>)</th><th>Khởi động CDC (<a href="#ch12">Ch.12</a>)</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Quét snapshot nhất quán của bảng</td><td>Chép snapshot của leader</td><td>Snapshot ban đầu của CSDL</td></tr>
+        <tr><td>2</td><td>Xử lý các ghi xảy ra sau snapshot</td><td>Đọc bù replication log từ vị trí snapshot</td><td>Đọc log thay đổi từ offset của snapshot</td></tr>
+        <tr><td>3</td><td>Cập nhật chỉ mục mỗi lần ghi</td><td>Theo kịp leader liên tục</td><td>Áp thay đổi vào hệ dẫn xuất liên tục</td></tr>
+      </tbody>
+    </table></div>
+    <div class="prose">
+      <h3>Siêu cơ sở dữ liệu của mọi thứ</h3>
+      <p>Nhìn như vậy, luồng dữ liệu của cả tổ chức bắt đầu giống một CSDL khổng lồ. Mỗi job batch, stream hay ETL đưa dữ liệu từ nơi này, dạng này sang nơi khác, dạng khác chính là đang làm việc của bộ phận CSDL duy trì chỉ mục hay materialized view. Batch và stream processor giống trigger, stored procedure và thủ tục duy trì <dfn data-term="materialized-view">materialized view</dfn>; các hệ dẫn xuất giống các loại chỉ mục khác nhau. Chỉ khác là chúng do nhiều phần mềm, chạy trên nhiều máy, do nhiều đội quản lý.</p>
+      <p>Tác giả dự đoán hai con đường để ghép chúng thành một hệ gắn kết:</p>
+      <ul>
+        <li><strong>Federated database (polystore), hợp nhất đọc:</strong> một giao diện truy vấn chung trên nhiều engine lưu trữ, như <em>foreign data wrapper</em> của PostgreSQL. Đi theo truyền thống quan hệ: một hệ tích hợp, ngôn ngữ truy vấn cấp cao, ngữ nghĩa đẹp, cài đặt phức tạp. Nhưng nó không trả lời được câu hỏi đồng bộ <em>ghi</em> giữa các hệ.</li>
+        <li><strong>Unbundled database, hợp nhất ghi:</strong> làm cho việc nối các hệ lưu trữ một cách tin cậy (qua CDC và event log) trở nên dễ, như thể tháo tính năng duy trì chỉ mục ra khỏi CSDL để nó đồng bộ được ghi giữa các công nghệ khác nhau. Đi theo truyền thống Unix: công cụ nhỏ làm tốt một việc, giao tiếp qua API tầng thấp đồng nhất (pipe), ghép bằng ngôn ngữ cấp cao hơn (shell).</li>
+      </ul>
+    </div>
+    <figure class="lab" data-widget="fed-unbundled">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Federated và unbundled: ai lo phần đọc, ai lo phần ghi?
+        <small>Chọn kiểu kiến trúc, rồi bấm “Gửi một truy vấn” hoặc “Ghi một bản ghi” để tô đường đi. Phía dưới: “shell” còn thiếu của thế giới unbundled.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Làm cho unbundling chạy được</h3>
+      <p>Truy vấn federated chỉ đọc cần ánh xạ mô hình dữ liệu này sang mô hình khác, tốn suy nghĩ nhưng làm được. Giữ đồng bộ ghi giữa nhiều hệ mới là bài toán kỹ thuật khó hơn. Giao dịch phân tán giữa các hệ khác loại là lời giải sai theo tác giả; log sự kiện bất đồng bộ với ghi idempotent bền vững và thực tế hơn nhiều, vì không cần một giao thức giao dịch chuẩn giữa các hệ do nhiều nhóm người viết. Lợi thế lớn nhất là <em>ghép lỏng</em>, thể hiện ở hai mức:</p>
+      <ol>
+        <li><strong>Mức hệ thống:</strong> nếu một consumer chậm hay chết, log đệm tin lại; producer và các consumer khác chạy bình thường; consumer lỗi đọc bù khi được sửa. Lỗi bị khoanh vùng, thay vì leo thang như với giao dịch phân tán.</li>
+        <li><strong>Mức con người:</strong> mỗi đội phát triển, cải tiến, vận hành thành phần của mình độc lập, giao tiếp qua một interface đủ mạnh (bền, có thứ tự) và đủ tổng quát cho hầu hết loại dữ liệu.</li>
+      </ol>
+      <p>Unbundling không thay thế CSDL: CSDL vẫn cần để giữ trạng thái cho stream processor và phục vụ truy vấn trên output. Mỗi phần mềm thêm vào là thêm một đường cong học tập và một kiểu sự cố vận hành, nên hãy dùng càng ít thành phần càng tốt. Mục tiêu của unbundling là <em>độ rộng</em> (phục vụ tốt nhiều loại tải hơn một phần mềm làm được), không phải đọ hiệu năng với một CSDL chuyên biệt.</p>
+      <p>Cái còn thiếu, theo tác giả, là thứ tương đương <em>Unix shell</em> cho CSDL tháo rời: khai báo được <code>mysql | elasticsearch</code> để đánh chỉ mục toàn bộ dữ liệu MySQL vào Elasticsearch rồi tự động áp mọi thay đổi sau đó, không cần viết code riêng. Tương tự cho cache: khai báo materialized view cho truy vấn phức tạp, kể cả truy vấn đệ quy trên đồ thị. Nghiên cứu như <em>differential dataflow</em> đang đi theo hướng này.</p>
+    </div>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Federation hợp nhất đường đọc, unbundling hợp nhất đường ghi. Phần khó là đường ghi, và log có thứ tự với consumer idempotent là “pipe” cho nó.</p></aside>
+  </article>
+
+  <!-- 13.7 -->
+  <article class="topic" id="ch13-dataflow-apps" data-num="13.7" data-short="Ứng dụng xoay quanh dataflow" data-keywords="database inside-out spreadsheet visicalc derivation function separation of church and state polling observer subscribe">
+    <p class="eyebrow">13.7 · Designing Applications Around Dataflow · Application Code as a Derivation Function · Separation of Application Code and State</p>
+    <h2>Thiết kế ứng dụng xoay quanh luồng dữ liệu <span class="vi">Designing Applications Around Dataflow</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Cách tiếp cận <dfn data-term="database-inside-out">“database inside-out”</dfn>: ghép các hệ lưu trữ và xử lý chuyên biệt bằng code ứng dụng. Đây là một design pattern, không phải “kiến trúc mới”.</li>
+      <li>Bảng tính đã làm điều ta muốn từ VisiCalc 1979: sửa một ô đầu vào, mọi ô công thức phụ thuộc tự tính lại. Hệ dữ liệu cũng nên vậy, nhưng phải chịu lỗi, mở rộng được và lưu bền.</li>
+      <li>Code ứng dụng là <dfn data-term="derivation-function">hàm dẫn xuất</dfn>; đặt nó trong công cụ chạy code (Kubernetes…) và để trạng thái trong CSDL, nhưng nối hai bên bằng <em>đăng ký thay đổi</em> thay vì <dfn data-term="polling">polling</dfn>.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Tên “database inside-out” đến từ một bài nói năm 2014 của chính tác giả; thuật ngữ unbundling do Jay Kreps đề xuất. Các ý tưởng không mới: chúng giao với ngôn ngữ dataflow (Oz, Juttle), lập trình phản ứng hàm (Elm), lập trình logic (Bloom). Ngay cả bảng tính cũng có khả năng dataflow vượt xa đa số ngôn ngữ lập trình phổ biến: đặt một công thức trong một ô, và khi bất kỳ input nào đổi, kết quả tự tính lại. Đó chính là điều ta muốn ở mức hệ thống: khi một bản ghi đổi, mọi chỉ mục, cache, phép tổng hợp phụ thuộc vào nó tự làm mới, và ta tin được là nó làm đúng.</p>
+      <h3>Code ứng dụng là hàm dẫn xuất</h3>
+      <ul>
+        <li><strong>Secondary index:</strong> hàm đơn giản, lấy giá trị cột cần đánh chỉ mục rồi sắp xếp. Phổ biến đến mức CSDL làm sẵn: chỉ cần <code>CREATE INDEX</code>.</li>
+        <li><strong>Chỉ mục toàn văn:</strong> nhận diện ngôn ngữ, tách từ, stemming hoặc lemmatization, sửa chính tả, nhận diện từ đồng nghĩa, rồi dựng inverted index. Tính năng cơ bản có sẵn; tinh chỉnh theo miền thì không.</li>
+        <li><strong>Mô hình ML:</strong> dẫn xuất từ dữ liệu huấn luyện qua trích xuất đặc trưng và phân tích thống kê. Feature engineering nổi tiếng là đặc thù cho từng ứng dụng.</li>
+        <li><strong>Cache:</strong> dữ liệu đã gom theo đúng hình dạng giao diện hiển thị. Đổi giao diện có thể phải đổi cách tính cache và dựng lại cache.</li>
+      </ul>
+      <p>Khi hàm dẫn xuất không phải loại “khuôn sẵn”, cần code tuỳ biến, và đó là chỗ CSDL yếu. Trigger, stored procedure, hàm do người dùng định nghĩa có tồn tại nhưng giống một thứ thêm vào sau trong thiết kế CSDL.</p>
+      <h3>Tách code ứng dụng khỏi trạng thái</h3>
+      <p>Về lý thuyết CSDL có thể là môi trường triển khai code như một hệ điều hành; thực tế nó không hợp với nhu cầu hiện đại: quản lý dependency và package, version control, rolling upgrade, giám sát, metrics, gọi dịch vụ mạng. Mesos, YARN, Docker, Kubernetes được thiết kế riêng cho việc chạy code và làm tốt hơn nhiều. Nên hợp lý là có phần chuyên lưu trữ bền và phần chuyên chạy code. Dân lập trình hàm hay đùa: “we believe in the separation of Church and state” (Church là Alonzo Church, cha đẻ lambda calculus, nơi không có trạng thái thay đổi được).</p>
+      <p>Trong mô hình web thông thường, CSDL đóng vai một <em>biến dùng chung thay đổi được</em> truy cập qua mạng. Vấn đề: trong hầu hết ngôn ngữ, bạn không đăng ký nhận thay đổi của một biến được, chỉ đọc lại định kỳ. Muốn biết CSDL có gì mới thì thường chỉ có cách poll. Mẫu observer phải tự cài; đăng ký luồng thay đổi chỉ mới bắt đầu xuất hiện như một tính năng.</p>
+      <h3>Dataflow: tương tác giữa thay đổi trạng thái và code</h3>
+      <p>Nghĩ theo dataflow là xem lại quan hệ giữa code và trạng thái: code phản ứng với thay đổi trạng thái ở một nơi bằng cách gây ra thay đổi trạng thái ở nơi khác. Nhưng duy trì dữ liệu dẫn xuất <em>khác</em> với chạy job bất đồng bộ, việc mà hệ messaging truyền thống được thiết kế cho:</p>
+      <ul>
+        <li><strong>Thứ tự quan trọng:</strong> nhiều view dẫn xuất từ một log phải xử lý theo cùng thứ tự để nhất quán với nhau. Nhiều broker không giữ thứ tự khi gửi lại tin chưa được xác nhận; ghi kép cũng bị loại.</li>
+        <li><strong>Chịu lỗi là bắt buộc:</strong> mất <em>một</em> tin là view dẫn xuất lệch khỏi nguồn vĩnh viễn. Nhiều hệ actor mặc định giữ trạng thái và tin trong bộ nhớ, máy chết là mất.</li>
+      </ul>
+      <p>Hai đòi hỏi này khắt khe nhưng rẻ và bền hơn giao dịch phân tán nhiều. Stream processor hiện đại đáp ứng được ở quy mô lớn và cho phép chạy code ứng dụng như các operator, ghép với nhau như công cụ Unix nối bằng pipe.</p>
+    </div>
+    <figure class="lab" data-widget="spreadsheet">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> CSDL như một bảng tính: sửa ô gốc, các view dẫn xuất tự tính lại
+        <small>Sửa tên, danh mục, giá hoặc tồn kho ở bảng gốc. Ở chế độ “Đăng ký thay đổi”, các ô dẫn xuất nháy sáng khi được tính lại. Chuyển sang “CSDL thụ động” để thấy view bị cũ cho đến khi bạn tự poll.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Cách nhìn “spreadsheet” đặt câu hỏi khác: không phải “khi nào tôi đọc lại?” mà “khi input này đổi, những gì phụ thuộc vào nó và làm sao chúng tự cập nhật đúng thứ tự, không mất tin?”.</p></aside>
+  </article>
+
+  <!-- 13.8 -->
+  <article class="topic" id="ch13-stream-services" data-num="13.8" data-short="Stream processor & service" data-keywords="microservices rpc rest exchange rate currency stream table join time-dependent join">
+    <p class="eyebrow">13.8 · Stream Processors and Services</p>
+    <h2>Stream processor và các service <span class="vi">Stream Processors and Services</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Microservice gọi nhau bằng request/response đồng bộ; dataflow ghép operator bằng luồng tin một chiều, bất đồng bộ. Cả hai đều cho ghép lỏng về mặt tổ chức.</li>
+      <li>Ví dụ tỷ giá: thay vì gọi service tỷ giá mỗi lần mua hàng, đăng ký luồng cập nhật tỷ giá và lưu vào CSDL cục bộ. Nhanh hơn và không chết theo service kia: request mạng nhanh nhất là request không phải gửi.</li>
+      <li>Đó là một <dfn data-term="stream-table-join">stream-table join</dfn>, và nó <dfn data-term="time-dependent-join">phụ thuộc thời gian</dfn>: xử lý lại sau này cần tỷ giá lịch sử.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ưu điểm chính của kiến trúc hướng service so với một ứng dụng nguyên khối là khả năng mở rộng về <em>tổ chức</em>: nhiều đội làm nhiều service, ít phải phối hợp, miễn là deploy độc lập được. Ghép stream operator thành hệ dataflow có nhiều đặc điểm tương tự, nhưng cơ chế giao tiếp khác hẳn: luồng tin một chiều, bất đồng bộ thay vì request/response đồng bộ.</p>
+      <p>Ví dụ của sách: khách mua một món niêm yết bằng một loại tiền và trả bằng loại tiền khác, nên cần tỷ giá hiện tại. Hai cách làm:</p>
+      <ol>
+        <li><strong>Microservice:</strong> code xử lý mua hàng gọi một service hoặc CSDL tỷ giá để lấy tỷ giá hiện tại.</li>
+        <li><strong>Dataflow:</strong> code xử lý mua hàng đăng ký trước một luồng cập nhật tỷ giá, ghi tỷ giá mới nhất vào CSDL cục bộ mỗi khi có thay đổi. Lúc xử lý đơn chỉ cần tra CSDL cục bộ.</li>
+      </ol>
+      <p>Cách hai thay một request mạng đồng bộ bằng một truy vấn cục bộ (có khi cùng tiến trình). Nó nhanh hơn và bền hơn khi service kia lỗi. Chú thích của sách: trong microservice bạn cũng có thể cache tỷ giá cục bộ, nhưng muốn cache tươi thì phải poll định kỳ hoặc đăng ký luồng thay đổi, tức là quay lại đúng cách dataflow.</p>
+      <p>Phép join này phụ thuộc thời gian: nếu xử lý lại các sự kiện mua hàng vào lúc khác, tỷ giá đã đổi. Muốn tái tạo đúng output gốc, bạn cần tỷ giá lịch sử tại thời điểm mua, bất kể dùng service hay luồng.</p>
+    </div>
+    <figure class="lab" data-widget="fx-rate">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Quy đổi tiền khi mua hàng: gọi RPC hay đăng ký luồng tỷ giá
+        <small>Chọn cách làm, chỉnh độ trễ mạng và tỉ lệ lỗi của service tỷ giá, rồi xử lý 200 đơn. Phía dưới: xử lý lại đơn của hôm qua với tỷ giá nào?</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Cách dataflow đổi “lỗi khi service sập” thành “tỷ giá có thể hơi cũ khi luồng tạm dừng”. Đó thường là đổi chác tốt, nhưng bạn phải biết và chấp nhận nó một cách có ý thức, ví dụ hiện tỷ giá kèm thời điểm cập nhật.</p></aside>
+  </article>
+
+  <!-- 13.9 -->
+  <article class="topic" id="ch13-read-write-path" data-num="13.9" data-short="Write path & read path" data-keywords="write path read path eager lazy materialized view cache index boundary twitter timeline fan-out">
+    <p class="eyebrow">13.9 · Observing Derived State · Materialized Views and Caching</p>
+    <h2>Đường ghi, đường đọc và ranh giới giữa chúng <span class="vi">Observing Derived State</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="write-path">Đường ghi</dfn>: phần hành trình của dữ liệu được tính trước, ngay khi dữ liệu đến (giống eager evaluation). <dfn data-term="read-path">Đường đọc</dfn>: phần chỉ chạy khi có người hỏi (giống lazy evaluation).</li>
+      <li>Dữ liệu dẫn xuất là nơi hai đường gặp nhau, và là một đánh đổi giữa việc làm lúc ghi và việc làm lúc đọc.</li>
+      <li>Chỉ mục, cache, materialized view đều là công cụ <em>dời ranh giới</em>: làm thêm ở đường ghi để bớt việc ở đường đọc. Bài toán timeline ở <a href="#ch2">Chương 2</a> chính là chuyện dời ranh giới này.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ta tạo dữ liệu dẫn xuất (chỉ mục, view, mô hình) vì muốn truy vấn nó sau này. Gộp lại, đường ghi và đường đọc bao trọn hành trình của dữ liệu, từ lúc được thu thập đến lúc được tiêu thụ (có lẽ bởi một con người khác). Hình 12-1 trong sách: ở chỉ mục tìm kiếm, ghi (cập nhật tài liệu) gặp đọc (truy vấn).</p>
+      <p>Chỉ mục toàn văn là ví dụ tốt. Cả hai phía đều làm việc: ghi phải cập nhật mục chỉ mục cho mọi từ trong tài liệu; đọc phải tra từng từ của truy vấn và áp logic Boolean (AND cho mọi từ, OR cho các từ đồng nghĩa).</p>
+      <ul>
+        <li><strong>Không có chỉ mục:</strong> đường ghi gần như không làm gì, nhưng mỗi truy vấn phải quét mọi tài liệu như <code>grep</code>. Đắt khi có nhiều tài liệu.</li>
+        <li><strong>Tính trước kết quả cho mọi truy vấn có thể có:</strong> đường đọc chỉ việc tra kết quả. Nhưng tập truy vấn có thể là vô hạn, nên đường ghi cần thời gian và dung lượng vô hạn. (Chú thích của sách: với một kho hữu hạn, tập truy vấn có kết quả khác rỗng là hữu hạn nhưng tăng theo hàm mũ của số từ, vẫn là tin xấu.)</li>
+        <li><strong>Ở giữa:</strong> tính trước kết quả cho một tập cố định các truy vấn phổ biến nhất, phần còn lại vẫn qua chỉ mục. Người ta gọi đó là cache truy vấn phổ biến; cũng có thể gọi là materialized view, vì nó phải được cập nhật khi có tài liệu mới khớp với một trong các truy vấn đó.</li>
+      </ul>
+      <p>Ví dụ Twitter ở đầu sách (<a href="#ch2">Chương 2</a>) cũng là chuyện dời ranh giới, và ranh giới có thể vẽ khác nhau cho người nổi tiếng và người thường. Tác giả viết: sau 500 trang, ta đã đi hết một vòng.</p>
+    </div>
+    <figure class="lab" data-widget="rw-boundary">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Kéo ranh giới giữa đường ghi và đường đọc
+        <small>Chọn ví dụ (tìm kiếm hoặc home timeline), rồi kéo thanh “Vị trí ranh giới” để làm thêm việc lúc ghi hoặc lúc đọc. Các thanh dùng thang log.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Không có ranh giới “đúng” chung cho mọi trường hợp. Câu hỏi luôn là: truy vấn nào được hỏi nhiều, dữ liệu nào được ghi nhiều, và bạn chịu được độ trễ ở phía nào.</p></aside>
+  </article>
+
+  <!-- 13.10 -->
+  <article class="topic" id="ch13-clients" data-num="13.10" data-short="Client có trạng thái, offline" data-keywords="offline-first websockets server-sent events push consumer offset react redux elm end-to-end event streams">
+    <p class="eyebrow">13.10 · Stateful, Offline-Capable Clients · Pushing State Changes to Clients · End-to-End Event Streams</p>
+    <h2>Client có trạng thái, chạy được offline <span class="vi">Stateful, Offline-Capable Clients</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>App web một trang và app di động giữ nhiều trạng thái trên thiết bị. Ứng dụng <dfn data-term="offline-first">offline-first</dfn> dùng CSDL cục bộ, đồng bộ nền khi có mạng.</li>
+      <li>Trạng thái trên thiết bị là cache của trạng thái trên server; pixel trên màn hình là materialized view của các model object.</li>
+      <li>Đẩy thay đổi đến client (SSE, WebSocket) là kéo dài đường ghi đến tận người dùng. Khi thiết bị offline, dùng lại kỹ thuật <dfn data-term="consumer-offset">consumer offset</dfn> của log để đọc bù.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Mô hình client/server, nơi client gần như không có trạng thái và server nắm quyền với dữ liệu, phổ biến đến mức ta quên rằng còn cách khác. Trình duyệt từng chỉ làm được việc khi có mạng (offline thì chỉ cuộn được trang đã tải). Nay app JavaScript một trang có tương tác phía client và lưu trữ bền trong trình duyệt; app di động lưu nhiều trạng thái trên máy và không cần một vòng đến server cho phần lớn thao tác. Với mạng di động chậm và chập chờn, giao diện không phải chờ request đồng bộ là lợi thế lớn.</p>
+      <h3>Đẩy thay đổi trạng thái tới client</h3>
+      <p>Một trang web thông thường đọc dữ liệu một lần và coi như tĩnh; server có đổi gì thì trình duyệt không biết cho đến khi bạn tải lại. Trạng thái trên thiết bị là một cache cũ (RSS cũng chỉ là polling). Server-sent events (API EventSource) và WebSocket giữ một kết nối TCP mở để server chủ động đẩy tin, giảm độ cũ của trạng thái phía client.</p>
+      <p>Theo mô hình đường ghi/đường đọc, đẩy thay đổi đến tận thiết bị nghĩa là <mark>kéo dài đường ghi đến người dùng cuối</mark>. Lần đầu client vẫn dùng đường đọc để lấy trạng thái ban đầu, sau đó dựa vào luồng thay đổi do server gửi. Thiết bị sẽ có lúc offline; nhưng bài toán này đã được giải ở <a href="#ch12">Chương 12</a>: consumer của message broker dựa trên log kết nối lại và đọc tiếp từ offset, không sót tin nào. Mỗi thiết bị là một subscriber nhỏ của một luồng sự kiện nhỏ.</p>
+      <h3>Luồng sự kiện đầu-cuối</h3>
+      <p>Elm và bộ React, Flux, Redux của Facebook đã quản lý trạng thái phía client bằng cách đăng ký một luồng sự kiện (input của người dùng, phản hồi từ server), cấu trúc giống event sourcing. Mở rộng để server đẩy sự kiện thay đổi vào pipeline đó là rất tự nhiên: thay đổi chảy từ thao tác trên một thiết bị, qua event log, qua nhiều hệ dẫn xuất và stream processor, đến giao diện của người đang xem trên thiết bị khác, với độ trễ có thể dưới một giây. Nhắn tin và game online đã làm vậy. Vì sao không làm cho mọi ứng dụng? Vì giả định client không trạng thái và request/response đã ăn sâu vào CSDL, thư viện, framework và giao thức; ít datastore cho phép một request nhận về một <em>luồng</em> phản hồi theo thời gian. Tác giả cho rằng giao diện nhạy hơn và hỗ trợ offline tốt hơn đáng để thay đổi.</p>
+    </div>
+    <figure class="lab" data-widget="push-offline">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Thiết bị như một subscriber nhỏ của log
+        <small>Tạo thay đổi trên “thiết bị khác”, đổi cách client nhận dữ liệu, cho thiết bị offline rồi online lại để xem nó đọc bù từ offset.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Khi thiết kế API dữ liệu, hãy để ngỏ lựa chọn <em>đăng ký thay đổi</em>, không chỉ <em>truy vấn trạng thái hiện tại</em>.</p></aside>
+  </article>
+
+  <!-- 13.11 -->
+  <article class="topic" id="ch13-reads-events" data-num="13.11" data-short="Đọc cũng là sự kiện" data-keywords="reads are events stream table join provenance multi-partition storm distributed rpc fraud url reach">
+    <p class="eyebrow">13.11 · Reads Are Events Too · Multi-Partition Data Processing</p>
+    <h2>Đọc cũng là sự kiện <span class="vi">Reads Are Events Too</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Thông thường ghi đi qua log, còn đọc là request tạm thời đi thẳng đến node lưu dữ liệu. Nhưng có thể biểu diễn cả request đọc thành sự kiện và cho đi qua cùng stream processor.</li>
+      <li>Khi đó phục vụ một lần đọc là một stream-table join: đọc một lần thì join rồi quên; đăng ký thì là join bền với cả sự kiện quá khứ và tương lai.</li>
+      <li>Ghi log các lần đọc cho phép biết người dùng <em>đã thấy gì</em> trước khi quyết định (<dfn data-term="data-provenance">nguồn gốc dữ liệu</dfn>), đổi lại tốn lưu trữ và I/O.</li>
+      <li>Hạ tầng định tuyến, chia partition và join của stream processor dùng được cho truy vấn phức tạp vắt qua nhiều partition.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Stream processor vốn đã phải giữ trạng thái cho phép tổng hợp và join. Trạng thái đó thường ẩn bên trong, nhưng một số framework cho phép client bên ngoài truy vấn nó (ví dụ interactive queries của Kafka Streams), biến stream processor thành một CSDL đơn giản. Tác giả muốn đi xa hơn: request đọc cũng là sự kiện, được gửi đến partition đang giữ dữ liệu (giống định tuyến request ở <a href="#ch7">Chương 7</a>, và giống việc batch/stream phải co-partition input theo cùng khoá khi join), và processor trả kết quả đọc ra một luồng output.</p>
+      <p>Lợi ích: truy vết phụ thuộc nhân quả. Trong cửa hàng online, ngày giao hàng dự kiến và tình trạng tồn kho mà khách nhìn thấy có thể ảnh hưởng đến việc họ có mua hay không. Muốn phân tích mối liên hệ đó, bạn phải ghi lại kết quả truy vấn mà khách đã nhận. Đây là ý “ghi lại trạng thái người dùng đã thấy” ở 13.3. Tối ưu chi phí của cách làm này còn là bài toán nghiên cứu mở, nhưng nếu bạn đã log request đọc cho mục đích vận hành thì biến log đó thành nguồn của request cũng không phải thay đổi lớn.</p>
+      <h3>Xử lý dữ liệu đa partition</h3>
+      <p>Với truy vấn chỉ chạm một partition, gửi qua stream có lẽ là thừa. Nhưng ý tưởng này mở ra khả năng chạy phân tán các truy vấn phức tạp cần kết hợp nhiều partition. Distributed RPC của Storm từng được dùng để đếm số người đã thấy một URL trên Twitter: hợp các tập follower của mọi người đã tweet URL đó, mà người dùng được chia trên nhiều partition. Một ví dụ khác là chống gian lận: để đánh giá một giao dịch, tra điểm uy tín của địa chỉ IP, email, địa chỉ thanh toán, địa chỉ giao hàng, mỗi cái nằm trong một CSDL partition riêng, tức một chuỗi join với các tập dữ liệu chia partition khác nhau. Đồ thị thực thi của CSDL MPP có đặc điểm tương tự; nếu CSDL có sẵn tính năng đó thì dùng nó đơn giản hơn, nhưng coi truy vấn là luồng là một lựa chọn khi chạm giới hạn của giải pháp có sẵn.</p>
+    </div>
+    <figure class="lab" data-widget="reads-events">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đọc như sự kiện và truy vấn vắt qua nhiều partition
+        <small>Chế độ 1: cho khách xem, mua, nhập kho; bấm vào một sự kiện “mua” để thấy khách đã nhìn thấy gì trước đó. Chế độ 2: đếm số người đã thấy một URL bằng cách hợp tập follower trên nhiều partition.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Ý tưởng này gắn với bài “Dataflow as Database” của Frank McSherry và bài nói “I See What You Mean” của Peter Alvaro: phục vụ request và thực hiện join về bản chất là một việc.</p></aside>
+  </article>
+
+  <!-- 13.12 -->
+  <article class="topic" id="ch13-end-to-end" data-num="13.12" data-short="Lập luận đầu-cuối" data-keywords="end-to-end argument duplicate suppression idempotent operation id request id exactly-once tcp 2pc post redirect get">
+    <p class="eyebrow">13.12 · Aiming for Correctness · The End-to-End Argument for Databases</p>
+    <h2>Lập luận đầu-cuối cho cơ sở dữ liệu <span class="vi">The End-to-End Argument for Databases</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Hệ có trạng thái nhớ “mãi mãi”, nên sai sót cũng tồn tại mãi. Giao dịch serializable không cứu được nếu code ứng dụng ghi sai.</li>
+      <li>Xử lý hai lần là một dạng hỏng dữ liệu. TCP chỉ chống trùng trong một kết nối; giao dịch CSDL gắn với kết nối; 2PC chỉ lo đoạn coordinator–CSDL. Người dùng bấm gửi lại form sau timeout thì không lớp nào nhận ra.</li>
+      <li>Lời giải: <dfn data-term="operation-id">ID thao tác</dfn> do client sinh, đi suốt từ đầu đến CSDL, kèm ràng buộc duy nhất. Đó là một trường hợp của <dfn data-term="end-to-end-argument">lập luận đầu-cuối</dfn>.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Service không trạng thái gặp lỗi thì sửa bug, khởi động lại là xong. Hệ có trạng thái như CSDL được thiết kế để nhớ gần như mãi mãi, nên hậu quả của lỗi cũng có thể kéo dài mãi. Gần bốn mươi năm, atomicity, isolation và durability (<a href="#ch8">Chương 8</a>) là công cụ chính để viết ứng dụng đúng, nhưng nền móng đó yếu hơn ta tưởng: hãy nhớ sự rối rắm của các mức isolation yếu, hay các thí nghiệm Jepsen của Kyle Kingsbury cho thấy khoảng cách giữa đảm bảo quảng cáo và hành vi thật khi có sự cố mạng.</p>
+      <h3>Thực thi một thao tác đúng một lần</h3>
+      <p>Khi xử lý tin gặp lỗi, bạn có thể bỏ (mất dữ liệu) hoặc thử lại, nhưng có thể lần đầu đã thành công mà bạn không biết, và tin bị xử lý hai lần: tính tiền khách hai lần, tăng bộ đếm hai lần. <dfn data-term="exactly-once">Exactly-once</dfn> ở đây nghĩa là kết quả cuối như thể không có lỗi, dù thực tế có thử lại. Cách hiệu quả nhất là làm thao tác idempotent, việc này cần metadata (tập ID thao tác đã áp) và fencing khi chuyển node.</p>
+      <h3>Chống trùng lặp</h3>
+      <p>TCP dùng số thứ tự gói để sắp xếp và loại gói trùng, nhưng chỉ trong một kết nối. Xét giao dịch chuyển tiền kinh điển của sách (Ví dụ 12-1):</p>
+    </div>
+    <pre class="code"><span class="k">BEGIN TRANSACTION</span>;
+<span class="k">UPDATE</span> accounts <span class="k">SET</span> balance = balance + <span class="n">11.00</span> <span class="k">WHERE</span> account_id = <span class="n">1234</span>;
+<span class="k">UPDATE</span> accounts <span class="k">SET</span> balance = balance - <span class="n">11.00</span> <span class="k">WHERE</span> account_id = <span class="n">4321</span>;
+<span class="k">COMMIT</span>;</pre>
+    <div class="prose">
+      <p>Nếu client mất kết nối sau khi gửi <code>COMMIT</code> nhưng trước khi nhận phản hồi, nó không biết giao dịch đã commit hay abort. Kết nối lại và thử lại thì đã ra ngoài phạm vi chống trùng của TCP; giao dịch không idempotent nên có thể chuyển 22 $ thay vì 11 $. Ví dụ kinh điển về atomicity này thực ra không đúng, và ngân hàng thật không làm thế. 2PC tách được ánh xạ một kết nối = một giao dịch, nhưng vẫn chưa đủ: còn đoạn mạng giữa thiết bị người dùng và server ứng dụng. Người dùng trên mạng di động yếu gửi được POST nhưng không nhận được phản hồi, thấy báo lỗi, trình duyệt hỏi “Bạn có chắc muốn gửi lại biểu mẫu?”, họ bấm có. Với web server đó là request mới, với CSDL đó là giao dịch mới. Mẫu Post/Redirect/Get tránh được hộp thoại kia trong trường hợp thường, nhưng không giúp khi POST bị timeout.</p>
+      <h3>ID thao tác</h3>
+      <p>Sinh một ID duy nhất cho thao tác (UUID trong trường ẩn của form, hoặc hash của các trường liên quan), truyền nó đến tận CSDL, và bảo đảm chỉ thực thi một thao tác cho mỗi ID (Ví dụ 12-2):</p>
+    </div>
+    <pre class="code"><span class="k">ALTER TABLE</span> requests <span class="k">ADD UNIQUE</span> (request_id);
+
+<span class="k">BEGIN TRANSACTION</span>;
+<mark><span class="k">INSERT INTO</span> requests (request_id, from_account, to_account, amount)
+  <span class="k">VALUES</span>(<span class="s">'0286FDB8-D7E1-423F-B40B-792B3608036C'</span>, <span class="n">4321</span>, <span class="n">1234</span>, <span class="n">11.00</span>);</mark>
+<span class="k">UPDATE</span> accounts <span class="k">SET</span> balance = balance + <span class="n">11.00</span> <span class="k">WHERE</span> account_id = <span class="n">1234</span>;
+<span class="k">UPDATE</span> accounts <span class="k">SET</span> balance = balance - <span class="n">11.00</span> <span class="k">WHERE</span> account_id = <span class="n">4321</span>;
+<span class="k">COMMIT</span>;</pre>
+    <figure class="lab" data-widget="double-pay">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Mạng chập chờn và lần chuyển tiền bị tính hai lần
+        <small>Bấm “Chuyển 11 $”. Khi phản hồi bị mất sau COMMIT, người dùng gửi lại form. So sánh kết quả khi không có và khi có request ID đi từ đầu đến cuối.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <p>Ràng buộc <code>UNIQUE</code> làm <code>INSERT</code> thứ hai thất bại và giao dịch abort. CSDL quan hệ thường duy trì ràng buộc duy nhất đúng ngay cả ở isolation yếu, trong khi kiểu “kiểm tra rồi chèn” ở tầng ứng dụng có thể hỏng (write skew, <a href="#ch8">Chương 8</a>). Bảng <code>requests</code> còn đóng vai một event log: cập nhật số dư có thể được dẫn xuất ở consumer phía sau, miễn mỗi sự kiện được xử lý đúng một lần, điều lại được bảo đảm bằng request ID.</p>
+      <h3>Lập luận đầu-cuối</h3>
+      <p>Saltzer, Reed và Clark phát biểu năm 1984, đại ý: một chức năng chỉ có thể được cài đặt đầy đủ và đúng nếu có hiểu biết và sự hỗ trợ của ứng dụng ở hai đầu của hệ truyền thông; hệ truyền thông tự nó không thể cung cấp đầy đủ chức năng đó, dù một phiên bản không đầy đủ ở tầng thấp có thể có ích để tăng hiệu năng. Ở đây chức năng là chống trùng lặp. Điều tương tự đúng với checksum (Ethernet, TCP, TLS không bắt được lỗi do bug ở hai đầu hay hỏng trên đĩa) và mã hoá (mật khẩu WiFi không chống được kẻ tấn công ở chỗ khác trên Internet; TLS không chống được server bị chiếm). Tính năng tầng thấp vẫn có ích vì giảm xác suất lỗi ở tầng cao; chỉ là chúng không đủ.</p>
+      <p>Giao dịch là trừu tượng hay: gom vô số vấn đề (ghi đồng thời, vi phạm ràng buộc, crash, mất mạng, hỏng đĩa) về hai kết cục commit hoặc abort. Nhưng chúng đắt, nhất là giữa các hệ khác loại; khi bỏ chúng, ta phải tự cài cơ chế chịu lỗi trong code ứng dụng, và tác giả ngờ rằng đa số cơ chế như vậy không chạy đúng. Ông cho rằng đáng tìm những trừu tượng chịu lỗi giúp đạt tính đúng đắn đầu-cuối theo đặc thù ứng dụng mà vẫn hiệu năng tốt ở quy mô lớn.</p>
+    </div>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Mỗi lớp (TCP, giao dịch, exactly-once của stream processor) chỉ chống trùng trong phạm vi của nó. Chỉ một ID sinh ở điểm đầu và kiểm tra ở điểm cuối mới bao được cả hành trình.</p></aside>
+  </article>
+
+  <!-- 13.13 -->
+  <article class="topic" id="ch13-constraints" data-num="13.13" data-short="Thực thi ràng buộc" data-keywords="uniqueness constraint username consensus log partition multi-partition request processing money transfer debit credit bayou">
+    <p class="eyebrow">13.13 · Enforcing Constraints · Uniqueness in Log-based Messaging · Multi-partition Request Processing</p>
+    <h2>Thực thi ràng buộc bằng log <span class="vi">Enforcing Constraints</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="uniqueness-constraint">Ràng buộc duy nhất</dfn> trong hệ phân tán cần đồng thuận. Cách thường gặp: dồn mọi yêu cầu cùng giá trị về một node, tức chia partition theo giá trị cần duy nhất. Multi-leader bất đồng bộ bị loại.</li>
+      <li>Với log: chia partition theo hash của username; stream processor đọc tuần tự từng partition nên quyết định không mơ hồ ai đến trước. Tăng partition để tăng thông lượng.</li>
+      <li><dfn data-term="multi-partition-request">Yêu cầu đa partition</dfn> (chuyển tiền) không cần atomic commit: ghi yêu cầu thành <em>một</em> tin, dẫn xuất lệnh ghi nợ/ghi có tất định, khử trùng lặp bằng request ID.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ngoài chống trùng request, các tính năng cần ràng buộc duy nhất rất phổ biến: username hay email định danh duy nhất một người dùng, không có hai file cùng tên, hai người không đặt cùng một ghế. Các ràng buộc khác rất giống: số dư không âm, không bán quá số hàng trong kho, phòng họp không bị đặt chồng giờ.</p>
+      <p>Trong hệ phân tán, nếu có nhiều yêu cầu đồng thời cùng giá trị, hệ phải quyết định cái nào được nhận, cái nào bị từ chối: đó là đồng thuận (<a href="#ch10">Chương 10</a>). Cách phổ biến là để một leader quyết định mọi thứ; muốn chịu được leader chết thì lại quay về bài toán đồng thuận. Có thể mở rộng bằng cách chia partition theo giá trị cần duy nhất (theo request ID, theo hash username). Multi-master bất đồng bộ bị loại vì các master có thể cùng lúc nhận hai ghi xung đột. Muốn từ chối <em>ngay lập tức</em> mọi ghi vi phạm, phối hợp đồng bộ là không tránh được.</p>
+      <h3>Duy nhất với messaging dựa trên log</h3>
+      <p>Log bảo đảm mọi consumer thấy tin theo cùng thứ tự (total order broadcast, tương đương đồng thuận). Stream processor đọc một partition tuần tự trên một luồng. Vậy nếu chia log theo giá trị cần duy nhất:</p>
+      <ol>
+        <li>Mỗi yêu cầu đăng ký username thành một tin, ghi vào partition chọn bởi hash của username.</li>
+        <li>Stream processor đọc tuần tự, dùng CSDL cục bộ để nhớ username đã bị lấy. Còn trống thì ghi nhận và phát tin thành công; đã bị lấy thì phát tin từ chối.</li>
+        <li>Client theo dõi luồng output và chờ tin ứng với yêu cầu của mình.</li>
+      </ol>
+      <p>Thuật toán này về cơ bản là cách cài lưu trữ linearizable bằng total order broadcast ở <a href="#ch10">Chương 10</a>, và mở rộng dễ bằng cách tăng số partition. Nguyên lý tổng quát: mọi ghi có thể xung đột được định tuyến về cùng partition và xử lý tuần tự; processor có thể dùng logic tuỳ ý để kiểm tra yêu cầu (giống hệ Bayou thập niên 1990).</p>
+    </div>
+    <figure class="lab" data-widget="username-log">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đăng ký username qua log chia partition theo hash
+        <small>Các yêu cầu đến theo thứ tự ngẫu nhiên. Đổi số partition, thêm yêu cầu của bạn, hoặc bật so sánh với multi-leader bất đồng bộ để xem trùng lặp lọt qua.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Xử lý yêu cầu đa partition</h3>
+      <p>Trong Ví dụ 12-2 có tới ba partition: partition chứa request ID, partition tài khoản nhận, partition tài khoản trả. Không có lý do gì chúng nằm chung. Cách truyền thống cần atomic commit qua cả ba, ép giao dịch vào một thứ tự toàn phần với mọi giao dịch khác trên các partition đó, nên thông lượng giảm. Thay vào đó:</p>
+      <ol>
+        <li>Client gán request ID duy nhất cho yêu cầu chuyển tiền từ A sang B, ghi vào partition log theo request ID.</li>
+        <li>Một stream processor đọc log yêu cầu; với mỗi yêu cầu phát hai tin: lệnh ghi nợ tới partition của A, lệnh ghi có tới partition của B, kèm request ID gốc.</li>
+        <li>Các processor tiếp theo tiêu thụ lệnh ghi nợ/ghi có, khử trùng lặp theo request ID và áp vào số dư.</li>
+      </ol>
+      <p>Bước 1 và 2 cần thiết vì nếu client gửi thẳng lệnh ghi nợ và ghi có, phải có atomic commit qua hai partition để bảo đảm cả hai hoặc không cái nào xảy ra. Ghi một đối tượng là atomic trong gần như mọi hệ, nên yêu cầu hoặc có trong log hoặc không. Nếu processor bước 2 crash, nó chạy lại từ checkpoint và có thể phát lệnh trùng; vì nó tất định, lệnh trùng y hệt và bước 3 loại được nhờ request ID. Muốn chặn thấu chi, thêm một processor chia partition theo tài khoản trả để kiểm tra số dư, và chỉ yêu cầu hợp lệ mới vào log ở bước 1.</p>
+    </div>
+    <figure class="lab" data-widget="transfer">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Chuyển tiền qua ba partition mà không cần atomic commit
+        <small>Bấm “Chuyển 11 $ từ A sang B”. Bật “processor crash” để thấy lệnh bị phát lại; tắt “khử trùng lặp” để thấy tiền biến mất khỏi hệ thống.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Chia một giao dịch đa partition thành hai giai đoạn chia partition khác nhau, nối bằng một request ID đầu-cuối, cho cùng tính đúng đắn (mỗi yêu cầu áp đúng một lần cho cả hai tài khoản) mà không cần giao thức atomic commit.</p></aside>
+  </article>
+
+  <!-- 13.14 -->
+  <article class="topic" id="ch13-integrity" data-num="13.14" data-short="Timeliness và integrity" data-keywords="timeliness integrity consistency eventual perpetual inconsistency credit card statement correctness dataflow">
+    <p class="eyebrow">13.14 · Timeliness and Integrity · Correctness of Dataflow Systems</p>
+    <h2>Tính kịp thời và tính toàn vẹn <span class="vi">Timeliness and Integrity</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Chữ “consistency” gộp hai yêu cầu khác nhau. <dfn data-term="timeliness">Timeliness</dfn>: người dùng thấy trạng thái cập nhật. <dfn data-term="integrity">Integrity</dfn>: không hỏng dữ liệu, không mất, không mâu thuẫn hay sai.</li>
+      <li>Vi phạm timeliness là “eventual consistency”, chờ là hết. Vi phạm integrity là “perpetual inconsistency”, phải kiểm tra và sửa.</li>
+      <li>Với hầu hết ứng dụng, integrity quan trọng hơn nhiều. Hệ dataflow tách rời hai thứ: không bảo đảm timeliness, nhưng integrity là trung tâm.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Giao dịch tiện ở chỗ thường linearizable: bên ghi chờ commit xong, sau đó mọi bên đọc thấy ngay. Tháo một thao tác thành nhiều tầng stream processor thì không vậy: consumer của log bất đồng bộ theo thiết kế. Client vẫn có thể chờ tin xuất hiện trên luồng output, như ở ví dụ username. Nhưng tính đúng của kiểm tra duy nhất <em>không</em> phụ thuộc vào việc người gửi có chờ hay không; việc chờ chỉ để báo đồng bộ cho người gửi.</p>
+      <ul>
+        <li><strong>Timeliness:</strong> đọc từ bản sao cũ có thể thấy trạng thái không nhất quán (<a href="#ch6">Chương 6</a>), nhưng đó là tạm thời. CAP dùng consistency theo nghĩa linearizability, một cách mạnh để đạt timeliness; read-after-write là dạng yếu hơn vẫn hữu ích.</li>
+        <li><strong>Integrity:</strong> nếu một tập dữ liệu dẫn xuất là view của dữ liệu gốc thì phép dẫn xuất phải đúng; chỉ mục thiếu bản ghi thì vô dụng. Trong ACID, “consistency” thường là một khái niệm integrity theo đặc thù ứng dụng; atomicity và durability là công cụ giữ integrity.</li>
+      </ul>
+      <p>Ví dụ của sách: trên sao kê thẻ tín dụng, giao dịch trong 24 giờ qua chưa hiện là chuyện bình thường; ngân hàng đối soát và quyết toán bất đồng bộ. Nhưng nếu số dư sao kê không bằng tổng giao dịch cộng số dư kỳ trước, hoặc bạn bị trừ tiền mà người bán không nhận được (tiền biến mất), đó là vi phạm integrity, và rất tệ.</p>
+    </div>
+    <figure class="lab" data-widget="timeliness-2x2">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ma trận 2×2: vi phạm timeliness, vi phạm integrity trông thế nào
+        <small>Bấm một ô để xem sao kê thẻ tín dụng tương ứng, rồi bấm “Chờ 24 giờ” để thấy lỗi nào tự hết, lỗi nào ở lại mãi.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Tính đúng đắn của hệ dataflow</h3>
+      <p>ACID thường cho cả hai (linearizability cho timeliness, atomic commit cho integrity), nên nhìn từ ACID thì phân biệt này không quan trọng. Hệ dataflow dựa trên sự kiện thì tách rời chúng: không có timeliness trừ khi bạn chủ động viết consumer chờ, nhưng exactly-once, gửi tin chịu lỗi và khử trùng lặp đều là cơ chế giữ integrity. Như ở 13.13, integrity đạt được không cần giao dịch phân tán, nhờ kết hợp:</p>
+      <ul>
+        <li>Biểu diễn nội dung thao tác ghi thành <em>một</em> tin, ghi atomic dễ dàng (hợp với event sourcing).</li>
+        <li>Dẫn xuất mọi cập nhật trạng thái khác từ tin đó bằng hàm tất định (giống stored procedure).</li>
+        <li>Truyền request ID do client sinh qua mọi tầng, cho phép chống trùng và idempotence đầu-cuối.</li>
+        <li>Giữ tin bất biến và cho phép xử lý lại dữ liệu dẫn xuất để phục hồi sau bug.</li>
+      </ul>
+    </div>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Khẩu hiệu của sách: vi phạm timeliness là “eventual consistency”, vi phạm integrity là “perpetual inconsistency”. Hãy hỏi ứng dụng của bạn chịu được cái nào.</p></aside>
+  </article>
+
+  <!-- 13.15 -->
+  <article class="topic" id="ch13-loose" data-num="13.15" data-short="Ràng buộc lỏng & xin lỗi" data-keywords="loosely interpreted constraints apology compensating transaction overbooking coordination-avoiding multi-leader">
+    <p class="eyebrow">13.15 · Loosely Interpreted Constraints · Coordination-Avoiding Data Systems</p>
+    <h2>Ràng buộc diễn giải lỏng và hệ tránh phối hợp <span class="vi">Loosely Interpreted Constraints</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Nhiều doanh nghiệp vốn đã chấp nhận vi phạm ràng buộc tạm thời rồi sửa bằng <dfn data-term="compensating-transaction">giao dịch bù</dfn>: xin lỗi, hoàn tiền, giảm giá, nâng hạng.</li>
+      <li>Hãng bay cố ý bán quá số ghế; kho hết hàng thì đặt thêm và xin lỗi; ngân hàng giới hạn rút tiền mỗi ngày để chặn rủi ro thấu chi. Cái họ cần là integrity, không phải timeliness của việc kiểm tra ràng buộc.</li>
+      <li>Hệ <dfn data-term="coordination-avoiding">tránh phối hợp</dfn>: giữ integrity mạnh mà không cần phối hợp đồng bộ, nên chạy được trên nhiều datacenter, nhanh và chịu lỗi tốt hơn.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ràng buộc duy nhất kiểu truyền thống buộc phải dồn qua một node, stream processing cũng không tránh được. Nhưng nhiều ứng dụng thật chỉ cần dạng yếu hơn:</p>
+      <ul>
+        <li>Hai người cùng đăng ký một username hay đặt cùng một ghế: gửi một người lời xin lỗi và mời chọn cái khác.</li>
+        <li>Khách đặt nhiều hơn hàng trong kho: nhập thêm, xin lỗi vì chậm, tặng giảm giá. Bạn vốn phải làm đúng việc này khi xe nâng cán hỏng một ít hàng trong kho, nên quy trình xin lỗi đã phải có sẵn.</li>
+        <li>Hãng bay, khách sạn cố ý bán quá chỗ vì biết có người không đến; khi cầu vượt cung thì hoàn tiền, nâng hạng, đặt phòng ở khách sạn bên cạnh. Kể cả không overbook, chuyến bay vẫn có thể huỷ vì thời tiết hay đình công.</li>
+        <li>Rút quá số dư: ngân hàng thu phí thấu chi và đòi lại; giới hạn rút mỗi ngày làm rủi ro có trần.</li>
+      </ul>
+      <p>Chi phí xin lỗi khác nhau nhưng thường thấp: không thu hồi được email nhưng gửi được email đính chính; lỡ trừ thẻ hai lần thì hoàn một lần. Tiền đã ra khỏi ATM thì không lấy lại trực tiếp được. Chấp nhận chi phí đó hay không là quyết định kinh doanh. Nếu chấp nhận, có thể ghi lạc quan rồi kiểm tra ràng buộc sau; chỉ cần bảo đảm kiểm tra xong trước những việc khó phục hồi.</p>
+    </div>
+    <figure class="lab" data-widget="overbooking">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bán quá chỗ và đường cong “số lời xin lỗi”
+        <small>Trái: chỉnh số vé bán cho chuyến 100 ghế và tỉ lệ khách không đến, mô phỏng 2.000 chuyến. Phải: kéo mức phối hợp đồng bộ để tìm điểm cân bằng giữa xin lỗi vì không nhất quán và xin lỗi vì sập.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Hệ dữ liệu tránh phối hợp</h3>
+      <p>Gộp hai quan sát: (1) hệ dataflow giữ được integrity trên dữ liệu dẫn xuất mà không cần atomic commit, linearizability hay phối hợp đồng bộ giữa partition; (2) dù ràng buộc duy nhất nghiêm ngặt cần timeliness và phối hợp, nhiều ứng dụng ổn với ràng buộc lỏng được sửa sau, miễn integrity được giữ suốt. Hệ như vậy có thể chạy multi-leader trên nhiều datacenter, sao chép bất đồng bộ giữa các vùng; mỗi datacenter chạy độc lập. Timeliness yếu (không thể linearizable nếu không phối hợp) nhưng integrity mạnh. Giao dịch serializable vẫn có ích ở phạm vi nhỏ, nơi chúng chạy tốt; XA không cần nữa. Chỗ nào cần ràng buộc nghiêm ngặt trước một thao tác không phục hồi được thì vẫn có thể thêm phối hợp đồng bộ ở riêng chỗ đó.</p>
+      <p>Một cách nhìn khác: phối hợp và ràng buộc giảm số lần phải xin lỗi vì không nhất quán, nhưng cũng có thể giảm hiệu năng và tính sẵn sàng, tức tăng số lần xin lỗi vì sự cố. Không đưa được số lời xin lỗi về 0; chỉ tìm được điểm cân bằng hợp nhu cầu.</p>
+    </div>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Bài “Memories, Guesses, and Apologies” của Pat Helland và “Sagas” của Garcia-Molina và Salem (1987) mà sách trích là gốc của mẫu saga trong microservice ngày nay: mỗi bước có một bước bù tương ứng.</p></aside>
+  </article>
+
+  <!-- 13.16 -->
+  <article class="topic" id="ch13-verify" data-num="13.16" data-short="Tin nhưng phải kiểm chứng" data-keywords="trust but verify auditing integrity check merkle tree bit flip rowhammer hdfs s3 scrubbing blockchain certificate transparency">
+    <p class="eyebrow">13.16 · Trust, but Verify</p>
+    <h2>Tin, nhưng phải kiểm chứng <span class="vi">Trust, but Verify</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Mô hình hệ thống thường coi lỗi là nhị phân: cái này có thể xảy ra, cái kia không bao giờ. Thực tế là xác suất: bit trong RAM bị lật, <dfn data-term="rowhammer">rowhammer</dfn>, đĩa hỏng âm thầm, bug trong cả MySQL và PostgreSQL.</li>
+      <li>Hệ trưởng thành như HDFS và S3 không tin hẳn đĩa: chúng liên tục đọc lại, so với replica, chuyển file. Hãy thử khôi phục backup định kỳ. Đó là <dfn data-term="auditing">kiểm toán</dfn>.</li>
+      <li>Thiết kế để kiểm toán được: sự kiện bất biến, dẫn xuất tất định chạy lại được, hash trên event log, kiểm tra đầu-cuối. <dfn data-term="merkle-tree">Merkle tree</dfn> chứng minh hiệu quả rằng dữ liệu không bị sửa.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ta giả định process có thể crash, máy có thể mất điện, mạng có thể trễ hay mất tin; nhưng cũng giả định dữ liệu đã <code>fsync</code> không mất, RAM không hỏng, lệnh nhân của CPU luôn đúng. Các giả định này đúng hầu hết thời gian, nhưng câu hỏi là chúng bị vi phạm có đủ thường để ta gặp trong thực tế không. Tác giả kể một ứng dụng thu thập crash report từ client, có những report chỉ giải thích được bằng bit bị lật ngẫu nhiên trong RAM. Hiếm, nhưng đủ nhiều thiết bị thì chuyện hiếm cũng xảy ra. Mẫu truy cập bộ nhớ đặc biệt còn lật được bit trên RAM không lỗi, và bị dùng để phá cơ chế bảo mật của hệ điều hành (rowhammer).</p>
+      <h3>Giữ integrity trước bug phần mềm</h3>
+      <p>Tác giả từng thấy MySQL duy trì sai ràng buộc duy nhất và mức serializable của PostgreSQL bị write skew, dù cả hai đều là phần mềm đã được thử thách bởi rất nhiều người. Code ứng dụng còn nhiều bug hơn vì ít được review và test như code CSDL; nhiều ứng dụng còn không dùng đúng khoá ngoại hay ràng buộc duy nhất. Consistency theo nghĩa ACID giả định giao dịch không có bug; dùng isolation yếu sai cách là integrity không còn được bảo đảm.</p>
+      <h3>Đừng tin mù quáng lời hứa</h3>
+      <p>Phần cứng và phần mềm không hoàn hảo nên sớm muộn dữ liệu sẽ hỏng; ít nhất ta phải có cách phát hiện. Kiểm toán quan trọng nhất trong tài chính chính vì ai cũng biết sai sót xảy ra. Muốn chắc dữ liệu còn đó, phải đọc lại và kiểm tra. Tác giả lo rằng văn hoá ACID đã dạy ta tin mù quáng vào công nghệ và bỏ qua khả năng kiểm toán; rồi khi NoSQL đưa đảm bảo yếu hơn thành chuẩn và công nghệ lưu trữ non trẻ hơn được dùng rộng, ta vẫn xây trên niềm tin mù quáng, giờ còn nguy hiểm hơn.</p>
+      <h3>Thiết kế để kiểm toán được</h3>
+      <p>Một giao dịch sửa nhiều đối tượng thì sau đó khó biết nó có ý nghĩa gì; ngay cả log giao dịch cũng không cho biết <em>vì sao</em>. Hệ dựa trên sự kiện tốt hơn: input là một sự kiện bất biến, mọi cập nhật được dẫn xuất tất định, chạy lại cùng log qua cùng phiên bản code cho cùng kết quả. Dùng hash để kiểm tra event log không bị hỏng; chạy lại batch/stream để kiểm tra trạng thái dẫn xuất, hoặc chạy một phép dẫn xuất dư song song. Luồng dữ liệu tất định còn cho khả năng “gỡ lỗi du hành thời gian”: tái tạo đúng hoàn cảnh dẫn đến sự kiện bất thường.</p>
+      <p>Kiểm tra integrity tốt nhất là làm đầu-cuối: càng nhiều hệ nằm trong một lần kiểm tra, càng ít chỗ để hỏng hóc lọt qua. Giống test tự động, kiểm toán liên tục giúp bạn không sợ thay đổi, nên đi nhanh hơn.</p>
+      <h3>Công cụ cho hệ kiểm toán được</h3>
+      <p>Có thể ký log giao dịch định kỳ bằng HSM để chống sửa, nhưng điều đó không bảo đảm đúng giao dịch đã vào log. Blockchain và sổ cái phân tán (Bitcoin, Ethereum, Ripple, Stellar…) về bản chất là CSDL phân tán có replica thuộc các tổ chức không tin nhau, liên tục kiểm tra integrity của nhau và dùng đồng thuận. Tác giả hoài nghi phần chịu lỗi Byzantine (<a href="#ch9">Chương 9</a>) và thấy proof of work cực kỳ lãng phí, nhưng phần kiểm tra integrity thì đáng chú ý. Nó thường dựa trên Merkle tree: cây hash chứng minh hiệu quả một bản ghi có trong tập dữ liệu. Ngoài tiền mã hoá, certificate transparency dùng Merkle tree để kiểm tra chứng chỉ TLS/SSL.</p>
+    </div>
+    <figure class="lab" data-widget="merkle">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Merkle tree trên một sổ cái 8 bản ghi
+        <small>Chế độ “Phát hiện hỏng”: bấm vào một bản ghi để sửa nó, hoặc lật ngẫu nhiên một bit; các hash sai được tô đỏ lên tới root. Chế độ “Bằng chứng có mặt”: bấm một bản ghi để xem cần những hash nào để chứng minh nó nằm trong cây.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Nếu muốn chắc dữ liệu vẫn còn và vẫn đúng, cách duy nhất là đọc nó và kiểm tra. Backup chưa từng được khôi phục thử là backup chưa được kiểm chứng.</p></aside>
+  </article>
+
+  <!-- 13.17 -->
+  <article class="topic" id="ch13-predictive" data-num="13.17" data-short="Phân tích dự đoán & thiên lệch" data-keywords="doing the right thing ethics predictive analytics bias discrimination algorithmic prison accountability feedback loop credit score systems thinking">
+    <p class="eyebrow">13.17 · Doing the Right Thing · Predictive Analytics · Bias and Discrimination · Responsibility and Accountability · Feedback Loops</p>
+    <h2>Làm điều đúng: phân tích dự đoán, thiên lệch và vòng phản hồi <span class="vi">Doing the Right Thing</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Mỗi hệ thống được xây cho một mục đích nhưng có cả hậu quả không định trước. Nhiều tập dữ liệu là về con người; kỹ sư có trách nhiệm cân nhắc hậu quả.</li>
+      <li><dfn data-term="predictive-analytics">Phân tích dự đoán</dfn> về con người (tái phạm, vỡ nợ, bồi thường bảo hiểm) có thể tạo ra <dfn data-term="algorithmic-prison">“nhà tù thuật toán”</dfn>: bị loại hệ thống khỏi việc làm, đi lại, nhà ở mà không có bằng chứng, khó kháng nghị.</li>
+      <li>Mô hình học từ dữ liệu thiên lệch sẽ tái tạo và khuếch đại thiên lệch, kể cả khi không dùng thuộc tính được bảo vệ, vì mã bưu chính hay IP là biến đại diện.</li>
+      <li><dfn data-term="feedback-loop">Vòng phản hồi</dfn> tự củng cố (điểm tín dụng → mất việc → điểm tệ hơn) cần <dfn data-term="systems-thinking">tư duy hệ thống</dfn> để thấy trước.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Phần cuối sách lùi lại một bước. Ta nói về dữ liệu như thứ trừu tượng, nhưng nhiều tập dữ liệu là về con người: hành vi, sở thích, danh tính. Phải đối xử với dữ liệu đó bằng nhân tính và sự tôn trọng. Có những hướng dẫn như Bộ quy tắc đạo đức kỹ sư phần mềm của ACM, nhưng hiếm khi được bàn và áp dụng. Công nghệ tự nó không tốt hay xấu; điều quan trọng là nó được dùng thế nào và ảnh hưởng đến người ta ra sao, với công cụ tìm kiếm cũng như với súng. Trách nhiệm đạo đức là của chúng ta.</p>
+      <h3>Phân tích dự đoán</h3>
+      <p>Dự đoán thời tiết hay dịch bệnh là một chuyện; dự đoán một người có tái phạm, vỡ nợ, hay tốn tiền bảo hiểm là chuyện khác, vì tác động trực tiếp đến đời một con người. Với tổ chức, bỏ lỡ một cơ hội kinh doanh thì rẻ, một khoản vay xấu thì đắt, nên khi nghi ngờ họ nói “không”. Nhưng khi quyết định bằng thuật toán lan rộng, người bị gắn nhãn rủi ro (đúng hay sai) nhận <em>hàng loạt</em> lời “không”. Hệ thống tư pháp ở các nước tôn trọng nhân quyền coi một người vô tội cho đến khi bị chứng minh có tội; hệ tự động thì có thể loại một người khỏi xã hội mà không cần bằng chứng, với rất ít cơ hội kháng nghị.</p>
+      <h3>Thiên lệch và phân biệt đối xử</h3>
+      <p>Có hy vọng rằng quyết định dựa trên dữ liệu công bằng hơn đánh giá chủ quan của con người. Nhưng với hệ dự đoán, ta không chỉ tự động hoá quyết định mà còn để chính các luật được suy ra từ dữ liệu, và các mẫu học được thì mờ đục. Thiên lệch có hệ thống trong input sẽ được học và khuếch đại ở output. Luật chống phân biệt đối xử cấm đối xử khác nhau theo sắc tộc, tuổi, giới, xu hướng tính dục, khuyết tật, tín ngưỡng; nhưng ở khu dân cư phân cách theo chủng tộc, mã bưu chính hay IP là biến dự đoán chủng tộc rất mạnh. Câu châm biếm sách trích: “machine learning is like money laundering for bias”. Hệ dự đoán chỉ ngoại suy từ quá khứ; quá khứ phân biệt đối xử thì nó mã hoá sự phân biệt đó. Muốn tương lai tốt hơn cần trí tưởng tượng đạo đức, thứ chỉ con người có. Dữ liệu và mô hình nên là công cụ, không phải chủ nhân.</p>
+    </div>
+    <figure class="lab" data-widget="bias-proxy">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Mô hình không thấy cột “nhóm”, vẫn phân biệt theo nhóm
+        <small>400 hồ sơ vay (số liệu minh hoạ), hai nhóm có khả năng trả nợ như nhau. Mô hình chỉ dùng lịch sử tín dụng và mã bưu chính. Kéo mức phân cư và mức thiên lệch trong quyết định lịch sử.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Trách nhiệm và giải trình</h3>
+      <p>Người sai thì chịu trách nhiệm và người bị ảnh hưởng được kháng nghị. Thuật toán sai thì ai chịu? Xe tự lái gây tai nạn, ai chịu? Thuật toán chấm điểm tín dụng phân biệt theo chủng tộc hay tôn giáo, có cách nào khiếu nại? Bạn có giải thích được với thẩm phán cách mô hình ra quyết định không? Điểm tín dụng kiểu cũ ít ra dựa trên dữ kiện liên quan (lịch sử vay của chính bạn) và sửa được lỗi. Điểm tín dụng truyền thống hỏi “bạn đã cư xử thế nào trong quá khứ?”, còn phân tích dự đoán hỏi “ai giống bạn, và người giống bạn đã cư xử thế nào?”, tức là rập khuôn. Người bị xếp nhầm nhóm thì sao? Dữ liệu sai thì gần như không có đường khiếu nại.</p>
+      <p>Dữ liệu thống kê đúng trên tổng thể vẫn có thể sai với từng người: tuổi thọ trung bình 80 không có nghĩa bạn sẽ chết đúng sinh nhật thứ 80. Niềm tin mù quáng vào quyền tối thượng của dữ liệu không chỉ ảo tưởng mà còn nguy hiểm. Cùng một phân tích có thể dùng để hướng hỗ trợ đến người cần nhất, hoặc để doanh nghiệp săn mồi tìm người yếu thế mà bán khoản vay lãi cao hay bằng cấp vô giá trị.</p>
+      <h3>Vòng phản hồi</h3>
+      <p>Hệ gợi ý giỏi đoán ý người dùng có thể chỉ cho họ thấy ý kiến họ đã đồng ý, tạo buồng vang nơi định kiến, tin sai và phân cực sinh sôi; sách nhắc đến tác động lên các chiến dịch bầu cử. Tệ hơn là vòng tự củng cố: nhà tuyển dụng dùng điểm tín dụng để lọc ứng viên. Bạn làm tốt, điểm tốt, rồi gặp biến cố ngoài tầm kiểm soát; trễ hạn thanh toán, điểm tụt, khó tìm việc; thất nghiệp đẩy bạn vào nghèo, điểm càng tệ, càng khó tìm việc. Một vòng xoáy đi xuống do những giả định độc hại, ngụy trang dưới vẻ chặt chẽ toán học. Không phải lúc nào cũng đoán trước được, nhưng nhiều hậu quả lộ ra nếu nghĩ về toàn hệ thống, cả phần máy tính lẫn con người tương tác với nó: hệ có khuếch đại khác biệt sẵn có (giàu càng giàu, nghèo càng nghèo) hay chống lại bất công?</p>
+    </div>
+    <figure class="lab" data-widget="feedback-spiral">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Vòng xoáy điểm tín dụng và việc làm
+        <small>200 người (mô phỏng, số liệu minh hoạ) cùng mất việc ở tháng 3. So sánh hai thế giới: nhà tuyển dụng có và không tra điểm tín dụng. Kéo mức trừ điểm mỗi tháng trễ hạn.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>“Chúng tôi không dùng thuộc tính nhạy cảm” không phải bằng chứng công bằng. Hãy đo kết quả theo nhóm, và hỏi dữ liệu huấn luyện đã mang những quyết định của ai.</p></aside>
+  </article>
+
+  <!-- 13.18 -->
+  <article class="topic" id="ch13-privacy" data-num="13.18" data-short="Quyền riêng tư & giám sát" data-keywords="privacy tracking surveillance consent freedom of choice advertising terms of service network effects">
+    <p class="eyebrow">13.18 · Privacy and Tracking · Surveillance · Consent and Freedom of Choice</p>
+    <h2>Quyền riêng tư, theo dõi và giám sát <span class="vi">Privacy and Tracking</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Khi hệ chỉ lưu những gì người dùng chủ động nhập để được phục vụ, người dùng là khách hàng. Khi hành vi bị theo dõi như sản phẩm phụ và dịch vụ sống nhờ quảng cáo, khách hàng thật là nhà quảng cáo.</li>
+      <li>Thí nghiệm tư duy: thay chữ “data” bằng “<dfn data-term="surveillance">surveillance</dfn>” và nghe xem các cụm quen thuộc còn hay không.</li>
+      <li>“Người dùng đã đồng ý” là lập luận yếu: họ không hiểu dữ liệu đi đâu, quan hệ một chiều, và với dịch vụ gần như bắt buộc thì từ chối không phải lựa chọn tự do.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ngoài việc dùng dữ liệu để ra quyết định về con người, chính việc thu thập dữ liệu cũng có vấn đề đạo đức. Theo dõi hành vi có lợi cho người dùng ở một mức: biết kết quả tìm kiếm nào được bấm để xếp hạng tốt hơn, gợi ý “người thích X cũng thích Y”, A/B test để cải thiện giao diện. Nhưng nếu dịch vụ sống nhờ quảng cáo, việc theo dõi thường không dừng ở đó: dữ liệu chi tiết hơn, phân tích sâu hơn, giữ lâu hơn để dựng hồ sơ chi tiết từng người. Người dùng được dịch vụ miễn phí và được dỗ dành để tương tác nhiều nhất có thể; việc theo dõi phục vụ nhà quảng cáo chứ không phải họ. Tác giả cho rằng quan hệ đó đáng được gọi bằng một từ nặng hơn: giám sát.</p>
+      <h3>Giám sát</h3>
+      <p>Thí nghiệm tư duy của sách (lấy từ Daniel J. Bernstein): thay “data” bằng “surveillance” trong các câu quen thuộc, và cuốn sách trở thành <em>Designing Surveillance-Intensive Applications</em>. Từ ngữ mạnh là cố ý: trong cuộc đua để phần mềm “ăn cả thế giới”, ta đã xây hạ tầng giám sát lớn nhất từng có. Với Internet of Things, gần như mọi không gian có người ở đều có ít nhất một micro nối mạng: điện thoại, TV thông minh, trợ lý giọng nói, máy báo khóc em bé, cả đồ chơi trẻ em dùng nhận dạng giọng nói trên cloud, nhiều thiết bị có lịch sử bảo mật tồi tệ. Chế độ toàn trị nhất cũng chỉ mơ được đặt micro trong mọi phòng và bắt mọi người mang thiết bị định vị; ta thì tự nguyện, thậm chí hào hứng. Khác biệt chỉ là bên thu thập là doanh nghiệp chứ không phải nhà nước.</p>
+      <p>Có thể bạn nghĩ mình “không có gì phải giấu”, nghĩa là bạn hoàn toàn khớp với cấu trúc quyền lực hiện tại, không thuộc thiểu số bị gạt ra lề, không phải sợ bị đàn áp. Không phải ai cũng may mắn vậy. Hoặc mục đích có vẻ vô hại: gợi ý tốt hơn, quảng cáo cá nhân hoá. Nhưng phí bảo hiểm xe gắn với thiết bị theo dõi trong xe, bảo hiểm sức khoẻ phụ thuộc vòng đeo tay thể dục: khi giám sát quyết định bảo hiểm hay việc làm, nó hết vô hại. Và phân tích có thể lộ ra điều bất ngờ: cảm biến chuyển động của đồng hồ thông minh đủ để đoán khá chính xác bạn đang gõ gì, kể cả mật khẩu.</p>
+    </div>
+    <figure class="lab" data-widget="surveillance-rewrite">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Viết lại câu: thay “data” bằng “surveillance”
+        <small>Chọn câu mẫu tiếng Anh hoặc tiếng Việt, hoặc gõ câu của bạn (ví dụ một dòng trong bản mô tả công việc hay slide của công ty). Bật/tắt phép thay để so sánh.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Đồng ý và tự do lựa chọn</h3>
+      <p>Có thể nói người dùng tự chọn dùng dịch vụ, đã đồng ý điều khoản và chính sách riêng tư, và nhận lại một dịch vụ có giá trị. Lập luận này có vấn đề:</p>
+      <ul>
+        <li>Người dùng gần như không biết dữ liệu nào đang vào CSDL của ta và được xử lý ra sao; chính sách riêng tư che nhiều hơn là làm rõ. Không hiểu thì không thể đồng ý có ý nghĩa. Dữ liệu dẫn xuất kết hợp toàn bộ người dùng với theo dõi hành vi và nguồn bên ngoài lại chính là loại dữ liệu người dùng không thể hiểu.</li>
+        <li>Dữ liệu của một người thường nói về cả người khác, những người không dùng dịch vụ và chưa đồng ý gì.</li>
+        <li>Quan hệ một chiều, không có đối thoại, không thương lượng được bao nhiêu dữ liệu đổi lấy dịch vụ gì. Điều khoản do dịch vụ đặt ra.</li>
+        <li>Lựa chọn còn lại là không dùng. Nhưng nếu dịch vụ phổ biến đến mức được “đa số coi là thiết yếu cho việc tham gia xã hội cơ bản”, thì dùng nó gần như bắt buộc; dịch vụ có hiệu ứng mạng thì từ chối có cái giá xã hội. Chỉ số ít người đủ thời gian, hiểu biết và đủ khả năng chịu thiệt mới thật sự từ chối được; với người yếu thế, giám sát là không thoát được.</li>
+      </ul>
+    </div>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Không phải mọi việc thu thập dữ liệu đều là giám sát, nhưng nhìn nó như giám sát giúp hiểu rõ quan hệ giữa bạn và bên thu thập: ai phục vụ ai?</p></aside>
+  </article>
+
+  <!-- 13.19 -->
+  <article class="topic" id="ch13-data-power" data-num="13.19" data-short="Dữ liệu, quyền lực & luật" data-keywords="privacy decision right data exhaust data broker toxic asset hazardous material industrial revolution schneier data protection directive regulation purge">
+    <p class="eyebrow">13.19 · Privacy and Use of Data · Data as Assets and Power · Remembering the Industrial Revolution · Legislation and Self-Regulation</p>
+    <h2>Dữ liệu là tài sản, là quyền lực, và cần luật lệ <span class="vi">Data as Assets and Power</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Riêng tư không phải giữ bí mật mọi thứ; đó là <em>quyền quyết định</em> tiết lộ gì cho ai. Giám sát chuyển quyền đó từ cá nhân sang công ty.</li>
+      <li>Dữ liệu hành vi không phải “<dfn data-term="data-exhaust">khí thải dữ liệu</dfn>”: với dịch vụ sống nhờ quảng cáo, nó là tài sản lõi. Có cả ngành <dfn data-term="data-broker">môi giới dữ liệu</dfn>. Vì có giá trị nên nó là “tài sản độc hại”: bị lộ, bị bán khi phá sản, bị chính quyền đòi.</li>
+      <li>Như ô nhiễm thời Cách mạng Công nghiệp, cần luật lệ và tự điều chỉnh: thu thập đúng mục đích, không quá mức, xoá khi hết cần.</li>
+    </ul></div>
+    <div class="prose">
+      <h3>Riêng tư và việc dùng dữ liệu</h3>
+      <p>Có người nói “riêng tư đã chết” vì nhiều người đăng mọi thứ lên mạng xã hội. Sai, vì hiểu sai chữ riêng tư: riêng tư là tự do chọn tiết lộ gì cho ai, công khai gì, giữ bí mật gì; mỗi người tự quyết mình đứng ở đâu giữa bí mật và minh bạch trong từng tình huống. Khi dữ liệu bị trích xuất qua hạ tầng giám sát, quyền đó không mất mà <em>chuyển sang</em> bên thu thập: “hãy tin chúng tôi sẽ làm đúng với dữ liệu của bạn”. Công ty lại giữ kín phần lớn kết quả vì công bố thì bị coi là đáng sợ (creepy) và hại mô hình kinh doanh. Thông tin riêng tư chỉ lộ gián tiếp, ví dụ qua công cụ nhắm quảng cáo đến người mắc một bệnh nào đó: dù không nhận diện được cá nhân, họ đã mất quyền quyết định việc tiết lộ.</p>
+      <p>Nhiều công ty chỉ lo không bị <em>coi</em> là đáng sợ thay vì hỏi việc thu thập xâm phạm đến đâu; và ngay cả nhận thức cũng hay bị xử lý kém: một điều đúng sự thật vẫn có thể gợi lại ký ức đau đớn. Mọi loại dữ liệu đều có thể sai, không mong muốn hay không phù hợp, và cần cơ chế xử lý những thất bại đó. Cài đặt riêng tư là điểm khởi đầu, nhưng dịch vụ vẫn có toàn quyền truy cập và phân tích nội bộ. Việc chuyển quyền riêng tư quy mô lớn từ cá nhân sang doanh nghiệp là chưa từng có trong lịch sử: giám sát xưa đắt và thủ công; quan hệ tin cậy như bác sĩ–bệnh nhân hay luật sư–thân chủ bị ràng buộc chặt bởi đạo đức và pháp luật.</p>
+      <h3>Dữ liệu là tài sản và quyền lực</h3>
+      <p>Gọi dữ liệu hành vi là khí thải, như thể phân tích hành vi là tái chế rác, là nhìn ngược. Nếu quảng cáo nhắm mục tiêu trả tiền cho dịch vụ, dữ liệu hành vi là tài sản lõi, còn ứng dụng chỉ là phương tiện dụ người dùng nạp thêm thông tin cá nhân. Bằng chứng: ngành môi giới dữ liệu hoạt động kín đáo, mua, gộp, phân tích, suy luận và bán lại dữ liệu cá nhân; startup được định giá theo số người dùng, theo “eyeballs”, tức năng lực giám sát.</p>
+      <p>Vì có giá trị nên ai cũng muốn: công ty, và cả chính phủ, qua thoả thuận ngầm, ép buộc, lệnh pháp lý hay đánh cắp. Công ty phá sản thì dữ liệu cá nhân là tài sản đem bán. Dữ liệu khó bảo vệ nên rò rỉ xảy ra thường xuyên. Giới phê bình gọi dữ liệu là “tài sản độc hại” hay ít nhất là “vật liệu nguy hiểm”. Mỗi khi thu thập, phải cân lợi ích với rủi ro rơi vào tay xấu: tội phạm hay tình báo nước ngoài, nhân viên nội bộ, ban lãnh đạo mới không chung giá trị, hay một chế độ mới không ngại bắt bạn giao nộp dữ liệu. Phải tính đến mọi chính phủ có thể có trong tương lai. “Biết là sức mạnh”, và soi xét người khác trong khi tránh bị soi xét là một trong những dạng quyền lực quan trọng nhất; công ty công nghệ không công khai tìm quyền lực chính trị, nhưng dữ liệu cho họ rất nhiều quyền lực, phần lớn ngoài tầm giám sát công chúng.</p>
+      <h3>Nhớ lại Cách mạng Công nghiệp</h3>
+      <p>Cách mạng Công nghiệp mang lại tăng trưởng và mức sống cao hơn về lâu dài, nhưng cũng ô nhiễm không khí và nước khủng khiếp, chủ nhà máy sống xa hoa còn công nhân ở nhà tồi tàn, làm việc dài giờ, lao động trẻ em phổ biến kể cả trong hầm mỏ. Mất rất lâu mới có quy định bảo vệ môi trường, an toàn lao động, cấm lao động trẻ em, kiểm định thực phẩm. Chi phí kinh doanh tăng, nhưng xã hội được lợi lớn, và ít ai muốn quay lại. Bruce Schneier ví: dữ liệu là vấn đề ô nhiễm của thời đại thông tin, và bảo vệ riêng tư là thách thức môi trường; con cháu sẽ phán xét ta theo cách ta xử lý việc thu thập và lạm dụng dữ liệu. Tác giả viết: hãy cố làm họ tự hào.</p>
+      <h3>Luật lệ và tự điều chỉnh</h3>
+      <p>Chỉ thị Bảo vệ Dữ liệu của châu Âu năm 1995 yêu cầu dữ liệu cá nhân được thu thập cho mục đích cụ thể, rõ ràng, chính đáng, không xử lý tiếp theo cách không tương thích, và phải tương xứng, liên quan, không quá mức so với mục đích. Điều này đi ngược triết lý Big Data (thu thập tối đa, kết hợp, thử nghiệm để tìm insight mới, tức dùng dữ liệu cho mục đích không lường trước), nên hiệu quả của nó bị nghi ngờ; quy định mới đang được soạn. Doanh nghiệp phản đối vì cản trở đổi mới, và phần nào có lý: dữ liệu y tế có rủi ro riêng tư nhưng cũng có thể cứu người. Cân bằng là khó.</p>
+      <p>Về cơ bản, tác giả cho rằng ngành công nghệ cần thay đổi văn hoá: thôi coi người dùng là chỉ số để tối ưu, nhớ rằng họ là con người xứng đáng được tôn trọng, có phẩm giá và quyền tự quyết; tự điều chỉnh việc thu thập và xử lý để giữ niềm tin; giáo dục người dùng về cách dữ liệu được dùng. Quyền kiểm soát dữ liệu của mỗi người giống môi trường tự nhiên của một vườn quốc gia: không chủ động bảo vệ thì nó bị phá huỷ, một bi kịch của mảnh đất chung. Bước đầu: đừng giữ dữ liệu mãi mãi, xoá ngay khi không cần (điều này ngược với tính bất biến của log, nhưng giải quyết được), và thực thi kiểm soát truy cập bằng giao thức mật mã thay vì chỉ bằng chính sách.</p>
+    </div>
+    <figure class="lab" data-widget="data-hazard">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Dữ liệu như vật liệu nguy hiểm: thu gì, giữ bao lâu?
+        <small>Ứng dụng giao đồ ăn. Chọn những trường dữ liệu được thu thập và thời gian lưu. Xem trường nào vượt mục đích và khả năng dữ liệu bị lộ qua các năm (số liệu minh hoạ).</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>“Quy định mới” mà sách (2017) nhắc đến chính là GDPR của EU, có hiệu lực từ tháng 5/2018, với các nguyên tắc giới hạn mục đích, tối thiểu hoá dữ liệu, giới hạn thời gian lưu và quyền được xoá. Việt Nam có Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân.</p></aside>
+  </article>
+
+  <!-- review -->
+  <article class="topic" id="ch13-review" data-num="13.★" data-short="Tổng kết & kiểm tra">
+    <p class="eyebrow">13.★ · Summary</p>
+    <h2>Tổng kết chương và kiểm tra <span class="vi">Summary</span></h2>
+    <div class="prose">
+      <p>Không có công cụ nào phục vụ hiệu quả mọi trường hợp, nên ứng dụng phải ghép nhiều phần mềm. Lời giải của chương cho bài toán tích hợp: chỉ định một số hệ là hệ thống ghi nhận, mọi dữ liệu khác (chỉ mục, materialized view, mô hình ML, thống kê) được dẫn xuất qua batch và luồng sự kiện. Làm các phép dẫn xuất bất đồng bộ và ghép lỏng thì sự cố ở một chỗ không lan sang chỗ khác.</p>
+      <p>Biểu diễn dataflow thành các phép biến đổi giúp ứng dụng tiến hoá: đổi một bước xử lý thì chạy lại code mới trên toàn bộ input; có lỗi thì sửa code và xử lý lại. Vì những việc này giống những gì CSDL làm bên trong, ta coi ứng dụng dataflow là <em>tháo rời</em> các thành phần của CSDL rồi ghép lại lỏng lẻo. Trạng thái dẫn xuất có thể được quan sát tiếp, đến tận thiết bị người dùng, cho giao diện tự cập nhật và chạy được offline.</p>
+      <p>Để giữ đúng khi có lỗi: integrity mạnh đạt được bằng xử lý sự kiện bất đồng bộ với ID thao tác đầu-cuối và kiểm tra ràng buộc bất đồng bộ. Client có thể chờ kiểm tra xong, hoặc đi tiếp và chấp nhận rủi ro phải xin lỗi. Cách này mở rộng và bền hơn giao dịch phân tán, và khớp với cách doanh nghiệp vận hành. Kiểm toán giúp phát hiện hỏng hóc thay vì tin mù quáng.</p>
+      <p>Cuối cùng, dữ liệu có thể làm điều tốt nhưng cũng gây hại lớn: quyết định ảnh hưởng nghiêm trọng đến đời người mà khó kháng nghị, phân biệt đối xử và bóc lột, bình thường hoá giám sát, lộ thông tin riêng tư. Kỹ sư chúng ta có trách nhiệm hướng tới một thế giới đối xử với con người bằng nhân tính và sự tôn trọng.</p>
+    </div>
+    <div class="quiz">
+      <div class="q" data-answer="1">
+        <p>Vì sao nên cho mọi thay đổi đi qua một log (CDC/event sourcing) thay vì để ứng dụng ghi kép vào CSDL và chỉ mục tìm kiếm?</p>
+        <ol><li>Vì log làm độ trễ mạng thấp hơn ghi kép.</li><li>Vì log quyết định một thứ tự toàn phần, mọi hệ dẫn xuất áp ghi theo cùng thứ tự đó nên hội tụ về cùng kết quả.</li><li>Vì log cung cấp linearizability cho người đọc chỉ mục.</li></ol>
+        <p class="explain">Vấn đề của ghi kép là không ai quyết định thứ tự, hai hệ có thể áp hai ghi xung đột ngược nhau và lệch vĩnh viễn. Log không làm mạng nhanh hơn, và hệ dẫn xuất qua log thường cập nhật bất đồng bộ nên không linearizable.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Vấn đề thực tế nào KHÔNG phải là phê phán của tác giả với kiến trúc lambda?</p>
+        <ol><li>Phải duy trì cùng logic ở cả framework batch lẫn stream.</li><li>Phải trộn output của hai pipeline, khó với join hay sessionization.</li><li>Sự kiện bất biến làm không thể xử lý lại dữ liệu lịch sử.</li></ol>
+        <p class="explain">Ngược lại, tác giả khen lambda vì phổ biến ý tưởng dẫn xuất view từ sự kiện bất biến và xử lý lại khi cần. Hai phê phán A và B (cùng với việc batch tăng dần gặp lại các vấn đề về thời gian) mới là phần ông chỉ ra.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Trong ví dụ tỷ giá, cách dataflow (đăng ký luồng tỷ giá) hơn cách gọi RPC ở điểm nào?</p>
+        <ol><li>Thay một request mạng đồng bộ bằng truy vấn CSDL cục bộ: nhanh hơn và không lỗi theo service tỷ giá.</li><li>Luôn dùng tỷ giá mới nhất tuyệt đối, kể cả khi service tỷ giá sập.</li><li>Không còn phải lo về phụ thuộc thời gian khi xử lý lại đơn hàng.</li></ol>
+        <p class="explain">Khi luồng tạm dừng, tỷ giá cục bộ có thể cũ đi (B sai). Phép join vẫn phụ thuộc thời gian: xử lý lại cần tỷ giá lịch sử, dù dùng cách nào (C sai).</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Theo chương, chỉ mục, cache và materialized view có vai trò chung là gì?</p>
+        <ol><li>Thay thế hệ thống ghi nhận.</li><li>Bảo đảm linearizability cho người đọc.</li><li>Dời ranh giới giữa đường ghi và đường đọc: làm thêm lúc ghi để bớt việc lúc đọc.</li></ol>
+        <p class="explain">Không có chỉ mục thì đường đọc phải quét như grep; tính trước mọi truy vấn thì đường ghi vô hạn. Chỉ mục và cache là các điểm ở giữa. Bài toán fan-out timeline ở Chương 2 cũng là dời ranh giới này.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Phản hồi bị mất sau COMMIT, người dùng gửi lại form chuyển tiền. Vì sao chống trùng của TCP và giao dịch CSDL không ngăn được trừ tiền hai lần?</p>
+        <ol><li>Vì TCP không có số thứ tự gói.</li><li>Vì lần gửi lại là một kết nối, một request HTTP và một giao dịch mới; chỉ một ID thao tác đi từ client đến CSDL mới nhận ra nó là trùng.</li><li>Vì giao dịch CSDL không atomic.</li></ol>
+        <p class="explain">Mỗi lớp chỉ chống trùng trong phạm vi của mình (TCP trong một kết nối, giao dịch trong một kết nối với CSDL). Đây là lập luận đầu-cuối của Saltzer, Reed, Clark: chức năng chỉ được cài đầy đủ ở hai đầu.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Giao dịch thẻ tín dụng hôm qua chưa hiện trên sao kê, nhưng số dư vẫn bằng đúng tổng các giao dịch đã hiện cộng số dư kỳ trước. Đây là gì?</p>
+        <ol><li>Vi phạm timeliness, chờ là tự hết (eventual consistency).</li><li>Vi phạm integrity, phải đối soát và sửa (perpetual inconsistency).</li><li>Vi phạm cả hai.</li></ol>
+        <p class="explain">Dữ liệu chỉ chưa cập nhật, không sai hay mâu thuẫn. Nếu số dư không khớp tổng, hoặc bạn bị trừ mà người bán không nhận được, mới là vi phạm integrity.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Chuyển tiền giữa hai tài khoản ở hai partition mà không cần atomic commit được là nhờ đâu?</p>
+        <ol><li>Client gửi đồng thời lệnh ghi nợ và ghi có tới hai partition.</li><li>Dùng multi-leader bất đồng bộ để mỗi partition tự quyết.</li><li>Ghi yêu cầu thành một tin duy nhất (atomic), dẫn xuất lệnh ghi nợ/ghi có một cách tất định, và khử trùng lặp bằng request ID.</li></ol>
+        <p class="explain">Nếu client gửi thẳng hai lệnh (A) thì lại cần atomic commit để bảo đảm cả hai hoặc không cái nào. Ghi một đối tượng là atomic; phần còn lại là dẫn xuất tất định và idempotent.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Một mô hình xét duyệt vay không hề dùng cột chủng tộc. Vì sao vẫn có thể phân biệt đối xử theo chủng tộc?</p>
+        <ol><li>Vì mọi mô hình học máy đều ngẫu nhiên.</li><li>Vì các đặc trưng như mã bưu chính có thể tương quan mạnh với chủng tộc, và mô hình học lại thiên lệch có sẵn trong quyết định lịch sử.</li><li>Vì luật chống phân biệt đối xử không áp dụng cho thuật toán.</li></ol>
+        <p class="explain">Hệ dự đoán ngoại suy từ quá khứ. Ở khu dân cư phân cách, mã bưu chính hay IP là biến đại diện; dữ liệu thiên lệch vào thì quyết định thiên lệch ra: “money laundering for bias”.</p>
+      </div>
+    </div>
+  </article>
+</section>

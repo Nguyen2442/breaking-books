@@ -1,0 +1,302 @@
+<section class="chapter" id="ch3" data-chapter="3" data-title="Mô hình dữ liệu & ngôn ngữ truy vấn">
+<style>
+#ch3 .lab .table-wrap { margin: 0; }
+#ch3 table.c3-mini { font-size: .78rem; }
+#ch3 table.c3-mini th, #ch3 table.c3-mini td { padding: 5px 9px; white-space: nowrap; }
+#ch3 table.c3-mini td.c3-wrap { white-space: normal; }
+#ch3 td.c3-stale { background: var(--bad-soft); color: var(--bad); font-weight: 600; }
+#ch3 td.c3-fresh { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+#ch3 td.c3-sel { background: var(--mark-soft); font-weight: 700; }
+#ch3 td.c3-dim, #ch3 tr.c3-dim td { color: var(--ink-3); }
+#ch3 tr.c3-del td { text-decoration: line-through; color: var(--ink-3); }
+#ch3 .c3-elabel { font-size: 9px; fill: var(--ink-3); paint-order: stroke; stroke: var(--surface); stroke-width: 3px; stroke-linejoin: round; }
+#ch3 .c3-node-dim { opacity: .3; }
+#ch3 .c3-code-pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+#ch3 .c3-code-pair > * { min-width: 0; }
+#ch3 .c3-code-pair pre.code { margin: 0; font-size: .76rem; }
+#ch3 .lab pre.code { margin: 0; font-size: .76rem; }
+@media (max-width: 680px) { #ch3 .c3-code-pair { grid-template-columns: 1fr; } }
+#ch3 .c3-bar { height: 10px; border-radius: 5px; background: var(--surface-2); overflow: hidden; }
+#ch3 .c3-bar > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .2s; }
+#ch3 .c3-bar.bad > i { background: var(--bad); }
+#ch3 .c3-bar.warn > i { background: var(--warn); }
+#ch3 .c3-tree ul { list-style: none; margin: 0; padding-left: 18px; border-left: 1px dashed var(--line); }
+#ch3 .c3-tree > ul { padding-left: 0; border-left: 0; }
+#ch3 .c3-tree li { margin: 2px 0; font-family: var(--f-mono); font-size: .76rem; }
+#ch3 .c3-fields label { display: flex; gap: 6px; align-items: center; font-family: var(--f-mono); font-size: .78rem; padding: 2px 0; cursor: pointer; }
+#ch3 .c3-fields .c3-obj { font-family: var(--f-mono); font-size: .78rem; font-weight: 600; color: var(--ink-2); padding: 2px 0; }
+#ch3 .c3-fields input { accent-color: var(--accent); }
+#ch3 .c3-eventrow { display: flex; gap: 8px; align-items: center; padding: 5px 8px; border-bottom: 1px solid var(--line); font-size: .78rem; }
+#ch3 .c3-eventrow:last-child { border-bottom: 0; }
+#ch3 .c3-eventrow .mono { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+#ch3 .c3-eventrow.future { opacity: .35; }
+#ch3 .c3-eventrow.del .mono { text-decoration: line-through; color: var(--ink-3); }
+#ch3 .c3-eventrow button { height: 24px; padding: 0 8px; font-size: .7rem; }
+#ch3 .c3-events { border: 1px solid var(--line); border-radius: 8px; background: var(--bg); max-height: 300px; overflow: auto; }
+#ch3 .c3-qa { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 12px; align-items: center; }
+#ch3 .c3-qa > span { font-size: var(--t-sm); }
+#ch3 .c3-rank { display: grid; grid-template-columns: 9em minmax(0, 1fr) 2.5em; gap: 6px 10px; align-items: center; font-size: var(--t-xs); }
+#ch3 .c3-rule { font-family: var(--f-mono); font-size: .74rem; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); overflow-wrap: anywhere; }
+#ch3 .c3-rule.on { border-color: var(--mark); background: var(--mark-soft); }
+#ch3 .c3-facts { display: flex; flex-wrap: wrap; gap: 4px; }
+#ch3 .c3-fact { font-family: var(--f-mono); font-size: .72rem; padding: 2px 6px; border-radius: 4px; background: var(--surface-2); }
+#ch3 .c3-fact.new { background: var(--mark-soft); outline: 1.5px solid var(--mark); }
+#ch3 .c3-fact.used { background: var(--accent-soft); }
+#ch3 .c3-matrix td, #ch3 .c3-matrix th { text-align: center; padding: 4px 6px; font-family: var(--f-mono); }
+#ch3 .c3-matrix td.on { background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+#ch3 .c3-matrix td.empty { color: var(--ink-3); }
+#ch3 .c3-matrix td.pop { background: var(--mark-soft); }
+#ch3 .c3-era { cursor: pointer; }
+#ch3 .c3-flex { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+</style>
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 3</p>
+    <h1>Data Models and Query Languages <span class="vi">Mô hình dữ liệu và ngôn ngữ truy vấn</span></h1>
+    <blockquote class="epigraph">The limits of my language mean the limits of my world.<cite>— Ludwig Wittgenstein, Tractatus Logico-Philosophicus (1922)</cite></blockquote>
+    <p class="lede">Cách bạn mô hình hoá dữ liệu quyết định những câu hỏi nào dễ trả lời và câu nào gần như không thể. Chương này so sánh các mô hình lớn: quan hệ, document, graph, event sourcing và dataframe, cùng các ngôn ngữ truy vấn đi kèm (SQL, aggregation pipeline, Cypher, SPARQL, Datalog, GraphQL). Mục tiêu là biết khi nào dùng mô hình nào, chứ không phải tìm ra mô hình “tốt nhất”.</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <article class="topic" id="ch3-intro" data-num="3.1" data-short="Các tầng mô hình & truy vấn khai báo" data-keywords="declarative imperative layers abstraction query optimizer">
+    <p class="eyebrow">3.1 · Introduction · Declarative Query Languages</p>
+    <h2>Mô hình dữ liệu xếp chồng thành nhiều tầng <span class="vi">Data models as layers of abstraction</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Mô hình dữ liệu ảnh hưởng tới cả cách viết code lẫn cách ta <em>nghĩ</em> về bài toán.</li>
+      <li>Ứng dụng là các tầng mô hình chồng lên nhau. Mỗi tầng giấu sự phức tạp của tầng dưới sau một mô hình gọn gàng.</li>
+      <li>Ngôn ngữ truy vấn khai báo (SQL, Cypher, SPARQL, Datalog) mô tả <strong>muốn gì</strong>, không mô tả <strong>làm thế nào</strong>. Nhờ đó database tự chọn index, thuật toán join và cách chạy song song.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Hầu hết ứng dụng được xây bằng cách đặt mô hình này lên trên mô hình khác. Với mỗi tầng, câu hỏi then chốt là: tầng này được biểu diễn bằng gì ở tầng ngay bên dưới?</p>
+      <ol>
+        <li><strong>Thế giới thật</strong> (con người, tổ chức, hàng hoá, dòng tiền, cảm biến) được lập trình viên mô hình hoá thành object, cấu trúc dữ liệu và API. Tầng này thường riêng cho từng ứng dụng.</li>
+        <li>Để lưu các cấu trúc đó, bạn diễn đạt chúng bằng một <strong>mô hình dữ liệu đa dụng</strong>: document JSON/XML, bảng quan hệ, hay đỉnh và cạnh của graph. Đây là chủ đề của chương này.</li>
+        <li>Kỹ sư viết database quyết định cách biểu diễn JSON/bảng/graph thành <strong>byte</strong> trong bộ nhớ, trên đĩa, trên mạng (chủ đề của <a href="#ch4">Chương 4</a>).</li>
+        <li>Ở tầng thấp hơn nữa, kỹ sư phần cứng biểu diễn byte bằng dòng điện, xung ánh sáng, từ trường.</li>
+      </ol>
+      <p>Mỗi tầng là một lớp trừu tượng giúp các nhóm người khác nhau (ví dụ đội làm database và đội dùng database) làm việc cùng nhau mà không cần hiểu hết chi tiết của nhau.</p>
+      <h3>Truy vấn khai báo và truy vấn mệnh lệnh</h3>
+      <p>Với một <dfn data-term="declarative">ngôn ngữ truy vấn khai báo</dfn> (<em class="en">declarative query language</em>), bạn chỉ nêu điều kiện kết quả phải thoả và cách biến đổi (sắp xếp, nhóm, tổng hợp). Còn <dfn data-term="query-optimizer">bộ tối ưu truy vấn</dfn> của database quyết định dùng index nào, join kiểu gì, chạy phần nào trước. Với code mệnh lệnh (<em class="en">imperative</em>), bạn tự viết thuật toán: làm bước nào, theo thứ tự nào.</p>
+      <p>Lợi ích lớn nhất không chỉ là code ngắn hơn. Vì truy vấn khai báo giấu chi tiết thực thi, database có thể <mark>cải thiện hiệu năng mà không cần bạn sửa truy vấn</mark>: thêm index, đổi thuật toán, hay chạy song song trên nhiều CPU và nhiều máy.</p>
+    </div>
+    <figure class="lab" data-widget="declarative">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Cùng một câu hỏi: “tìm mọi con vật thuộc họ cá mập”
+        <small>Bật index hoặc chạy song song. Chú ý câu SQL không đổi một ký tự, còn code mệnh lệnh phải viết lại.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Truy vấn khai báo tách <em>ý định</em> khỏi <em>cách thực thi</em>. Khi dữ liệu lớn lên hay phần cứng thay đổi, chỉ cần database thay kế hoạch thực thi, ứng dụng không phải sửa gì.</p></aside>
+  </article>
+
+  <article class="topic" id="ch3-history" data-num="3.2" data-short="Quan hệ vs document: lịch sử" data-keywords="relational codd nosql newsql network hierarchical object xml">
+    <p class="eyebrow">3.2 · Relational Model versus Document Model</p>
+    <h2>Mô hình quan hệ và những kẻ thách thức <span class="vi">Relational Model versus Document Model</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Mô hình quan hệ (Codd, 1970) tổ chức dữ liệu thành <em>relation</em> (bảng), mỗi bảng là tập không thứ tự của <em>tuple</em> (hàng).</li>
+      <li>Hơn 50 năm qua, nhiều đối thủ (mạng, phân cấp, object, XML, NoSQL) nổi lên rồi lặng đi. SQL thì hấp thụ dần ý tưởng của họ: XML, JSON, graph.</li>
+      <li>Di sản bền nhất của phong trào NoSQL là <strong>mô hình document</strong> (JSON). Ngày nay hai mô hình đang hội tụ.</li>
+    </ul></div>
+    <div class="prose">
+      <p><dfn data-term="relational-model">Mô hình quan hệ</dfn> ban đầu chỉ là một đề xuất lý thuyết, và nhiều người thời đó nghi ngờ nó có thể chạy hiệu quả. Nhưng đến giữa thập niên 1980, hệ quản trị cơ sở dữ liệu quan hệ (RDBMS) và SQL đã thành lựa chọn mặc định cho dữ liệu có cấu trúc đều đặn. Đến nay, nhiều mảng vẫn do dữ liệu quan hệ thống trị, đặc biệt là phân tích kinh doanh.</p>
+      <p><dfn data-term="nosql">NoSQL</dfn> không phải một công nghệ. Đó là một tập ý tưởng lỏng lẻo: mô hình dữ liệu mới, schema linh hoạt, khả năng mở rộng, và xu hướng cấp phép mã nguồn mở. Một số database tự gọi là <dfn data-term="newsql">NewSQL</dfn>: muốn có khả năng mở rộng của NoSQL cùng mô hình dữ liệu và đảm bảo transaction của database quan hệ. Khi các ý tưởng này đã được chấp nhận rộng rãi, hai thuật ngữ cũng dần ít được nhắc.</p>
+      <p><dfn data-term="document-model">Mô hình document</dfn>, thường biểu diễn bằng JSON, được phổ biến bởi MongoDB và Couchbase. Hiện hầu hết database quan hệ cũng hỗ trợ JSON. So với bảng quan hệ (thường bị xem là cứng nhắc), JSON được coi là linh hoạt hơn. Các phần tiếp theo xem xét lập luận của cả hai phía.</p>
+    </div>
+    <figure class="lab" data-widget="model-timeline">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Dòng thời gian các mô hình dữ liệu
+        <small>Bấm vào từng mốc để xem mỗi làn sóng đã hứa hẹn gì và kết cục ra sao.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Đừng đọc lịch sử này như “quan hệ thắng, phần còn lại thua”. Mỗi làn sóng để lại ý tưởng đáng giá, và database quan hệ hiện đại có được JSON, XML, truy vấn graph chính là nhờ học từ các đối thủ.</p></aside>
+  </article>
+
+  <article class="topic" id="ch3-orm" data-num="3.3" data-short="Impedance mismatch & ORM" data-keywords="orm impedance mismatch n+1 hibernate activerecord migration">
+    <p class="eyebrow">3.3 · The Object-Relational Mismatch</p>
+    <h2>Lệch pha object–quan hệ và ORM <span class="vi">The Object-Relational Mismatch</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Code hướng đối tượng và bảng/hàng/cột là hai mô hình khác nhau. Cần một lớp dịch ở giữa, và độ vênh này được gọi là <em>impedance mismatch</em>.</li>
+      <li>ORM (ActiveRecord, Hibernate…) giảm code lặp, giúp cache và migration, nhưng không giấu hết được sự khác biệt.</li>
+      <li>Cạm bẫy kinh điển là truy vấn N+1: 1 truy vấn lấy N bình luận, rồi N truy vấn nữa để lấy tên tác giả.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Thuật ngữ <dfn data-term="impedance-mismatch">impedance mismatch</dfn> mượn từ điện tử: hai mạch nối với nhau truyền công suất tốt nhất khi trở kháng đầu ra và đầu vào khớp nhau, nếu không sẽ có phản xạ tín hiệu và rắc rối khác. Ở đây, “mạch” là object trong code và bảng trong database.</p>
+      <p>Framework <dfn data-term="orm">ORM</dfn> (<em class="en">object-relational mapping</em>) tự sinh phần lớn code dịch. Sách liệt kê các lời phê bình thường gặp:</p>
+      <ul>
+        <li>ORM phức tạp và không giấu hết khác biệt, nên lập trình viên vẫn phải nghĩ về cả hai cách biểu diễn.</li>
+        <li>ORM chủ yếu dùng cho ứng dụng OLTP. Kỹ sư dữ liệu đưa dữ liệu sang phân tích vẫn làm việc trực tiếp với schema quan hệ, nên thiết kế schema vẫn quan trọng.</li>
+        <li>Nhiều ORM chỉ hỗ trợ database quan hệ, không hợp với search engine, graph database hay hệ NoSQL.</li>
+        <li>Schema do ORM tự sinh có thể khó dùng cho người truy cập trực tiếp và chạy kém hiệu quả. Tuỳ biến nó lại phức tạp tới mức mất luôn lợi ích ban đầu.</li>
+        <li>Công cụ migration đi kèm tiện nhưng nguy hiểm: migration trên bảng lớn có thể khoá cả bảng rất lâu, gây downtime.</li>
+        <li>ORM khiến bạn dễ vô tình viết truy vấn kém hiệu quả, điển hình là <dfn data-term="n-plus-one">truy vấn N+1</dfn>.</li>
+      </ul>
+      <p>Mặt khác, với dữ liệu hợp mô hình quan hệ thì việc dịch giữa hai dạng là không tránh được. ORM gánh các trường hợp đơn giản lặp đi lặp lại, có thể cache kết quả truy vấn, và giúp quản lý migration.</p>
+    </div>
+    <figure class="lab" data-widget="n-plus-one">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hiển thị N bình luận kèm tên tác giả
+        <small>Đổi số bình luận và độ trễ mạng mỗi truy vấn, rồi so lazy loading (N+1) với eager loading bằng JOIN.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Chi phí của N+1 tỉ lệ với <em>số lượt đi về qua mạng</em>, không phải lượng dữ liệu. Một JOIN trong database thường rẻ hơn nhiều so với N lượt hỏi nhỏ. Hầu hết ORM có cách yêu cầu nạp kèm dữ liệu liên quan (<code>include</code>, <code>joinedload</code>, <code>prefetch</code>…).</p></aside>
+  </article>
+
+  <article class="topic" id="ch3-one-to-many" data-num="3.4" data-short="Document cho quan hệ một-nhiều" data-keywords="resume linkedin json document one-to-many tree locality">
+    <p class="eyebrow">3.4 · The document data model for one-to-many relationships</p>
+    <h2>Hồ sơ LinkedIn: bảng hay document? <span class="vi">Document model for one-to-many relationships</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Một hồ sơ có nhiều vị trí công việc, nhiều quá trình học, nhiều thông tin liên lạc: đó là quan hệ <em>một-nhiều</em>.</li>
+      <li>Kiểu quan hệ tách chúng ra bảng riêng có khoá ngoại. Kiểu document gói cả hồ sơ vào một JSON, có cấu trúc cây rõ ràng.</li>
+      <li>Document có <strong>locality</strong> tốt hơn: một lần đọc lấy được toàn bộ hồ sơ, không cần nhiều truy vấn hay join nhiều chiều.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ở Hình 3-1 của sách, <code>first_name</code>, <code>last_name</code> chỉ xuất hiện một lần mỗi người nên là cột của bảng <code>users</code>. Còn <code>positions</code>, <code>education</code>, <code>contact_info</code> là các bảng con có khoá ngoại <code>user_id</code>. Đây là cách biểu diễn <dfn data-term="one-to-many">quan hệ một-nhiều</dfn> trong mô hình quan hệ.</p>
+      <p>Cùng thông tin đó viết thành một document JSON (Ví dụ 3-1) trông gần với object trong code hơn. Nhiều lập trình viên thấy cách này giảm impedance mismatch. Lợi thế rõ hơn nằm ở <dfn data-term="locality">locality</dfn>: muốn lấy hồ sơ ở dạng quan hệ, bạn phải truy vấn từng bảng theo <code>user_id</code> hoặc làm một join nhiều chiều rối rắm. Ở dạng JSON, mọi thứ nằm cùng một chỗ.</p>
+      <p>Các quan hệ một-nhiều từ hồ sơ tới vị trí, học vấn, liên lạc tạo thành một <strong>cây</strong> (Hình 3-2), và JSON làm cấu trúc cây đó hiện rõ.</p>
+      <pre class="code"><span class="c">// Ví dụ 3-1 (rút gọn)</span>
+{
+  <span class="s">"user_id"</span>:    <span class="n">251</span>,
+  <span class="s">"first_name"</span>: <span class="s">"Barack"</span>,
+  <span class="s">"last_name"</span>:  <span class="s">"Obama"</span>,
+  <span class="s">"headline"</span>:   <span class="s">"Former President of the United States of America"</span>,
+  <span class="s">"region_id"</span>:  <span class="s">"us:91"</span>,
+  <span class="s">"positions"</span>: [
+    {<span class="s">"job_title"</span>: <span class="s">"President"</span>, <span class="s">"organization"</span>: <span class="s">"United States of America"</span>},
+    {<span class="s">"job_title"</span>: <span class="s">"US Senator (D-IL)"</span>, <span class="s">"organization"</span>: <span class="s">"United States Senate"</span>}
+  ],
+  <span class="s">"education"</span>: [
+    {<span class="s">"school_name"</span>: <span class="s">"Harvard University"</span>,  <span class="s">"start"</span>: <span class="n">1985</span>, <span class="s">"end"</span>: <span class="n">1990</span>},
+    {<span class="s">"school_name"</span>: <span class="s">"Columbia University"</span>, <span class="s">"start"</span>: <span class="n">1979</span>, <span class="s">"end"</span>: <span class="n">1983</span>}
+  ],
+  <span class="s">"contact_info"</span>: {
+    <span class="s">"website"</span>: <span class="s">"https://barackobama.com"</span>,
+    <span class="s">"twitter"</span>: <span class="s">"https://twitter.com/barackobama"</span>
+  }
+}</pre>
+    </div>
+    <figure class="lab" data-widget="resume-model">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Cùng một hồ sơ, ba cách nhìn
+        <small>Chuyển giữa bảng quan hệ, document JSON và cây. Bấm “Tải hồ sơ” để xem mỗi cách cần bao nhiêu lần tra cứu.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Quan hệ kiểu hồ sơ thường là <dfn data-term="one-to-few">một-vài</dfn> (<em class="en">one-to-few</em>): một người chỉ có vài vị trí công việc. Nếu phía “nhiều” thật sự lớn, ví dụ hàng nghìn bình luận dưới bài đăng của người nổi tiếng, nhúng hết vào một document sẽ quá cồng kềnh. Khi đó cách quan hệ ở Hình 3-1 hợp lý hơn.</p></aside>
+  </article>
+
+  <article class="topic" id="ch3-normalization" data-num="3.5" data-short="Chuẩn hoá & phi chuẩn hoá" data-keywords="normalization denormalization join lookup region_id id consistency">
+    <p class="eyebrow">3.5 · Normalization, Denormalization, and Joins</p>
+    <h2>Lưu ID hay lưu chữ? <span class="vi">Normalization, Denormalization, and Joins</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Lưu <code>region_id</code> thay vì chuỗi “Washington, DC” là <strong>chuẩn hoá</strong>: thông tin có nghĩa với con người chỉ nằm ở một chỗ, mọi nơi khác trỏ tới bằng ID.</li>
+      <li>Chuẩn hoá: ghi nhanh (một bản), đọc chậm hơn (cần join). Phi chuẩn hoá: đọc nhanh, nhưng ghi tốn hơn và dễ lệch nhau.</li>
+      <li>OLTP thường hợp với dữ liệu chuẩn hoá. Phân tích thường hợp với dữ liệu phi chuẩn hoá vì ghi theo lô và đọc là chính.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Vì sao hồ sơ ở Ví dụ 3-1 lưu <code>region_id: "us:91"</code> mà không lưu chuỗi “Washington, DC, United States”? Dùng danh sách vùng chuẩn (chọn từ dropdown) có các lợi ích:</p>
+      <ul>
+        <li>Chính tả và cách viết thống nhất giữa các hồ sơ.</li>
+        <li>Tránh nhập nhằng: “Washington” là thủ đô DC hay bang Washington?</li>
+        <li>Dễ cập nhật: tên chỉ nằm ở một chỗ, ví dụ khi một thành phố đổi tên.</li>
+        <li>Hỗ trợ bản địa hoá: dịch danh sách vùng một lần là mọi hồ sơ hiển thị theo ngôn ngữ người xem.</li>
+        <li>Tìm kiếm tốt hơn: danh sách vùng có thể ghi nhận Washington thuộc Bờ Đông, điều mà chuỗi “Washington, DC” không thể hiện.</li>
+      </ul>
+      <p>Dùng ID là <dfn data-term="normalization">chuẩn hoá</dfn> (<em class="en">normalization</em>). Chép thẳng chữ vào từng bản ghi là <dfn data-term="denormalization">phi chuẩn hoá</dfn>. ID không mang nghĩa với con người nên <mark>không bao giờ phải đổi</mark>. Thứ gì có nghĩa với con người thì sớm muộn cũng có thể đổi, và nếu nó bị nhân bản thì mọi bản sao đều phải cập nhật: thêm code, thêm lượt ghi, thêm nguy cơ lệch nhau.</p>
+      <p>Cái giá của chuẩn hoá là mỗi lần hiển thị phải tra thêm để đổi ID thành chữ. Trong mô hình quan hệ, việc này là một <dfn data-term="join">join</dfn>:</p>
+      <pre class="code"><span class="k">SELECT</span> users.*, regions.region_name
+<span class="k">FROM</span> users
+<span class="k">JOIN</span> regions <span class="k">ON</span> users.region_id = regions.id
+<span class="k">WHERE</span> users.id = <span class="n">251</span>;</pre>
+      <p>Database document thường hoặc lưu phi chuẩn hoá, hoặc join trong code ứng dụng (đọc document có ID rồi truy vấn tiếp). MongoDB cũng join được bằng <code>$lookup</code> trong aggregation pipeline:</p>
+      <pre class="code">db.users.aggregate([
+  { $match: { _id: <span class="n">251</span> } },
+  { $lookup: {
+      from: <span class="s">"regions"</span>,
+      localField: <span class="s">"region_id"</span>,
+      foreignField: <span class="s">"_id"</span>,
+      as: <span class="s">"region"</span>
+  } }
+])</pre>
+      <h3>Đánh đổi</h3>
+      <p>Hồ sơ ở ví dụ lưu <code>organization</code> và <code>school_name</code> dạng chuỗi, tức là phi chuẩn hoá. Nếu muốn hiện cả logo công ty, cách phi chuẩn hoá chép URL logo vào từng hồ sơ: document tự chứa đủ, nhưng đổi logo thì phải tìm và sửa mọi bản sao. Cách chuẩn hoá tạo một thực thể “tổ chức” chứa tên, logo, mô tả, và hồ sơ chỉ tham chiếu ID của nó.</p>
+      <p>Có thể coi phi chuẩn hoá là một dạng <dfn data-term="derived-data">dữ liệu dẫn xuất</dfn> (xem <a href="#ch1">Chương 1</a>): bạn cần một quy trình giữ các bản sao đồng bộ. Ngoài chi phí ghi, còn phải tính tới trường hợp tiến trình <strong>crash giữa chừng</strong>. Database có transaction nguyên tử giúp giữ nhất quán, nhưng không phải database nào cũng hỗ trợ nguyên tử trên nhiều document.</p>
+    </div>
+    <figure class="lab" data-widget="normalize">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đổi tên một vùng, đổi logo một công ty
+        <small>Hai kho cùng dữ liệu: chuẩn hoá (trái) và phi chuẩn hoá (phải). Đếm số lượt ghi, rồi bật “crash giữa chừng” để thấy dữ liệu lệch.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Chuẩn hoá thường nhanh khi ghi, chậm khi đọc. Phi chuẩn hoá nhanh khi đọc, tốn khi ghi. Ở quy mô nhỏ và vừa, chuẩn hoá thường là lựa chọn tốt nhất vì không phải lo đồng bộ bản sao và chi phí join chấp nhận được. Chỉ ở quy mô rất lớn, chi phí join mới thành vấn đề.</p></aside>
+  </article>
+
+  <article class="topic" id="ch3-hydration" data-num="3.6" data-short="Hydrate ID ở timeline của X" data-keywords="hydrating timeline twitter x denormalization materialized">
+    <p class="eyebrow">3.6 · Denormalization in the social networking case study</p>
+    <h2>Timeline của X chỉ lưu ID <span class="vi">Hydrating IDs at read time</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Timeline dựng sẵn (xem <a href="#ch2">Chương 2</a>) là bản phi chuẩn hoá của phép join posts × follows.</li>
+      <li>Nhưng X chỉ lưu <strong>ID bài đăng và ID người đăng</strong> trong timeline. Nội dung, số like, tên và ảnh đại diện được tra lúc đọc. Việc này gọi là <em>hydrate</em>.</li>
+      <li>Phải join khi đọc không hẳn cản trở khả năng mở rộng: hydrate song song hoá tốt và không phụ thuộc số follower.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ở case study Chương 2, join giữa <code>posts</code> và <code>follows</code> quá đắt, nên timeline được dựng sẵn và fan-out giữ nó đồng bộ. Tuy vậy, mỗi mục timeline của X chỉ chứa ID bài, ID người đăng và vài thông tin nhận diện repost/reply. Nó là kết quả dựng sẵn của truy vấn gần giống:</p>
+      <pre class="code"><span class="k">SELECT</span> posts.id, posts.sender_id <span class="k">FROM</span> posts
+  <span class="k">JOIN</span> follows <span class="k">ON</span> posts.sender_id = follows.followee_id
+  <span class="k">WHERE</span> follows.follower_id = current_user
+  <span class="k">ORDER BY</span> posts.timestamp <span class="k">DESC</span>
+  <span class="k">LIMIT</span> <span class="n">1000</span></pre>
+      <p>Khi đọc, dịch vụ vẫn làm hai join: tra ID bài để lấy nội dung và thống kê (like, reply), tra ID người đăng để lấy username và ảnh. Việc đổi ID thành thông tin đọc được gọi là <dfn data-term="hydrating">hydrate</dfn>, về bản chất là join làm trong code ứng dụng.</p>
+      <p>Vì sao không chép luôn nội dung vào timeline? Vì những dữ liệu này thay đổi nhanh: số like của bài nổi tiếng đổi nhiều lần mỗi giây, người dùng đổi username và ảnh đại diện. Timeline phải hiện số liệu mới nhất. Chép vào cũng làm chi phí lưu trữ tăng mạnh.</p>
+    </div>
+    <figure class="lab" data-widget="hydrate">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hydrate lúc đọc và bản sao phi chuẩn hoá
+        <small>Tạo vài lượt like, đổi username, rồi so timeline được hydrate với bản sao chụp lúc fan-out.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Cách mở rộng tốt nhất thường là trộn: phi chuẩn hoá thứ đắt và ít đổi (danh sách ID trong timeline), giữ chuẩn hoá thứ hay đổi (like, profile). Muốn quyết định, hãy xem thông tin đổi thường xuyên đến đâu và chi phí đọc/ghi, vốn hay bị các trường hợp cực đoan chi phối (người có rất nhiều follower).</p></aside>
+  </article>
+
+  <article class="topic" id="ch3-relationships" data-num="3.7" data-short="Nhiều-một & nhiều-nhiều" data-keywords="many-to-one many-to-many join table associative secondary index">
+    <p class="eyebrow">3.7 · Many-to-One and Many-to-Many Relationships</p>
+    <h2>Quan hệ nhiều-một và nhiều-nhiều <span class="vi">Many-to-One and Many-to-Many Relationships</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><code>region_id</code> là <em>nhiều-một</em>: nhiều người sống cùng một vùng. Người ↔ tổ chức là <em>nhiều-nhiều</em>.</li>
+      <li>Mô hình quan hệ biểu diễn nhiều-nhiều bằng <strong>bảng nối</strong> (<code>positions</code>: mỗi hàng nối một user_id với một org_id).</li>
+      <li>Muốn truy vấn cả hai chiều, chọn giữa lưu tham chiếu ở cả hai phía (phi chuẩn hoá) hoặc lưu một chỗ và dùng <strong>secondary index</strong> trên cả hai cột.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Vị trí và học vấn là quan hệ một-nhiều: mỗi vị trí chỉ thuộc một hồ sơ. Còn <code>region_id</code> là <dfn data-term="many-to-one">nhiều-một</dfn>. Nếu biến công ty và trường học thành thực thể có ID, ta có <dfn data-term="many-to-many">nhiều-nhiều</dfn>: một người làm ở nhiều tổ chức, một tổ chức có nhiều nhân viên cũ và hiện tại. Mô hình quan hệ dùng <dfn data-term="join-table">bảng nối</dfn> (Hình 3-3).</p>
+      <p>Quan hệ nhiều-một và nhiều-nhiều không gói gọn được trong một document JSON tự chứa. Chúng hợp với cách chuẩn hoá hơn. Trong mô hình document (Ví dụ 3-2, Hình 3-4), phần trong mỗi khung có thể gộp thành một document, còn liên kết tới tổ chức và trường học tốt nhất là tham chiếu tới document khác:</p>
+      <pre class="code">{
+  <span class="s">"user_id"</span>:    <span class="n">251</span>,
+  <span class="s">"first_name"</span>: <span class="s">"Barack"</span>,
+  <span class="s">"last_name"</span>:  <span class="s">"Obama"</span>,
+  <span class="s">"positions"</span>: [
+    {<span class="s">"start"</span>: <span class="n">2009</span>, <span class="s">"end"</span>: <span class="n">2017</span>, <span class="s">"job_title"</span>: <span class="s">"President"</span>,         <span class="s">"org_id"</span>: <span class="n">513</span>},
+    {<span class="s">"start"</span>: <span class="n">2005</span>, <span class="s">"end"</span>: <span class="n">2008</span>, <span class="s">"job_title"</span>: <span class="s">"US Senator (D-IL)"</span>, <span class="s">"org_id"</span>: <span class="n">514</span>}
+  ],
+  ...
+}</pre>
+      <p>Quan hệ nhiều-nhiều thường phải hỏi theo hai chiều: một người từng làm ở đâu, và ai từng làm ở một tổ chức. Cách phi chuẩn hoá lưu ID ở cả hai phía: hồ sơ chứa ID tổ chức, tổ chức chứa ID các hồ sơ, và hai nơi có thể lệch nhau. Cách chuẩn hoá lưu quan hệ ở một chỗ và dựa vào <dfn data-term="secondary-index">secondary index</dfn>: trong Hình 3-3 là index trên cả <code>user_id</code> lẫn <code>org_id</code> của bảng <code>positions</code>. Nhiều database document và database quan hệ có JSON cũng index được giá trị nằm trong mảng <code>positions</code> của document.</p>
+    </div>
+    <figure class="lab" data-widget="many-to-many">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Người ↔ tổ chức qua bảng <code>positions</code>
+        <small>Bấm vào một người hoặc một tổ chức để truy vấn theo chiều đó. Tắt index trên org_id để thấy chiều ngược lại phải quét cả bảng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Kiểu quan hệ trong dữ liệu là tiêu chí lớn nhất để chọn mô hình: chủ yếu một-nhiều (cây) thì hợp document; nhiều nhiều-một/nhiều-nhiều thì hợp quan hệ; quan hệ chằng chịt, truy vấn đi nhiều bước thì hợp graph.</p></aside>
+  </article>
+
+  <article class="topic" id="ch3-star" data-num="3.8" data-short="Star & snowflake schema" data-keywords="star snowflake fact dimension warehouse obt one big table">
+    <p class="eyebrow">3.8 · Stars and Snowflakes: Schemas for Analytics</p>
+    <h2>Schema hình sao và bông tuyết cho phân tích <span class="vi">Stars and Snowflakes: Schemas for Analytics</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Kho dữ liệu thường dùng <strong>star schema</strong>: bảng <em>fact</em> ở giữa (mỗi hàng là một sự kiện), xung quanh là các bảng <em>dimension</em> (ai, cái gì, ở đâu, khi nào, thế nào, vì sao).</li>
+      <li><strong>Snowflake</strong> tách dimension thành dimension con: chuẩn hoá hơn nhưng khó dùng hơn với analyst.</li>
+      <li><strong>One big table</strong> gộp luôn dimension vào fact: tốn chỗ, đôi khi truy vấn nhanh hơn. Phi chuẩn hoá ở đây không đáng ngại vì dữ liệu lịch sử hầu như không đổi.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Hình 3-5 trong sách là kho dữ liệu của một chuỗi siêu thị. Ở giữa là <dfn data-term="fact-table">bảng fact</dfn> <code>fact_sales</code>: mỗi hàng là một lần khách mua một sản phẩm. Nếu phân tích lưu lượng web thì mỗi hàng có thể là một lượt xem trang hay một cú click. Ghi lại từng sự kiện riêng cho phép phân tích linh hoạt nhất về sau, nhưng bảng fact có thể rất lớn: doanh nghiệp lớn có thể có hàng petabyte lịch sử giao dịch.</p>
+      <p>Một số cột của fact là thuộc tính (giá bán, giá nhập để tính biên lợi nhuận). Số còn lại là khoá ngoại trỏ tới <dfn data-term="dimension-table">bảng dimension</dfn>. Ví dụ <code>dim_product</code> có SKU, mô tả, thương hiệu, danh mục, kích cỡ gói. Ngay cả ngày tháng cũng là một dimension, để ghi thêm thông tin như ngày lễ và so doanh số ngày lễ với ngày thường.</p>
+      <p>Tên <dfn data-term="star-schema">star schema</dfn> đến từ hình vẽ: fact ở giữa, dimension toả ra như tia sao. Biến thể <dfn data-term="snowflake-schema">snowflake schema</dfn> tách tiếp, ví dụ <code>dim_product</code> trỏ tới bảng thương hiệu và bảng danh mục thay vì lưu chuỗi. Snowflake chuẩn hoá hơn, nhưng star thường được ưa chuộng vì analyst dùng dễ hơn.</p>
+      <p>Bảng trong kho dữ liệu thường rất rộng: fact hay có hơn 100 cột, đôi khi vài trăm. Dimension cũng rộng, ví dụ <code>dim_store</code> có thể ghi cửa hàng có tiệm bánh không, diện tích, ngày khai trương, cách đường cao tốc bao xa. Đi xa hơn nữa là <dfn data-term="obt">one big table (OBT)</dfn>: bỏ hẳn bảng dimension, gộp thông tin vào cột của fact, tức là tính sẵn phép join.</p>
+    </div>
+    <figure class="lab" data-widget="star-schema">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Cùng một câu hỏi trên star, snowflake và OBT
+        <small>Đổi kiểu schema và câu hỏi, xem cần join bảng nào. Bấm vào một bảng để xem vài hàng mẫu.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Star/snowflake chủ yếu chứa quan hệ nhiều-một (nhiều lượt bán cho một sản phẩm, ở một cửa hàng). Một giỏ hàng nhiều món không được biểu diễn tường minh: mỗi món là một hàng fact riêng, chỉ tình cờ trùng customer, store và timestamp.</p></aside>
+  </article>

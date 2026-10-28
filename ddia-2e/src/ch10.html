@@ -1,0 +1,327 @@
+<style>
+#ch10 .viz svg.mw { min-width: 540px; }
+#ch10 .f-ok-soft { fill: var(--ok-soft); }
+#ch10 .f-warn-soft { fill: var(--warn-soft); }
+#ch10 .verdict { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 12px; }
+#ch10 .verdict .vtext { flex: 1 1 260px; font-size: var(--t-sm); line-height: 1.5; }
+#ch10 .op { cursor: grab; }
+#ch10 .op:active { cursor: grabbing; }
+#ch10 .op.sel rect { stroke-width: 2.5px; }
+#ch10 .nohit { pointer-events: none; }
+#ch10 .ls-grid { display: grid; grid-template-columns: minmax(90px, 130px) repeat(2, minmax(0, 1fr)); gap: 8px; margin: 10px 0; }
+#ch10 .ls-h { font-size: var(--t-xs); font-weight: 700; color: var(--ink-2); text-align: center; align-self: center; }
+#ch10 .ls-h.side { text-align: right; padding-right: 6px; }
+#ch10 .ls-c { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--bg); min-height: 68px; display: flex; flex-direction: column; gap: 6px; justify-content: center; align-items: flex-start; }
+#ch10 .ls-c.on { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+</style>
+
+<section class="chapter" id="ch10" data-chapter="10" data-title="Tính nhất quán và đồng thuận" data-edition="1e">
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 10 <span class="ed-badge">Nguồn: ấn bản 1 · Chương 9</span></p>
+    <h1>Consistency and Consensus <span class="vi">Tính nhất quán và đồng thuận</span></h1>
+    <blockquote class="epigraph">Is it better to be alive and wrong or right and dead?<cite>— Jay Kreps, A Few Notes on Kafka and Jepsen (2013)</cite></blockquote>
+    <p class="lede">Sau khi nhìn thẳng vào mọi kiểu lỗi của hệ phân tán ở <a href="#ch9">Chương 9</a>, chương này trả lời câu hỏi: làm sao xây dựng những trừu tượng đúng đắn bên trên hạ tầng đầy rủi ro đó? Ta sẽ khảo sát các mô hình nhất quán từ yếu nhất (<em class="en">eventual consistency</em>) đến mạnh nhất (<em class="en">linearizability</em>), khám phá thứ tự nhân quả với đồng hồ logic Lamport, và đi tới trái tim của hệ phân tán: bài toán đồng thuận (<em class="en">consensus</em>) — nền tảng giúp bầu chọn leader, tránh split-brain và phối hợp các node qua ZooKeeper hay etcd.</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- 10.1 -->
+  <article class="topic" id="ch10-eventual" data-num="10.1" data-short="Tính nhất quán cuối cùng" data-keywords="eventual consistency convergence replication lag stale read anomaly">
+    <p class="eyebrow">10.1 · Consistency Guarantees</p>
+    <h2>Đảm bảo nhất quán và tính nhất quán cuối cùng <span class="vi">Consistency Guarantees &amp; Eventual Consistency</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Đa số cơ sở dữ liệu nhân bản cung cấp ít nhất <dfn data-term="eventual-consistency">tính nhất quán cuối cùng</dfn> (<em class="en">eventual consistency</em>): nếu ngừng ghi thêm, sau một khoảng thời gian mọi replica cuối cùng sẽ hội tụ về cùng một giá trị.</li>
+      <li>“Cuối cùng” là một cái tên rất yếu: nó không nói <em>khi nào</em> các replica hội tụ, và trước lúc hội tụ thì chuyện gì cũng có thể xảy ra (đọc thấy giá trị cũ, đọc lùi về quá khứ).</li>
+      <li>Khi lập trình trên mô hình nhất quán yếu, lỗi rất khó phát hiện lúc kiểm thử vì chỉ lộ ra khi mạng trễ hoặc tải cao.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ở <a href="#ch6">Chương 6</a>, ta đã thấy sao chép bất đồng bộ làm nảy sinh nhiều hiện tượng kỳ lạ khi các bản sao lệch nhau tạm thời. Cách tốt hơn để đặt tên cho <em class="en">eventual consistency</em> là <strong>hội tụ</strong> (<em class="en">convergence</em>), vì về mặt kỹ thuật, nó chỉ hứa rằng các bản sao không lệch nhau vĩnh viễn. Nhưng từ phía nhà phát triển ứng dụng, bạn cần biết hệ thống của mình được phép trả về kết quả gì khi người dùng vừa đọc vừa ghi đồng thời.</p>
+      <p>So với tính cô lập giao dịch ở <a href="#ch8">Chương 8</a> (vốn xoay quanh việc tránh các điều kiện tranh chấp khi nhiều giao dịch đọc/ghi cùng lúc), các mô hình nhất quán phân tán xoay quanh việc <strong>phối hợp trạng thái giữa các bản sao</strong> trước độ trễ mạng và lỗi node. Thử nghiệm dưới đây cho thấy một client đọc từ các replica ngẫu nhiên sẽ liên tục thấy dữ liệu “nhảy lùi thời gian” trước khi toàn bộ cụm kịp hội tụ.</p>
+    </div>
+    <figure class="lab" data-widget="c10-eventual">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hội tụ của ba replica và các lần đọc lùi thời gian
+        <small>Kéo độ trễ sao chép tới hai follower và chuyển giữa “Đọc từ replica ngẫu nhiên” với “Chỉ đọc từ leader” để thấy sự khác biệt.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Mọi mô hình nhất quán mạnh hơn đều có cái giá về hiệu năng hoặc khả năng chịu lỗi, nhưng đổi lại chúng giải phóng lập trình viên khỏi hàng loạt góc khuất khó suy luận.</p></aside>
+  </article>
+
+  <!-- 10.2 -->
+  <article class="topic" id="ch10-linearizability" data-num="10.2" data-short="Tuyến tính hoá (World Cup)" data-keywords="linearizability atomic consistency recency guarantee single copy illusion alice bob world cup">
+    <p class="eyebrow">10.2 · Linearizability · What Makes a System Linearizable?</p>
+    <h2>Tuyến tính hoá: ảo ảnh chỉ có một bản sao <span class="vi">Linearizability (Atomic Consistency)</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="linearizability">Tuyến tính hoá</dfn> (<em class="en">linearizability</em>, còn gọi là <em class="en">atomic consistency</em> hay <em class="en">strong consistency</em>) tạo ra ảo ảnh rằng chỉ có <strong>một bản sao dữ liệu duy nhất</strong> và mọi thao tác lên nó đều là nguyên tử.</li>
+      <li>Nó là một <dfn data-term="recency-guarantee">đảm bảo độ tươi mới</dfn> (<em class="en">recency guarantee</em>): ngay khi một client hoàn tất việc ghi hoặc đọc thấy giá trị mới, mọi client khác bắt đầu đọc sau thời điểm đó bắt buộc phải thấy giá trị mới.</li>
+      <li>Ví dụ chung kết World Cup 2014 (Hình 9-1 trong sách): Alice thấy tỉ số cuối và kể cho Bob; Bob bấm tải lại sau đó nhưng lại thấy trận đấu chưa kết thúc — đó là vi phạm tuyến tính hoá.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Nếu hệ thống chỉ có đúng một bản sao dữ liệu trong RAM của một máy, mọi người đọc sẽ lập tức thấy giá trị vừa được ghi xong. Trong hệ phân tán có nhiều replica, đạt được hành vi tương đương như thế chính là <em>linearizability</em>.</p>
+      <p>Trong câu chuyện ở Hình 9-1, Alice và Bob ngồi cùng phòng xem kết quả trận chung kết World Cup. Ngay khi có tỉ số cuối, Alice bấm tải lại, yêu cầu của cô vào một replica đã cập nhật và trả về “Đức 1–0 Argentina”. Alice hào hứng báo tin cho Bob. Bob liền bấm tải lại trên điện thoại của mình, nhưng yêu cầu của anh lại rơi vào một follower đang trễ sao chép và nhận kết quả “trận đấu vẫn đang diễn ra”. Vì Bob gửi yêu cầu <em>sau khi</em> yêu cầu của Alice đã kết thúc (và có kênh truyền thông ngoài băng tần là lời nói của Alice), việc Bob thấy giá trị cũ hơn Alice đã phá vỡ ảo ảnh một bản sao.</p>
+    </div>
+    <figure class="lab" data-widget="c10-worldcup">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Alice, Bob và trận chung kết World Cup 2014 (Hình 9-1)
+        <small>Điều chỉnh thời điểm Alice bấm tải lại và độ trễ của hai follower. Bật hộp kiểm “Hệ thống tuyến tính hoá” để xem vi phạm biến mất thế nào.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Đừng nhầm với “đọc được cái mình vừa ghi” (<em class="en">read-your-writes</em> ở <a href="#ch6">Chương 6</a>): ở đây người đọc thứ hai là <em>Bob</em> chứ không phải Alice, nên gắn phiên của từng người dùng vào một replica không giải quyết được vấn đề.</p></aside>
+  </article>
+
+  <!-- 10.3 -->
+  <article class="topic" id="ch10-history" data-num="10.3" data-short="Lịch sử thanh ghi & CAS" data-keywords="register history linearization point compare-and-set cas quorum abd">
+    <p class="eyebrow">10.3 · Formalizing Linearizability on a Register</p>
+    <h2>Kiểm tra tính tuyến tính trên lịch sử thanh ghi <span class="vi">Linearizability Points and Compare-and-Set</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Mọi thao tác mạng đều mất một khoảng thời gian từ lúc gửi yêu cầu đến lúc nhận phản hồi. Tuyến tính hoá đòi hỏi trên mỗi thanh ghi (<em class="en">register</em>), tồn tại một <dfn data-term="linearization-point">điểm tuyến tính hoá</dfn> tức thời nằm trong khoảng thời gian thực thi của từng thao tác.</li>
+      <li>Nếu nối các điểm đó theo thứ tự thời gian, ta phải thu được một chuỗi đọc/ghi tuần tự hợp lệ: mỗi lần đọc trả về giá trị của lần ghi có hiệu lực gần nhất trước đó.</li>
+      <li>Để dùng thanh ghi tuyến tính cho khoá phân tán hay chống trùng lặp, ta cần thêm thao tác nguyên tử <dfn data-term="compare-and-set">compare-and-set</dfn> (<code>cas(x, old, new)</code>).</li>
+      <li>Quorum kiểu Dynamo (<code>w + r &gt; n</code>) <em>không</em> tự động tuyến tính hoá nếu không có bước <em class="en">read repair</em> đồng bộ trước khi trả kết quả đọc (Hình 9-6).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Khi một thao tác đọc chạy đồng thời (chồng thời gian) với một thao tác ghi từ 0 thành 1, lần đọc có thể trả về 0 hoặc 1 đều hợp lệ vì ta chưa biết điểm có hiệu lực của lần ghi rơi vào lúc nào. Nhưng một khi bất kỳ lần đọc nào đã trả về 1 (hoặc lần ghi đã kết thúc), thì thời điểm có hiệu lực của việc chuyển sang 1 chắc chắn đã qua: mọi thao tác bắt đầu sau đó <strong>không bao giờ</strong> được thấy 0 nữa.</p>
+      <p>Dùng bộ kiểm tra tương tác dưới đây để khảo sát các lịch sử Hình 9-2, 9-3, 9-4 và ví dụ Quorum Hình 9-6 trong sách. Bạn có thể kéo các thanh thao tác theo chiều ngang hoặc đổi giá trị trả về để biến một lịch sử vi phạm thành tuyến tính hoá được.</p>
+    </div>
+    <figure class="lab" data-widget="c10-linchecker">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bộ kiểm tra tuyến tính hoá tương tác (Hình 9-2, 9-3, 9-4, 9-6)
+        <small>Chọn một lịch sử mẫu, kéo thanh thao tác sang trái/phải hoặc bấm đúp vào thanh đang chọn để đổi kết quả trả về.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Trong hệ leaderless dùng quorum <code>w + r &gt; n</code> (ví dụ <code>n=3, w=2, r=2</code>), nếu một lần ghi đang dở dang mới tới Node 1, A đọc từ <code>{Node 1, Node 2}</code> thấy giá trị mới, rồi B đọc ngay sau đó từ <code>{Node 2, Node 3}</code> vẫn thấy giá trị cũ: vi phạm tuyến tính hoá!</p></aside>
+  </article>
+
+  <!-- 10.4 -->
+  <article class="topic" id="ch10-lin-vs-ser" data-num="10.4" data-short="Linearizability vs Serializability & CAP" data-keywords="linearizability serializability strict serializability 2pl ssi cap theorem network partition">
+    <p class="eyebrow">10.4 · Linearizability vs. Serializability · The Cost of Linearizability (CAP)</p>
+    <h2>Linearizability so với Serializability và cái giá của CAP <span class="vi">Linearizability vs. Serializability &amp; The Cost of Linearizability</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="serializability">Serializability</dfn> là tính chất cô lập của <em>giao dịch nhiều đối tượng</em>, cho phép xếp các giao dịch theo một thứ tự tuần tự bất kỳ (không cần khớp thời gian thực).</li>
+      <li><strong>Linearizability</strong> là đảm bảo độ tươi mới theo thời gian thực trên <em>từng đối tượng đơn lẻ</em>. Kết hợp cả hai gọi là <dfn data-term="strict-serializability">strict serializability</dfn> (hay <em class="en">strong-1SR</em>).</li>
+      <li>2PL và thực thi tuần tự thường đạt cả hai; còn Snapshot Isolation / SSI cố tình đọc từ snapshot cũ nên serializable nhưng <em>không</em> tuyến tính hoá.</li>
+      <li><dfn data-term="cap-theorem">Định lý CAP</dfn>: khi có phân vùng mạng, hệ thống tuyến tính hoá phải hy sinh tính sẵn sàng ở phía bị cô lập; và ngay cả khi mạng bình thường, tuyến tính hoá vẫn chậm vì độ trễ truyền tin (thậm chí ngay cả trong RAM đa nhân của CPU!).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Hai thuật ngữ này rất dễ gây nhầm lẫn vì đều có nghĩa gần như “có thể xếp thành một hàng tuần tự”. Bảng phân loại 2×2 dưới đây giúp tách bạch hoàn toàn hai khái niệm bằng năm hệ thống thực tế.</p>
+      <p>Về chi phí của tuyến tính hoá: giả sử hai datacenter bị đứt cáp quang nối giữa chúng. Nếu ứng dụng yêu cầu tuyến tính hoá, datacenter không giữ leader (hoặc không đủ quorum) bắt buộc phải từ chối yêu cầu ghi lẫn đọc tuyến tính, tức là mất tính sẵn sàng (<em class="en">Availability</em>). Hơn thế nữa, Attiya và Welch đã chứng minh thời gian phản hồi của đọc/ghi tuyến tính luôn tỷ lệ thuận với độ trễ mạng: đó là lý do ngay cả các nhân CPU hiện đại cũng không cung cấp RAM tuyến tính hoá mặc định mà dùng bộ đệm ghi và hàng đợi vô hiệu hoá bất đồng bộ (xem rào cản bộ nhớ <em class="en">memory barrier</em>).</p>
+    </div>
+    <figure class="lab" data-widget="c10-linser">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ma trận 2×2: Tuyến tính hoá (Linearizable) vs Khả tuần tự (Serializable)
+        <small>Bấm chọn từng hệ thống để xem nó nằm ở ô nào trên ma trận và tại sao.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Khi nào thực sự cần tuyến tính hoá? (1) Bầu leader và khoá phân tán, (2) Ràng buộc duy nhất (username, mã ghế, không bán âm kho), và (3) Khi có kênh truyền thông phụ trợ ngoài hệ thống (như Alice nói chuyện với Bob, hoặc một dịch vụ đẩy thông báo qua hàng đợi sang dịch vụ khác đọc CSDL).</p></aside>
+  </article>
+
+  <!-- 10.5 -->
+  <article class="topic" id="ch10-causal" data-num="10.5" data-short="Nhất quán nhân quả & Lamport" data-keywords="ordering guarantees causality causal consistency lamport timestamp logical clock version vector">
+    <p class="eyebrow">10.5 · Ordering Guarantees · Causality and Lamport Timestamps</p>
+    <h2>Thứ tự nhân quả và dấu thời gian Lamport <span class="vi">Causal Consistency and Lamport Timestamps</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Nhân quả (<em class="en">causality</em>) đặt ra một thứ tự từng phần (<em class="en">partial order</em>) lên các sự kiện: câu hỏi phải trước câu trả lời, bước tạo dòng phải trước bước cập nhật dòng đó.</li>
+      <li><dfn data-term="causal-consistency">Tính nhất quán nhân quả</dfn> bảo toàn mọi quan hệ nhân quả và là mô hình nhất quán mạnh nhất không bị chậm đi do độ trễ mạng và vẫn sống sót khi có phân vùng mạng.</li>
+      <li><dfn data-term="lamport-timestamp">Dấu thời gian Lamport</dfn> dùng cặp <code>(counter, nodeId)</code> và quy tắc <code>max(local, msg.c) + 1</code> để tạo thứ tự toàn phần luôn tôn trọng nhân quả mà không cần đồng hồ vật lý.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Tuyến tính hoá tạo ra một thứ tự toàn phần (<em class="en">total order</em>) cho mọi thao tác: với hai thao tác bất kỳ, luôn nói được cái nào đứng trước. Tính nhất quán nhân quả yếu hơn: hai thao tác không liên quan nhân quả (diễn ra đồng thời, <em class="en">concurrent</em>) có thể được thấy theo thứ tự khác nhau ở các node khác nhau, nhưng nếu thao tác A dẫn đến thao tác B thì mọi node đều phải thấy A trước B.</p>
+      <p>Làm sao theo dõi thứ tự nhân quả mà không cần gửi toàn bộ lịch sử phụ thuộc (như version vector ở <a href="#ch6">Chương 6</a>)? Năm 1978, Leslie Lamport đưa ra một ý tưởng thanh lịch đến khó tin: mỗi node và mỗi client giữ một bộ đếm số nguyên <code>c</code>. Mỗi khi thực hiện thao tác, bộ đếm tăng lên 1. Mỗi yêu cầu và phản hồi qua mạng đều đính kèm giá trị <code>c</code> hiện tại; bên nhận nếu thấy <code>c</code> trong gói tin lớn hơn bộ đếm của mình thì lập tức nhảy bộ đếm của mình lên <code>max(local, msg.c) + 1</code>. Khi hai dấu thời gian có cùng bộ đếm, ta phân định thắng thua bằng <code>nodeId</code>.</p>
+    </div>
+    <figure class="lab" data-widget="c10-causal">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đồng hồ vật lý bị lệch vs Dấu thời gian Lamport
+        <small>So sánh cách đánh dấu sự kiện bằng đồng hồ vật lý (LWW) và Lamport timestamp khi đồng hồ Node 1 chạy nhanh hơn Node 2.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Khác với version vector, Lamport timestamp áp đặt thứ tự toàn phần lên mọi sự kiện nên nhìn vào hai dấu thời gian <code>(1, N1)</code> và <code>(1, N3)</code> bạn không biết chúng có phụ thuộc nhân quả hay diễn ra đồng thời. Và quan trọng hơn: Lamport timestamp chỉ cho biết thứ tự <em>sau khi đã thu thập hết</em> các sự kiện, chưa đủ để quyết định ngay lập tức ai thắng khi hai người cùng đăng ký một username!</p></aside>
+  </article>
+
+  <!-- 10.6 -->
+  <article class="topic" id="ch10-tob" data-num="10.6" data-short="Total Order Broadcast" data-keywords="total order broadcast atomic broadcast state machine replication linearizable storage cas">
+    <p class="eyebrow">10.6 · Total Order Broadcast</p>
+    <h2>Phát quảng bá thứ tự toàn phần <span class="vi">Total Order Broadcast &amp; State Machine Replication</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Lamport timestamp không đủ để kiểm tra ràng buộc duy nhất theo thời gian thực vì một node không biết có node nào khác đang giữ dấu thời gian nhỏ hơn hay không. Ta cần <dfn data-term="total-order-broadcast">total order broadcast</dfn> (còn gọi là <em class="en">atomic broadcast</em>).</li>
+      <li>Hai tính chất cốt lõi: (1) <strong>Giao tin tin cậy</strong> (không mất tin: nếu một node nhận được thì mọi node đều nhận được), và (2) <strong>Giao đúng thứ tự</strong> (mọi node nhận các thông điệp theo cùng một thứ tự).</li>
+      <li>Đây chính là nền tảng của <dfn data-term="state-machine-replication">nhân bản máy trạng thái</dfn>, log giao dịch (WAL), Kafka partition, và tương đương về mặt toán học với bài toán đồng thuận.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Hình dung total order broadcast như một file log chỉ cho phép ghi nối đuôi (<em class="en">append-only log</em>), trong đó thứ tự các thông điệp được cố định ngay tại thời điểm giao tin: không một node nào được phép chèn lùi một thông điệp mới vào vị trí trước thông điệp đã giao.</p>
+      <h3>Dựng lưu trữ tuyến tính hoá trên Total Order Broadcast (và ngược lại)</h3>
+      <p>Nếu có total order broadcast, bạn cài đặt được thao tác compare-and-set tuyến tính hoá để đăng ký username duy nhất: mỗi client append thông điệp “tôi muốn đăng ký <code>@alice</code>” vào log, sau đó đọc log tuần tự và chờ tới thông điệp của mình. Bản ghi đầu tiên đòi <code>@alice</code> trong log là người thắng; mọi bản ghi sau đều bị từ chối một cách tất định trên mọi replica. Tuy nhiên, lưu ý rằng total order broadcast chỉ đảm bảo thứ tự <em>ghi</em>; nếu client đọc trực tiếp từ một replica đang xử lý chậm hơn thì vẫn có thể thấy dữ liệu cũ! Để cả việc <em>đọc</em> cũng tuyến tính hoá, bạn phải hoặc xếp cả yêu cầu đọc vào log, hoặc hỏi vị trí cuối log hiện tại rồi chờ replica áp xong tới vị trí đó.</p>
+      <p>Chiều ngược lại cũng đúng: nếu bạn có một thanh ghi tuyến tính hỗ trợ <code>increment-and-get</code> nguyên tử, mỗi người gửi chỉ việc lấy số thứ tự tiếp theo từ thanh ghi đó rồi phát quảng bá thông điệp kèm số thứ tự; bên nhận xếp lại theo đúng số thứ tự là có total order broadcast. Hai bài toán vì thế tương đương với đồng thuận!</p>
+    </div>
+    <figure class="lab" data-widget="c10-tob">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Dùng Total Order Broadcast để giải quyết tranh chấp username và đọc tuyến tính
+        <small>Chuyển giữa kịch bản “Đăng ký username @alice” và “Đọc từ replica trễ vs đọc qua log”, kéo thời điểm gửi yêu cầu của Client 2.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Total order broadcast, linearizable compare-and-set register, và đồng thuận chịu lỗi (consensus) là ba cách phát biểu của cùng một bài toán nền tảng: giải được một cái là dựng được hai cái còn lại.</p></aside>
+  </article>
+
+  <!-- 10.7 -->
+  <article class="topic" id="ch10-2pc" data-num="10.7" data-short="Two-Phase Commit (2PC)" data-keywords="atomic commit two-phase commit 2pc coordinator participant in-doubt uncertain blocking xa transaction">
+    <p class="eyebrow">10.7 · Distributed Transactions and Consensus · Atomic Commit and Two-Phase Commit (2PC)</p>
+    <h2>Cam kết nguyên tử và giao thức hai pha (2PC) <span class="vi">Atomic Commit and Two-Phase Commit (2PC)</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Khi một giao dịch vắt qua nhiều phân vùng hoặc kết hợp cơ sở dữ liệu với message broker, mọi node tham gia phải cùng commit hoặc cùng abort để giữ tính nguyên tử.</li>
+      <li><dfn data-term="two-phase-commit">Two-phase commit</dfn> (2PC) dùng một <dfn data-term="coordinator">coordinator</dfn>: Pha 1 gửi yêu cầu <em>Prepare</em> (bỏ phiếu CÓ/KHÔNG); nếu 100% trả lời CÓ thì Pha 2 gửi quyết định <em>Commit</em>, ngược lại gửi <em>Abort</em>.</li>
+      <li>Lời hứa không thể rút lại: khi participant trả lời CÓ ở Pha 1, nó phải ghi hết dữ liệu xuống đĩa và không được quyền tự abort nữa. Nếu coordinator sập ngay sau đó, các participant rơi vào trạng thái <dfn data-term="in-doubt">in-doubt</dfn> và phải giữ khoá chờ vô thời hạn!</li>
+      <li>Giao dịch phân tán chuẩn <dfn data-term="xa-transactions">X/Open XA</dfn> dựa trên 2PC thường gây kẹt khoá và phải giải quyết thủ công bởi quản trị viên khi coordinator hỏng.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Đừng nhầm Two-Phase Commit (2PC — giao thức cam kết nguyên tử phân tán ở chương này) với Two-Phase Locking (2PL — cơ chế khoá để đạt cô lập khả tuần tự ở <a href="#ch8">Chương 8</a>). Tại sao một pha là không đủ? Vì nếu một node bị đầy đĩa hoặc vi phạm ràng buộc khoá ngoại lúc đang commit trong khi node kia đã commit xong, ta không thể thu hồi giao dịch đã commit ở node kia nữa.</p>
+      <p>2PC tách quá trình thành hai lời hứa nối tiếp nhau:</p>
+      <ol>
+        <li>Khi participant trả lời <strong>CÓ</strong> ở Pha 1, nó cam kết chắc chắn sẽ commit được (đã kiểm tra mọi ràng buộc và đã ép ghi WAL xuống đĩa), đồng thời <em>từ bỏ quyền tự huỷ giao dịch</em>.</li>
+        <li>Khi coordinator thu đủ phiếu CÓ từ tất cả và ghi bản ghi <code>COMMIT</code> vào log trên đĩa của chính nó, quyết định trở thành bất khả kháng (<em class="en">point of no return</em>): dù ai sập sau thời điểm đó thì khi sống lại cũng sẽ phải hoàn tất commit.</li>
+      </ol>
+      <p>Điểm yếu chí tử của 2PC nằm ở khoảng trống giữa hai lời hứa đó: nếu coordinator sập sau khi các participant đã bỏ phiếu CÓ nhưng trước khi kịp gửi thông điệp Pha 2, không một participant nào dám tự quyết định. Chúng bị kẹt ở trạng thái <em>in-doubt</em> trong khi vẫn đang giữ khoá độc quyền trên các dòng dữ liệu!</p>
+    </div>
+    <figure class="lab" data-widget="c10-2pc">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Giải phẫu Two-Phase Commit và trạng thái kẹt In-Doubt
+        <small>Chọn kịch bản lỗi và kéo thanh “Bước thời gian” từ 1 đến 4 để theo dõi từng thông điệp và trạng thái khoá trên các node.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Three-phase commit (3PC) từng được đề xuất để biến 2PC thành không chặn (<em class="en">nonblocking</em>), nhưng 3PC giả định mạng có độ trễ có chặn trên và bộ phát hiện lỗi hoàn hảo — điều không tồn tại trong mạng thực tế có phân vùng (xem <a href="#ch9">Chương 9</a>). Để chịu lỗi thực sự, ta cần thuật toán đồng thuận.</p></aside>
+  </article>
+
+  <!-- 10.8 -->
+  <article class="topic" id="ch10-raft" data-num="10.8" data-short="Đồng thuận chịu lỗi (Raft/Paxos)" data-keywords="consensus fault-tolerant consensus paxos multi-paxos raft vsr zab flp impossibility leader election quorum">
+    <p class="eyebrow">10.8 · Fault-Tolerant Consensus (VSR, Paxos, Raft, Zab)</p>
+    <h2>Đồng thuận chịu lỗi: Paxos, Raft, Zab <span class="vi">Fault-Tolerant Consensus</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Bài toán <dfn data-term="consensus">đồng thuận chịu lỗi</dfn> cần thoả mãn bốn tính chất: <em>Uniform Agreement</em> (mọi node quyết giống nhau), <em>Integrity</em> (không quyết hai lần), <em>Validity</em> (chỉ quyết giá trị đã được đề xuất), và <em>Termination</em> (mọi node không sập cuối cùng đều đi tới quyết định).</li>
+      <li>Ba tính chất đầu là tính <strong>an toàn</strong> (<em class="en">safety</em> — luôn đúng trong mọi hoàn cảnh mạng); tính thứ tư là tính <strong>sống</strong> (<em class="en">liveness</em> — đòi hỏi quá bán số node còn sống và mạng tạm thời ổn định).</li>
+      <li><dfn data-term="flp-impossibility">Định lý FLP</dfn> (1985) chứng minh không có thuật toán tất định nào luôn kết thúc trong mạng bất đồng bộ hoàn toàn; thực tế các thuật toán như VSR, Multi-Paxos, Raft và Zab vượt qua FLP bằng cách dùng timeout và ngẫu nhiên hoá trong mô hình đồng bộ một phần.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Khác với 2PC (nơi một coordinator cố định là điểm lỗi đơn lẻ và cần 100% các node tham gia đồng ý), các thuật toán đồng thuận như Viewstamped Replication (VSR), Multi-Paxos, Raft và Zab chỉ cần <strong>đa số quá bán</strong> (<em class="en">quorum</em>, ví dụ 3 trên 5 node, hoặc 2 trên 3 node) còn sống để bầu leader mới và tiếp tục commit các mục log.</p>
+      <p>Thực chất, hầu hết các thuật toán đồng thuận hiện đại không chỉ quyết định một giá trị đơn lẻ mà quyết định một <em>chuỗi giá trị nối tiếp nhau</em> — tức là trực tiếp cài đặt một hệ thống nhân bản single-leader có khả năng tự động bầu chọn leader và chuyển đổi dự phòng (<em class="en">failover</em>) hoàn toàn an toàn, không bao giờ mất dữ liệu đã commit và không bị split-brain.</p>
+    </div>
+    <figure class="lab" data-widget="c10-raft">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Cụm đồng thuận Raft 5 node: Bầu cử Leader và Nhân bản Log
+        <small>Thử bấm “Giết Leader hiện tại”, rồi “Bầu Leader mới”, và “Ghi lệnh mới”. Bạn cũng có thể bấm trực tiếp vào từng node trên sơ đồ để bật/tắt sống/chết và kiểm tra ngưỡng Quorum 3/5.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Để chịu được <code>f</code> node lỗi đồng thời, cụm đồng thuận cần tối thiểu <code>2f + 1</code> node (3 node chịu được 1 lỗi; 5 node chịu được 2 lỗi). Thêm số chẵn node (ví dụ từ 3 lên 4) còn làm hệ thống kém chịu lỗi hơn vì vẫn chỉ chịu được 1 node chết!</p></aside>
+  </article>
+
+  <!-- 10.9 -->
+  <article class="topic" id="ch10-epoch" data-num="10.9" data-short="Epoch & giao nhau giữa hai Quorum" data-keywords="epoch number ballot term view quorum overlap zombie leader split-brain">
+    <p class="eyebrow">10.9 · Epoch Numbering and Quorums · Limitations of Consensus</p>
+    <h2>Số thứ tự nhiệm kỳ (Epoch) và sự giao nhau của hai Quorum <span class="vi">Epoch Numbering, Quorum Overlap &amp; Limitations</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Các thuật toán đồng thuận không đảm bảo “một leader duy nhất cho tới muôn đời”, mà đảm bảo một điều thực tế hơn: <strong>một leader duy nhất trong mỗi <dfn data-term="epoch-number">epoch</dfn></strong> (gọi là <em>ballot</em> trong Paxos, <em>view</em> trong VSR, <em>term</em> trong Raft).</li>
+      <li>Khi một leader bị nghi là đã chết, cuộc bầu cử mới sẽ tăng số epoch lên cao hơn. Nếu hai epoch đụng độ, leader có số epoch cao hơn luôn thắng.</li>
+      <li>Trước khi được phép ghi một quyết định, leader phải thu thập phiếu từ một quorum, và quorum này <em>chắc chắn giao nhau ít nhất một node</em> với bất kỳ quorum nào từng bầu lên leader mới hơn — nhờ vậy zombie leader bị phát hiện và chặn ngay lập tức.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Hãy nhớ lại cơn ác mộng ở <a href="#ch6">Chương 6</a> và <a href="#ch9">Chương 9</a>: Leader cũ thực ra chưa chết mà chỉ bị tạm dừng GC hoặc kẹt mạng. Khi tỉnh dậy, nó vẫn đinh ninh mình là leader. Làm sao ngăn nó commit dữ liệu mâu thuẫn với leader mới?</p>
+      <p>Bí quyết nằm ở hai vòng bỏ phiếu sử dụng nguyên lý chuồng bồ câu (giao nhau giữa hai đa số):</p>
+      <ol>
+        <li>Để được bầu ở <strong>Epoch <code>e</code></strong>, ứng viên phải nhận được sự đồng ý từ một quorum <code>Q_vote</code>. Mọi node trong <code>Q_vote</code> đều ghi nhớ lời hứa: <em>“Từ nay tôi sẽ từ chối mọi thông điệp từ bất kỳ leader nào có epoch nhỏ hơn <code>e</code>”</em>.</li>
+        <li>Mỗi khi một leader muốn commit một giá trị, nó không được tự ý quyết mà phải gửi đề xuất kèm số epoch của mình tới một quorum <code>Q_write</code> và chờ đa số chấp thuận.</li>
+      </ol>
+      <p>Vì cả <code>Q_vote</code> và <code>Q_write</code> đều chứa quá nửa số node trong cụm, hai tập hợp này <strong>bắt buộc có ít nhất một node chung</strong>. Node chung đó đã biết tới <code>Epoch e</code> mới hơn nên sẽ bác bỏ đề xuất của leader cũ ngay tại vòng bỏ phiếu!</p>
+    </div>
+    <figure class="lab" data-widget="c10-epoch">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ngăn chặn Zombie Leader bằng số Epoch và phần giao Quorum
+        <small>Thay đổi Epoch của hai leader và tập Quorum bầu cử để thấy luôn có ít nhất một node giao nhau đứng ra chặn đề xuất của leader cũ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Hạn chế của đồng thuận: (1) Mọi lần ghi đều phải chờ bỏ phiếu đồng bộ nên tốn ít nhất một vòng mạng khứ hồi, (2) Cần quá bán số node hoạt động, (3) Đa số thuật toán giả định tập node cố định, và (4) Nhạy cảm với mạng chập chờn — đôi khi các node liên tục timeout và cướp quyền leader của nhau (Raft đã đang có các cải tiến như Pre-Vote để giảm hiện tượng này).</p></aside>
+  </article>
+
+  <!-- 10.10 -->
+  <article class="topic" id="ch10-zk" data-num="10.10" data-short="ZooKeeper & dịch vụ điều phối" data-keywords="zookeeper etcd consul chubby coordination service discovery membership ephemeral node watch fencing token">
+    <p class="eyebrow">10.10 · Membership and Coordination Services (ZooKeeper, etcd)</p>
+    <h2>Dịch vụ điều phối phân tán: ZooKeeper, etcd, Consul <span class="vi">Membership and Coordination Services</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="zookeeper">ZooKeeper</dfn>, etcd và Consul không được thiết kế làm cơ sở dữ liệu lưu dữ liệu ứng dụng thông thường, mà là dịch vụ điều phối lưu một lượng nhỏ metadata quan trọng trong RAM (có nhân bản đồng thuận).</li>
+      <li>Các tính năng chính gộp lại tạo nên sức mạnh điều phối: thao tác <code>compare-and-set</code> nguyên tử tuyến tính hoá, đánh số thứ tự toàn phần các giao dịch (<code>zxid</code>), <dfn data-term="ephemeral-node">ephemeral node</dfn> gắn với heartbeat phiên, và thông báo thay đổi (<dfn data-term="watch">watch</dfn>).</li>
+      <li>Ứng dụng điển hình: bầu leader cho phân vùng (Kafka, HBase, YARN), phân bổ công việc và tái cân bằng phân vùng khi thêm/bớt node, và khám phá dịch vụ (<em class="en">service discovery</em>).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Là nhà phát triển ứng dụng, bạn hiếm khi phải tự cài đặt Raft hay Paxos từ đầu; thay vào đó bạn “thuê ngoài” phần đồng thuận cho ZooKeeper hoặc etcd. Tại sao các hệ thống phân tán lớn như HBase, Hadoop YARN, OpenStack Nova và Kafka (trước KRaft) đều cần ZooKeeper?</p>
+      <ul>
+        <li><strong>Quản lý khoá / lease bằng Ephemeral Node:</strong> Client giữ kết nối mở và gửi heartbeat định kỳ. Nếu node giữ khoá bị sập hoặc mất kết nối quá thời hạn phiên (<em class="en">session timeout</em>), ZooKeeper tự động xoá ephemeral node của nó để giải phóng khoá.</li>
+        <li><strong>Cấp số thứ tự đơn điệu làm Fencing Token:</strong> Mọi thay đổi trong ZooKeeper đều được gán một mã giao dịch tăng dần <code>zxid</code> và số phiên bản <code>cversion</code> — chính là nguồn tạo <em class="en">fencing token</em> hoàn hảo mà ta đã bàn ở <a href="#ch9">Chương 9</a>.</li>
+        <li><strong>Thông báo sự kiện bằng Watch:</strong> Thay vì hàng trăm node phải polling liên tục xem leader còn sống hay phân vùng có đổi không, client chỉ việc đăng ký một <em>watch</em> và sẽ được ZooKeeper chủ động báo ngay khi nút đó thay đổi hoặc bị xoá.</li>
+      </ul>
+    </div>
+    <figure class="lab" data-widget="c10-zk">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Điều phối Failover với Ephemeral Node, Watch và Fencing Token (zxid)
+        <small>Kéo thời hạn Lease (TTL) và độ dài đợt GC pause của Node 1. Bật/tắt kiểm tra zxid ở Storage Server để thấy cách ZooKeeper phối hợp chuyển quyền leader an toàn.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Riêng cho bài toán khám phá dịch vụ (<em class="en">service discovery</em> — tìm địa chỉ IP của một dịch vụ theo tên), việc đọc danh sách endpoint không nhất thiết cần tuyến tính hoá: các hệ thống DNS hoặc Consul cho phép đọc từ cache gần nhất, nhưng dùng đồng thuận cho việc bầu chọn và quản lý trạng thái cụm.</p></aside>
+  </article>
+
+  <!-- 10.★ Review -->
+  <article class="topic" id="ch10-review" data-num="10.★" data-short="Tổng kết & kiểm tra" data-keywords="review summary quiz consistency consensus linearizability 2pc raft zookeeper">
+    <p class="eyebrow">10.★ · Summary</p>
+    <h2>Tổng kết chương &amp; Kiểm tra <span class="vi">Summary</span></h2>
+    <div class="prose">
+      <p>Chương này đã nối liền lý thuyết về mô hình nhất quán với thực tiễn điều phối hệ phân tán:</p>
+      <ul>
+        <li><strong>Tuyến tính hoá (<em class="en">Linearizability</em>)</strong> biến một hệ thống nhiều bản sao trở nên hành xử giống hệt như chỉ có một bản sao dữ liệu duy nhất với các thao tác nguyên tử theo thời gian thực. Nó dễ hiểu nhưng đắt đỏ: cả độ trễ lẫn tính sẵn sàng đều bị ràng buộc bởi định lý CAP.</li>
+        <li><strong>Tính nhất quán nhân quả (<em class="en">Causal consistency</em>)</strong> yếu hơn tuyến tính hoá nhưng bảo toàn mọi quan hệ nguyên nhân – kết quả và là mô hình mạnh nhất không cần trả giá bằng phối hợp mạng đồng bộ.</li>
+        <li><strong>Dấu thời gian Lamport</strong> đánh số toàn phần các sự kiện phù hợp với nhân quả, nhưng để quyết định ai thắng trong các ràng buộc duy nhất theo thời gian thực, bạn cần <strong>Total Order Broadcast</strong> — bài toán tương đương với <strong>Đồng thuận (<em class="en">Consensus</em>)</strong>.</li>
+        <li><strong>Two-Phase Commit (2PC)</strong> là giao thức cam kết nguyên tử có thể bị kẹt (<em class="en">blocking</em>) khi coordinator sập; trong khi các thuật toán đồng thuận chịu lỗi (<strong>VSR, Paxos, Raft, Zab</strong>) dùng số thứ tự <strong>epoch</strong> và <strong>quorum quá bán</strong> để tiếp tục hoạt động miễn là đa số node còn sống.</li>
+        <li>Các dịch vụ như <strong>ZooKeeper và etcd</strong> đóng gói đồng thuận thành các thanh công cụ thực tiễn: thao tác CAS tuyến tính, ephemeral node, fencing token (<code>zxid</code>) và thông báo watch.</li>
+      </ul>
+    </div>
+    <div class="quiz">
+      <div class="q" data-answer="1">
+        <p>Điểm khác biệt cốt lõi giữa Linearizability (tuyến tính hoá) và Serializability (khả tuần tự) là gì?</p>
+        <ol>
+          <li>Linearizability áp dụng cho giao dịch nhiều đối tượng, còn Serializability chỉ áp dụng cho một thanh ghi đơn lẻ</li>
+          <li>Serializability cho phép xếp các giao dịch nhiều đối tượng theo một thứ tự tuần tự bất kỳ, còn Linearizability đòi hỏi thao tác trên từng đối tượng phải tuân theo đúng thứ tự thời gian thực (đảm bảo độ tươi mới)</li>
+          <li>Hai thuật ngữ hoàn toàn đồng nghĩa trong mọi cơ sở dữ liệu</li>
+        </ol>
+        <p class="explain">Snapshot Isolation / SSI là ví dụ điển hình: nó có thể đạt Serializability nhưng không Linearizable vì giao dịch đọc từ một snapshot nhất quán trong quá khứ thay vì thấy các lần ghi vừa commit sau thời điểm chụp snapshot.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Vì sao dấu thời gian Lamport (Lamport timestamps) chưa đủ để giải quyết bài toán hai người dùng đồng thời đăng ký cùng một username <code>@alice</code>?</p>
+        <ol>
+          <li>Vì dấu thời gian Lamport phụ thuộc vào đồng hồ thạch anh NTP của từng máy</li>
+          <li>Vì dấu thời gian Lamport có thể tạo ra hai sự kiện có cùng cặp <code>(counter, nodeId)</code></li>
+          <li>Vì Lamport timestamp chỉ xác định được thứ tự toàn phần sau khi đã thu thập mọi thao tác từ mọi node; tại thời điểm nhận yêu cầu, một node không thể biết có node nào khác đang giữ yêu cầu mang dấu thời gian nhỏ hơn hay không</li>
+        </ol>
+        <p class="explain">Để từ chối hoặc chấp nhận ngay lập tức, các node phải thống nhất thứ tự tại thời điểm ghi thông qua Total Order Broadcast (tương đương đồng thuận).</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Điều gì xảy ra trong Two-Phase Commit (2PC) nếu Coordinator bị sập ngay sau khi tất cả Participant đã trả lời “CÓ” ở Pha 1, trước khi kịp gửi quyết định Pha 2?</p>
+        <ol>
+          <li>Các Participant rơi vào trạng thái in-doubt (chưa rõ số phận) và bắt buộc phải giữ khoá chờ cho tới khi Coordinator hồi phục</li>
+          <li>Các Participant tự động abort giao dịch sau 5 giây timeout để giải phóng khoá</li>
+          <li>Các Participant tự bầu một Coordinator mới từ đa số quá bán và commit ngay lập tức</li>
+        </ol>
+        <p class="explain">Khi trả lời CÓ ở Pha 1, Participant đã từ bỏ quyền tự abort (vì nhỡ Coordinator đã quyết commit cho node khác). Do đó 2PC là giao thức atomic commit gây chặn (blocking).</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Một cụm đồng thuận Raft hoặc Paxos gồm 5 node có thể chịu được tối đa bao nhiêu node bị sập cùng lúc mà vẫn tiếp tục bầu được leader và commit dữ liệu mới?</p>
+        <ol>
+          <li>1 node</li>
+          <li>2 node (còn lại 3/5 node tạo thành đa số quá bán)</li>
+          <li>4 node (chỉ cần 1 node còn sống)</li>
+        </ol>
+        <p class="explain">Cụm <code>2f + 1 = 5</code> node cần quorum tối thiểu 3 node để bỏ phiếu bầu leader và chấp thuận đề xuất, nên chịu được tối đa <code>f = 2</code> node sập.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Nhờ cơ chế nào mà các thuật toán đồng thuận (Paxos, Raft, Zab) ngăn chặn được một Leader cũ (zombie leader vừa tỉnh lại sau đợt tạm dừng mạng/GC) ghi đè quyết định của Leader mới?</p>
+        <ol>
+          <li>Nhờ đồng bộ đồng hồ vật lý chính xác tuyệt đối bằng GPS</li>
+          <li>Nhờ Leader mới gửi gói tin tắt nguồn phần cứng của Leader cũ</li>
+          <li>Mỗi nhiệm kỳ có số Epoch/Term tăng đơn điệu, và để commit một đề xuất thì Leader phải thu thập phiếu từ một quorum; quorum này chắc chắn giao nhau ít nhất một node với quorum đã bầu Leader mới nên node giao nhau đó sẽ từ chối Epoch cũ</li>
+        </ol>
+        <p class="explain">Sự giao nhau bắt buộc giữa hai tập đa số (quorum intersection) kết hợp với lời hứa chỉ chấp nhận epoch cao hơn là nền tảng an toàn của mọi thuật toán đồng thuận.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Trong ZooKeeper, tổ hợp tính năng nào giúp phát hiện một node giữ khoá đã chết và thông báo ngay cho các node dự phòng mà không cần polling liên tục?</p>
+        <ol>
+          <li>Ephemeral node (tự động xoá khi phiên mất heartbeat) kết hợp với cơ chế thông báo sự kiện Watch</li>
+          <li>Two-Phase Commit chuẩn XA kết hợp với bảng băm trong đĩa</li>
+          <li>Sao chép đa leader bất đồng bộ với Last Write Wins (LWW)</li>
+        </ol>
+        <p class="explain">Node giữ khoá tạo một ephemeral znode; khi phiên của nó hết hạn do sập hoặc đứt mạng, ZooKeeper tự xoá znode đó và kích hoạt Watch đẩy thông báo tới các client đang chờ.</p>
+      </div>
+    </div>
+  </article>
+</section>

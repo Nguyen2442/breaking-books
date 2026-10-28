@@ -1,0 +1,84 @@
+{
+  "id": "building-microservices-2nd-edition-sam-newman",
+  "title": "Building Microservices (2nd Edition)",
+  "shortTitle": "Microservices 2e",
+  "subtitle": "Designing Fine-Grained Systems — Sam Newman",
+  "author": "Sam Newman",
+  "edition": "O'Reilly · 2nd Edition · 446 trang",
+  "description": "Sổ tay đọc tương tác cho Building Microservices (2nd Edition — Sam Newman): giải phẫu kiến trúc Microservices từ mô hình hóa Domain, giao tiếp đồng bộ/bất đồng bộ, Saga Workflow đến CI/CD và triển khai Kubernetes/Serverless.",
+  "sourcePdfs": [
+    "Building Microservices 2nd Edition - Sam Newman.pdf"
+  ],
+  "chapters": [
+    {
+      "n": 1,
+      "part": "Phần I · Nền tảng (Foundation)",
+      "en": "What Are Microservices?",
+      "vi": "Microservices là gì?",
+      "src": "tr.15–72",
+      "pageStart": 15,
+      "pageEnd": 72,
+      "chars": 65413
+    },
+    {
+      "n": 2,
+      "part": "Phần II · Triển khai (Implementation)",
+      "en": "How to Model Microservices",
+      "vi": "Mô hình hóa ranh giới Microservices",
+      "src": "tr.73–146",
+      "pageStart": 73,
+      "pageEnd": 146,
+      "chars": 74557
+    },
+    {
+      "n": 3,
+      "part": "Phần II · Triển khai (Implementation)",
+      "en": "Microservice Communication Styles",
+      "vi": "Các kiểu giao tiếp giữa Microservices",
+      "src": "tr.147–198",
+      "pageStart": 147,
+      "pageEnd": 198,
+      "chars": 55823
+    },
+    {
+      "n": 4,
+      "part": "Phần II · Triển khai (Implementation)",
+      "en": "Implementing Microservice Communication",
+      "vi": "Triển khai giao tiếp Microservices (RPC, REST, GraphQL, Brokers)",
+      "src": "tr.199–267",
+      "pageStart": 199,
+      "pageEnd": 267,
+      "chars": 94735
+    },
+    {
+      "n": 5,
+      "part": "Phần II · Triển khai (Implementation)",
+      "en": "Workflow",
+      "vi": "Điều phối luồng nghiệp vụ (Transactions & Sagas)",
+      "src": "tr.268–306",
+      "pageStart": 268,
+      "pageEnd": 306,
+      "chars": 38509
+    },
+    {
+      "n": 6,
+      "part": "Phần II · Triển khai (Implementation)",
+      "en": "Build",
+      "vi": "Quy trình Build, CI/CD & Quản lý Source Code",
+      "src": "tr.307–341",
+      "pageStart": 307,
+      "pageEnd": 341,
+      "chars": 44491
+    },
+    {
+      "n": 7,
+      "part": "Phần II · Triển khai (Implementation)",
+      "en": "Deployment",
+      "vi": "Chiến lược Triển khai (Containers, Kubernetes, Serverless & Progressive Delivery)",
+      "src": "tr.342–446",
+      "pageStart": 342,
+      "pageEnd": 446,
+      "chars": 126911
+    }
+  ]
+}

@@ -1,0 +1,892 @@
+<section class="chapter" id="ch7" data-ch="7" data-chapter="7" data-title="Chiến lược Triển khai (Containers, Kubernetes, Serverless & Progressive Delivery)">
+  <style>
+    #ch7 .f-ok-soft { fill: var(--ok-soft); }
+    #ch7 .f-warn-soft { fill: var(--warn-soft); }
+    #ch7 .sw2 { stroke-width: 2; }
+    #ch7 .sw3 { stroke-width: 3; }
+    #ch7 .viz svg text.t-acc { fill: var(--accent); font-weight: 700; }
+    #ch7 .viz svg text.t-ok { fill: var(--ok); font-weight: 700; }
+    #ch7 .viz svg text.t-bad { fill: var(--bad); font-weight: 700; }
+    #ch7 .viz svg text.t-warn { fill: var(--warn); font-weight: 700; }
+    #ch7 .viz svg text.t-violet { fill: var(--violet); font-weight: 700; }
+    #ch7 .viz svg text.t-mute { fill: var(--ink-3); }
+    #ch7 .viz svg text.t-on { fill: var(--accent-ink); font-weight: 700; }
+    #ch7 .viz svg text.t-sm { font-size: 9.5px; }
+    #ch7 .viz svg text.t-lg { font-size: 13px; }
+    #ch7 .meter { height: 10px; border-radius: 999px; background: var(--surface-2); overflow: hidden; border: 1px solid var(--line); }
+    #ch7 .meter > i { display: block; height: 100%; background: var(--accent); transition: width .3s; }
+    #ch7 .meter.warn > i { background: var(--warn); }
+    #ch7 .meter.bad > i { background: var(--bad); }
+    #ch7 .meter.ok > i { background: var(--ok); }
+    #ch7 .meter-row { display: grid; grid-template-columns: minmax(0, 11em) minmax(0, 1fr) 3.5em; gap: 8px; align-items: center; font-size: var(--t-xs); }
+    #ch7 .meter-row b { font-family: var(--f-mono); text-align: right; }
+    #ch7 .verdict { padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface-2); }
+    #ch7 .verdict.ok { border-color: var(--ok); background: var(--ok-soft); }
+    #ch7 .verdict.warn { border-color: var(--warn); background: var(--warn-soft); }
+    #ch7 .verdict.bad { border-color: var(--bad); background: var(--bad-soft); }
+    #ch7 .verdict.accent { border-color: var(--accent); background: var(--accent-soft); }
+    #ch7 .verdict b { display: block; margin-bottom: 2px; }
+    #ch7 .qrow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+    #ch7 .qrow > span { flex: 1 1 200px; min-width: 0; }
+    #ch7 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    #ch7 pre.iac { font: 400 .76rem/1.55 var(--f-mono); background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin: 0; overflow-x: auto; white-space: pre; }
+    #ch7 pre.iac .add { color: var(--ok); }
+    #ch7 pre.iac .del { color: var(--bad); }
+    #ch7 pre.iac .chg { color: var(--warn); }
+    #ch7 pre.iac .dim { color: var(--ink-3); }
+  </style>
+
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 7 · Deployment</p>
+    <h1>Deployment <span class="vi">Chiến lược triển khai: từ máy vật lý, VM, container, Kubernetes, Serverless đến Progressive Delivery</span></h1>
+    <blockquote class="epigraph">
+      “To err is human, but to really foul things up you need a computer.”
+      <cite>— thường được gán cho Paul Ehrlich, trích trong phần Canary Release</cite>
+    </blockquote>
+    <p class="lede">
+      Triển khai một monolith khá đơn giản; triển khai hàng chục microservice phụ thuộc lẫn nhau, mỗi cái một công nghệ, thì hoàn toàn khác. Kubernetes và FaaS đã thay đổi bức tranh công cụ chỉ trong vài năm, nhưng Sam Newman cho rằng các <strong>nguyên tắc nền tảng</strong> gần như không đổi. Chương này đi từ góc nhìn logic sang topo vật lý thực tế, rút ra năm nguyên tắc triển khai, rồi dùng chúng làm thước đo cho từng lựa chọn: máy vật lý, VM, container, application container, PaaS, FaaS, Kubernetes. Cuối chương là các kỹ thuật <em class="en">Progressive Delivery</em> để tách việc <em>triển khai</em> khỏi việc <em>phát hành</em>.
+    </p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- ==================== 7.1 ==================== -->
+  <article class="topic" id="ch7-logical-physical" data-num="7.1" data-short="Từ logic đến vật lý" data-keywords="logical physical multiple instances load balancer availability zone data center sla redundancy">
+    <p class="eyebrow">7.1 · From Logical to Physical — Multiple Instances</p>
+    <h2>Từ sơ đồ logic đến topo vật lý <span class="vi">Nhiều instance, load balancer và nhiều availability zone</span></h2>
+
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Sơ đồ “Invoice gọi Order” là <strong>góc nhìn logic</strong>; nó che đi rất nhiều chi tiết khi chạy trên hạ tầng thật.</li>
+        <li>Thường mỗi service có nhiều <dfn data-term="microservice-instance">instance</dfn> để chịu tải và chịu lỗi; với API dựa trên HTTP, một <dfn data-term="load-balancer">load balancer</dfn> là đủ để phân phối request.</li>
+        <li>Instance dự phòng không nên nằm chung một phần cứng; xa hơn nữa là rải qua nhiều trung tâm dữ liệu.</li>
+        <li>AWS, Azure và Google <strong>không cam kết SLA</strong> cho một máy ảo đơn lẻ, cũng không cho một <dfn data-term="availability-zone">availability zone</dfn>, nên mọi giải pháp nên trải trên nhiều AZ.</li>
+      </ul>
+    </div>
+
+    <div class="prose">
+      <p>
+        Từ đầu sách đến giờ, chúng ta nói về microservice ở mức <em>logic</em>: service Invoice giao tiếp với service Order (Hình 7-1), không cần biết chúng chạy ở đâu. Chương này buộc ta “vén màn” để nhìn vào topo triển khai thật, vì chính ở đây các quyết định về chi phí, độ bền và tính tự chủ của đội bắt đầu va chạm nhau.
+      </p>
+      <h3>Nhiều instance cho cùng một service</h3>
+      <p>
+        Gần như chắc chắn bạn sẽ chạy hơn một instance cho mỗi service. Có hai lý do: <strong>chịu thêm tải</strong> và <strong>chịu được lỗi</strong> khi một instance chết. Khi đó “Invoice gọi Order” thực chất là một hoặc nhiều instance Invoice gọi tới một hoặc nhiều instance Order. Nếu giao tiếp bằng HTTP, một load balancer đặt trước các instance Order là đủ để định tuyến (Hình 7-2). Số instance cần bao nhiêu thì phải tự đánh giá: mức dự phòng mong muốn, tải dự kiến, v.v.
+      </p>
+      <h3>Đừng để mọi trứng trong cùng một giỏ</h3>
+      <p>
+        Nếu chạy nhiều instance vì lý do độ bền, chúng không nên nằm trên cùng một phần cứng. Đi xa hơn, bạn rải chúng qua nhiều trung tâm dữ liệu để chống lại việc mất cả một data center (Hình 7-3). Nghe có vẻ quá thận trọng, nhưng với các nhà cung cấp cloud lớn thì đây là chuyện bắt buộc: họ không đưa ra SLA cho một máy ảo đơn lẻ, và cũng không cho một availability zone, đơn vị gần nhất với khái niệm “data center” của họ. Hệ quả thực tế: <mark>mọi thứ bạn triển khai nên được phân bố qua nhiều AZ</mark>.
+      </p>
+    </div>
+
+    <figure class="lab" data-widget="ch7-az-spread">
+      <figcaption>
+        <span class="lab-tag">Thử nghiệm 7.1</span> Rải instance Order qua các availability zone
+        <small>Chọn số instance và số AZ, rồi giả lập sự cố: một instance chết hoặc mất trọn AZ-A. Quan sát load balancer còn bao nhiêu đích để gửi request từ Invoice.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+
+    <aside class="callout callout-book">
+      <b>Trong sách</b>
+      <p>Văn bản nguồn của chương này là bản <em>early release</em>; tác giả ghi chú rằng trong bản in cuối cùng, nội dung này trở thành Chương 8. Trang này giữ số chương 7 theo mục lục của sổ tay.</p>
+    </aside>
+  </article>
+
+  <!-- ==================== 7.2 ==================== -->
+  <article class="topic" id="ch7-database" data-num="7.2" data-short="Database khi triển khai" data-keywords="database shared state read replica sharding rds shared infrastructure on-prem cloud logically isolated">
+    <p class="eyebrow">7.2 · The Database — Database Deployment and Scaling</p>
+    <h2>Database: chia sẻ giữa các instance, read replica và hạ tầng dùng chung <span class="vi">Database Deployment and Scaling</span></h2>
+
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Các instance của <strong>cùng một</strong> microservice dùng chung database là hợp lệ: logic truy cập dữ liệu vẫn nằm trong một service logic duy nhất.</li>
+        <li><dfn data-term="read-replica">Read replica</dfn> tách tải đọc khỏi node ghi; thêm replica giúp mở rộng tải đọc, còn mở rộng ghi khó hơn nhiều (thường phải sharding).</li>
+        <li>Một hạ tầng database có thể chứa nhiều <dfn data-term="logically-isolated-database">database cách ly logic</dfn>: rẻ hơn, ít việc quản trị hơn, nhưng khi hạ tầng đó sập thì nhiều microservice cùng chết.</li>
+        <li>Tổ chức on-prem thường gom DB lên hạ tầng chung vì chi phí; đội chạy trên public cloud (như AWS RDS) dễ cấp hạ tầng DB riêng cho từng service.</li>
+      </ul>
+    </div>
+
+    <div class="prose">
+      <p>
+        Câu thần chú “đừng chia sẻ database” có bị vi phạm khi nhiều instance Order cùng trỏ vào một database không? <strong>Không.</strong> Ta muốn gọi bất kỳ instance nào của Order cũng thấy cùng một đơn hàng, nên các instance của cùng một service logic phải có trạng thái chung (Hình 7-4). Điều đáng lo khi chia sẻ database giữa <em>các microservice khác nhau</em> là logic đọc/ghi trạng thái bị rải ra nhiều nơi. Ở đây logic đó vẫn nằm gọn trong một microservice.
+      </p>
+      <h3>Read replica: mở rộng đọc dễ, mở rộng ghi khó</h3>
+      <p>
+        Database vật lý thường chạy trên nhiều máy. Mô hình phổ biến là một node <em>primary</em> nhận ghi, cùng một hoặc nhiều read replica chỉ phục vụ đọc (Hình 7-5). Mọi truy vấn chỉ đọc đi vào replica, và muốn đọc nhiều hơn thì thêm replica. Với database quan hệ, thêm máy để mở rộng <em>ghi</em> khó hơn nhiều, thường cần sharding và thêm độ phức tạp. Vì vậy đẩy tải đọc sang replica là cách giải phóng công suất cho node ghi.
+      </p>
+      <h3>Hạ tầng dùng chung, database cách ly logic</h3>
+      <p>
+        Cùng một engine và phần cứng có thể phục vụ cả database của Invoice lẫn của Order (Hình 7-6). Lợi ích: gom phần cứng, giảm phí bản quyền, giảm công quản trị. Hai database này vẫn cách ly logic và không can thiệp được vào nhau (trừ khi bạn cho phép). Rủi ro chính: <mark>nếu hạ tầng chung sập, nhiều microservice bị ảnh hưởng cùng lúc</mark>, và hậu quả có thể rất nặng.
+      </p>
+      <p>
+        Theo kinh nghiệm của tác giả, tổ chức tự vận hành hạ tầng on-prem hay gom nhiều database lên hạ tầng chung, vì cấp phát và quản lý phần cứng rất cực. Còn đội chạy trên public cloud thì dễ cấp hạ tầng database riêng cho từng microservice (Hình 7-7): dịch vụ như AWS RDS tự lo backup, nâng cấp, failover qua nhiều AZ, nên chi phí của sự cách ly thấp hơn hẳn và chủ sở hữu service có nhiều quyền kiểm soát hơn.
+      </p>
+    </div>
+
+    <figure class="lab" data-widget="ch7-db-replicas">
+      <figcaption>
+        <span class="lab-tag">Thử nghiệm 7.2</span> Read replica cho Order và cái giá của hạ tầng database dùng chung
+        <small>Bên trái: chỉnh tỉ lệ đọc và số replica, xem node primary còn bao nhiêu dư địa. Bên phải: chọn mô hình hạ tầng rồi làm sập hạ tầng của Order để thấy bán kính ảnh hưởng.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+
+    <aside class="callout callout-key">
+      <b>Ghi nhớ</b>
+      <p>“Đừng chia sẻ database” là nói về chia sẻ <em>giữa các microservice khác nhau</em>. Các instance của cùng một service dùng chung trạng thái là bình thường. Còn việc nhiều database logic chạy chung hạ tầng vật lý là một đánh đổi về chi phí và bán kính sự cố, không phải vi phạm ranh giới.</p>
+    </aside>
+  </article>
+
+  <!-- ==================== 7.3 ==================== -->
+  <article class="topic" id="ch7-environments" data-num="7.3" data-short="Môi trường (Environments)" data-keywords="environment laptop ci pre-production production topology catalog fast feedback production-like configuration">
+    <p class="eyebrow">7.3 · Environments</p>
+    <h2>Môi trường: cùng một service, topo khác nhau ở mỗi chặng <span class="vi">Environments</span></h2>
+
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Phần mềm đi qua nhiều <dfn data-term="environment">môi trường</dfn>: laptop của dev → CI → pre-production → production (pipeline của service Catalog, Hình 7-8).</li>
+        <li>Lý tưởng là mọi môi trường giống production, nhưng làm vậy quá đắt và làm chậm phản hồi.</li>
+        <li>Môi trường gần lập trình viên được tối ưu cho <strong>phản hồi nhanh</strong>; càng gần production càng phải <strong>giống production</strong>.</li>
+        <li>Topo (số instance, số máy, số data center) thay đổi theo môi trường, nên mọi <dfn data-term="environment-specific-config">cấu hình theo môi trường</dfn> phải tách khỏi artifact được build đúng một lần.</li>
+      </ul>
+    </div>
+
+    <div class="prose">
+      <p>
+        Mỗi môi trường phục vụ một mục đích riêng. Có môi trường chứa dữ liệu production, có môi trường không. Có nơi chạy đủ mọi service, có nơi chỉ chạy vài service và thay phần còn lại bằng bản giả. Trong pipeline của Catalog (Hình 7-8), service chạy trên laptop trước khi commit, rồi chặng test nhanh và test chậm cùng deploy vào môi trường CI. Qua test chậm thì deploy sang pre-production để kiểm tra thủ công (không bắt buộc nhưng nhiều nơi vẫn cần), và cuối cùng là production.
+      </p>
+      <h3>Phản hồi nhanh hay giống production?</h3>
+      <p>
+        Phát hiện lỗi càng sớm thì sửa càng nhanh và thiệt hại càng nhỏ: bắt lỗi trên laptop tốt hơn ở pre-production, bắt ở pre-production tốt hơn ở production. Vì thế môi trường gần lập trình viên được chỉnh để cho phản hồi nhanh, chấp nhận kém giống production. Ví dụ ở Hình 7-9:
+      </p>
+      <ul>
+        <li><strong>Laptop</strong>: một instance chạy local, build nhanh, phần cứng khác xa production.</li>
+        <li><strong>CI</strong>: hai instance để kiểm tra logic cân bằng tải, đặt chung một máy cho rẻ và nhanh.</li>
+        <li><strong>Production</strong>: bốn pod trên bốn máy, trải qua hai data center.</li>
+      </ul>
+      <p>
+        Có nơi còn có nhiều môi trường production, chẳng hạn mỗi khách hàng một bản. Điều cốt lõi là topo của microservice thay đổi theo môi trường. Vì ta muốn build artifact <strong>một lần duy nhất</strong> (xem <a href="#ch6">Chương 6 — Build</a>), mọi thông tin riêng của môi trường phải nằm ngoài artifact. Nếu chỉ khác số instance thì tham số hoá giá trị đó khi deploy là đủ.
+      </p>
+    </div>
+
+    <figure class="lab" data-widget="ch7-env-topology">
+      <figcaption>
+        <span class="lab-tag">Thử nghiệm 7.3</span> Một artifact Catalog, bốn topo triển khai
+        <small>Chuyển giữa các môi trường. Artifact giữ nguyên; chỉ cấu hình môi trường và topo thay đổi. Hai thước đo cho thấy đánh đổi giữa tốc độ phản hồi và độ giống production.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+
+    <aside class="callout callout-warn">
+      <b>Cạm bẫy</b>
+      <p>Nhúng số instance, địa chỉ database hay mức log của từng môi trường vào trong image buộc bạn phải build lại cho mỗi môi trường. Bản chạy trên production khi đó không còn là bản đã qua kiểm thử nữa.</p>
+    </aside>
+  </article>
+
+  <!-- ==================== 7.4 ==================== -->
+  <article class="topic" id="ch7-isolated-execution" data-num="7.4" data-short="Nguyên tắc: cách ly thực thi" data-keywords="principles isolated execution multiple services per host gilt noisy neighbour dependencies autonomy neal ford scarcity">
+    <p class="eyebrow">7.4 · Principles of Microservice Deployment — Isolated Execution</p>
+    <h2>Năm nguyên tắc triển khai và nguyên tắc đầu tiên: cách ly thực thi <span class="vi">Isolated Execution</span></h2>
+
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Năm nguyên tắc: <strong>cách ly thực thi</strong>, <strong>tập trung tự động hoá</strong>, <strong>hạ tầng là mã</strong>, <strong>triển khai không downtime</strong>, <strong>quản lý trạng thái mong muốn</strong>.</li>
+        <li>Nhồi nhiều microservice lên một host giúp nhóm hạ tầng đỡ việc, nhưng làm khó giám sát, gây ảnh hưởng chéo (bài học của Gilt), xung đột thư viện và giảm tự chủ của đội.</li>
+        <li>Về bản chất, chạy chung host <strong>phá hỏng khả năng triển khai độc lập</strong>. Mỗi instance nên có <dfn data-term="isolated-execution">môi trường thực thi cách ly</dfn> riêng.</li>
+        <li>Phổ cách ly: máy vật lý riêng (cách ly tốt nhất, đắt nhất) → VM → container (yếu hơn, rẻ và nhanh hơn). Với đa số workload, container đã “đủ tốt”.</li>
+      </ul>
+    </div>
+
+    <div class="prose">
+      <p>
+        Vì có quá nhiều lựa chọn công cụ, Sam Newman đặt ra năm nguyên tắc để làm thước đo. Hiểu chắc chúng thì chọn công nghệ nào cũng không lạc hướng:
+      </p>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Nguyên tắc</th><th>Ý chính</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Isolated Execution</strong></td><td>Mỗi instance có tài nguyên tính toán riêng; việc chạy của nó không ảnh hưởng instance bên cạnh.</td></tr>
+            <tr><td><strong>Focus on Automation</strong></td><td>Số service tăng thì tự động hoá càng quan trọng; chọn công nghệ cho phép tự động hoá cao và biến nó thành văn hoá.</td></tr>
+            <tr><td><strong>Infrastructure as Code</strong></td><td>Mô tả hạ tầng bằng mã, lưu trong source control để có thể dựng lại môi trường.</td></tr>
+            <tr><td><strong>Zero-downtime Deployment</strong></td><td>Triển khai phiên bản mới mà người dùng (người hay service khác) không thấy gián đoạn.</td></tr>
+            <tr><td><strong>Desired State Management</strong></td><td>Nền tảng tự giữ service ở trạng thái đã khai báo, tự bật instance mới khi có sự cố hoặc tải tăng; cân nhắc GitOps.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Vì sao không nhồi nhiều service lên một host?</h3>
+      <p>
+        Lúc mới bắt đầu, đặt tất cả instance lên một máy (Hình 7-10) rất hấp dẫn: khi một đội lo hạ tầng và đội khác lo phần mềm, khối lượng việc của đội hạ tầng tỉ lệ với số host. Nhưng cái giá là:
+      </p>
+      <ul>
+        <li><strong>Giám sát khó hơn</strong>: theo dõi CPU của từng service hay của cả host?</li>
+        <li><strong>Ảnh hưởng chéo</strong>: một service bị tải nặng sẽ chiếm tài nguyên của các service khác. <em>Gilt</em>, nhà bán lẻ thời trang trực tuyến chuyển từ monolith Ruby on Rails sang microservice, đã gặp đúng chuyện này: tải lệch ở một service kéo chậm mọi thứ trên cùng host, và gỡ một host ra cũng gây hiệu ứng dây chuyền.</li>
+        <li><strong>Triển khai rối hơn</strong>: các service có thể cần những phiên bản thư viện mâu thuẫn nhau.</li>
+        <li><strong>Mất tự chủ</strong>: ai được cấu hình host? Thường là một đội trung tâm, nghĩa là phải phối hợp nhiều hơn mỗi lần deploy.</li>
+      </ul>
+      <p>
+        Như Neal Ford nhận xét, nhiều thói quen về host là di sản của thời <em>tài nguyên khan hiếm</em>: có khách hàng chỉ mua server mới mỗi hai đến ba năm. Điện toán theo nhu cầu, ảo hoá và container đã làm giảm mạnh chi phí của sự cách ly (Hình 7-11, 7-12). Nền tảng kiểu PaaS như AWS Lambda hay Heroku còn lo phần cách ly cho bạn.
+      </p>
+    </div>
+
+    <figure class="lab" data-widget="ch7-noisy-neighbor">
+      <figcaption>
+        <span class="lab-tag">Thử nghiệm 7.4</span> Hàng xóm ồn ào: nhiều service trên một host hay mỗi service một host
+        <small>Tăng tải lên service Catalog và quan sát độ trễ của Order và Invoice. Bật “xung đột phụ thuộc” để thấy thêm một lý do khác khiến host dùng chung gây khó.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+
+    <aside class="callout callout-real">
+      <b>Thực tế</b>
+      <p>Sự cách ly giữa container và VM đã thu hẹp tới mức “đủ tốt” cho đại đa số workload. Đó là lý do container là lựa chọn mặc định của tác giả trong hầu hết tình huống.</p>
+    </aside>
+  </article>
+
+  <!-- ==================== 7.5 ==================== -->
+  <article class="topic" id="ch7-automation-iac" data-num="7.5" data-short="Tự động hoá & Hạ tầng là mã" data-keywords="automation infrastructure as code iac terraform pulumi puppet chef ansible cfengine rea gilt court case version control">
+    <p class="eyebrow">7.5 · Focus on Automation — Infrastructure as Code</p>
+    <h2>Tự động hoá không khoan nhượng và hạ tầng là mã <span class="vi">Focus on Automation &amp; Infrastructure as Code</span></h2>
+
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Microservice đẩy độ phức tạp sang vận hành: nhiều process, nhiều cấu hình, nhiều instance phải giám sát. Làm thủ công thì số người phải tăng theo số service.</li>
+        <li>REA và Gilt cho thấy đầu tư sớm vào công cụ tự phục vụ (self-service) là thứ mở khoá tốc độ: Gilt lên hơn 450 microservice vào năm 2014, khoảng 3 service cho mỗi lập trình viên.</li>
+        <li><dfn data-term="infrastructure-as-code">Infrastructure as Code (IaC)</dfn> mô tả hạ tầng bằng mã máy đọc được, để có thể quản lý phiên bản, kiểm thử và lặp lại tuỳ ý.</li>
+        <li>Từ Puppet, Chef, Ansible (gốc từ CFEngine) đến <dfn data-term="terraform">Terraform</dfn> và Pulumi: công cụ khai báo đưa hạ tầng về đúng trạng thái mô tả trong mã.</li>
+      </ul>
+    </div>
+
+    <div class="prose">
+      <p>
+        Hãy tự hỏi: có thể viết một dòng mã để bật hoặc tắt một máy ảo không? Có deploy phần mềm tự động được không? Có áp thay đổi database mà không cần thao tác tay không? Tự động hoá còn giúp lập trình viên giữ năng suất: tự cấp phát được một service hay một nhóm service, và lý tưởng là dùng <strong>đúng bộ công cụ</strong> mà production dùng để phát hiện vấn đề sớm.
+      </p>
+      <h3>Hai câu chuyện về sức mạnh của tự động hoá</h3>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Tổ chức</th><th>Mốc</th><th class="num">Số microservice</th></tr></thead>
+          <tbody>
+            <tr><td>REA (realestate.com.au)</td><td>3 tháng đầu</td><td class="num">2</td></tr>
+            <tr><td>REA</td><td>3 tháng tiếp theo</td><td class="num">10–15</td></tr>
+            <tr><td>REA</td><td>sau 18 tháng</td><td class="num">60–70</td></tr>
+            <tr><td>Gilt</td><td>một năm sau khi bắt đầu</td><td class="num">≈ 10</td></tr>
+            <tr><td>Gilt</td><td>2012</td><td class="num">&gt; 100</td></tr>
+            <tr><td>Gilt</td><td>2014</td><td class="num">&gt; 450</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        REA phải dồn nhiều công sức lúc đầu (<em>front-loading</em>) để việc cấp máy, deploy và giám sát trở nên dễ, với đội phát triển chịu trách nhiệm trọn vẹn build, deploy và vận hành. Sau đó tốc độ tăng vọt. Tỉ lệ khoảng 3 microservice trên mỗi lập trình viên như ở Gilt không hiếm ở các tổ chức đã trưởng thành; Financial Times cũng có tỉ lệ tương tự.
+      </p>
+      <h3>Hạ tầng là mã</h3>
+      <p>
+        IaC đưa thói quen của phát triển phần mềm vào vận hành. Các công cụ như Puppet, Chef, Ansible mang tính <em>khai báo</em>: bạn mô tả máy (hay tập tài nguyên) phải trông như thế nào, và khi áp dụng, hạ tầng được đưa về đúng trạng thái đó. Thế hệ sau như Terraform cấu hình cả tập tài nguyên cloud; <em class="en">Pulumi</em> làm việc tương tự nhưng bằng ngôn ngữ lập trình thông thường thay vì DSL.
+      </p>
+      <p>
+        Lưu mã hạ tầng trong version control cho bạn biết ai đã thay đổi gì (kiểm toán viên rất thích), và giúp tái tạo môi trường tại một thời điểm bất kỳ. Tác giả kể một khách hàng phải dựng lại nguyên trạng một hệ thống của nhiều năm trước, đến từng bản vá hệ điều hành và nội dung message broker, để phục vụ một vụ kiện. Vì không có cấu hình trong version control, họ mất <mark>hơn ba tháng</mark> lục lọi email và release note, và đến khi tác giả rời dự án thì vụ kiện vẫn chưa xong.
+      </p>
+    </div>
+
+    <figure class="lab" data-widget="ch7-iac-drift">
+      <figcaption>
+        <span class="lab-tag">Thử nghiệm 7.5</span> Mã hạ tầng, sửa tay trên console, và dựng lại môi trường quá khứ
+        <small>Bấm “Sửa tay trên console” để tạo sai lệch so với mã, chạy “plan” để thấy khác biệt, rồi “apply” để đưa hạ tầng về đúng mã. Sau đó thử dựng lại môi trường theo một commit cũ, có và không có IaC.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+
+    <aside class="callout callout-key">
+      <b>Ghi nhớ</b>
+      <p>IaC không chỉ là “có script”. Giá trị nằm ở chỗ trạng thái hạ tầng được mô tả bằng mã, có lịch sử phiên bản, và áp dụng lặp lại được. Một thay đổi bằng tay trên console là một thay đổi không có lịch sử.</p>
+    </aside>
+  </article>
+
+  <!-- ==================== 7.6 ==================== -->
+  <article class="topic" id="ch7-zero-downtime" data-num="7.6" data-short="Triển khai không downtime" data-keywords="zero downtime deployment rolling upgrade blue green financial times sarah wells independent deployability asynchronous long-lived connections">
+    <p class="eyebrow">7.6 · Zero-downtime Deployment</p>
+    <h2>Triển khai không downtime <span class="vi">Zero-downtime Deployment</span></h2>
+
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Khả năng triển khai độc lập không phải tuyệt đối. <dfn data-term="zero-downtime-deployment">Zero-downtime deployment</dfn> đẩy nó thêm một bậc: không cần báo trước cho consumer về thời gian gián đoạn.</li>
+        <li>Sarah Wells (Financial Times) coi đây là thay đổi có tác động lớn nhất tới tốc độ giao hàng: release nhiều hơn, và release được trong giờ hành chính.</li>
+        <li>Giao tiếp bất đồng bộ qua middleware giúp việc này gần như miễn phí; giao tiếp đồng bộ thì khó hơn.</li>
+        <li><dfn data-term="rolling-upgrade">Rolling upgrade</dfn> (Kubernetes làm sẵn) hoặc <dfn data-term="blue-green-deployment">blue-green deployment</dfn> đơn giản hơn đều đạt được mục tiêu. Chỉ vì zero-downtime mà dựng Kubernetes thì quá tay.</li>
+      </ul>
+    </div>
+
+    <div class="prose">
+      <p>
+        Trước chương này, ta nói về triển khai độc lập chủ yếu ở góc độ tránh coupling trong cài đặt; ở 7.4 thêm góc độ cách ly vật lý. Zero-downtime là bước tiếp theo. Nếu không có nó, mỗi lần release bạn phải báo cho consumer phía trên về khả năng gián đoạn, tức là lại phải phối hợp.
+      </p>
+      <p>
+        Ở Financial Times, khi tin rằng release không làm gián đoạn người dùng, họ tăng tần suất release lên rất nhiều. Release trong giờ làm việc cũng tốt hơn cho con người: một đội được nghỉ ngơi đầy đủ ít mắc lỗi hơn, và có đồng nghiệp xung quanh khi cần sửa sự cố, thay vì làm đêm và cuối tuần.
+      </p>
+      <h3>Làm thế nào?</h3>
+      <ul>
+        <li><strong>Bất đồng bộ qua message broker</strong>: message gửi tới sẽ được xử lý khi service chạy lại; consumer không nhận ra.</li>
+        <li><strong>Rolling upgrade</strong>: không tắt toàn bộ service trước khi bản mới lên; instance cũ giảm dần trong khi instance mới tăng dần.</li>
+        <li><strong>Blue-green</strong>: dựng phiên bản mới song song, kiểm tra xong mới chuyển traffic. Đơn giản và hiệu quả không kém.</li>
+      </ul>
+      <p>
+        Các kết nối sống lâu (<em class="en">long-lived connections</em>) và những chi tiết tương tự có thể gây khó thêm. Thiết kế service với zero-downtime ngay từ đầu dễ hơn nhiều so với lắp thêm vào một kiến trúc có sẵn.
+      </p>
+    </div>
+
+    <figure class="lab" data-widget="ch7-rollout">
+      <figcaption>
+        <span class="lab-tag">Thử nghiệm 7.6</span> Triển khai v2 cho 4 instance: tắt hết rồi bật, rolling upgrade, blue-green
+        <small>Chọn chiến lược rồi bấm “Triển khai v2”. Biểu đồ cho thấy số instance đang phục vụ theo thời gian, số request bị lỗi và chi phí đỉnh. Thử bật “consumer giao tiếp bất đồng bộ”.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+
+    <aside class="callout callout-warn">
+      <b>Cạm bẫy</b>
+      <p>Nếu thứ duy nhất bạn cần là zero-downtime, áp dụng Kubernetes rất có thể là quá tay. Một cơ chế blue-green đơn giản đạt được cùng mục tiêu với ít công nghệ mới hơn nhiều.</p>
+    </aside>
+  </article>
+
+  <!-- ==================== 7.7 ==================== -->
+  <article class="topic" id="ch7-desired-state" data-num="7.7" data-short="Desired state & GitOps" data-keywords="desired state management autoscaling group kubernetes nomad ec2 whack-a-mole gitops flux weave reconcile launch time">
+    <p class="eyebrow">7.7 · Desired State Management — and GitOps</p>
+    <h2>Quản lý trạng thái mong muốn và GitOps <span class="vi">Desired State Management</span></h2>
+
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li><dfn data-term="desired-state-management">Desired state management</dfn>: bạn khai báo yêu cầu (số instance, CPU, bộ nhớ), nền tảng tự duy trì nó; instance chết thì nền tảng tự bật bản thay thế.</li>
+        <li>Kubernetes, <dfn data-term="autoscaling-group">autoscaling group</dfn> trên AWS/Azure, hay Nomad (chạy được cả workload không phải container) đều cung cấp khả năng này.</li>
+        <li>Điều kiện tiên quyết: triển khai hoàn toàn tự động, và để ý thời gian khởi động instance. Khởi động chậm thì phải giữ dư công suất.</li>
+        <li><dfn data-term="gitops">GitOps</dfn> (khởi nguồn từ Weave) kết hợp desired state với IaC: trạng thái mong muốn nằm trong git, công cụ như Flux tự áp nó vào hệ thống đang chạy.</li>
+      </ul>
+    </div>
+
+    <div class="prose">
+      <p>
+        Cái hay của desired state management là nền tảng tự lo <em>cách</em> giữ trạng thái; người phát triển và vận hành chỉ cần viết đúng định nghĩa trạng thái mong muốn (Hình 7-13). Khi phần cứng hỏng hay một data center tắt, nền tảng xử lý mà không cần người can thiệp. Bạn chỉ nói “tôi muốn 4 instance rải đều trên cả hai data center”, phần còn lại là việc của nền tảng, hoặc nó báo lại rằng không đủ tài nguyên.
+      </p>
+      <h3>Trò đập chuột trên EC2</h3>
+      <p>
+        Desired state cũng có thể khiến bạn khổ nếu quên rằng mình đang dùng nó. Tác giả kể có lần tắt các máy EC2 của một cluster dev trước khi về nhà để tiết kiệm tiền, nhưng tắt máy này thì máy khác lại bật lên. Mất <mark>15 phút</mark> “đập chuột” ông mới nhận ra mình đã cấu hình một autoscaling group với số máy tối thiểu. Thời đó EC2 tính tiền theo giờ, máy chạy một phút cũng bị tính trọn giờ, nên mấy phút loay hoay khá tốn kém. Cách sửa: thêm vào script tắt cluster một bước vô hiệu hoá autoscaling group. Theo một nghĩa nào đó đây là dấu hiệu thành công: hệ thống chạy ổn tới mức mọi người quên mất nó tồn tại.
+      </p>
+      <h3>Điều kiện tiên quyết</h3>
+      <p>
+        Nền tảng phải tự bật được instance, nên triển khai tự động hoàn toàn là bắt buộc. Nếu cấp một instance mới mất nhiều thời gian, bạn cần dư công suất sẵn để có khoảng thở trong lúc chờ bản thay thế. Tác giả không khuyên tự chế desired state; hãy dùng nền tảng coi nó là khái niệm hạng nhất, và có thể đợi tới khi đã có vài microservice chạy ổn rồi mới áp dụng, để không bị quá tải công nghệ mới.
+      </p>
+      <h3>GitOps</h3>
+      <p>
+        Với GitOps, trạng thái mong muốn của hạ tầng được định nghĩa bằng mã và lưu trong source control; khi trạng thái đó thay đổi, công cụ đảm bảo nó được áp vào hệ thống đang chạy. Mô hình này quen thuộc với người từng dùng Chef Server hay Puppet Master; điểm mới là GitOps tận dụng khả năng của Kubernetes để quản lý cả <em>ứng dụng</em>, không chỉ hạ tầng. Nhưng công cụ không ép bạn đổi cách làm việc: có Flux không có nghĩa là bạn đã thực hành desired state hay IaC.
+      </p>
+    </div>
+
+    <figure class="lab" data-widget="ch7-reconcile">
+      <figcaption>
+        <span class="lab-tag">Thử nghiệm 7.7</span> Vòng lặp đối soát: desired vs actual
+        <small>Giết instance và xem nền tảng tự bù. Tăng thời gian khởi động để thấy khoảng hụt công suất dài ra. Chuyển sang kịch bản “tắt cluster cuối ngày” để tái hiện trò đập chuột trên EC2, hoặc commit thay đổi số replica qua GitOps.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+
+    <aside class="callout callout-real">
+      <b>Thực tế</b>
+      <p>Nền tảng như Kubernetes thật sự có ích khi bạn có nhiều thứ cần quản lý. Nếu chỉ có vài process, hoàn toàn có thể đợi sau này mới áp dụng.</p>
+    </aside>
+  </article>
+
+  <!-- ==================== 7.8 ==================== -->
+  <article class="topic" id="ch7-physical-vm" data-num="7.8" data-short="Máy vật lý & máy ảo" data-keywords="deployment options physical machine virtual machine vm hypervisor type 2 virtualization sock drawer ec2 vmware netflix utilization">
+    <p class="eyebrow">7.8 · Deployment Options — Physical Machines, Virtual Machines</p>
+    <h2>Các lựa chọn triển khai: máy vật lý và máy ảo <span class="vi">Physical Machines &amp; Virtual Machines</span></h2>
+
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Sáu lựa chọn: máy vật lý, máy ảo, container, application container, PaaS, FaaS. Tất cả được chấm theo năm nguyên tắc ở 7.4.</li>
+        <li>Máy vật lý ngày càng hiếm: một instance chỉ dùng nửa CPU thì nửa còn lại bị lãng phí, và cám dỗ nhồi nhiều service lên một máy phá vỡ sự cách ly.</li>
+        <li><dfn data-term="virtual-machine">Máy ảo (VM)</dfn> cho cách ly rất tốt: mỗi VM có hệ điều hành và kernel riêng. Nhưng <dfn data-term="hypervisor">hypervisor</dfn> tốn tài nguyên, và chia máy càng nhỏ thì phần hao phí càng lớn (ví dụ ngăn kéo tất).</li>
+        <li>VM trên cloud dễ tự động hoá qua API và có autoscaling group; VM trên nền ảo hoá truyền thống thường bị đội vận hành trung tâm giữ chặt. Netflix xây phần lớn microservice trên EC2.</li>
+      </ul>
+    </div>
+
+    <div class="prose">
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Lựa chọn</th><th>Instance microservice chạy ở đâu</th></tr></thead>
+          <tbody>
+            <tr><td>Physical Machine</td><td>Trực tiếp trên máy vật lý, không có lớp ảo hoá.</td></tr>
+            <tr><td>Virtual Machine</td><td>Trên một máy ảo.</td></tr>
+            <tr><td>Container</td><td>Một container riêng trên máy ảo hoặc vật lý, có thể được Kubernetes điều phối.</td></tr>
+            <tr><td>Application Container</td><td>Bên trong một application container (Tomcat, IIS…) chứa nhiều ứng dụng trên cùng runtime.</td></tr>
+            <tr><td>PaaS</td><td>Nền tảng trừu tượng cao, che hết khái niệm server: Heroku, Google App Engine, AWS Beanstalk.</td></tr>
+            <tr><td>FaaS</td><td>Một hoặc nhiều function do nền tảng như AWS Lambda, Azure Functions chạy và quản lý.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <h3>Máy vật lý</h3>
+      <p>
+        Triển khai “trực tiếp” nghĩa là không có lớp ảo hoá hay container nào. Bạn vẫn có thể dùng Puppet hay Chef để có IaC, nhưng zero-downtime và desired state đòi hỏi một lớp quản lý ở mức trừu tượng cao hơn, thứ thường đi kèm với VM. Tác giả gần như không còn thấy cách này; bạn cần lý do rất đặc thù để chọn nó.
+      </p>
+      <h3>Máy ảo và cái giá của ảo hoá</h3>
+      <p>
+        Ảo hoá (VMware, EC2…) chia một máy vật lý thành nhiều máy ảo nhỏ, mỗi máy được cấp một phần CPU, bộ nhớ, IO và lưu trữ. Mỗi instance có thể tự cấu hình hệ điều hành theo nhu cầu. Tuy vậy nếu phần cứng bên dưới hỏng thì nhiều instance chết theo, và đó là lúc desired state management phát huy tác dụng.
+      </p>
+      <p>
+        Hãy hình dung máy vật lý là một ngăn kéo đựng tất. Thêm nhiều vách ngăn gỗ thì đựng được nhiều tất hơn hay ít hơn? <strong>Ít hơn</strong>, vì chính vách ngăn cũng chiếm chỗ. Với <dfn data-term="type-2-virtualization">ảo hoá Type 2</dfn> (AWS, VMware, vSphere, Xen, KVM), trên hệ điều hành host có một hypervisor làm hai việc: ánh xạ CPU và bộ nhớ từ máy ảo sang máy thật, và làm lớp điều khiển để thao tác các VM. Hypervisor phải giữ lại tài nguyên cho chính nó, và quản lý càng nhiều VM thì càng tốn. Đến một mức nào đó, chia nhỏ thêm không còn đáng (Hình 7-14). (Type 1 là khi VM chạy thẳng trên phần cứng, không qua hệ điều hành khác.)
+      </p>
+    </div>
+
+    <figure class="lab" data-widget="ch7-hypervisor">
+      <figcaption>
+        <span class="lab-tag">Thử nghiệm 7.8</span> Ngăn kéo tất: chia một máy vật lý thành N máy ảo
+        <small>Kéo số VM và xem phần tài nguyên thực sự còn cho ứng dụng sau khi trừ hypervisor và hệ điều hành khách của từng VM. Đường so sánh cho thấy container trên cùng máy. Số liệu minh hoạ.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+
+    <aside class="callout callout-real">
+      <b>Thực tế</b>
+      <p>Container phổ biến hơn, nhưng VM vẫn là lựa chọn tốt nếu bạn cần mức cách ly chặt hơn, hoặc ứng dụng chưa đóng container được. Netflix, hình mẫu của microservice, đã chạy phần lớn hệ thống trên VM EC2.</p>
+    </aside>
+  </article>
+
+  <!-- ==================== 7.9 ==================== -->
+  <article class="topic" id="ch7-containers" data-num="7.9" data-short="Container & Docker" data-keywords="container linux kernel process tree lxc docker image registry windows containers nano server alpine hyper-v isolation docker swarm vagrant">
+    <p class="eyebrow">7.9 · Containers</p>
+    <h2>Container: cách ly theo một kiểu khác <span class="vi">Containers, Docker &amp; Windows Containers</span></h2>
+
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Một <dfn data-term="container">container</dfn> là phần trừu tượng trên một nhánh con của cây process, dùng chung kernel của host. Không cần hypervisor, nên nhẹ và khởi động trong vài giây thay vì nhiều phút.</li>
+        <li>Host chạy Ubuntu, container chạy CentOS vẫn được, miễn dùng chung kernel. Cách ly không hoàn hảo: nên coi container là cách tốt để cách ly <strong>phần mềm đáng tin cậy</strong>.</li>
+        <li>Docker đưa container vào dòng chính nhờ khái niệm <dfn data-term="docker-image">image</dfn>, registry và bộ công cụ: service viết bằng Go, Python hay Node đều được quản lý như nhau.</li>
+        <li>Windows container: Nano Server bản đầu hơn 1 GB so với Alpine vài MB; có thể chọn <dfn data-term="hyper-v-isolation">Hyper-V isolation</dfn> khi chạy mà không cần đổi image.</li>
+      </ul>
+    </div>
+
+    <div class="prose">
+      <p>
+        Trên Linux, kernel duy trì cây process và cấp tài nguyên cho từng process; đó là nền của một hệ điều hành đa người dùng. Container tận dụng đúng cơ chế này: mỗi container là một cây con của cây process, được kernel cấp tài nguyên riêng. Ý tưởng có từ Solaris Zones và OpenVZ, vào dòng chính Linux nhờ LXC, rồi Docker dựng thêm một lớp trừu tượng cao hơn (ban đầu dùng LXC, sau thay hẳn).
+      </p>
+      <p>
+        So với stack Type 2 ở Hình 7-14: không có hypervisor, và container không có kernel riêng mà dùng kernel của máy (Hình 7-15). Ngoài tiết kiệm tài nguyên, ta còn được <strong>phản hồi nhanh</strong>: VM có thể mất nhiều phút để khởi động, container chỉ vài giây. Kiểm soát tài nguyên cũng mịn hơn, và cùng phần cứng chạy được nhiều container hơn hẳn số VM (Hình 7-16). Kết hợp cả hai cũng phổ biến: thuê một EC2 lớn rồi chạy nhiều container trên đó.
+      </p>
+      <h3>Không hoàn hảo</h3>
+      <p>
+        Thế giới bên ngoài gọi vào container bằng cách nào? Với LXC bạn phải tự lo định tuyến, và Docker đã giúp rất nhiều ở điểm này. Về cách ly, giai đoạn đầu từng có những cách đã được ghi nhận để process trong một container “thoát ra” tác động container khác hoặc host. Rất nhiều công sức đã đổ vào để khắc phục, nhưng nếu bạn chạy mã của người khác và lo ngại kẻ xấu vượt rào, hãy tự tìm hiểu kỹ hơn.
+      </p>
+      <h3>Windows container</h3>
+      <p>
+        Windows Server 2016 là bước ngoặt cho container trên Windows. Rào cản ban đầu là kích thước: mỗi image phải kèm một hệ điều hành, mà Windows thì rất lớn. Microsoft làm ra Nano Server, nhưng các bản đầu vẫn hơn 1 GB, so với vài MB của Alpine. Nhờ cache các layer dùng chung giữa các image, chênh lệch này có thể không quá nghiêm trọng. Điểm đáng chú ý: ngoài process isolation như Linux, Windows cho chạy container trong VM Hyper-V riêng, gần mức cách ly của ảo hoá đầy đủ, và lựa chọn này nằm ở lúc khởi chạy, không phải lúc build image. Đổi lại là khởi động chậm hơn và tốn tài nguyên gần như VM.
+      </p>
+      <h3>Docker và chuyện đặt tên</h3>
+      <p>
+        Docker giúp chạy nhiều service trên máy dev nhẹ nhàng hơn thời Vagrant: build hoặc kéo image về rồi chạy local, và image đó có thể (và nên) giống hệt image chạy trên production. Ban đầu Docker chỉ quản lý container trên một máy. Để quản lý nhiều máy, Docker ra hai sản phẩm khác nhau tên dễ nhầm là “Docker Swarm” và “Docker Swarm Mode”. Nhưng ở quy mô nhiều máy, Kubernetes mới là vua, dù bạn vẫn dùng công cụ Docker để build từng container.
+      </p>
+    </div>
+
+    <figure class="lab" data-widget="ch7-container-vs-vm">
+      <figcaption>
+        <span class="lab-tag">Thử nghiệm 7.9</span> Stack VM và stack container: kernel ở đâu, khởi động mất bao lâu
+        <small>Chuyển giữa hai stack để thấy lớp nào biến mất. Chọn hệ điều hành của image, kiểu cách ly và số instance cần bật để so thời gian khởi động và dung lượng tải về. Thời gian là số liệu minh hoạ theo bậc độ lớn trong sách.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+
+    <aside class="callout callout-key">
+      <b>Ghi nhớ</b>
+      <p>Container cho ta sự cách ly ở mức chi phí chấp nhận được và che giấu công nghệ bên dưới. Nhưng để có desired state management trên nhiều máy, ta cần thêm một bộ điều phối như Kubernetes.</p>
+    </aside>
+  </article>
+
+  <!-- ==================== 7.10 ==================== -->
+  <article class="topic" id="ch7-appcontainer-paas" data-num="7.10" data-short="Application container & PaaS" data-keywords="application container tomcat weblogic iis jvm servlet session state paas heroku google app engine beanstalk netlify">
+    <p class="eyebrow">7.10 · Application Containers — Platform as a Service</p>
+    <h2>Application container và PaaS <span class="vi">Application Containers &amp; Platform as a Service</span></h2>
+
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li><dfn data-term="application-container">Application container</dfn> (IIS, WebLogic, Tomcat) chứa nhiều service trong một runtime. Lợi điểm: chỉ một JVM cho năm service Java.</li>
+        <li>Cái giá: bị khoá vào một stack, tính năng cluster cho session state trong bộ nhớ (thứ ta muốn tránh), giám sát không đủ, khởi động chậm, khó phân tích tài nguyên và vòng đời. Lý do lớn nhất khiến nó hiếm dần: <strong>thiếu cách ly</strong>.</li>
+        <li><dfn data-term="paas">PaaS</dfn> làm việc ở mức trừu tượng cao hơn một host. Heroku là chuẩn mực về trải nghiệm lập trình viên.</li>
+        <li>PaaS tốt thì rất tốt, nhưng khi không hợp thì khó can thiệp; PaaS càng “thông minh” (tự scale theo heuristic) càng dễ sai với ứng dụng không chuẩn.</li>
+      </ul>
+    </div>
+
+    <div class="prose">
+      <h3>Application container</h3>
+      <p>
+        Nếu bạn từng deploy .NET sau IIS hay Java vào WebLogic, Tomcat, bạn đã quen mô hình nhiều service nằm chung một application container trên một host (Hình 7-17). Lời hứa là quản lý dễ hơn: clustering, công cụ giám sát. Chạy năm service Java trong một servlet container chỉ tốn chi phí của một JVM, thay vì năm JVM nếu mỗi service một container.
+      </p>
+      <p>
+        Nhưng tác giả liệt kê nhiều nhược điểm. Bạn bị ràng buộc vào một stack công nghệ, kể cả các lựa chọn tự động hoá và quản lý. Tính năng quản lý cluster để chia sẻ session state trong bộ nhớ là thứ ta muốn <em>tránh</em> vì nó cản trở việc mở rộng. Khả năng giám sát của chúng không đủ cho kiểu giám sát liên kết mà microservice cần. Nhiều sản phẩm khởi động chậm, làm chậm vòng phản hồi. Quản lý vòng đời ứng dụng trên JVM phức tạp hơn việc khởi động lại một JVM, và phân tích tài nguyên, thread khó hơn khi nhiều ứng dụng dùng chung process. Chúng cũng không miễn phí: nhiều sản phẩm thương mại, và tự chúng cũng tốn tài nguyên. Lại một lần nữa đây là tối ưu cho sự khan hiếm tài nguyên, điều có lẽ không còn đúng.
+      </p>
+      <h3>Platform as a Service</h3>
+      <p>
+        Một số PaaS nhận artifact theo công nghệ cụ thể (WAR của Java, gem của Ruby) và tự cấp phát, chạy cho bạn; có loại tự scale lên xuống, có loại cho bạn chọn số node. Những PaaS tốt nhất vẫn là dịch vụ được host sẵn. Heroku không chỉ chạy ứng dụng mà còn chạy cả database cho bạn, thứ tự làm rất cực.
+      </p>
+      <p>
+        Khi tác giả viết ấn bản đầu, ông mong PaaS sẽ phát triển mạnh, nhưng điều đó không xảy ra như dự đoán. Thay vào đó, các sản phẩm <em>serverless</em> của public cloud (message broker, database, lưu trữ dạng dịch vụ quản lý sẵn) đang lấp vào khoảng trống: thay vì một hộp đen chạy ứng dụng, ta tự phối các mảnh mình thích. FaaS mọc lên trên nền đó. Heroku và Netlify trông rất khác nhau, nhưng đều có thể là nền tảng tốt tuỳ bản chất ứng dụng.
+      </p>
+    </div>
+
+    <figure class="lab" data-widget="ch7-shared-runtime">
+      <figcaption>
+        <span class="lab-tag">Thử nghiệm 7.10</span> Năm service Java: một Tomcat chung hay năm JVM riêng
+        <small>So sánh bộ nhớ tiết kiệm được với bán kính ảnh hưởng khi một service rò rỉ bộ nhớ, hoặc khi chỉ cần deploy lại một service. Số liệu bộ nhớ là minh hoạ.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+
+    <aside class="callout callout-warn">
+      <b>Cạm bẫy</b>
+      <p>Tiết kiệm vài trăm MB bộ nhớ không đáng để đổi lấy việc một service lỗi kéo sập cả bốn service còn lại, hoặc phải phối hợp với bốn đội khác mỗi lần khởi động lại application server.</p>
+    </aside>
+  </article>
+
+  <!-- ==================== 7.11 ==================== -->
+  <article class="topic" id="ch7-faas" data-num="7.11" data-short="FaaS & Serverless" data-keywords="faas serverless lambda azure functions google cloud functions cold start concurrency bustle redis durable functions step functions function per aggregate expenses">
+    <p class="eyebrow">7.11 · Function as a Service (FaaS)</p>
+    <h2>Function as a Service: giới hạn, thách thức và cách ánh xạ microservice <span class="vi">FaaS — Limitations, Challenges, Mapping to Microservices</span></h2>
+
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li><dfn data-term="serverless">Serverless</dfn> là thuật ngữ ô cho các công nghệ mà người dùng không phải bận tâm về máy chủ; <dfn data-term="faas">FaaS</dfn> chỉ là một phần (AWS Lambda ra đời năm 2014). Code ngủ cho tới khi có trigger; không chạy thì không tốn tiền.</li>
+        <li>Giới hạn: chỉ chỉnh được bộ nhớ (CPU, IO đi kèm); thời gian chạy bị chặn (Google 9 phút, Lambda 15 phút, Azure tuỳ gói); function mặc định stateless.</li>
+        <li><dfn data-term="cold-start">Cold start</dfn> của JVM/.NET đáng kể nhưng trên thực tế hiếm gặp vì runtime được giữ “ấm”. Vấn đề hay gặp hơn: function scale mạnh đè bẹp phần hạ tầng không scale được (Bustle làm quá tải Redis).</li>
+        <li>Ánh xạ: bắt đầu với một function cho mỗi microservice; tiến tới <dfn data-term="function-per-aggregate">một function cho mỗi aggregate</dfn> nhưng giữ giao diện ngoài thô. Chia nhỏ hơn nữa (mỗi chuyển trạng thái một function) thì không nên.</li>
+      </ul>
+    </div>
+
+    <div class="prose">
+      <p>
+        Ken Fromm, người có lẽ đã đặt ra chữ “serverless”, giải thích rằng không phải không còn máy chủ, mà là lập trình viên không phải nghĩ nhiều về chúng: nhà cung cấp nhận phần quản lý server, kho dữ liệu và hạ tầng. Việc nhiều người đánh đồng serverless với FaaS là đáng tiếc, vì nó che mất vai trò của database, hàng đợi, lưu trữ serverless.
+      </p>
+      <p>
+        Với FaaS, bạn deploy một đoạn code. Nó nằm im cho tới khi có trigger do bạn chọn: một file xuất hiện, một message vào hàng đợi, một HTTP request. Function chạy rồi tắt; nền tảng lo bật tắt và chạy song song nhiều bản. Lợi ích: chỉ trả tiền cho phần dùng, rất hợp với tải thấp hoặc khó đoán; có sẵn mức độ sẵn sàng cao ngầm định; và giảm mạnh gánh vận hành.
+      </p>
+      <h3>Giới hạn</h3>
+      <ul>
+        <li><strong>Runtime</strong>: bên dưới là container nhưng bị che đi, nên bạn phụ thuộc vào ngôn ngữ nhà cung cấp hỗ trợ. Azure hỗ trợ rộng nhất; Google Cloud Functions lúc viết sách chỉ có Go, vài phiên bản Node và Python.</li>
+        <li><strong>Tài nguyên</strong>: cả ba nhà cung cấp chỉ cho chỉnh bộ nhớ; có khi phải cấp thừa bộ nhớ chỉ để có đủ CPU.</li>
+        <li><strong>Thời gian chạy</strong>: Google 9 phút, AWS Lambda 15 phút, Azure có thể chạy mãi tuỳ gói. Function chạy lâu thường là dấu hiệu bài toán không hợp FaaS.</li>
+        <li><strong>Stateless</strong>: muốn nối nhiều function thành chuỗi điều phối thì khó. Azure Durable Functions giải quyết khá hay; AWS Step Functions dùng cấu hình JSON, kém thân thiện hơn.</li>
+      </ul>
+      <h3>Thách thức</h3>
+      <p>
+        <strong>Cold start</strong>: function không chạy khi không cần, nên phải khởi động khi có request; JVM và .NET chịu thiệt nhiều nhất. Nhưng trên AWS, runtime được giữ ấm tới mức khó đo được tác động của cold start. Nếu vẫn lo, hãy chọn runtime khởi động nhanh như Go, Python, Node, Ruby. <strong>Scale động</strong> mới là vấn đề hay gặp hơn: mọi nền tảng đều có giới hạn cứng số lần gọi đồng thời, và function scale lên có thể đè bẹp phần hạ tầng không có cùng khả năng scale. Steve Faulkner ở Bustle kể function scale lên đã làm quá tải Redis, gây sự cố production.
+      </p>
+      <h3>Ánh xạ sang microservice</h3>
+      <p>
+        <strong>Một function cho mỗi microservice</strong> (Hình 7-18) là điểm khởi đầu hợp lý: microservice vẫn là đơn vị triển khai. Vì nền tảng chỉ gọi một entry point, bạn phải tự điều phối theo đường dẫn, ví dụ service Expenses có <code>/receipt</code>, <code>/claim</code>, <code>/report</code>. <strong>Một function cho mỗi aggregate</strong> (Hình 7-19) giữ trọn logic vòng đời của một aggregate trong một function. Khi đó microservice trở thành khái niệm <em>logic</em> gồm nhiều đơn vị triển khai độc lập. Tác giả lưu ý hai điều. Thứ nhất, giữ giao diện ngoài thô: consumer vẫn nói chuyện với “Expenses”, để sau này gộp lại hay tái cấu trúc aggregate mà không ảnh hưởng họ. Thứ hai, dùng chung database vẫn ổn nếu cùng một đội quản lý (Hình 7-20); khi nhu cầu tách biệt dần thì tách dữ liệu (Hình 7-21). Còn chia mỗi chuyển trạng thái của aggregate thành một function thì tác giả đã thử và bỏ, vì nó phá nguyên tắc coi aggregate là một khối thống nhất và đẩy bạn vào thế giới saga (xem <a href="#ch5">Chương 5 — Workflow</a>) chỉ để quản lý một aggregate.
+      </p>
+    </div>
+
+    <figure class="lab" data-widget="ch7-faas-burst">
+      <figcaption>
+        <span class="lab-tag">Thử nghiệm 7.11a</span> Đợt tải đột biến: function scale lên, Redis thì không
+        <small>Chỉnh đỉnh tải, giới hạn concurrency của nền tảng và số kết nối tối đa của Redis. Mỗi lần gọi function giữ một kết nối Redis. Đổi runtime để thấy ảnh hưởng của cold start. Số liệu minh hoạ, tái hiện tình huống của Bustle.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+
+    <figure class="lab" data-widget="ch7-faas-mapping">
+      <figcaption>
+        <span class="lab-tag">Thử nghiệm 7.11b</span> Service Expenses: ánh xạ microservice sang function ở ba mức độ mịn
+        <small>Chọn mức độ mịn, bật tắt “giữ giao diện ngoài thô” và “mỗi function một database” để xem số đơn vị triển khai, ai phải đổi khi bạn tái cấu trúc, và rủi ro nhất quán.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+
+    <aside class="callout callout-book">
+      <b>Trong sách</b>
+      <p>Tác giả tin rằng tương lai của đa số lập trình viên là một nền tảng che hầu hết chi tiết bên dưới. Ông khuyên nhiều khách hàng đang tính chuyển sang Kubernetes trên cloud hãy thử FaaS trước, vì nó có thể đáp ứng đủ nhu cầu mà vẫn che đi rất nhiều phức tạp.</p>
+    </aside>
+  </article>
+
+  <!-- ==================== 7.12 ==================== -->
+  <article class="topic" id="ch7-choosing" data-num="7.12" data-short="Chọn phương án triển khai" data-keywords="which deployment option rules of thumb if it ain't broke heroku zeit faas containerization kubernetes lock-in puppet chef ansible terraform pulumi dockerfile">
+    <p class="eyebrow">7.12 · Which Deployment Option Is Right for You?</p>
+    <h2>Chọn phương án nào? Quy tắc ngón tay cái của Sam <span class="vi">Sam’s Really Basic Rules of Thumb</span></h2>
+
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li>Nếu cách bạn đang làm vẫn ổn, cứ tiếp tục. Đừng để mốt quyết định kỹ thuật.</li>
+        <li>Nhường quyền kiểm soát tới mức bạn thấy thoải mái, rồi nhường thêm chút nữa. Đẩy được hết việc sang PaaS tốt như Heroku hay một nền tảng FaaS thì cứ làm.</li>
+        <li>Container hoá không hề dễ nhưng là thoả hiệp tốt giữa chi phí và cách ly, lại rất có lợi cho phát triển local. Hãy chờ Kubernetes trong tương lai.</li>
+        <li>Đừng để nỗi sợ <dfn data-term="vendor-lock-in">vendor lock-in</dfn> giam bạn trong một mớ hỗn độn tự tạo. Vai trò của Puppet, Chef đã lùi xuống tầng dưới container.</li>
+      </ul>
+    </div>
+
+    <div class="prose">
+      <p>
+        Nếu chỉ dùng tiêu chí cách ly, ta sẽ chọn mỗi instance một máy vật lý: rất đắt và mất hết công cụ mạnh. Phải cân bằng chi phí, dễ dùng, cách ly, sự quen thuộc… Vì vậy tác giả đưa ra bộ quy tắc mà ông tự gọi là <em>Sam’s Really Basic Rules Of Thumb For Working Out Where To Deploy Stuff</em>:
+      </p>
+      <ol>
+        <li><strong>If it ain’t broke, don’t fix it.</strong></li>
+        <li><strong>Nhường quyền kiểm soát tới mức bạn thấy ổn, rồi nhường thêm một chút.</strong> Có thật bạn cần vặn từng thông số?</li>
+        <li><strong>Container hoá</strong> là thoả hiệp tốt; hãy chờ Kubernetes trong tương lai.</li>
+      </ol>
+      <p>
+        Nhiều người hô “Kubernetes hoặc không gì cả”, điều tác giả thấy không có ích. Nếu bạn ở trên public cloud và bài toán hợp FaaS, hãy dùng FaaS và bỏ qua Kubernetes; lập trình viên của bạn sẽ năng suất hơn nhiều. Tìm được PaaS tốt như Heroku hay Zeit mà ứng dụng hợp ràng buộc của nó? Đẩy hết việc cho nền tảng và dành thời gian cho sản phẩm. Với những người còn lại, container hoá là con đường, và điều đó dẫn tới Kubernetes.
+      </p>
+      <h3>Puppet, Chef và đồng bọn còn chỗ đứng không?</h3>
+      <p>
+        So với năm 2014, Puppet, Chef, Ansible, Salt đóng vai trò nhỏ hơn nhiều trong việc triển khai microservice. Lý do chính là container. Sức mạnh của Puppet, Chef là đưa một máy về trạng thái mong muốn một cách tất định, chạy đi chạy lại trên cùng máy. Còn container thường được dựng từ một <code>Dockerfile</code> và bị huỷ đi dựng lại mỗi lần deploy, nên phần phức tạp phục vụ việc chạy lặp trên cùng máy trở nên không cần thiết. Các công cụ này lùi xuống tầng dưới: quản lý ứng dụng cũ, hoặc dựng các cluster mà container chạy trên đó. IaC vẫn cực kỳ quan trọng, chỉ là công cụ lập trình viên dùng đã đổi: Terraform để cấp hạ tầng cloud, và tác giả kỳ vọng nhiều vào Pulumi.
+      </p>
+    </div>
+
+    <figure class="lab" data-widget="ch7-rules-of-thumb">
+      <figcaption>
+        <span class="lab-tag">Thử nghiệm 7.12</span> Trợ lý chọn nơi triển khai theo quy tắc của Sam
+        <small>Trả lời vài câu hỏi về tình huống của bạn. Trợ lý chỉ ra quy tắc nào áp dụng và lý do, theo đúng thứ tự ưu tiên trong sách.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+
+    <aside class="callout callout-key">
+      <b>Ghi nhớ</b>
+      <p>Đừng ngại chọn giải pháp đơn giản hơn, và đừng ngại đẩy việc cho người khác. Mỗi giờ không phải vận hành hạ tầng là một giờ dành cho sản phẩm.</p>
+    </aside>
+  </article>
+
+  <!-- ==================== 7.13 ==================== -->
+  <article class="topic" id="ch7-kubernetes" data-num="7.13" data-short="Kubernetes & điều phối container" data-keywords="kubernetes container orchestration scheduler pod service replica set deployment node master sidecar multi-tenancy federation openshift cncf borg omega helm operator crd knative minikube">
+    <p class="eyebrow">7.13 · Kubernetes &amp; Container Orchestration</p>
+    <h2>Kubernetes và điều phối container <span class="vi">Kubernetes &amp; Container Orchestration</span></h2>
+
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li><dfn data-term="container-orchestration">Bộ điều phối container</dfn> quyết định container chạy ở đâu và như thế nào trên nhiều máy, đồng thời lo desired state. <dfn data-term="kubernetes">Kubernetes</dfn> đã thắng Docker Swarm, Mesos, Nomad, ECS…</li>
+        <li>Khái niệm cốt lõi: cluster gồm các node và master; <dfn data-term="pod">Pod</dfn> (một hoặc nhiều container); <dfn data-term="k8s-service">Service</dfn> định tuyến tới pod; <dfn data-term="replica-set">ReplicaSet</dfn> khai báo số pod; <dfn data-term="k8s-deployment">Deployment</dfn> áp thay đổi (rolling upgrade, rollback, scale).</li>
+        <li>Kubernetes hạn chế về multi-tenancy: hoặc dùng nền tảng như OpenShift, hoặc <dfn data-term="k8s-federation">federation</dfn> nhiều cluster (khó gom tài nguyên). <dfn data-term="cncf">CNCF</dfn> góp phần lớn vào thành công của hệ sinh thái.</li>
+        <li>Kubernetes chưa phải một “platform” với lập trình viên và chỉ di động trên lý thuyết. <dfn data-term="helm">Helm</dfn>, Operator, <dfn data-term="crd">CRD</dfn>, <dfn data-term="knative">Knative</dfn> vẫn chưa ổn định. Vài lập trình viên với vài microservice thì Kubernetes quá tay.</li>
+      </ul>
+    </div>
+
+    <div class="prose">
+      <h3>Vì sao cần điều phối container?</h3>
+      <p>
+        Docker định nghĩa và tạo container trên một máy, nhưng hầu hết hệ thống cần chạy trên nhiều máy để đủ tải và dự phòng. Từng được gọi là <em>container scheduler</em>: bạn nói “tôi muốn thứ này chạy”, bộ điều phối tìm tài nguyên trống, cấp lại nếu cần, và lo chi tiết. Nó cũng duy trì desired state và cho bạn chọn cách phân bố: tối ưu tận dụng tài nguyên, độ trễ giữa các process, hay độ bền. Theo kinh nghiệm của tác giả, tự viết script để khởi chạy và nối mạng container “chán rất nhanh”.
+      </p>
+      <h3>Góc nhìn giản lược về Kubernetes</h3>
+      <ul>
+        <li><strong>Cluster</strong> = các <em>node</em> chạy workload (máy vật lý hoặc ảo) + phần mềm điều khiển gọi là <em>Kubernetes Master</em> (Hình 7-22).</li>
+        <li><strong>Pod</strong>: Kubernetes lập lịch pod chứ không lập lịch container. Thường một pod chỉ có một container là instance microservice; trường hợp nhiều container (hiếm) điển hình là sidecar proxy như Envoy trong service mesh.</li>
+        <li><strong>Service</strong>: chọn những pod tạo nên service và ánh xạ cổng. Pod là tạm thời, service thì tồn tại lâu dài và định tuyến tới pod đang sống. Dễ nhầm: trong Kubernetes bạn không deploy service, bạn deploy pod ánh xạ vào service (Hình 7-23).</li>
+        <li><strong>ReplicaSet</strong>: “tôi muốn 4 pod này, chừng này bộ nhớ và CPU”. Ngày nay ít khi quản lý trực tiếp.</li>
+        <li><strong>Deployment</strong>: cách bạn áp thay đổi lên pod và ReplicaSet: rolling upgrade, rollback, scale.</li>
+      </ul>
+      <h3>Multi-tenancy và federation</h3>
+      <p>
+        Về hiệu quả, gom mọi tài nguyên vào một cluster dùng chung toàn tổ chức sẽ cho mức tận dụng cao nhất. Nhưng Kubernetes không được thiết kế cho các phòng ban muốn mức kiểm soát khác nhau. Hai hướng đi: dùng nền tảng xây trên Kubernetes như OpenShift của Red Hat (kiểm soát truy cập phong phú, nhưng lập trình viên phải học thêm trừu tượng của nhà cung cấp), hoặc federation: nhiều cluster riêng với một lớp phần mềm bên trên (Hình 7-24). Federation làm việc gom tài nguyên khó hơn: Cluster A dùng hết công suất trong khi Cluster B còn trống, và một node chỉ thuộc về một cluster, nên muốn chạy thêm trên A thì phải chuyển node từ B sang, việc có thể không hề đơn giản.
+      </p>
+      <h3>Nguồn gốc, CNCF và tính di động</h3>
+      <p>
+        Kubernetes bắt đầu là dự án mã nguồn mở của Google, lấy cảm hứng từ Borg và Omega, những hệ thống chạy hàng chục đến hàng trăm nghìn container trên toàn cầu, nhưng mục tiêu là thân thiện với lập trình viên hơn, không phải quy mô khổng lồ. Ở quy mô rất lớn, Nomad và Mesos có thành tích tốt hơn. Tác giả thấy hai cách nhìn đều đúng: đây vừa là đóng góp hào phóng cho ngành, vừa là nước đi để Google, đứng thứ ba sau AWS và Azure, tránh một tương lai chỉ có AWS. CNCF, nhánh của Linux Foundation, giữ vai trò như Apache Foundation: tập hợp các dự án, chuẩn hoá khả năng tương tác, tổ chức sự kiện, đào tạo và chứng chỉ.
+      </p>
+      <p>
+        Kubernetes thường được gọi là “platform”, nhưng tự nó chỉ cho bạn khả năng chạy container. Phần lớn tổ chức tự lắp platform riêng bằng service mesh, message broker, công cụ gom log…, thường do một đội platform engineering lo. Kiểu tự chọn món này vừa là phước lành vừa là gánh nặng lựa chọn. Hệ quả: ứng dụng trên Kubernetes <mark>di động trên lý thuyết, nhưng không phải lúc nào cũng vậy trong thực tế</mark>, vì chuyển cluster có thể đòi hỏi dựng lại cả platform. Nhiều tổ chức chọn Kubernetes vì sợ lock-in mà không hiểu điểm này.
+      </p>
+      <h3>Helm, Operator, CRD và Knative</h3>
+      <p>
+        Chạy Kafka trên Kubernetes thì nâng cấp và bảo trì ra sao? Helm tự nhận là “package manager còn thiếu” cho Kubernetes; Operator tập trung vào quản lý vòng đời liên tục; có lúc dùng cả hai (Helm để cài, Operator để vận hành). CRD cho phép mở rộng API lõi bằng các trừu tượng của riêng bạn, tích hợp liền mạch với CLI và kiểm soát truy cập, nhưng chưa có đồng thuận nên dùng tới đâu. Knative hướng tới mang trải nghiệm FaaS lên Kubernetes, nhưng lúc viết sách cần Istio làm service mesh (lựa chọn duy nhất ổn định). Với lịch sử ổn định chậm của Kubernetes và Istio, tác giả khuyên tổ chức thận trọng cân nhắc OpenFaaS, vốn đã chạy production và không cần service mesh. Ông cũng tiếc việc Google không đưa Knative vào CNCF.
+      </p>
+      <h3>Tương lai, và có nên dùng?</h3>
+      <p>
+        Tác giả dự đoán Kubernetes sẽ ở khắp nơi, nhưng lập trình viên sẽ không còn phải thấy nó, vì nó sẽ bị che dưới các lớp trừu tượng cao hơn. Lời khuyên: tự vận hành cluster là việc lớn (nhiều tổ chức lớn chạy on-prem đã thuê ngoài); dùng cluster được quản lý hoàn toàn trên Google, Azure, AWS thì tốt hơn; nhưng nếu dùng được public cloud, hãy cân nhắc FaaS hay PaaS như Azure Web Apps, Google App Engine, Zeit, Heroku. Trước khi quyết, hãy cho lập trình viên chạy thử <em class="en">minikube</em> trên laptop và cho người vận hành học sâu hơn. Đừng chọn Kubernetes “vì ai cũng dùng”.
+      </p>
+    </div>
+
+    <figure class="lab" data-widget="ch7-k8s-cluster">
+      <figcaption>
+        <span class="lab-tag">Thử nghiệm 7.13</span> Một cluster Kubernetes thu nhỏ, và federation hai cluster
+        <small>Chỉnh số replica của Deployment, gửi request qua Service, giết một node để xem pod được lập lịch lại, hoặc chạy rolling update lên v2. Chế độ Federation tái hiện Hình 7-24: Cluster A đầy, Cluster B còn node trống.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+
+    <aside class="callout callout-warn">
+      <b>Cạm bẫy</b>
+      <p>Nếu bạn chỉ có một nhúm lập trình viên và vài microservice, Kubernetes rất có thể là quá tay, kể cả khi dùng nền tảng được quản lý hoàn toàn. Chọn Kubernetes “vì mọi người đều dùng” nguy hiểm không kém việc chọn microservice vì lý do đó.</p>
+    </aside>
+  </article>
+
+  <!-- ==================== 7.14 ==================== -->
+  <article class="topic" id="ch7-progressive" data-num="7.14" data-short="Progressive Delivery" data-keywords="progressive delivery deployment release jez humble blue green feature toggle feature flag canary release spinnaker parallel run scientist github accelerate blast radius launchdarkly">
+    <p class="eyebrow">7.14 · Progressive Delivery</p>
+    <h2>Progressive Delivery: tách triển khai khỏi phát hành <span class="vi">Separating Deployment from Release</span></h2>
+
+    <div class="tldr">
+      <h3>Tóm tắt</h3>
+      <ul>
+        <li><em>Accelerate</em> cho thấy công ty hiệu suất cao vừa deploy thường xuyên hơn <strong>vừa</strong> có tỉ lệ thay đổi gây lỗi thấp hơn. Đi nhanh và an toàn đi cùng nhau.</li>
+        <li>Jez Humble: <dfn data-term="deployment-vs-release">deployment</dfn> là cài một phiên bản vào môi trường; <em>release</em> là đưa hệ thống hay tính năng tới người dùng. Tách hai việc này là nền của mọi kỹ thuật.</li>
+        <li><dfn data-term="progressive-delivery">Progressive Delivery</dfn> (James Governor, RedMonk): “continuous delivery với khả năng kiểm soát mịn bán kính ảnh hưởng”.</li>
+        <li>Bốn kỹ thuật: blue-green, <dfn data-term="feature-toggle">feature toggle</dfn>, <dfn data-term="canary-release">canary release</dfn>, <dfn data-term="parallel-run">parallel run</dfn>.</li>
+      </ul>
+    </div>
+
+    <div class="prose">
+      <p>
+        Mười năm qua, các kỹ thuật deploy mới xuất hiện từ nhiều góc của ngành, nhưng cùng một động cơ: làm việc đưa phần mềm mới ra ít rủi ro hơn, để có thể làm thường xuyên hơn. Kiểm thử trước production giúp nhiều, nhưng chỉ tới một mức. Thay vì “big bang”, ta kiểm soát ai thấy gì và nhanh tới đâu.
+      </p>
+      <p>
+        Adam Zimman (LaunchDarkly) nhấn mạnh tác động tới phía kinh doanh: ra mắt không còn là một lần duy nhất mà là hoạt động theo giai đoạn, và quyền kiểm soát tính năng có thể giao cho người chịu trách nhiệm trực tiếp về kết quả. Muốn vậy, product owner phải hiểu cơ chế của kỹ thuật đang dùng.
+      </p>
+      <h3>Blue-green</h3>
+      <p>
+        Phiên bản đang chạy là <em>blue</em>; deploy phiên bản mới <em>green</em> song song trong production; kiểm tra green chạy đúng rồi mới chuyển khách hàng sang. Phát hiện lỗi trước khi chuyển thì không khách hàng nào bị ảnh hưởng.
+      </p>
+      <h3>Feature toggle</h3>
+      <p>
+        Tính năng đã deploy được giấu sau một công tắc (còn gọi là <em>feature flag</em>). Thường dùng cùng trunk-based development để đưa code chưa xong lên mà người dùng không thấy, nhưng còn để bật tính năng theo giờ, tắt nhanh tính năng gây lỗi, hay bật cho một nhóm người dùng (beta) và qua đó làm canary. Có dịch vụ quản lý sẵn như LaunchDarkly, Split, nhưng tác giả khuyên bắt đầu đơn giản bằng một file cấu hình. Muốn đào sâu, đọc bài “Feature Toggles (aka Feature Flags)” của Pete Hodgson.
+      </p>
+      <h3>Canary release</h3>
+      <p>
+        Đặt theo tên con chim hoàng yến thợ mỏ mang xuống hầm để cảnh báo khí độc: chỉ một nhóm nhỏ khách hàng thấy tính năng mới; có vấn đề thì chỉ nhóm đó bị ảnh hưởng; ổn thì mở rộng dần. Trong microservice, có thể đặt toggle trong một service, hoặc chạy hai phiên bản song song và định tuyến, khi đó cơ chế canary nằm trên đường mạng chứ không trong service. Lần đầu làm canary, tác giả tăng tỉ lệ traffic bằng tay trong <mark>một tuần</mark>, theo dõi tỉ lệ lỗi và báo cáo bug. Ngày nay công cụ như Spinnaker tự tăng tỉ lệ dựa trên số đo, ví dụ chỉ tăng khi tỉ lệ lỗi chấp nhận được.
+      </p>
+      <h3>Parallel run</h3>
+      <p>
+        Canary gửi mỗi request tới bản cũ <em>hoặc</em> bản mới, nên không so sánh trực tiếp được. Parallel run gửi cùng request tới <em>cả hai</em> và so kết quả, hoặc giữa hai phiên bản service, hoặc giữa hai cài đặt trong cùng một service (thường dễ so hơn). Chỉ một bên là nguồn sự thật, thường là bản cũ đang được tin cậy. Phải cẩn thận với tác dụng phụ: đừng gửi hai lần cùng một cập nhật đơn hàng cho khách hay trả một hoá đơn hai lần. GitHub dùng mẫu này khi viết lại phần lõi và mở mã nguồn công cụ Scientist; mẫu này được bàn kỹ trong <em>Monolith to Microservices</em> của cùng tác giả.
+      </p>
+    </div>
+
+    <figure class="lab" data-widget="ch7-progressive">
+      <figcaption>
+        <span class="lab-tag">Thử nghiệm 7.14</span> Bốn kỹ thuật progressive delivery trên cùng một tính năng mới
+        <small>Chọn kỹ thuật. Bật “v2 có bug” để xem mỗi kỹ thuật giới hạn bán kính ảnh hưởng ra sao: chuyển blue/green, bật toggle cho từng nhóm, tự động tăng canary kiểu Spinnaker, hoặc so kết quả trong parallel run.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+
+    <aside class="callout callout-key">
+      <b>Ghi nhớ</b>
+      <p>Hãy bắt đầu từ từ: trước hết, tách bạch deploy và release. Sau đó tìm cách deploy thường xuyên hơn mà vẫn an toàn, và cùng product owner tìm xem kỹ thuật nào giúp đi nhanh hơn đồng thời giảm lỗi.</p>
+    </aside>
+  </article>
+
+  <!-- ==================== 7.★ ==================== -->
+  <article class="topic" id="ch7-review" data-num="7.★" data-short="Tổng kết &amp; kiểm tra" data-keywords="quiz review ch7 deployment principles kubernetes faas progressive delivery">
+    <p class="eyebrow">7.★ · Summary</p>
+    <h2>Tổng kết &amp; kiểm tra kiến thức Chương 7 <span class="vi">8 câu hỏi tình huống về triển khai microservice</span></h2>
+
+    <div class="prose">
+      <p>
+        Chương 7 nhắc lại năm nguyên tắc sẽ còn đúng lâu hơn các công nghệ đang nóng: <strong>cách ly thực thi</strong>, <strong>tập trung tự động hoá</strong>, <strong>hạ tầng là mã</strong>, <strong>hướng tới zero-downtime</strong> và <strong>quản lý trạng thái mong muốn</strong>. Hiểu rõ yêu cầu của mình: Kubernetes có thể rất hợp, nhưng một thứ đơn giản hơn có khi cũng chạy tốt. Đừng ngại chọn giải pháp đơn giản, và đừng ngại đẩy việc sang public cloud để tập trung vào việc của mình. Lĩnh vực này còn thay đổi liên tục; nắm nguyên tắc giúp bạn đón nhận bất cứ thứ gì tới tiếp theo. Chương sau sẽ đi sâu vào kiểm thử microservice.
+      </p>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th>Lựa chọn</th><th>Cách ly</th><th>Tự động hoá</th><th>Desired state</th><th>Ghi chú của tác giả</th></tr></thead>
+          <tbody>
+            <tr><td>Máy vật lý</td><td>Tốt nhất</td><td>Hạn chế</td><td>Cần lớp quản lý thêm</td><td>Gần như không còn thấy</td></tr>
+            <tr><td>Máy ảo</td><td>Rất tốt</td><td>Tốt trên cloud</td><td>Autoscaling group</td><td>Hao phí hypervisor; Netflix trên EC2</td></tr>
+            <tr><td>Container</td><td>Đủ tốt</td><td>Tốt</td><td>Cần Kubernetes</td><td>Lựa chọn mặc định của tác giả</td></tr>
+            <tr><td>Application container</td><td>Kém</td><td>Bị khoá stack</td><td>—</td><td>Ngày càng hiếm</td></tr>
+            <tr><td>PaaS</td><td>Nền tảng lo</td><td>Rất cao</td><td>Nền tảng lo</td><td>Tốt thì rất tốt, khó can thiệp</td></tr>
+            <tr><td>FaaS</td><td>Nền tảng lo</td><td>Rất cao</td><td>Nền tảng lo</td><td>Nên thử trước Kubernetes nếu hợp</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="quiz">
+      <div class="q" data-answer="2">
+        <p><strong>Câu 1:</strong> Ba instance của service Order cùng đọc ghi một database. Theo Sam Newman, điều này có vi phạm nguyên tắc “đừng chia sẻ database” không?</p>
+        <ol>
+          <li>Có, mỗi instance phải có database riêng để đảm bảo cách ly.</li>
+          <li>Có, trừ khi dùng read replica cho từng instance.</li>
+          <li>Không, vì logic truy cập và thay đổi trạng thái vẫn nằm trong một microservice logic duy nhất; điều cần tránh là chia sẻ giữa các microservice khác nhau.</li>
+          <li>Không, vì database nào cũng có cơ chế khoá nên chia sẻ luôn an toàn.</li>
+        </ol>
+        <p class="explain">Ta cần gọi instance nào của Order cũng thấy cùng một đơn hàng, nên các instance phải có trạng thái chung. Mối lo của “đừng chia sẻ database” là logic về trạng thái bị rải ra nhiều microservice khác nhau, điều không xảy ra ở đây.</p>
+      </div>
+
+      <div class="q" data-answer="0">
+        <p><strong>Câu 2:</strong> Vì sao giải pháp triển khai trên AWS, Azure hay Google nên trải qua nhiều availability zone?</p>
+        <ol>
+          <li>Vì các nhà cung cấp này không đưa ra SLA cho một máy ảo đơn lẻ, cũng không cho một availability zone.</li>
+          <li>Vì giá máy ảo ở mỗi AZ khác nhau, trải ra sẽ rẻ hơn.</li>
+          <li>Vì load balancer chỉ hoạt động khi có ít nhất ba AZ.</li>
+          <li>Vì Kubernetes bắt buộc mỗi node nằm ở một AZ khác nhau.</li>
+        </ol>
+        <p class="explain">AZ là đơn vị gần nhất với “data center” của các nhà cung cấp. Khi không có SLA cho một AZ, bạn phải tự lường trước việc mất trọn một AZ bằng cách phân bố instance qua nhiều AZ.</p>
+      </div>
+
+      <div class="q" data-answer="3">
+        <p><strong>Câu 3:</strong> Gilt từng đặt nhiều microservice trên cùng một máy. Vấn đề chính họ gặp là gì, và nó vi phạm nguyên tắc nào?</p>
+        <ol>
+          <li>Phí bản quyền hệ điều hành tăng; vi phạm nguyên tắc tự động hoá.</li>
+          <li>Không dùng được Docker; vi phạm nguyên tắc hạ tầng là mã.</li>
+          <li>Không thể dùng HTTP; vi phạm nguyên tắc zero-downtime.</li>
+          <li>Tải lệch ở một service làm ảnh hưởng mọi thứ trên cùng host; vi phạm nguyên tắc cách ly thực thi và làm suy yếu khả năng triển khai độc lập.</li>
+        </ol>
+        <p class="explain">Đây là hiệu ứng “hàng xóm ồn ào”: các service tranh tài nguyên của cùng một host. Gỡ một host ra cũng gây hiệu ứng dây chuyền. Mỗi instance nên có môi trường thực thi cách ly riêng.</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p><strong>Câu 4:</strong> Tác giả tắt các máy EC2 của cluster dev nhưng máy mới cứ bật lên suốt 15 phút. Bài học rút ra là gì?</p>
+        <ol>
+          <li>EC2 có lỗi, nên chuyển sang máy vật lý.</li>
+          <li>Desired state management (ở đây là autoscaling group với số máy tối thiểu) hoạt động đúng như thiết kế; cần đưa bước vô hiệu hoá nó vào script tắt cluster.</li>
+          <li>GitOps đã tự rollback thay đổi, nên phải xoá repository.</li>
+          <li>Cần thêm read replica để máy không tự bật.</li>
+        </ol>
+        <p class="explain">Nền tảng thấy instance chết và bật bản thay thế để giữ trạng thái mong muốn. Vì EC2 lúc đó tính tiền theo giờ, mỗi máy bật lên một phút cũng tốn trọn giờ. Cách sửa là vô hiệu hoá autoscaling group như một phần của quy trình tắt cluster.</p>
+      </div>
+
+      <div class="q" data-answer="2">
+        <p><strong>Câu 5:</strong> Điểm khác biệt cốt lõi giữa container và máy ảo Type 2 là gì?</p>
+        <ol>
+          <li>Container bắt buộc chạy cùng hệ điều hành với host, ví dụ host Ubuntu thì container cũng phải là Ubuntu.</li>
+          <li>Container luôn cách ly mạnh hơn VM nên an toàn để chạy mã không tin cậy.</li>
+          <li>Container không cần hypervisor và dùng chung kernel của host, nên nhẹ hơn và khởi động trong vài giây thay vì nhiều phút.</li>
+          <li>Container chỉ chạy được trên Windows Server 2016 trở lên.</li>
+        </ol>
+        <p class="explain">Host Ubuntu chạy container CentOS được, miễn dùng chung kernel. Cách ly của container không hoàn hảo: tác giả khuyên coi nó là cách tốt để cách ly phần mềm đáng tin cậy. Windows chỉ là một nền tảng khác có hỗ trợ container.</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p><strong>Câu 6:</strong> Đội bạn chuyển service lên FaaS. Khi có đợt tải đột biến, các function scale lên hàng trăm bản và Redis bắt đầu từ chối kết nối. Đây là thách thức nào được nêu trong sách?</p>
+        <ol>
+          <li>Cold start của JVM.</li>
+          <li>Phần hệ thống scale động (function) đè bẹp phần hạ tầng không có cùng khả năng scale, như trường hợp của Bustle.</li>
+          <li>Giới hạn 15 phút chạy của Lambda.</li>
+          <li>Function stateless nên không lưu được vào Redis.</li>
+        </ol>
+        <p class="explain">Steve Faulkner ở Bustle kể function scale lên làm quá tải Redis, gây sự cố production. Mọi nền tảng FaaS đều có giới hạn cứng về số lần gọi đồng thời, và bạn cần tính tới khả năng chịu tải của những phần phía sau.</p>
+      </div>
+
+      <div class="q" data-answer="0">
+        <p><strong>Câu 7:</strong> Khi tách service Expenses thành mỗi aggregate một function, tác giả khuyên điều gì?</p>
+        <ol>
+          <li>Giữ giao diện bên ngoài thô: consumer vẫn nói chuyện với “Expenses” và không biết về các function bên trong; dùng chung database vẫn ổn nếu cùng một đội quản lý.</li>
+          <li>Công bố từng function như một API riêng để consumer gọi thẳng cho nhanh.</li>
+          <li>Tách tiếp mỗi chuyển trạng thái của aggregate thành một function để tối đa hoá triển khai độc lập.</li>
+          <li>Bắt buộc mỗi function có database riêng ngay từ đầu.</li>
+        </ol>
+        <p class="explain">Giao diện thô giúp bạn gộp lại hay tái cấu trúc aggregate mà không ảnh hưởng consumer. Tách theo từng chuyển trạng thái thì tác giả đã thử và bỏ, vì phá tính toàn vẹn của aggregate và đẩy bạn vào saga không cần thiết.</p>
+      </div>
+
+      <div class="q" data-answer="3">
+        <p><strong>Câu 8:</strong> Kỹ thuật nào cho phép so sánh trực tiếp kết quả của cài đặt cũ và mới trên cùng một request, và cần lưu ý gì?</p>
+        <ol>
+          <li>Canary release; cần tăng traffic trong đúng một tuần.</li>
+          <li>Blue-green; cần chạy gấp đôi số database.</li>
+          <li>Feature toggle; cần dùng LaunchDarkly.</li>
+          <li>Parallel run; chỉ một cài đặt là nguồn sự thật (thường là bản cũ), và phải tránh tác dụng phụ bị lặp như gửi thông báo hay trả hoá đơn hai lần.</li>
+        </ol>
+        <p class="explain">Canary gửi mỗi request tới một bản, nên không so trực tiếp được. Parallel run gửi tới cả hai và so kết quả; GitHub dùng công cụ Scientist cho việc này trong cùng một process.</p>
+      </div>
+    </div>
+  </article>
+</section>

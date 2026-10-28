@@ -1,0 +1,621 @@
+<style>
+#ch5 .fld { display: flex; flex-direction: column; gap: 4px; flex: 1 1 160px; min-width: 0; }
+#ch5 .fld > span { font-size: var(--t-xs); color: var(--ink-2); font-weight: 600; }
+#ch5 .fld input, #ch5 .fld select { width: 100%; min-width: 0; }
+#ch5 .bytes { display: flex; flex-wrap: wrap; gap: 6px 4px; align-items: flex-start; }
+#ch5 .bgrp { display: flex; flex-direction: column; border-radius: 6px; padding: 3px; border: 1.5px solid transparent; cursor: pointer; max-width: 100%; min-width: 0; }
+#ch5 .bgrp:hover { border-color: var(--line); }
+#ch5 .bgrp.sel { border-color: var(--ink); }
+#ch5 .bgrp .cells { display: flex; flex-wrap: wrap; gap: 2px; }
+#ch5 .bcell { display: flex; flex-direction: column; align-items: center; min-width: 23px; padding: 2px 2px 1px; border-radius: 3px; background: var(--surface); font: 600 .7rem/1.2 var(--f-mono); color: var(--ink); }
+#ch5 .bcell i { font-style: normal; font-weight: 400; font-size: .6rem; color: var(--ink-3); min-height: .75rem; }
+#ch5 .bgrp > small { font-size: .62rem; color: var(--ink-2); padding: 2px 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+#ch5 .k-type { background: var(--violet-soft); }
+#ch5 .k-tag { background: var(--accent-soft); }
+#ch5 .k-len { background: var(--mark-soft); }
+#ch5 .k-name { background: var(--bad-soft); }
+#ch5 .k-val { background: var(--ok-soft); }
+#ch5 .k-punct { background: var(--surface-2); }
+#ch5 .legend5 { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: var(--t-xs); color: var(--ink-2); }
+#ch5 .legend5 span { display: inline-flex; align-items: center; gap: 5px; }
+#ch5 .legend5 b { display: inline-block; width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--line); }
+#ch5 .detail { padding: 8px 12px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line); font-size: var(--t-sm); min-height: 2.6em; }
+#ch5 .detail code { font-size: .8rem; }
+#ch5 .hbars { display: flex; flex-direction: column; gap: 6px; }
+#ch5 .hrow { display: grid; grid-template-columns: minmax(96px, 160px) minmax(0, 1fr); gap: 8px; align-items: center; font-size: var(--t-xs); }
+#ch5 .hrow .track { position: relative; height: 22px; background: var(--surface-2); border-radius: 5px; overflow: hidden; }
+#ch5 .hrow .fill { position: absolute; inset: 0 auto 0 0; border-radius: 5px; background: var(--ink-3); opacity: .55; transition: width .25s; }
+#ch5 .hrow .fill.cur { background: var(--accent); opacity: 1; }
+#ch5 .hrow .fill.bad { background: var(--bad); opacity: .8; }
+#ch5 .hrow .fill.ok { background: var(--ok); opacity: .8; }
+#ch5 .hrow .track span { position: absolute; left: 8px; top: 2px; font: 600 .74rem/18px var(--f-mono); color: var(--ink); white-space: nowrap; }
+#ch5 .hrow.clickable { cursor: pointer; }
+#ch5 .mx { display: grid; grid-template-columns: minmax(70px, auto) minmax(0, 1fr) minmax(0, 1fr); gap: 6px; font-size: var(--t-xs); }
+#ch5 .mx .hd { font-weight: 700; color: var(--ink-2); padding: 4px; align-self: end; }
+#ch5 .mx .cell { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); min-width: 0; }
+#ch5 .mx .cell b { display: block; font-size: var(--t-sm); }
+#ch5 .cell.ok, #ch5 .card5.ok { background: var(--ok-soft); border-color: var(--ok); }
+#ch5 .cell.bad, #ch5 .card5.bad { background: var(--bad-soft); border-color: var(--bad); }
+#ch5 .cell.warn, #ch5 .card5.warn { background: var(--warn-soft); border-color: var(--warn); }
+#ch5 .nodes { display: flex; flex-wrap: wrap; gap: 6px; }
+#ch5 .node5 { padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); font: 600 var(--t-xs) var(--f-mono); }
+#ch5 .node5.v2 { background: var(--accent-soft); border-color: var(--accent); }
+#ch5 .node5.off { opacity: .5; border-style: dashed; }
+#ch5 .card5 { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--bg); min-width: 0; }
+#ch5 .card5 h5 { margin: 0 0 6px; font: 700 var(--t-xs) var(--f-display); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+#ch5 .card5 p { margin: 4px 0; }
+#ch5 .card5 pre.code { margin: 6px 0; font-size: .74rem; }
+#ch5 .grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+#ch5 .hexline { font: 500 .74rem/1.6 var(--f-mono); overflow-wrap: anywhere; word-break: break-all; }
+#ch5 .hexline span { padding: 0 1px; border-radius: 2px; }
+#ch5 .mono { font-family: var(--f-mono); font-size: .8rem; overflow-wrap: anywhere; }
+#ch5 .septet { display: inline-flex; gap: 0; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; margin: 2px 4px 2px 0; font: 600 .72rem/1.5 var(--f-mono); }
+#ch5 .septet b { padding: 0 4px; background: var(--mark-soft); }
+#ch5 .septet span { padding: 0 4px; background: var(--surface); }
+#ch5 .rowlist { display: flex; flex-direction: column; gap: 6px; }
+#ch5 .rowitem { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font-size: var(--t-xs); }
+#ch5 .rowitem .mono { flex: 1 1 200px; }
+#ch5 .chk-list { display: flex; flex-direction: column; gap: 6px; }
+#ch5 table.data td code { font-size: .78rem; }
+</style>
+
+<section class="chapter" id="ch5" data-chapter="5" data-title="Mã hoá và tiến hoá dữ liệu" data-edition="1e">
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 5 <span class="ed-badge">Nguồn: ấn bản 1 · Chương 4</span></p>
+    <h1>Encoding and Evolution <span class="vi">Mã hoá và tiến hoá dữ liệu</span></h1>
+    <blockquote class="epigraph">Everything changes and nothing stands still.<cite>— Heraclitus of Ephesus, as quoted by Plato in Cratylus (360 BCE)</cite></blockquote>
+    <p class="lede">Ứng dụng luôn thay đổi, và dữ liệu nó lưu cũng phải thay đổi theo. Nhưng code mới không thể thay code cũ ở mọi nơi trong cùng một tích tắc, nên dữ liệu cũ, dữ liệu mới, code cũ và code mới phải sống chung. Chương này mổ xẻ các định dạng mã hoá (JSON, Thrift, Protocol Buffers, Avro…) đến từng byte để thấy cái nào giúp hệ thống tiến hoá an toàn, rồi xem dữ liệu chảy giữa các tiến trình theo ba ngả: database, lời gọi dịch vụ và hàng đợi thông điệp.</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- 5.1 -->
+  <article class="topic" id="ch5-compat" data-num="5.1" data-short="Tương thích ngược & xuôi" data-keywords="backward forward compatibility rolling upgrade evolvability tuong thich">
+    <p class="eyebrow">5.1 · Introduction</p>
+    <h2>Tương thích ngược, tương thích xuôi và nâng cấp cuốn chiếu <span class="vi">Backward/Forward Compatibility and Rolling Upgrades</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Đổi tính năng thường kéo theo đổi dữ liệu: thêm trường, thêm loại bản ghi, trình bày dữ liệu cũ theo cách mới.</li>
+      <li>Code không đổi tức thời được: phía server ta <dfn data-term="rolling-upgrade">nâng cấp cuốn chiếu</dfn> từng vài node một; phía client thì tuỳ người dùng có chịu cập nhật hay không.</li>
+      <li>Vì vậy code cũ, code mới, dữ liệu cũ, dữ liệu mới cùng tồn tại. Cần <dfn data-term="backward-compat">tương thích ngược</dfn> (code mới đọc được dữ liệu cũ) và <dfn data-term="forward-compat">tương thích xuôi</dfn> (code cũ đọc được dữ liệu mới).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ở <a href="#ch2">Chương 2</a> ta đã gặp khái niệm <dfn data-term="evolvability">khả năng tiến hoá</dfn> (<em class="en">evolvability</em>): hệ thống tốt là hệ thống dễ thay đổi. Chương này nhìn vấn đề đó từ phía dữ liệu. Database quan hệ giả định cả bảng tuân theo đúng một schema tại mỗi thời điểm (đổi bằng <code>ALTER TABLE</code>). Database “không schema” (schema-on-read, xem <a href="#ch3">Chương 3</a>) thì chứa lẫn lộn bản ghi định dạng cũ và mới. Dù kiểu nào, khi định dạng dữ liệu đổi thì code đọc/ghi nó cũng phải đổi theo.</p>
+      <p>Vấn đề là trong một hệ thống lớn, việc đổi code không xảy ra cùng lúc ở mọi nơi:</p>
+      <ul>
+        <li><strong>Phía server</strong>, ta thường triển khai phiên bản mới lên vài node, theo dõi xem có ổn không, rồi mới lan dần ra các node còn lại. Cách này (<em class="en">rolling upgrade</em> hay <em class="en">staged rollout</em>) giúp deploy mà không cần dừng dịch vụ, nên đội ngũ dám release thường xuyên hơn.</li>
+        <li><strong>Phía client</strong> (app di động, app desktop), ta phụ thuộc vào người dùng: có người vài tháng sau mới cập nhật.</li>
+      </ul>
+      <p>Hệ quả: ở một thời điểm, có node chạy code mới đọc bản ghi do code cũ ghi, và có node chạy code cũ đọc bản ghi do code mới ghi. Hai yêu cầu tương thích tương ứng:</p>
+      <ul>
+        <li><strong>Tương thích ngược</strong> (<em class="en">backward compatibility</em>): code mới đọc được dữ liệu do code cũ ghi. Thường dễ: khi viết code mới, bạn biết rõ định dạng cũ và có thể xử lý nó một cách tường minh.</li>
+        <li><strong>Tương thích xuôi</strong> (<em class="en">forward compatibility</em>): code cũ đọc được dữ liệu do code mới ghi. Khó hơn, vì code cũ được viết <em>trước khi</em> định dạng mới ra đời, nên nó phải biết lờ đi những thứ nó không hiểu.</li>
+      </ul>
+      <p>Thử kéo thanh trượt dưới đây để xem trong lúc nâng cấp cuốn chiếu, ô nào của ma trận “code × dữ liệu” thực sự xuất hiện, và nếu thiếu một chiều tương thích thì bao nhiêu phần trăm lượt đọc sẽ hỏng.</p>
+    </div>
+    <figure class="lab" data-widget="compat-matrix">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Nâng cấp cuốn chiếu 5 node và ma trận tương thích
+        <small>Kéo “số node đã nâng cấp”, bật/tắt hai loại tương thích. Bấm “Nâng cấp từng node” để xem cả quá trình. Giả định mỗi node ghi và đọc với tần suất như nhau (số liệu minh hoạ).</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>“Ngược” và “xuôi” được đặt tên theo góc nhìn của code: ngược = code mới nhìn về dữ liệu quá khứ; xuôi = code cũ nhìn tới dữ liệu tương lai. Trong lúc rolling upgrade, bạn cần <em>cả hai</em>.</p></aside>
+  </article>
+
+  <!-- 5.2 -->
+  <article class="topic" id="ch5-language" data-num="5.2" data-short="Định dạng riêng của ngôn ngữ" data-keywords="encoding serialization marshalling java serializable pickle marshal kryo security">
+    <p class="eyebrow">5.2 · Formats for Encoding Data · Language-Specific Formats</p>
+    <h2>Mã hoá là gì, và vì sao đừng dùng định dạng riêng của ngôn ngữ <span class="vi">Encoding and Language-Specific Formats</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Trong bộ nhớ, dữ liệu là object, struct, hash table… nối với nhau bằng con trỏ. Ra file hay ra mạng, nó phải thành một chuỗi byte tự chứa. Chuyển từ dạng thứ nhất sang dạng thứ hai là <dfn data-term="encoding">mã hoá</dfn>, chiều ngược lại là <dfn data-term="decoding">giải mã</dfn>.</li>
+      <li><code>java.io.Serializable</code>, <code>pickle</code> của Python, <code>Marshal</code> của Ruby rất tiện nhưng có bốn vấn đề sâu: trói bạn vào một ngôn ngữ, lỗ hổng bảo mật khi giải mã dữ liệu lạ, gần như bỏ qua việc tương thích phiên bản, và thường kém hiệu quả.</li>
+      <li>Chỉ nên dùng chúng cho mục đích rất tạm thời.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Chương trình làm việc với dữ liệu ở ít nhất hai dạng. Trong bộ nhớ, dữ liệu nằm trong các cấu trúc tối ưu cho CPU truy cập, thường đầy con trỏ. Nhưng một con trỏ (địa chỉ ô nhớ) chẳng có nghĩa gì với tiến trình khác hay với chính bạn sau khi khởi động lại. Vì thế khi ghi ra đĩa hoặc gửi qua mạng, dữ liệu phải được chuyển thành một chuỗi byte tự đứng được, ví dụ một tài liệu JSON.</p>
+      <p>Việc chuyển này có nhiều tên: <em class="en">encoding</em>, <dfn data-term="serialization">serialization</dfn>, <em class="en">marshalling</em>; chiều ngược lại là <em class="en">decoding</em>, <em class="en">parsing</em>, <em class="en">deserialization</em>, <em class="en">unmarshalling</em>. Sách chọn chữ <em>encoding</em>, vì <em>serialization</em> còn có một nghĩa hoàn toàn khác trong ngữ cảnh transaction (xem <a href="#ch8">Chương 8</a>). Cũng lưu ý: mã hoá (<em class="en">encoding</em>) ở đây không liên quan gì đến mã hoá bảo mật (<em class="en">encryption</em>).</p>
+      <h3>Định dạng gắn với ngôn ngữ</h3>
+      <p>Nhiều ngôn ngữ có sẵn cơ chế biến object trong bộ nhớ thành byte: Java có <code>java.io.Serializable</code>, Ruby có <code>Marshal</code>, Python có <code>pickle</code>, ngoài ra có thư viện bên thứ ba như Kryo cho Java. Chỉ một dòng code là lưu và khôi phục được cả một object graph. Nhưng cái giá phải trả:</p>
+      <ol>
+        <li><strong>Trói vào một ngôn ngữ.</strong> Dữ liệu pickle gần như không đọc được từ Java hay Go. Lưu trữ hoặc truyền dữ liệu bằng định dạng này nghĩa là cam kết dùng ngôn ngữ hiện tại rất lâu, và khó tích hợp với hệ thống của tổ chức khác.</li>
+        <li><strong>Bảo mật.</strong> Để khôi phục đúng kiểu object, bộ giải mã phải có khả năng khởi tạo <em>bất kỳ</em> class nào. Nếu kẻ tấn công đưa được chuỗi byte tuỳ ý vào bộ giải mã, họ có thể khởi tạo class tuỳ ý, và thường từ đó chạy được code tuỳ ý trên máy bạn (<dfn data-term="insecure-deserialization">giải mã dữ liệu không tin cậy</dfn>).</li>
+        <li><strong>Phiên bản là chuyện phụ.</strong> Các thư viện này nhắm tới sự tiện lợi, nên tương thích ngược/xuôi thường bị bỏ quên.</li>
+        <li><strong>Hiệu năng cũng là chuyện phụ.</strong> Serialization có sẵn của Java nổi tiếng chậm và cồng kềnh.</li>
+      </ol>
+    </div>
+    <figure class="lab" data-widget="lang-formats">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ghi bằng một ngôn ngữ, đọc bằng ngôn ngữ khác
+        <small>Chọn định dạng ghi, tiến trình đọc và tình huống. Byte đầu tiên là “magic number” thật của từng định dạng; phần còn lại là mô phỏng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Đừng bao giờ <code>pickle.loads</code> hay <code>ObjectInputStream.readObject</code> dữ liệu đến từ mạng hoặc từ người dùng. Lỗ hổng deserialization từng ảnh hưởng WebLogic, WebSphere, JBoss, Jenkins (2015) và Ruby on Rails (2013), đúng như các tài liệu tham khảo của sách.</p></aside>
+  </article>
+
+  <!-- 5.3 -->
+  <article class="topic" id="ch5-json" data-num="5.3" data-short="JSON, XML, CSV" data-keywords="json xml csv base64 number precision 2^53 twitter id unicode binary">
+    <p class="eyebrow">5.3 · JSON, XML, and Binary Variants</p>
+    <h2>JSON, XML, CSV và những cái bẫy tinh vi <span class="vi">JSON, XML, CSV and Their Subtle Problems</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>JSON, XML, CSV là định dạng văn bản, độc lập ngôn ngữ, ai cũng đọc được. Chúng phổ biến nhất cho việc trao đổi dữ liệu giữa các tổ chức.</li>
+      <li>Nhưng chúng mơ hồ về <strong>số</strong>: XML/CSV không phân biệt số với chuỗi chữ số; JSON không phân biệt số nguyên với số thực và không quy định độ chính xác, nên số nguyên lớn hơn 2<sup>53</sup> bị sai khi JavaScript đọc.</li>
+      <li>Chúng không hỗ trợ <strong>chuỗi nhị phân</strong>; người ta phải bọc byte trong Base64, làm dữ liệu to thêm 33%.</li>
+      <li>Schema cho XML/JSON có nhưng phức tạp; CSV không có schema và quy tắc escape thì mỗi parser hiểu một kiểu.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Khi cần một định dạng mà nhiều ngôn ngữ cùng đọc được, ứng viên hiển nhiên là JSON và XML: được biết đến rộng rãi, hỗ trợ rộng rãi và, theo lời tác giả, bị ghét cũng rộng rãi gần bằng. XML bị chê dài dòng và phức tạp không cần thiết. JSON thắng nhờ có sẵn trong trình duyệt (vì là tập con của JavaScript) và đơn giản hơn XML. CSV cũng phổ biến, dù kém biểu đạt hơn. Ngoài chuyện cú pháp, chúng có mấy vấn đề tinh vi hơn:</p>
+      <ul>
+        <li><strong>Số.</strong> Trong XML và CSV, <code>01234</code> là số hay chuỗi? Không có schema bên ngoài thì không biết. JSON phân biệt chuỗi với số, nhưng không phân biệt số nguyên với số thực và không nói gì về độ chính xác. Ngôn ngữ dùng số thực dấu phẩy động IEEE 754 (như JavaScript) chỉ biểu diễn chính xác số nguyên đến 2<sup>53</sup>. Twitter dùng số 64-bit làm ID tweet, nên API của họ trả ID <em>hai lần</em>: một lần là số JSON, một lần là chuỗi thập phân, để app JavaScript không đọc sai.</li>
+        <li><strong>Chuỗi nhị phân.</strong> JSON và XML hỗ trợ tốt chuỗi Unicode, nhưng không có kiểu cho chuỗi byte thô. Cách lách quen thuộc là <dfn data-term="base64">Base64</dfn>: chạy được, nhưng hơi “hack” và tăng kích thước 33%.</li>
+        <li><strong>Schema.</strong> XML Schema và JSON Schema đều mạnh, và vì thế khó học, khó cài đặt. XML Schema được dùng khá nhiều; nhiều công cụ JSON thì bỏ qua schema, nên logic “trường này là số hay Base64” bị hardcode trong ứng dụng.</li>
+        <li><strong>CSV</strong> không có schema; ý nghĩa mỗi cột do ứng dụng tự quy ước. Thêm một cột là phải sửa tay. Giá trị chứa dấu phẩy hay xuống dòng thì sao? Quy tắc escape đã được chuẩn hoá (RFC 4180), nhưng không phải parser nào cũng làm đúng.</li>
+      </ul>
+      <p>Dù vậy, với dữ liệu trao đổi giữa các tổ chức, ba định dạng này “đủ tốt” và sẽ còn phổ biến. Làm cho các tổ chức khác nhau đồng ý với nhau về bất cứ thứ gì đã khó hơn nhiều so với chuyện định dạng đẹp hay hiệu quả.</p>
+    </div>
+    <figure class="lab" data-widget="json-pitfalls">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bốn cái bẫy, chạy thật trong trình duyệt của bạn
+        <small>“Số lớn” gọi <code>JSON.parse</code> thật; “Base64” gọi <code>btoa</code> thật; “CSV” so sánh <code>split(',')</code> ngây thơ với parser theo RFC 4180. Sửa giá trị và xem kết quả thay đổi.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Khi API của bạn trả về ID 64-bit (Snowflake ID, ID của Discord, Twitter/X, nhiều hệ thống đơn hàng), hãy trả chúng dưới dạng <em>chuỗi</em> trong JSON, hoặc trả cả hai như Twitter từng làm (<code>id</code> và <code>id_str</code>).</p></aside>
+  </article>
+
+  <!-- 5.4 -->
+  <article class="topic" id="ch5-binary" data-num="5.4" data-short="Mã hoá nhị phân: MessagePack" data-keywords="binary encoding messagepack bson smile bytes 66 81">
+    <p class="eyebrow">5.4 · Binary encoding</p>
+    <h2>Mã hoá nhị phân cho JSON: MessagePack <span class="vi">Binary Encoding: MessagePack</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Với dữ liệu chỉ dùng nội bộ, bạn có thể chọn định dạng gọn hơn và parse nhanh hơn JSON. Với vài MB thì không đáng; với hàng terabyte thì đáng.</li>
+      <li>Có cả một rừng “JSON nhị phân”: <dfn data-term="messagepack">MessagePack</dfn>, BSON, BJSON, UBJSON, BISON, Smile… Chúng giữ nguyên mô hình dữ liệu của JSON và không có schema, nên vẫn phải nhét <em>tên trường</em> vào mỗi bản ghi.</li>
+      <li>Bản ghi ví dụ của sách: JSON (bỏ khoảng trắng) 81 byte, MessagePack 66 byte. Tiết kiệm chút ít, đổi lại mất khả năng đọc bằng mắt.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Suốt phần còn lại của mục mã hoá, sách dùng một bản ghi duy nhất làm ví dụ và mã hoá nó bằng nhiều định dạng:</p>
+<pre class="code">{
+  <span class="s">"userName"</span>: <span class="s">"Martin"</span>,
+  <span class="s">"favoriteNumber"</span>: <span class="n">1337</span>,
+  <span class="s">"interests"</span>: [<span class="s">"daydreaming"</span>, <span class="s">"hacking"</span>]
+}</pre>
+      <p>Với MessagePack, byte đầu tiên <code>0x83</code> cho biết đây là một object (4 bit cao là <code>0x80</code>) có 3 trường (4 bit thấp là <code>0x03</code>). Byte tiếp theo <code>0xa8</code> nghĩa là “một chuỗi (<code>0xa0</code>) dài 8 byte”, theo sau là 8 byte ASCII <code>userName</code>. Vì độ dài đã biết trước, không cần ký tự kết thúc hay escape gì cả. Tiếp đó <code>0xa6</code> + <code>Martin</code>, và cứ thế.</p>
+      <p>Bộ mã hoá dưới đây được cài đặt thật bằng JavaScript cho sáu định dạng của chương. Bản ghi mặc định là ví dụ của sách nên kích thước khớp với sách: <strong>JSON 81, MessagePack 66, Thrift BinaryProtocol 59, Thrift CompactProtocol 34, Protocol Buffers 33, Avro 32 byte</strong>. Sửa giá trị (ví dụ xoá số yêu thích, gõ tên có dấu tiếng Việt, thêm sở thích) để xem từng byte thay đổi.</p>
+    </div>
+    <figure class="lab" data-widget="byte-encoder" data-format="msgpack">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bản ghi ví dụ, từng byte một
+        <small>Chọn định dạng. Bấm vào một nhóm byte để xem nghĩa của nó. Màu đỏ nhạt là tên trường: phần “lãng phí” mà các định dạng có schema loại bỏ được.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Định dạng “JSON nhị phân” chỉ nén được phần cú pháp (ngoặc, dấu nháy, chữ số), không nén được tên trường, vì không có schema thì người đọc cần tên trường để hiểu dữ liệu. Muốn gọn thật sự, phải bỏ được tên trường, và đó là việc của schema.</p></aside>
+  </article>
+
+  <!-- 5.5 -->
+  <article class="topic" id="ch5-thrift-protobuf" data-num="5.5" data-short="Thrift và Protocol Buffers" data-keywords="thrift protocol buffers protobuf idl binaryprotocol compactprotocol varint zigzag field tag 59 34 33">
+    <p class="eyebrow">5.5 · Thrift and Protocol Buffers</p>
+    <h2>Thrift và Protocol Buffers: thay tên trường bằng con số <span class="vi">Thrift and Protocol Buffers</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="thrift">Apache Thrift</dfn> (gốc Facebook) và <dfn data-term="protobuf">Protocol Buffers</dfn> (gốc Google) đều bắt buộc có schema, viết bằng một <dfn data-term="idl">ngôn ngữ định nghĩa giao diện</dfn> (IDL), rồi sinh code cho nhiều ngôn ngữ.</li>
+      <li>Thay vì tên trường, dữ liệu mã hoá chứa <dfn data-term="field-tag">field tag</dfn>: các số 1, 2, 3 trong schema.</li>
+      <li>Thrift BinaryProtocol: 59 byte. CompactProtocol gộp kiểu và tag vào một byte, dùng <dfn data-term="varint">số nguyên độ dài thay đổi</dfn>: 34 byte. Protocol Buffers đóng gói hơi khác: 33 byte.</li>
+      <li><code>required</code>/<code>optional</code> không ảnh hưởng gì đến byte được ghi; <code>required</code> chỉ bật một kiểm tra lúc chạy.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Thrift và Protocol Buffers ra đời từ cùng một ý tưởng và cùng được mở mã nguồn khoảng 2007–08. Schema cho bản ghi ví dụ:</p>
+<pre class="code"><span class="c">// Thrift IDL</span>
+<span class="k">struct</span> Person {
+  <span class="n">1</span>: <span class="k">required</span> string       userName,
+  <span class="n">2</span>: <span class="k">optional</span> i64          favoriteNumber,
+  <span class="n">3</span>: <span class="k">optional</span> list&lt;string&gt; interests
+}
+
+<span class="c">// Protocol Buffers</span>
+<span class="k">message</span> Person {
+    <span class="k">required</span> string user_name       = <span class="n">1</span>;
+    <span class="k">optional</span> int64  favorite_number = <span class="n">2</span>;
+    <span class="k">repeated</span> string interests       = <span class="n">3</span>;
+}</pre>
+      <p>Công cụ sinh code đọc schema này và tạo class cho Java, C++, Go, Python… Code ứng dụng gọi class sinh ra để mã hoá/giải mã.</p>
+      <h3>BinaryProtocol, CompactProtocol, Protocol Buffers</h3>
+      <p>Thrift có hai định dạng nhị phân chính (thực ra có ba, cộng thêm hai định dạng JSON nữa). <strong>BinaryProtocol</strong> giống MessagePack ở chỗ mỗi trường có byte kiểu và độ dài, chuỗi vẫn là UTF-8; khác biệt lớn là <em>không có tên trường</em>, chỉ có tag 2 byte. Kết quả 59 byte. <strong>CompactProtocol</strong> mang cùng thông tin nhưng gộp kiểu và tag vào một byte (thực ra là <em>độ chênh</em> giữa tag này và tag trước) và dùng varint: số 1337 chỉ tốn 2 byte thay vì 8. Mỗi byte varint dùng bit cao nhất để báo “còn byte nữa”, nên số từ −64 đến 63 nằm gọn trong 1 byte, từ −8192 đến 8191 trong 2 byte. <strong>Protocol Buffers</strong> chỉ có một định dạng nhị phân, đóng bit hơi khác nhưng tư tưởng giống CompactProtocol: 33 byte.</p>
+    </div>
+    <figure class="lab" data-widget="byte-encoder" data-format="thrift-compact">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> So BinaryProtocol, CompactProtocol và Protocol Buffers
+        <small>Chuyển qua lại ba định dạng. Để ý tag và kiểu nằm chung một byte ở Compact (<code>0x18</code> = độ chênh 1, kiểu 8) và ở Protobuf (<code>0x0a</code> = tag 1, wire type 2).</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <figure class="lab" data-widget="varint">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Varint và zigzag: một số chiếm bao nhiêu byte?
+        <small>Nhập một số nguyên 64-bit hoặc chọn nhanh. Mỗi byte varint chứa 7 bit dữ liệu; bit cao (vàng) bằng 1 nghĩa là “còn tiếp”.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Hình 4-2, 4-3, 4-4 của sách vẽ đúng các chuỗi byte bạn thấy ở trên. Chú ý một chi tiết: Thrift CompactProtocol mã hoá 1337 là <code>f2 14</code> (có zigzag), còn Protocol Buffers mã hoá <code>int64</code> là <code>b9 0a</code> (không zigzag; muốn zigzag phải khai báo <code>sint64</code>).</p></aside>
+  </article>
+
+  <!-- 5.6 -->
+  <article class="topic" id="ch5-field-tags" data-num="5.6" data-short="Field tag & tiến hoá schema" data-keywords="schema evolution field tags add remove required optional repeated datatype int32 int64">
+    <p class="eyebrow">5.6 · Field tags and schema evolution · Datatypes and schema evolution</p>
+    <h2>Field tag và tiến hoá schema <span class="vi">Field Tags and Schema Evolution</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Một bản ghi Thrift/Protobuf chỉ là các trường nối nhau, mỗi trường mang tag và kiểu. Trường không có giá trị thì bị bỏ qua.</li>
+      <li><strong>Đổi tên</strong> trường thoải mái (dữ liệu không chứa tên). <strong>Đổi tag</strong> thì không bao giờ: mọi dữ liệu cũ thành vô nghĩa.</li>
+      <li><strong>Thêm trường</strong> với tag mới: code cũ gặp tag lạ thì bỏ qua (nhờ kiểu dữ liệu mà biết phải nhảy bao nhiêu byte) → tương thích xuôi. Trường mới phải là <code>optional</code> hoặc có giá trị mặc định → tương thích ngược.</li>
+      <li><strong>Xoá trường</strong>: chỉ xoá được trường optional, và không bao giờ dùng lại tag đó.</li>
+      <li>Đổi kiểu dữ liệu có thể mất chính xác (int32 ↔ int64). Protobuf cho phép đổi <code>optional</code> thành <code>repeated</code>.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Schema chắc chắn sẽ phải đổi theo thời gian; sách gọi đó là <dfn data-term="schema-evolution">tiến hoá schema</dfn>. Vì dữ liệu chỉ chứa tag, tag chính là “danh tính” của trường. Từ đó suy ra luật chơi:</p>
+      <ul>
+        <li><strong>Thêm trường mới</strong> với một tag chưa từng dùng. Code cũ đọc dữ liệu mới, thấy tag lạ, dựa vào kiểu dữ liệu để biết độ dài rồi nhảy qua: tương thích xuôi. Code mới đọc dữ liệu cũ thì thấy thiếu trường mới; nếu trường đó là <code>required</code> thì kiểm tra thất bại. Vì vậy <mark>mọi trường thêm sau lần triển khai đầu tiên phải là optional hoặc có giá trị mặc định</mark>.</li>
+        <li><strong>Xoá trường</strong> là phép ngược của thêm, nên các mối lo về tương thích cũng đảo chiều: chỉ xoá được trường optional (trường required thì không bao giờ xoá được), và tag của nó phải được “nghỉ hưu” vĩnh viễn, vì ở đâu đó vẫn còn dữ liệu cũ mang tag ấy.</li>
+      </ul>
+      <p>Trong phòng thí nghiệm dưới đây, mỗi phương án đổi schema được mã hoá và giải mã thật theo định dạng Protocol Buffers. Bạn sẽ thấy cả hai chiều: code mới đọc dữ liệu cũ, và code cũ đọc dữ liệu mới.</p>
+    </div>
+    <figure class="lab" data-widget="tag-evolution">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đổi schema rồi cho người đọc cũ/mới gặp dữ liệu mới/cũ
+        <small>Chọn một thay đổi. Bên trái: code mới đọc byte do code cũ ghi. Bên phải: code cũ đọc byte do code mới ghi. Byte xanh là tag mà người đọc nhận ra, byte xám là tag lạ bị bỏ qua.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Đổi kiểu dữ liệu</h3>
+      <p>Đổi kiểu của một trường đôi khi được phép (xem tài liệu của từng thư viện), nhưng có rủi ro mất chính xác hoặc bị cắt cụt. Ví dụ đổi số nguyên 32-bit thành 64-bit: code mới đọc dữ liệu cũ không sao (thiếu bit thì điền 0), nhưng code cũ vẫn dùng biến 32-bit, nên khi đọc một giá trị 64-bit không vừa 32 bit, giá trị bị cắt cụt.</p>
+      <p>Một chi tiết thú vị: Protocol Buffers không có kiểu list mà có đánh dấu <code>repeated</code>. Trường repeated được mã hoá đúng như tên gọi: cùng một tag xuất hiện nhiều lần. Nhờ đó đổi một trường <code>optional</code> (một giá trị) thành <code>repeated</code> (nhiều giá trị) là hợp lệ: code mới đọc dữ liệu cũ thấy list 0 hoặc 1 phần tử; code cũ đọc dữ liệu mới chỉ thấy phần tử cuối. Thrift có kiểu <code>list</code> riêng nên không tiến hoá kiểu này được, đổi lại hỗ trợ list lồng nhau.</p>
+    </div>
+    <figure class="lab" data-widget="type-change">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> int32 → int64 và optional → repeated
+        <small>Chọn kiểu thay đổi, nhập giá trị do code mới ghi, xem code cũ đọc ra gì. Giá trị mặc định là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Protobuf có từ khoá <code>reserved</code> để “khoá” tag và tên đã xoá, compiler sẽ báo lỗi nếu ai đó dùng lại. Proto3 bỏ hẳn <code>required</code>, một phần vì đúng lý do sách nêu: trường required không bao giờ xoá được.</p></aside>
+  </article>
+
+  <!-- 5.7 -->
+  <article class="topic" id="ch5-avro" data-num="5.7" data-short="Avro" data-keywords="avro hadoop idl schema json union 32 bytes no tags">
+    <p class="eyebrow">5.7 · Avro</p>
+    <h2>Avro: không tag, không kiểu, chỉ có giá trị <span class="vi">Avro</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="avro">Apache Avro</dfn> ra đời năm 2009 trong Hadoop vì Thrift không hợp với nhu cầu của Hadoop. Nó có schema (dạng IDL cho người viết, dạng JSON cho máy đọc) nhưng schema <em>không có số tag</em>.</li>
+      <li>Bản ghi ví dụ chỉ còn 32 byte, gọn nhất trong các định dạng. Dữ liệu chỉ là các giá trị nối nhau; không có gì cho biết đâu là trường nào hay kiểu gì.</li>
+      <li>Hệ quả: chỉ giải mã đúng được khi biết <em>chính xác</em> schema mà người ghi đã dùng.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Schema của bản ghi ví dụ, viết bằng Avro IDL và bằng JSON:</p>
+<pre class="code"><span class="k">record</span> Person {
+    string               userName;
+    <span class="k">union</span> { null, long } favoriteNumber = null;
+    array&lt;string&gt;        interests;
+}
+
+{ <span class="s">"type"</span>: <span class="s">"record"</span>, <span class="s">"name"</span>: <span class="s">"Person"</span>,
+  <span class="s">"fields"</span>: [
+    {<span class="s">"name"</span>: <span class="s">"userName"</span>,       <span class="s">"type"</span>: <span class="s">"string"</span>},
+    {<span class="s">"name"</span>: <span class="s">"favoriteNumber"</span>, <span class="s">"type"</span>: [<span class="s">"null"</span>, <span class="s">"long"</span>], <span class="s">"default"</span>: <span class="k">null</span>},
+    {<span class="s">"name"</span>: <span class="s">"interests"</span>,      <span class="s">"type"</span>: {<span class="s">"type"</span>: <span class="s">"array"</span>, <span class="s">"items"</span>: <span class="s">"string"</span>}}
+  ] }</pre>
+      <p>Nhìn chuỗi byte Avro bạn sẽ không thấy gì định danh trường hay kiểu. Một chuỗi chỉ là tiền tố độ dài + byte UTF-8; không có gì nói rằng đó là chuỗi, nó có thể là số nguyên hay thứ khác hoàn toàn. Số nguyên dùng varint zigzag như Thrift CompactProtocol. Để parse, bộ giải mã đi qua các trường <em>theo đúng thứ tự trong schema</em> và dùng schema để biết kiểu của từng trường.</p>
+    </div>
+    <figure class="lab" data-widget="byte-encoder" data-format="avro">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> 32 byte của Avro
+        <small>So với Protobuf, Avro bỏ luôn byte tag. Thử xoá số yêu thích: Avro vẫn ghi 1 byte <code>00</code> (nhánh <code>null</code> của union), còn Protobuf bỏ hẳn trường.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <figure class="lab" data-widget="avro-misread">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Giải mã đúng byte, sai schema
+        <small>Cùng 32 byte ở trên, giải mã bằng schema mà người đọc <em>tưởng</em> là đúng. Bộ giải mã Avro thô (không có bước đối chiếu schema) chỉ làm theo thứ tự trường.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Avro gọn vì đẩy toàn bộ thông tin cấu trúc ra khỏi dữ liệu và vào schema. Vậy làm sao Avro hỗ trợ tiến hoá schema? Câu trả lời ở mục tiếp theo: người đọc luôn có trong tay cả schema của người ghi.</p></aside>
+  </article>
+
+  <!-- 5.8 -->
+  <article class="topic" id="ch5-avro-resolution" data-num="5.8" data-short="Schema người ghi & người đọc" data-keywords="writer schema reader schema resolution default union alias avro evolution rules">
+    <p class="eyebrow">5.8 · The writer’s schema and the reader’s schema · Schema evolution rules</p>
+    <h2>Schema của người ghi và schema của người đọc <span class="vi">Writer’s Schema and Reader’s Schema</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="writer-schema">Schema người ghi</dfn>: phiên bản schema mà ứng dụng dùng khi mã hoá. <dfn data-term="reader-schema">Schema người đọc</dfn>: phiên bản schema mà code đọc đang mong đợi.</li>
+      <li>Hai schema không cần giống nhau, chỉ cần <em>tương thích</em>. Thư viện Avro đặt hai schema cạnh nhau và <dfn data-term="schema-resolution">dịch</dfn> dữ liệu từ schema người ghi sang schema người đọc.</li>
+      <li>Trường được khớp theo <strong>tên</strong>, nên thứ tự không quan trọng. Trường người ghi có mà người đọc không có: bỏ qua. Trường người đọc cần mà người ghi không có: điền <dfn data-term="default-value">giá trị mặc định</dfn> của schema người đọc.</li>
+      <li>Luật: chỉ được thêm hoặc xoá trường <em>có giá trị mặc định</em>.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ý tưởng chính của Avro: khi mã hoá, ứng dụng dùng phiên bản schema nó biết (thường được biên dịch sẵn vào ứng dụng). Khi giải mã, nó có schema người đọc của nó, <em>và</em> biết schema người ghi (xem mục 5.9 để biết bằng cách nào). Đặc tả Avro định nghĩa chính xác cách đối chiếu (resolution):</p>
+      <ul>
+        <li>Trường được ghép theo tên; khác thứ tự không sao.</li>
+        <li>Trường có trong schema người ghi nhưng không có trong schema người đọc: bị bỏ qua.</li>
+        <li>Trường người đọc cần nhưng schema người ghi không có: lấy giá trị mặc định khai báo trong schema người đọc. Không có mặc định thì lỗi.</li>
+      </ul>
+      <p>Với Avro, <strong>tương thích xuôi</strong> nghĩa là schema mới làm người ghi, schema cũ làm người đọc; <strong>tương thích ngược</strong> là schema mới làm người đọc, schema cũ làm người ghi. Thêm một trường <em>không</em> có mặc định thì người đọc mới không đọc được dữ liệu cũ (vỡ tương thích ngược). Xoá một trường không có mặc định thì người đọc cũ không đọc được dữ liệu mới (vỡ tương thích xuôi).</p>
+      <h3>Null phải được nói rõ</h3>
+      <p>Trong Avro, <code>null</code> không phải là giá trị hợp lệ của mọi kiểu. Muốn một trường có thể null, phải dùng <dfn data-term="union-type">kiểu union</dfn>, ví dụ <code>union { null, long, string }</code>, và chỉ dùng <code>null</code> làm mặc định khi nó là nhánh đầu tiên của union. Dài dòng hơn, nhưng tránh được bug vì buộc bạn nói rõ cái gì có thể null. Vì thế Avro không có <code>optional</code>/<code>required</code>; nó có union và giá trị mặc định.</p>
+      <p>Đổi kiểu được nếu Avro biết cách chuyển (ví dụ <code>int</code> → <code>long</code>). Đổi tên thì hơi khéo: schema người đọc khai báo <em>alias</em> cho tên cũ, nên đổi tên là tương thích ngược nhưng không tương thích xuôi. Thêm nhánh vào union cũng vậy.</p>
+    </div>
+    <figure class="lab" data-widget="avro-resolve">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bộ đối chiếu schema của Avro
+        <small>Bật/tắt trường ở mỗi bên, đảo thứ tự trường của người ghi, hoặc chọn kịch bản có sẵn. Đường nối = khớp theo tên; nét đứt = dùng giá trị mặc định. Giá trị của <code>photoUrl</code> và <code>email</code> là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Protobuf/Thrift: danh tính trường là <em>tag</em> nằm trong dữ liệu. Avro: danh tính trường là <em>tên</em> nằm trong schema người ghi, và người đọc phải có schema đó.</p></aside>
+  </article>
+
+  <!-- 5.9 -->
+  <article class="topic" id="ch5-writer-schema" data-num="5.9" data-short="Lấy schema người ghi ở đâu" data-keywords="object container file schema registry version number espresso negotiate">
+    <p class="eyebrow">5.9 · But what is the writer’s schema?</p>
+    <h2>Người đọc lấy schema của người ghi ở đâu? <span class="vi">But What Is the Writer’s Schema?</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Không thể kèm nguyên schema vào từng bản ghi: schema thường to hơn dữ liệu nhiều lần.</li>
+      <li><strong>File lớn nhiều bản ghi</strong> (Hadoop): ghi schema một lần ở đầu file, đó là <dfn data-term="object-container-file">object container file</dfn>.</li>
+      <li><strong>Database ghi từng bản ghi</strong>: đặt số phiên bản ở đầu mỗi bản ghi, lưu danh sách các phiên bản schema (như Espresso của LinkedIn).</li>
+      <li><strong>Kết nối mạng</strong>: hai bên thương lượng phiên bản schema lúc bắt tay, dùng suốt kết nối (Avro RPC).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Câu hỏi bị lướt qua ở mục trước: với một bản ghi cụ thể, người đọc biết nó được ghi bằng schema nào bằng cách nào? Câu trả lời tuỳ ngữ cảnh. Ba ngữ cảnh điển hình trong sách được mô phỏng bên dưới, kèm phương án ngây thơ “nhét schema vào mỗi bản ghi” để so sánh.</p>
+      <p>Dù ở ngữ cảnh nào, một <dfn data-term="schema-registry">kho các phiên bản schema</dfn> cũng rất đáng có: nó là tài liệu sống, và cho bạn cơ hội kiểm tra tương thích trước khi triển khai. Số phiên bản có thể là số nguyên tăng dần hoặc hash của schema.</p>
+    </div>
+    <figure class="lab" data-widget="schema-overhead">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Chi phí truyền tải schema của người ghi
+        <small>Kéo số bản ghi. Kích thước schema là độ dài thật của schema JSON (bỏ khoảng trắng), mỗi bản ghi 32 byte như ví dụ. Phía dưới: đọc một bản ghi trong database bằng số phiên bản.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Confluent Schema Registry cho Kafka làm đúng như phương án “database”: mỗi message bắt đầu bằng 1 byte magic và 4 byte schema ID; consumer tra ID trong registry rồi mới giải mã phần còn lại.</p></aside>
+  </article>
+
+  <!-- 5.10 -->
+  <article class="topic" id="ch5-dynamic-schema" data-num="5.10" data-short="Schema sinh động & sinh code" data-keywords="dynamically generated schema database dump code generation dynamic typed pig">
+    <p class="eyebrow">5.10 · Dynamically generated schemas · Code generation and dynamically typed languages</p>
+    <h2>Schema sinh tự động và chuyện sinh code <span class="vi">Dynamically Generated Schemas and Code Generation</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Không có số tag giúp Avro hợp với <dfn data-term="dynamic-schema">schema sinh tự động</dfn>: ví dụ dump một database quan hệ, mỗi bảng thành một record, mỗi cột thành một trường, tên cột thành tên trường.</li>
+      <li>Khi bảng đổi cột, chỉ cần sinh lại schema Avro. Trường được khớp theo tên nên người đọc cũ vẫn đối chiếu được.</li>
+      <li>Với Thrift/Protobuf, tag phải được gán tay và không bao giờ được gán lại; bộ sinh tự động phải nhớ mọi tag đã dùng.</li>
+      <li><dfn data-term="code-generation">Sinh code</dfn> hữu ích cho ngôn ngữ tĩnh (Java, C++, C#); với ngôn ngữ động (JS, Ruby, Python) và schema sinh tự động thì nó là vật cản. Avro cho sinh code tuỳ chọn, và file container tự mô tả.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Vì sao việc không có vài con số trong schema lại quan trọng? Tưởng tượng bạn dump nội dung một database quan hệ ra file nhị phân (để tránh các vấn đề của JSON/CSV/SQL). Với Avro, sinh schema từ schema quan hệ rất dễ. Khi bảng được thêm một cột và bớt một cột, tiến trình export không cần quan tâm: lần chạy sau nó sinh schema mới từ schema database mới. Người đọc file mới thấy các trường đã đổi, nhưng vì trường khớp theo tên, schema người ghi mới vẫn ghép được với schema người đọc cũ.</p>
+      <p>Với Thrift hay Protobuf, mỗi lần schema database đổi, ai đó phải cập nhật tay ánh xạ “tên cột → tag”. Tự động hoá được, nhưng bộ sinh phải rất cẩn thận không gán lại tag đã từng dùng. Đây đơn giản không phải mục tiêu thiết kế của chúng, trong khi là mục tiêu của Avro.</p>
+      <h3>Sinh code và ngôn ngữ động</h3>
+      <p>Thrift và Protobuf dựa vào sinh code: có schema thì sinh class. Điều đó tốt cho ngôn ngữ kiểu tĩnh: cấu trúc trong bộ nhớ hiệu quả, có kiểm tra kiểu và gợi ý trong IDE. Với ngôn ngữ động thì không có trình kiểm tra kiểu nào cần thoả mãn, và một bước biên dịch thêm vào thường bị ghét. Avro cho phép sinh code nhưng không bắt buộc: một object container file chứa sẵn schema người ghi, nên bạn mở nó bằng thư viện Avro và xem dữ liệu như xem file JSON. File <em>tự mô tả</em>. Điều này đặc biệt hợp với ngôn ngữ xử lý dữ liệu động như Apache Pig: mở file Avro, phân tích, ghi kết quả ra Avro mà không cần nghĩ tới schema.</p>
+    </div>
+    <figure class="lab" data-widget="dyn-schema">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bảng đổi cột: Avro sinh lại theo tên, Protobuf gán tag theo vị trí
+        <small>Bảng ban đầu (v1) có 4 cột; trạng thái mở đầu đã bớt cột <code>name</code> và thêm cột <code>phone</code> như ví dụ của sách. Thêm/xoá cột để xem dữ liệu dump cũ được hiểu ra sao. Tên bảng và cột là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Bộ sinh schema Protobuf “ngây thơ” gán tag theo thứ tự cột là một quả bom hẹn giờ: chỉ cần xoá một cột ở giữa, mọi tag phía sau dịch đi một, và dữ liệu cũ được đọc lặng lẽ sai nghĩa mà không có lỗi nào.</p></aside>
+  </article>
+
+  <!-- 5.11 -->
+  <article class="topic" id="ch5-merits" data-num="5.11" data-short="Giá trị của schema" data-keywords="merits of schemas asn.1 der compatibility check documentation registry">
+    <p class="eyebrow">5.11 · The Merits of Schemas</p>
+    <h2>Giá trị của schema <span class="vi">The Merits of Schemas</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Schema của Protobuf, Thrift, Avro đơn giản hơn XML Schema hay JSON Schema nhiều, nên được hỗ trợ trên rất nhiều ngôn ngữ.</li>
+      <li>Ý tưởng không mới: <dfn data-term="asn1">ASN.1</dfn> (chuẩn hoá 1984) đã có tag để tiến hoá schema, và mã hoá DER của nó vẫn dùng cho chứng chỉ X.509. Nhưng ASN.1 phức tạp, tài liệu kém.</li>
+      <li>Bốn lợi ích: gọn hơn “JSON nhị phân” (bỏ tên trường); schema là tài liệu luôn đúng; kho schema cho phép kiểm tra tương thích trước khi deploy; sinh code cho kiểm tra kiểu lúc biên dịch.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Nhiều hệ dữ liệu cũng có định dạng nhị phân riêng: phần lớn database quan hệ có giao thức mạng riêng, và nhà cung cấp phát hành driver (qua API ODBC, JDBC) để giải mã phản hồi thành cấu trúc trong bộ nhớ. Tức là mã hoá nhị phân dựa trên schema là lựa chọn rất thực tế, với các ưu điểm:</p>
+      <ul>
+        <li>Gọn hơn nhiều so với các biến thể “JSON nhị phân”, vì bỏ được tên trường.</li>
+        <li>Schema là một dạng tài liệu quý, và vì <em>bắt buộc phải có</em> để giải mã, bạn chắc chắn nó cập nhật (tài liệu viết tay thì dễ lệch thực tế).</li>
+        <li>Giữ một kho schema cho phép kiểm tra tương thích xuôi/ngược của thay đổi <em>trước khi</em> triển khai bất cứ thứ gì.</li>
+        <li>Với ngôn ngữ kiểu tĩnh, sinh code từ schema cho phép kiểm tra kiểu lúc biên dịch.</li>
+      </ul>
+      <p>Tóm lại, tiến hoá schema cho bạn sự linh hoạt giống database JSON schemaless/schema-on-read, đồng thời đảm bảo tốt hơn về dữ liệu và có công cụ tốt hơn. Bộ kiểm tra dưới đây làm đúng việc của một schema registry: nhận một đề xuất thay đổi và cho biết nó có được phép theo chế độ tương thích bạn yêu cầu hay không, theo đúng các luật Avro ở mục 5.8.</p>
+    </div>
+    <figure class="lab" data-widget="compat-check">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Kiểm tra tương thích trước khi deploy
+        <small>Tích các thay đổi muốn đưa vào schema mới, chọn chế độ tương thích mà registry yêu cầu. Registry chấp nhận hoặc từ chối cả gói thay đổi.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Schema không đối lập với linh hoạt. Có schema và luật tiến hoá rõ ràng, bạn đổi dữ liệu thường xuyên hơn với ít sợ hãi hơn, vì máy kiểm tra hộ bạn.</p></aside>
+  </article>
+
+  <!-- 5.12 -->
+  <article class="topic" id="ch5-dataflow-db" data-num="5.12" data-short="Luồng dữ liệu qua database" data-keywords="modes of dataflow database unknown fields data outlives code migration archival snapshot parquet">
+    <p class="eyebrow">5.12 · Modes of Dataflow · Dataflow Through Databases</p>
+    <h2>Luồng dữ liệu qua database <span class="vi">Dataflow Through Databases</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Tương thích là quan hệ giữa tiến trình mã hoá và tiến trình giải mã. Có ba ngả dữ liệu chảy giữa các tiến trình: qua database, qua lời gọi dịch vụ, qua truyền thông điệp bất đồng bộ.</li>
+      <li>Ghi vào database giống như gửi thư cho chính mình trong tương lai: bắt buộc tương thích ngược. Nhiều tiến trình phiên bản khác nhau cùng truy cập, nên thường cần cả tương thích xuôi.</li>
+      <li>Cạm bẫy: code cũ đọc bản ghi có trường mới, sửa, ghi lại, và làm mất trường mới. Cần giữ nguyên các trường lạ.</li>
+      <li><dfn data-term="data-outlives-code">Dữ liệu sống lâu hơn code</dfn>: deploy xong trong vài phút, nhưng dữ liệu 5 năm tuổi vẫn nằm đó với định dạng cũ.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Từ đầu chương ta nói về việc gửi dữ liệu cho một tiến trình không chung bộ nhớ: ghi file, gửi qua mạng. Ai mã hoá, ai giải mã? Phần còn lại của chương xét ba ngả phổ biến:</p>
+      <div class="table-wrap"><table class="data">
+        <thead><tr><th>Ngả</th><th>Ai mã hoá</th><th>Ai giải mã</th><th>Khoảng cách thời gian</th></tr></thead>
+        <tbody>
+          <tr><td>Database (mục này)</td><td>Tiến trình ghi</td><td>Tiến trình đọc, có thể rất lâu sau</td><td>Mili giây đến nhiều năm</td></tr>
+          <tr><td>REST/RPC (5.13–5.15)</td><td>Client mã hoá request; server mã hoá response</td><td>Server, rồi client</td><td>Càng nhanh càng tốt</td></tr>
+          <tr><td>Message broker, actor (5.16)</td><td>Người gửi</td><td>Người nhận</td><td>Thường thấp, qua bộ đệm trung gian</td></tr>
+        </tbody>
+      </table></div>
+      <p>Với database, nếu chỉ một tiến trình truy cập, người đọc là phiên bản sau của chính nó: lưu dữ liệu giống như <em>gửi thư cho chính mình trong tương lai</em>. Tương thích ngược rõ ràng là bắt buộc. Nhưng thường có nhiều tiến trình cùng truy cập (nhiều service, nhiều instance của một service), và trong lúc rolling upgrade, một giá trị có thể do code mới ghi rồi bị code cũ đọc. Nên tương thích xuôi cũng thường cần.</p>
+      <h3>Cái bẫy “ghi đè làm mất trường”</h3>
+      <p>Giả sử bạn thêm trường vào schema và code mới ghi giá trị cho trường đó. Sau đó code cũ (chưa biết trường mới) đọc bản ghi, sửa một chỗ, rồi ghi lại. Hành vi mong muốn thường là code cũ giữ nguyên trường mới dù không hiểu nó. Các định dạng ở trên hỗ trợ việc giữ trường lạ, nhưng đôi khi bạn phải cẩn thận ở tầng ứng dụng: nếu giải mã giá trị thành model object rồi mã hoá lại model object đó, trường lạ có thể rơi mất trong quá trình chuyển đổi. Không khó giải quyết, chỉ cần biết để tránh.</p>
+    </div>
+    <figure class="lab" data-widget="lost-field">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Code cũ cập nhật bản ghi do code mới viết (Hình 4-7)
+        <small>Kết quả của kịch bản mặc định đã hiện sẵn. Bật “giữ trường lạ” rồi bấm “Chạy kịch bản” để so sánh. Giá trị <code>photoUrl</code> là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Dữ liệu ghi ở những thời điểm khác nhau</h3>
+      <p>Database cho phép cập nhật bất kỳ giá trị nào vào bất kỳ lúc nào, nên trong cùng một database có giá trị ghi cách đây 5 mili giây và giá trị ghi cách đây 5 năm. Thay toàn bộ code mất vài phút; dữ liệu 5 năm tuổi thì vẫn ở định dạng gốc trừ khi bạn chủ động viết lại. Viết lại (migrate) toàn bộ dữ liệu sang schema mới thì được, nhưng đắt với tập dữ liệu lớn, nên phần lớn database tránh làm vậy. Hầu hết database quan hệ cho phép thêm cột với mặc định <code>null</code> mà không viết lại dữ liệu cũ (trừ MySQL, thường viết lại cả bảng); khi đọc hàng cũ, database điền null cho cột thiếu. Espresso của LinkedIn dùng Avro làm định dạng lưu trữ để tận dụng luật tiến hoá của Avro. Nhờ tiến hoá schema, cả database <em>trông như</em> được mã hoá bằng một schema duy nhất, dù bên dưới là bản ghi của nhiều thời kỳ.</p>
+      <h3>Lưu trữ dài hạn</h3>
+      <p>Khi chụp snapshot database (để backup hay nạp vào data warehouse, xem <a href="#ch4">Chương 4</a>), bản dump thường được mã hoá bằng schema mới nhất, dù dữ liệu gốc lẫn nhiều phiên bản: đằng nào cũng phải chép, chép cho đồng nhất luôn. Bản dump ghi một lần rồi bất biến, nên rất hợp với Avro object container file, hoặc định dạng cột như Parquet cho phân tích. <a href="#ch11">Chương 11</a> sẽ bàn thêm.</p>
+    </div>
+    <figure class="lab" data-widget="db-eras">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một bảng, nhiều thời kỳ mã hoá
+        <small>Chuyển giữa “tầng lưu trữ” và “nhìn qua schema hiện tại”. Thử thêm cột, migrate toàn bộ hoặc chụp snapshot. Số hàng và tốc độ ghi là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>ORM là thủ phạm hay gặp của lỗi mất trường: nó ánh xạ hàng thành object chỉ có các thuộc tính đã khai báo, rồi <code>UPDATE</code> lại mọi cột hoặc ghi đè cả tài liệu JSON. Với document database, ưu tiên cập nhật từng phần (<code>$set</code>) thay vì ghi đè cả tài liệu.</p></aside>
+  </article>
+
+  <!-- 5.13 -->
+  <article class="topic" id="ch5-services" data-num="5.13" data-short="Dịch vụ: REST và SOAP" data-keywords="services rest soap wsdl web service microservices soa openapi swagger http">
+    <p class="eyebrow">5.13 · Dataflow Through Services: REST and RPC · Web services</p>
+    <h2>Luồng dữ liệu qua dịch vụ: REST và SOAP <span class="vi">Dataflow Through Services: Web Services</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Kiểu sắp xếp phổ biến nhất: server phơi một API qua mạng (gọi là <em>service</em>), client kết nối tới để gửi request. Một server có thể là client của service khác: đó là <dfn data-term="microservices">kiến trúc hướng dịch vụ / microservices</dfn>.</li>
+      <li>Khác database, service chỉ cho phép input/output mà logic nghiệp vụ định trước: một dạng đóng gói. Mục tiêu then chốt: mỗi service deploy và tiến hoá độc lập, nên client và server phiên bản cũ/mới chạy song song.</li>
+      <li>Dùng HTTP làm giao thức thì gọi là web service. Hai trường phái: <dfn data-term="rest">REST</dfn> (triết lý thiết kế dựa trên HTTP) và <dfn data-term="soap">SOAP</dfn> (giao thức dựa trên XML, mô tả bằng WSDL, dựa nặng vào sinh code).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Web chính là ví dụ quen thuộc: trình duyệt gửi <code>GET</code> để tải HTML, CSS, ảnh và <code>POST</code> để gửi dữ liệu; API ở đây là các chuẩn HTTP, URL, TLS, HTML mà mọi bên đồng ý. Nhưng client không chỉ là trình duyệt: app di động, app desktop, hay JavaScript trong trình duyệt (Ajax) đều gửi request và nhận về dữ liệu (thường là JSON) thay vì HTML. Lúc đó API là riêng của ứng dụng, và client với server phải thống nhất chi tiết.</p>
+      <p>Service giống database ở chỗ cho client gửi và truy vấn dữ liệu, nhưng thay vì cho phép truy vấn tuỳ ý, nó chỉ phơi ra API mà logic nghiệp vụ cho phép. Web service xuất hiện trong ba bối cảnh: app trên thiết bị người dùng gọi qua internet; service gọi service trong cùng tổ chức, thường cùng datacenter (phần mềm hỗ trợ việc này đôi khi gọi là <em class="en">middleware</em>); và service gọi service của tổ chức khác (thanh toán thẻ, OAuth).</p>
+      <h3>REST và SOAP</h3>
+      <p><strong>REST</strong> không phải giao thức mà là triết lý thiết kế dựa trên nguyên tắc của HTTP: định dạng dữ liệu đơn giản, URL để định danh tài nguyên, dùng tính năng của HTTP cho cache, xác thực, thương lượng kiểu nội dung. API theo REST gọi là RESTful; có thể mô tả bằng <dfn data-term="openapi">OpenAPI</dfn> (Swagger). <strong>SOAP</strong> là giao thức dựa trên XML, cố độc lập với HTTP, kèm một rừng chuẩn WS-*. API SOAP được mô tả bằng <dfn data-term="wsdl">WSDL</dfn>, cho phép sinh code để gọi service từ xa như gọi method cục bộ. WSDL không dành cho người đọc, message SOAP khó viết tay, nên người dùng phụ thuộc nặng vào công cụ; tương tác giữa các nhà cung cấp hay trục trặc. SOAP vẫn còn ở doanh nghiệp lớn nhưng đã hết thời ở phần lớn công ty nhỏ.</p>
+    </div>
+    <figure class="lab" data-widget="rest-soap">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một thao tác, ba phong cách
+        <small>Cùng thao tác “lấy thông tin người dùng”, xem request/response trông ra sao với REST/JSON, SOAP/XML và gRPC/Protobuf. Kích thước byte được tính thật từ nội dung hiển thị (chưa tính header HTTP).</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>SOAP không phải điều kiện của SOA dù tên na ná: SOAP là một công nghệ cụ thể, SOA là một cách tiếp cận chung để xây hệ thống.</p></aside>
+  </article>
+
+  <!-- 5.14 -->
+  <article class="topic" id="ch5-rpc" data-num="5.14" data-short="Vấn đề của RPC" data-keywords="rpc remote procedure call location transparency timeout retry idempotence latency grpc finagle futures">
+    <p class="eyebrow">5.14 · The problems with remote procedure calls (RPCs) · Current directions for RPC</p>
+    <h2>Vì sao gọi qua mạng không giống gọi hàm <span class="vi">The Problems with RPC</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="rpc">RPC</dfn> (từ thập niên 1970) cố làm request qua mạng trông như gọi hàm trong cùng tiến trình. Ảo tưởng đó gọi là <dfn data-term="location-transparency">trong suốt vị trí</dfn>. EJB, RMI, DCOM, CORBA đều dựa trên nó và đều có vấn đề lớn.</li>
+      <li>Request mạng khác hẳn gọi hàm: có thể mất request hoặc response; có thể <dfn data-term="timeout">timeout</dfn> mà không biết bên kia đã làm chưa; retry có thể thực hiện hành động nhiều lần nếu không có <dfn data-term="idempotence">tính luỹ đẳng</dfn>; độ trễ cao và biến động; tham số phải mã hoá thành byte; hai bên có thể khác ngôn ngữ.</li>
+      <li>Thế hệ mới (gRPC, Finagle, Rest.li, Thrift, Avro RPC) thừa nhận khác biệt: dùng future/promise, stream, service discovery. REST vẫn thống trị API công khai; RPC chủ yếu dùng giữa các service cùng tổ chức.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ý tưởng RPC rất hấp dẫn: <code>charge(card, 100)</code> dù chạy ở máy khác vẫn viết như gọi hàm. Nhưng theo sách, cách tiếp cận này sai từ gốc, vì một request mạng khác một lời gọi hàm cục bộ ở mọi khía cạnh quan trọng:</p>
+      <ul>
+        <li>Gọi hàm thì dự đoán được: thành công hay thất bại chỉ phụ thuộc tham số bạn kiểm soát. Request mạng thì không: request hay response có thể mất, máy bên kia có thể chậm hoặc chết. Lỗi mạng là chuyện thường, nên bạn phải tính trước, ví dụ bằng retry.</li>
+        <li>Gọi hàm trả kết quả, ném exception, hoặc không bao giờ trả về (vòng lặp vô tận, tiến trình chết). Request mạng có thêm khả năng thứ tư: <em>trả về mà không có kết quả</em> vì timeout. Khi đó bạn không biết request đã tới nơi hay chưa (<a href="#ch9">Chương 9</a> bàn kỹ).</li>
+        <li>Nếu retry, có thể request vẫn tới nơi, chỉ response bị mất. Retry sẽ thực hiện hành động nhiều lần, trừ khi giao thức có cơ chế khử trùng lặp (idempotence, <a href="#ch12">Chương 12</a>).</li>
+        <li>Gọi hàm tốn thời gian khá ổn định. Request mạng chậm hơn rất nhiều và biến động dữ dội: lúc nhanh dưới 1 ms, lúc mạng nghẽn hoặc service quá tải có thể mất nhiều giây.</li>
+        <li>Gọi hàm truyền được con trỏ tới object trong bộ nhớ. Request mạng phải mã hoá mọi tham số thành byte; ổn với số và chuỗi, rắc rối với object lớn.</li>
+        <li>Client và service có thể viết bằng ngôn ngữ khác nhau, nên framework phải dịch kiểu dữ liệu, và kết quả có thể xấu (nhớ chuyện số lớn hơn 2<sup>53</sup> trong JavaScript ở mục 5.3).</li>
+      </ul>
+      <p>Vì vậy không nên cố làm service từ xa trông giống object cục bộ. Một phần sức hút của REST là nó không giấu việc mình là giao thức mạng.</p>
+    </div>
+    <figure class="lab" data-widget="rpc-sim">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Gọi <code>chargeCard(100)</code> 20 lần: cục bộ và qua mạng
+        <small>Kết quả lượt chạy đầu đã hiện sẵn. Chỉnh tỉ lệ mất gói, timeout, số lần retry, bật khoá luỹ đẳng rồi chạy lại. Phân bố độ trễ mạng là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Hướng đi hiện nay của RPC</h3>
+      <p>Dù vậy RPC không biến mất. Có framework RPC trên mọi định dạng của chương: Thrift và Avro có sẵn RPC, gRPC dùng Protocol Buffers, Finagle dùng Thrift, Rest.li dùng JSON qua HTTP. Thế hệ mới nói thẳng rằng gọi từ xa khác gọi cục bộ: Finagle và Rest.li dùng <dfn data-term="future">future (promise)</dfn> để bọc hành động bất đồng bộ có thể thất bại, tiện cả khi cần gọi song song nhiều service rồi gộp kết quả; gRPC hỗ trợ stream (một lời gọi gồm chuỗi request và response theo thời gian). Một số framework có <dfn data-term="service-discovery">service discovery</dfn>: cho client biết service đang ở IP và port nào (<a href="#ch7">Chương 7</a>).</p>
+      <p>RPC nhị phân tự thiết kế có thể nhanh hơn JSON qua REST. Nhưng REST có lợi thế lớn khác: dễ thử nghiệm và debug (gõ <code>curl</code> hoặc mở trình duyệt là xong), mọi ngôn ngữ đều hỗ trợ, và có cả hệ sinh thái công cụ: server, cache, load balancer, proxy, firewall, giám sát, kiểm thử. Vì thế REST thống trị API công khai, còn RPC tập trung vào request giữa các service cùng tổ chức, thường cùng datacenter.</p>
+    </div>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Bốn kết cục của request mạng: thành công, lỗi, không bao giờ trả về, và <em>không biết</em>. Kết cục thứ tư buộc bạn phải thiết kế thao tác sao cho thực hiện lại cũng an toàn.</p></aside>
+  </article>
+
+  <!-- 5.15 -->
+  <article class="topic" id="ch5-api-evolution" data-num="5.15" data-short="Tiến hoá & phiên bản API" data-keywords="api versioning rpc evolution servers first clients second accept header url version stripe">
+    <p class="eyebrow">5.15 · Data encoding and evolution for RPC</p>
+    <h2>Tiến hoá dữ liệu trong RPC và phiên bản API <span class="vi">Data Encoding and Evolution for RPC</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Giả định hợp lý: server được nâng cấp trước, client sau. Vậy chỉ cần <strong>tương thích ngược cho request</strong> và <strong>tương thích xuôi cho response</strong>.</li>
+      <li>Tính tương thích của RPC thừa hưởng từ định dạng mã hoá: Thrift, gRPC, Avro RPC theo luật của định dạng; SOAP theo XML Schema (có bẫy); REST thường dùng JSON không schema: thêm tham số tuỳ chọn và thêm trường vào response được coi là an toàn.</li>
+      <li>Khi service phục vụ client của tổ chức khác, bạn không ép được họ nâng cấp, nên phải giữ tương thích rất lâu, có khi mãi mãi, và đôi khi chạy song song nhiều phiên bản API.</li>
+      <li>Chưa có chuẩn chung cho <dfn data-term="api-versioning">phiên bản API</dfn>: số phiên bản trong URL, trong header <code>Accept</code>, hoặc lưu phiên bản theo API key ở phía server.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Với dataflow qua database, mọi tổ hợp code/dữ liệu cũ/mới đều có thể xảy ra. Với dịch vụ, ta có một giả định đơn giản hoá: nâng cấp hết server trước, rồi đến client. Khi đó, request từ client cũ tới server mới (cần tương thích ngược trên request), và response từ server mới tới client cũ (cần tương thích xuôi trên response).</p>
+      <p>Khó khăn lớn hơn khi API vượt ra ngoài tổ chức: nhà cung cấp không kiểm soát client. Nếu bắt buộc phải có thay đổi phá vỡ tương thích, họ thường phải duy trì nhiều phiên bản API cạnh nhau. Client chọn phiên bản bằng cách nào thì chưa có đồng thuận. Với REST, phổ biến là số phiên bản trong URL hoặc trong header <code>Accept</code>. Với service định danh client bằng API key, còn một cách: lưu phiên bản mà client yêu cầu ở phía server, và cho phép đổi phiên bản qua một giao diện quản trị riêng (cách của Stripe).</p>
+    </div>
+    <figure class="lab" data-widget="api-versions">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Server trước, client sau: thay đổi nào an toàn?
+        <small>Chọn một thay đổi API và giai đoạn triển khai. Ma trận cho thấy cặp client/server nào còn nói chuyện được. Phía dưới: ba cách client chỉ định phiên bản API.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Stripe ghim mỗi tài khoản vào phiên bản API tại thời điểm tích hợp lần đầu; client có thể ghi đè từng request bằng header <code>Stripe-Version</code> và nâng cấp chủ động trong dashboard. Server phía sau chuyển đổi response qua một chuỗi “bộ dịch phiên bản”.</p></aside>
+  </article>
+
+  <!-- 5.16 -->
+  <article class="topic" id="ch5-messages" data-num="5.16" data-short="Truyền thông điệp" data-keywords="message passing broker queue topic rabbitmq kafka actor akka orleans erlang asynchronous">
+    <p class="eyebrow">5.16 · Message-Passing Dataflow · Message brokers · Distributed actor frameworks</p>
+    <h2>Truyền thông điệp bất đồng bộ: broker và actor <span class="vi">Message-Passing Dataflow</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Truyền thông điệp nằm giữa RPC và database: thông điệp đến người nhận với độ trễ thấp như RPC, nhưng đi qua một trung gian lưu tạm, là <dfn data-term="message-broker">message broker</dfn>, giống database.</li>
+      <li>Lợi ích so với RPC trực tiếp: làm bộ đệm khi người nhận chết hoặc quá tải; tự gửi lại khi tiến trình nhận bị crash; người gửi không cần biết IP/port; một thông điệp tới nhiều người nhận; tách rời người gửi và người nhận.</li>
+      <li>Thường là một chiều và bất đồng bộ: gửi xong là quên. Broker không áp mô hình dữ liệu; thông điệp chỉ là byte, nên dùng định dạng tương thích hai chiều thì deploy producer/consumer theo thứ tự nào cũng được.</li>
+      <li><dfn data-term="actor-model">Mô hình actor</dfn> phân tán dùng cùng cơ chế thông điệp giữa các node; rolling upgrade vẫn cần tương thích xuôi và ngược.</li>
+    </ul></div>
+    <div class="prose">
+      <h3>Message broker</h3>
+      <p>Trước đây thị trường do phần mềm thương mại của TIBCO, IBM WebSphere, webMethods thống trị; gần đây là mã nguồn mở: RabbitMQ, ActiveMQ, HornetQ, NATS, Apache Kafka (so sánh chi tiết ở <a href="#ch12">Chương 12</a>). Cách dùng chung: một tiến trình gửi thông điệp tới một <dfn data-term="queue-topic">queue hoặc topic</dfn> có tên, broker đảm bảo nó tới một hoặc nhiều consumer/subscriber. Một topic có thể có nhiều producer và nhiều consumer. Topic chỉ chảy một chiều, nhưng consumer có thể publish tiếp sang topic khác, hoặc vào một reply queue mà người gửi ban đầu đọc (tạo ra luồng request/response giống RPC). Nếu consumer publish lại thông điệp, hãy cẩn thận giữ các trường lạ, kẻo gặp lại lỗi mất trường của mục 5.12.</p>
+    </div>
+    <figure class="lab" data-widget="broker-sim">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> RPC trực tiếp, queue và topic khi người nhận bị sập
+        <small>Trạng thái mở đầu: consumer B đang sập, đã gửi 5 thông điệp qua queue. Đổi chế độ, bật/tắt consumer, gửi thêm và xem thông điệp đi đâu.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Framework actor phân tán</h3>
+      <p>Mô hình actor là mô hình lập trình đồng thời trong một tiến trình: thay vì làm việc trực tiếp với thread (và race condition, lock, deadlock), logic được gói trong các actor. Mỗi actor thường đại diện cho một client hay thực thể, có trạng thái cục bộ không chia sẻ, và giao tiếp bằng thông điệp bất đồng bộ. Việc gửi không được đảm bảo: trong một số tình huống lỗi, thông điệp bị mất. Mỗi actor xử lý một thông điệp một lúc, nên không phải lo về thread.</p>
+      <p>Framework actor phân tán dùng cùng cơ chế để mở rộng ra nhiều node: nếu người gửi và người nhận ở hai node khác nhau, thông điệp được mã hoá thành byte, gửi qua mạng, giải mã ở bên kia. Trong suốt vị trí ở đây ổn hơn RPC, vì mô hình actor vốn đã giả định thông điệp có thể mất ngay cả trong một tiến trình. Nhưng khi rolling upgrade ứng dụng actor, thông điệp vẫn đi từ node mới tới node cũ và ngược lại:</p>
+      <ul>
+        <li><strong>Akka</strong> mặc định dùng serialization có sẵn của Java, không tương thích xuôi hay ngược; thay bằng Protocol Buffers thì rolling upgrade được.</li>
+        <li><strong>Orleans</strong> mặc định dùng định dạng riêng không hỗ trợ rolling upgrade: phải dựng cluster mới, chuyển traffic sang, rồi tắt cluster cũ. Cũng có thể cắm serializer khác.</li>
+        <li><strong>Erlang OTP</strong>: đổi schema bản ghi khó đến bất ngờ dù hệ thống có nhiều tính năng cho tính sẵn sàng cao; rolling upgrade được nhưng phải lên kế hoạch cẩn thận. Kiểu <code>maps</code> (giống JSON, từ Erlang R17 năm 2014) có thể giúp dễ hơn.</li>
+      </ul>
+    </div>
+    <figure class="lab" data-widget="actor-upgrade">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Rolling upgrade một cụm actor 3 node
+        <small>Mở đầu: node 1 đã lên v2, đang dùng serialization mặc định của Java. Đổi định dạng thông điệp và nâng cấp tiếp để xem cặp node nào còn gửi được cho nhau.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Ba ngả dataflow, cùng một yêu cầu: mọi byte chảy trong hệ thống phải được mã hoá sao cho code mới đọc được dữ liệu cũ và code cũ đọc được dữ liệu mới. Làm được điều đó thì rolling upgrade, deploy thường xuyên và tiến hoá độc lập trở thành chuyện bình thường.</p></aside>
+  </article>
+
+  <!-- review -->
+  <article class="topic" id="ch5-review" data-num="5.★" data-short="Tổng kết & kiểm tra" data-keywords="summary quiz review tong ket">
+    <p class="eyebrow">5.★ · Summary</p>
+    <h2>Tổng kết và tự kiểm tra <span class="vi">Summary</span></h2>
+    <div class="prose">
+      <p>Chương này xem xét nhiều cách biến cấu trúc dữ liệu thành byte trên mạng hoặc trên đĩa, và thấy rằng chi tiết mã hoá không chỉ ảnh hưởng hiệu năng, mà quan trọng hơn là ảnh hưởng kiến trúc ứng dụng và cách bạn triển khai nó. Rolling upgrade cho phép release không downtime (khuyến khích release nhỏ và thường xuyên) và giảm rủi ro (phát hiện, rollback bản lỗi trước khi ảnh hưởng nhiều người). Muốn vậy, mọi dữ liệu chảy trong hệ thống phải tương thích ngược và xuôi.</p>
+      <ul>
+        <li><strong>Định dạng riêng của ngôn ngữ</strong>: trói vào một ngôn ngữ, thường không tương thích phiên bản, nguy hiểm khi giải mã dữ liệu lạ.</li>
+        <li><strong>JSON, XML, CSV</strong>: phổ biến, tương thích tuỳ cách dùng, schema tuỳ chọn; mơ hồ về kiểu, cẩn thận với số và chuỗi nhị phân.</li>
+        <li><strong>Thrift, Protocol Buffers, Avro</strong>: gọn, hiệu quả, ngữ nghĩa tương thích rõ ràng; schema là tài liệu và nguồn sinh code. Nhược điểm: phải giải mã mới đọc được bằng mắt.</li>
+      </ul>
+      <p>Ba ngả dataflow: database (người ghi mã hoá, người đọc giải mã, có thể cách nhau nhiều năm); RPC và REST (client mã hoá request, server giải mã rồi mã hoá response, client giải mã); truyền thông điệp bất đồng bộ qua broker hoặc actor. Với một chút cẩn thận, tương thích hai chiều và rolling upgrade hoàn toàn trong tầm tay.</p>
+    </div>
+    <div class="quiz">
+      <div class="q" data-answer="1">
+        <p>Đang rolling upgrade: node chạy code v1 đọc một bản ghi do node v2 ghi. Đây là yêu cầu tương thích gì?</p>
+        <ol><li>Tương thích ngược</li><li>Tương thích xuôi</li><li>Không cần tương thích vì cùng một database</li></ol>
+        <p class="explain">Code cũ đọc dữ liệu mới là tương thích xuôi (forward). Tương thích ngược là code mới đọc dữ liệu cũ. Trong rolling upgrade cả hai đều xảy ra.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Vì sao số <code>9007199254740993</code> trong JSON có thể bị đọc thành <code>9007199254740992</code>?</p>
+        <ol><li>JSON chỉ cho phép số 32-bit</li><li>JSON bắt buộc mọi số là số thực</li><li>JSON không quy định độ chính xác; JavaScript đọc số bằng double IEEE 754, chỉ chính xác tới 2<sup>53</sup></li></ol>
+        <p class="explain">JSON không phân biệt số nguyên/số thực và không nói gì về độ chính xác. Parser của JavaScript chuyển mọi số thành double, mà double có 53 bit phần định trị.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Bản ghi ví dụ chiếm 66 byte với MessagePack nhưng chỉ 33 byte với Protocol Buffers. Nguồn tiết kiệm lớn nhất là gì?</p>
+        <ol><li>Protobuf không ghi tên trường, chỉ ghi field tag</li><li>Protobuf nén chuỗi bằng gzip</li><li>Protobuf bỏ qua trường interests</li></ol>
+        <p class="explain">Tên “userName”, “favoriteNumber”, “interests” chiếm phần lớn khác biệt. Có schema, dữ liệu chỉ cần mang tag (1 byte mỗi trường). Varint giúp thêm một chút với số 1337.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Trong Protocol Buffers, thao tác nào <em>không bao giờ</em> an toàn?</p>
+        <ol><li>Đổi tên một trường nhưng giữ tag</li><li>Thêm trường optional với tag mới</li><li>Xoá một trường rồi dùng lại tag của nó cho trường mới</li></ol>
+        <p class="explain">Dữ liệu cũ vẫn mang tag cũ; dùng lại tag khiến dữ liệu cũ bị hiểu theo nghĩa mới mà không có lỗi nào. Đổi tên an toàn vì dữ liệu không chứa tên; thêm trường optional an toàn cả hai chiều.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Với Avro, schema người đọc có trường <code>email</code> không có giá trị mặc định, nhưng schema người ghi không có trường này. Điều gì xảy ra?</p>
+        <ol><li>Trường được điền null</li><li>Giải mã thất bại: đây là thay đổi phá vỡ tương thích ngược</li><li>Avro dùng tag để tìm giá trị gần nhất</li></ol>
+        <p class="explain">Trường người đọc cần mà người ghi không có thì lấy default của schema người đọc; không có default thì lỗi. Null chỉ là default khi trường là union có nhánh null đầu tiên và khai báo default null.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Vì sao Avro hợp với việc dump database có cột thay đổi thường xuyên hơn Protobuf?</p>
+        <ol><li>Schema Avro không có tag; trường khớp theo tên nên có thể sinh lại schema tự động mỗi lần</li><li>Avro không cần schema</li><li>Avro luôn kèm schema vào từng bản ghi</li></ol>
+        <p class="explain">Protobuf cần ánh xạ tên cột → tag được duy trì cẩn thận, không bao giờ gán lại. Avro dùng tên, và object container file chỉ kèm schema một lần ở đầu file.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Client gọi <code>chargeCard</code>, bị timeout, rồi retry, và khách bị trừ tiền hai lần. Nguyên nhân và cách sửa?</p>
+        <ol><li>Request đầu bị mất; cần tăng timeout</li><li>Server chạy chậm; cần thêm server</li><li>Request đầu tới nơi nhưng response bị mất; cần khoá luỹ đẳng để server khử trùng lặp</li></ol>
+        <p class="explain">Timeout nghĩa là không biết. Nếu chỉ response mất thì retry thực hiện lại hành động. Khoá luỹ đẳng (idempotency key) cho phép server nhận ra request lặp và trả lại kết quả cũ.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Giả định “server nâng cấp trước, client sau” cho RPC dẫn đến yêu cầu nào?</p>
+        <ol><li>Tương thích xuôi cho request, ngược cho response</li><li>Tương thích ngược cho request, xuôi cho response</li><li>Chỉ cần tương thích ngược cho cả hai</li></ol>
+        <p class="explain">Server mới phải đọc request từ client cũ (ngược trên request); client cũ phải đọc response từ server mới (xuôi trên response).</p>
+      </div>
+    </div>
+  </article>
+</section>

@@ -1,0 +1,630 @@
+<style>
+#ch6 .viz svg.seqw { min-width: 540px; }
+#ch6 .viz svg.mapw { min-width: 360px; }
+#ch6 .nodes { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+#ch6 .node-card { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--bg); min-width: 0; }
+#ch6 .node-card.down { opacity: .55; border-style: dashed; }
+#ch6 .node-card.lead { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+#ch6 .node-card.danger { border-color: var(--bad); background: var(--bad-soft); }
+#ch6 .node-card h5 { margin: 0 0 6px; font: 700 var(--t-sm) var(--f-display); display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+#ch6 .node-card .meta { font-size: var(--t-xs); color: var(--ink-2); margin-top: 6px; }
+#ch6 .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+#ch6 .chip { font: 600 .72rem/1.5 var(--f-mono); padding: 1px 6px; border-radius: 4px; background: var(--surface-2); color: var(--ink); border: 1px solid transparent; }
+#ch6 .chip.acc { background: var(--accent-soft); color: var(--accent); }
+#ch6 .chip.mark { background: var(--mark-soft); }
+#ch6 .chip.bad { background: var(--bad-soft); color: var(--bad); text-decoration: line-through; }
+#ch6 .chip.violet { background: var(--violet-soft); color: var(--violet); }
+#ch6 .chip.ghost { background: transparent; border: 1px dashed var(--line); color: var(--ink-3); }
+#ch6 .chip.ok { background: var(--ok-soft); color: var(--ok); }
+#ch6 .step-note { border-left: 3px solid var(--accent); padding: 8px 12px; background: var(--bg); border-radius: 0 8px 8px 0; }
+#ch6 .step-note b { font-weight: 700; }
+#ch6 table.mini { border-collapse: collapse; width: 100%; font: 400 var(--t-xs)/1.4 var(--f-mono); }
+#ch6 table.mini th, #ch6 table.mini td { text-align: left; padding: 3px 6px; border-bottom: 1px solid var(--line); }
+#ch6 table.mini th { font-family: var(--f-display); color: var(--ink-2); font-weight: 600; }
+#ch6 table.mini td.diff { background: var(--bad-soft); color: var(--bad); font-weight: 700; }
+#ch6 table.mini td.num { text-align: right; }
+#ch6 .chat { display: flex; flex-direction: column; gap: 6px; }
+#ch6 .bubble { max-width: 92%; padding: 6px 10px; border-radius: 10px; background: var(--surface-2); font-size: var(--t-sm); }
+#ch6 .bubble small { display: block; color: var(--ink-3); font-size: .7rem; }
+#ch6 .bubble.p { background: var(--violet-soft); }
+#ch6 .bubble.c { background: var(--mark-soft); align-self: flex-end; }
+#ch6 .reads { display: flex; flex-wrap: wrap; gap: 6px; }
+#ch6 .read-card { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font-size: var(--t-xs); background: var(--bg); min-width: 92px; }
+#ch6 .read-card.ok { border-color: var(--ok); background: var(--ok-soft); }
+#ch6 .read-card.bad { border-color: var(--bad); background: var(--bad-soft); }
+#ch6 .read-card.warn { border-color: var(--warn); background: var(--warn-soft); }
+#ch6 .hb-card { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--bg); }
+#ch6 .hb-card p { margin: 0 0 8px; }
+#ch6 .hb-card .btn-row button.good { border-color: var(--ok); background: var(--ok-soft); color: var(--ink); }
+#ch6 .hb-card .btn-row button.badc { border-color: var(--bad); background: var(--bad-soft); color: var(--ink); }
+#ch6 .vv { display: inline-flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+#ch6 .vv .cell { display: inline-flex; flex-direction: column; align-items: center; border: 1px solid var(--line); border-radius: 6px; padding: 2px 4px; background: var(--surface); }
+#ch6 .vv .cell b { font: 700 .9rem var(--f-mono); }
+#ch6 .vv .cell span { font-size: .65rem; color: var(--ink-3); }
+#ch6 .vv .cell button { border: 0; background: transparent; color: var(--accent); cursor: pointer; font: 700 .8rem var(--f-mono); padding: 0 4px; }
+#ch6 pre.ship { margin: 0; font: 400 .76rem/1.55 var(--f-mono); white-space: pre-wrap; overflow-wrap: anywhere; background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+</style>
+
+<section class="chapter" id="ch6" data-chapter="6" data-title="Sao chép dữ liệu" data-edition="1e">
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 6 <span class="ed-badge">Nguồn: ấn bản 1 · Chương 5</span></p>
+    <h1>Replication <span class="vi">Sao chép dữ liệu</span></h1>
+    <blockquote class="epigraph">The major difference between a thing that might go wrong and a thing that cannot possibly go wrong is that when a thing that cannot possibly go wrong goes wrong it usually turns out to be impossible to get at or repair.<cite>— Douglas Adams, Mostly Harmless (1992)</cite></blockquote>
+    <p class="lede">Sao chép nghĩa là giữ cùng một dữ liệu trên nhiều máy nối với nhau qua mạng. Nếu dữ liệu không bao giờ đổi thì chỉ cần copy một lần; toàn bộ cái khó nằm ở việc <em>truyền thay đổi</em> tới mọi bản sao. Chương này mở đầu Phần II (dữ liệu phân tán) và đi qua ba cách làm mà gần như mọi cơ sở dữ liệu phân tán đang dùng: một leader, nhiều leader, và không leader. Mỗi cách có những kiểu sai riêng mà người viết ứng dụng phải biết.</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- 6.1 -->
+  <article class="topic" id="ch6-distributed" data-num="6.1" data-short="Vì sao phân tán dữ liệu" data-keywords="part ii distributed data scale up scale out shared nothing shared disk shared memory replication partitioning sharding">
+    <p class="eyebrow">6.1 · Part II: Distributed Data</p>
+    <h2>Vì sao phân tán dữ liệu ra nhiều máy <span class="vi">Scaling to Higher Load · Shared-Nothing · Replication vs Partitioning</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Ba lý do để dùng nhiều máy: <strong>khả năng mở rộng</strong> (tải vượt một máy), <strong>chịu lỗi / sẵn sàng cao</strong> (một máy chết thì máy khác thay), <strong>độ trễ</strong> (đặt server gần người dùng ở khắp thế giới).</li>
+      <li><dfn data-term="shared-memory">Shared-memory</dfn> (mua máy to hơn) có chi phí tăng nhanh hơn tuyến tính và bị giới hạn ở một địa điểm; <dfn data-term="shared-disk">shared-disk</dfn> vướng tranh chấp khoá.</li>
+      <li>Phần II tập trung vào <dfn data-term="shared-nothing">shared-nothing</dfn>: mỗi node có CPU, RAM, đĩa riêng, phối hợp qua mạng thường. Không phải vì nó luôn tốt nhất, mà vì nó đòi hỏi lập trình viên cẩn thận nhất.</li>
+      <li>Hai cơ chế phân tán dữ liệu: <dfn data-term="replication">sao chép</dfn> (cùng dữ liệu trên nhiều node) và <dfn data-term="partitioning">phân vùng</dfn> (chia dữ liệu thành phần nhỏ, xem <a href="#ch7">Chương 7</a>). Thường dùng cả hai cùng lúc.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Phần I của sách nói về dữ liệu trên <em>một</em> máy. Phần II hỏi: chuyện gì xảy ra khi nhiều máy cùng tham gia lưu và đọc dữ liệu? Có ba lý do chính để làm vậy: dữ liệu hoặc tải đọc/ghi lớn hơn sức một máy; ứng dụng phải chạy tiếp khi một máy (hay cả một datacenter) chết; và người dùng ở khắp nơi trên thế giới muốn được phục vụ từ một datacenter gần họ.</p>
+      <h3>Ba kiến trúc</h3>
+      <p>Cách đơn giản nhất để chịu tải cao hơn là mua máy mạnh hơn, gọi là <em class="en">vertical scaling</em> hay <em class="en">scaling up</em>. Nhiều CPU, RAM, đĩa gắn vào một hệ điều hành, CPU nào cũng truy cập được mọi vùng nhớ: đó là kiến trúc <em class="en">shared-memory</em>. Vấn đề là giá tăng nhanh hơn tuyến tính (máy gấp đôi thường đắt hơn gấp đôi), và vì nghẽn cổ chai, máy gấp đôi chưa chắc chịu được gấp đôi tải. Nó cũng chỉ ở một địa điểm.</p>
+      <p><em class="en">Shared-disk</em> dùng nhiều máy có CPU, RAM riêng nhưng chung một dàn đĩa qua mạng nhanh. Cách này có chỗ dùng trong kho dữ liệu, nhưng tranh chấp và chi phí khoá giới hạn khả năng mở rộng.</p>
+      <p><em class="en">Shared-nothing</em> (<em class="en">horizontal scaling</em>, <em class="en">scaling out</em>): mỗi máy chạy phần mềm cơ sở dữ liệu là một <dfn data-term="node">node</dfn>, dùng tài nguyên của riêng nó; mọi phối hợp nằm ở tầng phần mềm qua mạng thông thường. Không cần phần cứng đặc biệt, có thể trải dữ liệu qua nhiều vùng địa lý. Cái giá là độ phức tạp cho ứng dụng: cơ sở dữ liệu không thể giấu hết các ràng buộc của hệ phân tán khỏi bạn. Sách còn nhắc rằng có trường hợp một chương trình đơn luồng chạy nhanh hơn cả cụm hơn 100 lõi CPU.</p>
+      <h3>Sao chép và phân vùng</h3>
+      <p><strong>Sao chép</strong> giữ bản sao của cùng dữ liệu trên nhiều node, cho dự phòng và đôi khi cho hiệu năng. <strong>Phân vùng</strong> (<em class="en">sharding</em>) chia cơ sở dữ liệu lớn thành các <em class="en">partition</em> để đặt lên các node khác nhau. Hai cơ chế độc lập nhưng thường đi cùng nhau, như Hình II-1 trong sách: mỗi partition có hai bản sao nằm trên hai node khác nhau. Chương này giả định dữ liệu đủ nhỏ để mỗi máy chứa trọn một bản; <a href="#ch7">Chương 7</a> bỏ giả định đó.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-arch">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Mở rộng theo chiều dọc hay chiều ngang
+        <small>Kéo thanh tải để xem chi phí của ba kiến trúc (số liệu minh hoạ). Ở phần dưới, chọn cách bố trí dữ liệu rồi bấm vào một node để làm nó hỏng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Sao chép trả lời câu hỏi “còn bản khác nếu máy này chết không?”, phân vùng trả lời “dữ liệu có vừa một máy không?”. Hệ thống thật thường cần cả hai.</p></aside>
+  </article>
+
+  <!-- 6.2 -->
+  <article class="topic" id="ch6-leaders" data-num="6.2" data-short="Leader, follower, đồng bộ" data-keywords="leader follower master slave primary secondary synchronous asynchronous semi-synchronous replication log">
+    <p class="eyebrow">6.2 · Leaders and Followers · Synchronous Versus Asynchronous Replication</p>
+    <h2>Leader, follower và sao chép đồng bộ hay bất đồng bộ <span class="vi">Leaders and Followers</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Mỗi node giữ một bản là một <dfn data-term="replica">replica</dfn>. Cách phổ biến nhất là <dfn data-term="leader-based">sao chép dựa trên leader</dfn>: mọi ghi vào <dfn data-term="leader">leader</dfn>, leader gửi thay đổi qua <dfn data-term="replication-log">replication log</dfn> cho các <dfn data-term="follower">follower</dfn>, follower áp dụng theo đúng thứ tự.</li>
+      <li>Đọc thì vào node nào cũng được; ghi chỉ vào leader.</li>
+      <li><dfn data-term="sync-replication">Đồng bộ</dfn>: leader chờ follower xác nhận rồi mới báo OK. Có bản cập nhật chắc chắn, nhưng follower treo thì ghi bị chặn.</li>
+      <li><dfn data-term="async-replication">Bất đồng bộ</dfn>: không chờ. Nhanh và không bị chặn, nhưng leader chết thì các ghi chưa kịp sao chép bị mất, kể cả khi client đã nhận OK. Thực tế hay dùng <dfn data-term="semi-sync">bán đồng bộ</dfn>: một follower đồng bộ, còn lại bất đồng bộ.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Mọi ghi phải được xử lý trên mọi replica, nếu không các bản sẽ khác nhau. Cách giải phổ biến nhất (còn gọi là <em class="en">active/passive</em>, <em class="en">master–slave</em>) hoạt động thế này: một replica được chọn làm leader (còn gọi <em class="en">master</em>, <em class="en">primary</em>); client muốn ghi phải gửi tới leader, leader ghi vào bộ nhớ cục bộ trước. Các replica còn lại là follower (<em class="en">read replica</em>, <em class="en">secondary</em>, <em class="en">hot standby</em>); mỗi khi leader ghi, nó gửi thay đổi cho follower dưới dạng replication log hay <em class="en">change stream</em>. Follower áp dụng các ghi đúng theo thứ tự leader đã xử lý. Đây là tính năng có sẵn của PostgreSQL (từ 9.0), MySQL, Oracle Data Guard, SQL Server AlwaysOn, MongoDB, RethinkDB, Espresso, và cả message broker như Kafka, RabbitMQ.</p>
+      <h3>Chờ hay không chờ follower?</h3>
+      <p>Hình 5-2 trong sách: người dùng cập nhật ảnh hồ sơ. Follower 1 được sao chép <strong>đồng bộ</strong>: leader chờ follower 1 xác nhận đã nhận rồi mới báo thành công cho người dùng và cho client khác thấy ghi đó. Follower 2 được sao chép <strong>bất đồng bộ</strong>: leader gửi rồi đi tiếp. Bình thường sao chép rất nhanh (dưới một giây), nhưng không có gì bảo đảm: follower đang hồi phục, hệ thống gần quá tải hay mạng trục trặc có thể khiến nó tụt lại vài phút.</p>
+      <p>Đồng bộ cho bảo đảm: nếu leader chết, dữ liệu chắc chắn còn trên follower. Nhưng nếu follower đồng bộ không trả lời (sập, đứt mạng…), leader phải chặn mọi ghi. Vì vậy cho <em>tất cả</em> follower đồng bộ là không thực tế: một node hỏng làm cả hệ thống đứng. Khi bật “đồng bộ” trong cơ sở dữ liệu, thường chỉ một follower đồng bộ; nếu nó chậm hay chết, một follower bất đồng bộ được nâng lên thay. Như vậy luôn có ít nhất hai node có bản mới nhất. Cấu hình này gọi là <em class="en">semi-synchronous</em>.</p>
+      <p>Rất nhiều hệ thống chạy hoàn toàn bất đồng bộ. Khi đó một ghi đã được xác nhận với client vẫn <em>không chắc bền vững</em>: leader chết hẳn thì phần chưa sao chép mất luôn. Đổi lại, leader vẫn ghi tiếp được dù mọi follower đều tụt lại. Nghe như một sự đánh đổi tệ, nhưng nó được dùng rộng rãi, nhất là khi có nhiều follower hoặc follower ở xa.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-sync">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một lần ghi đi qua leader và hai follower
+        <small>Chọn chế độ, chỉnh độ trễ, bấm “Gửi write”. Thử làm follower 1 sập, hoặc cho leader chết ngay sau khi báo OK, để xem dữ liệu còn ở đâu.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Mất dữ liệu khi leader chết là vấn đề nghiêm trọng của sao chép bất đồng bộ, nên vẫn có nghiên cứu về cách không mất dữ liệu mà vẫn nhanh, ví dụ <dfn data-term="chain-replication">chain replication</dfn> (dùng trong Microsoft Azure Storage). Mối liên hệ giữa nhất quán của sao chép và đồng thuận (<em class="en">consensus</em>) được bàn ở <a href="#ch10">Chương 10</a>.</p></aside>
+  </article>
+
+  <!-- 6.3 -->
+  <article class="topic" id="ch6-new-follower" data-num="6.3" data-short="Thêm follower mới" data-keywords="setting up new followers snapshot log sequence number binlog coordinates caught up innobackupex">
+    <p class="eyebrow">6.3 · Setting Up New Followers</p>
+    <h2>Dựng một follower mới mà không dừng hệ thống <span class="vi">Setting Up New Followers</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Copy file dữ liệu thẳng từ node này sang node kia không đủ: dữ liệu đang thay đổi, bản copy sẽ chứa các phần ở những thời điểm khác nhau.</li>
+      <li>Khoá cơ sở dữ liệu rồi copy thì đúng, nhưng phá mục tiêu sẵn sàng cao.</li>
+      <li>Cách chuẩn: chụp <dfn data-term="snapshot">snapshot</dfn> nhất quán gắn với một vị trí chính xác trong log (PostgreSQL: <dfn data-term="lsn">log sequence number</dfn>, MySQL: <em class="en">binlog coordinates</em>), copy sang, rồi xin mọi thay đổi từ vị trí đó cho tới khi <em>bắt kịp</em>.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Thỉnh thoảng bạn cần thêm follower: tăng số replica hay thay node hỏng. Làm sao để follower mới có bản chính xác của leader trong khi client vẫn ghi liên tục? Quy trình về nguyên tắc có bốn bước:</p>
+      <ol>
+        <li>Chụp snapshot nhất quán của leader tại một thời điểm, nếu được thì không khoá toàn bộ cơ sở dữ liệu. Hầu hết cơ sở dữ liệu có sẵn tính năng này vì backup cũng cần nó (MySQL đôi khi cần công cụ ngoài như <code>innobackupex</code>).</li>
+        <li>Copy snapshot sang node follower mới.</li>
+        <li>Follower kết nối tới leader và xin mọi thay đổi kể từ snapshot. Muốn vậy snapshot phải gắn với một vị trí chính xác trong replication log.</li>
+        <li>Khi đã xử lý hết phần tồn đọng, follower đã <em class="en">caught up</em> và tiếp tục nhận thay đổi theo thời gian thực.</li>
+      </ol>
+      <p>Ví dụ dưới dùng một bảng số dư tài khoản, vì tiền chuyển khoản phải luôn cộng lại đúng: nếu bản copy “trộn” các thời điểm, tổng tiền trên follower sẽ sai.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-newfollower">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ba cách dựng follower cho một bảng số dư
+        <small>Chọn cách làm và đi từng bước. Theo dõi tổng tiền và vị trí log (LSN) của leader và follower.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Các bước cụ thể khác nhau nhiều giữa các cơ sở dữ liệu: có nơi tự động hoàn toàn, có nơi là một quy trình nhiều bước khá bí hiểm mà quản trị viên phải tự làm tay.</p></aside>
+  </article>
+
+  <!-- 6.4 -->
+  <article class="topic" id="ch6-outages" data-num="6.4" data-short="Node hỏng và failover" data-keywords="handling node outages follower failure catch-up recovery leader failure failover split brain github autoincrement fencing stonith">
+    <p class="eyebrow">6.4 · Handling Node Outages</p>
+    <h2>Khi follower hỏng và khi leader hỏng <span class="vi">Handling Node Outages</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Follower hỏng thì dễ: nó nhớ vị trí cuối cùng đã xử lý trong log, khởi động lại rồi xin leader phần còn thiếu (<dfn data-term="catch-up">catch-up recovery</dfn>).</li>
+      <li>Leader hỏng thì phải <dfn data-term="failover">failover</dfn>: phát hiện leader chết (thường bằng timeout), chọn leader mới (tốt nhất là node có dữ liệu mới nhất), cấu hình lại để client và follower dùng leader mới.</li>
+      <li>Cạm bẫy: ghi chưa sao chép của leader cũ bị bỏ; khoá tự tăng bị dùng lại (sự cố GitHub); hai node cùng tin mình là leader (<dfn data-term="split-brain">split brain</dfn>).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Node nào cũng có thể ngừng chạy, do lỗi hoặc đơn giản do bảo trì có kế hoạch (khởi động lại để cài bản vá kernel). Khởi động lại từng node mà không làm dừng hệ thống là lợi thế vận hành rất lớn. Mục tiêu: hệ thống tổng thể vẫn chạy và ảnh hưởng của một node hỏng nhỏ nhất có thể.</p>
+      <h3>Follower hỏng: bắt kịp</h3>
+      <p>Trên đĩa, mỗi follower giữ log các thay đổi nhận từ leader. Sập rồi khởi động lại, hay mạng giữa nó và leader bị gián đoạn tạm thời, follower biết giao dịch cuối cùng nó đã xử lý. Nó xin leader mọi thay đổi xảy ra trong lúc mất kết nối, áp dụng xong là bắt kịp.</p>
+      <h3>Leader hỏng: failover</h3>
+      <p>Failover có thể làm tay (quản trị viên được báo và tự chọn leader mới) hoặc tự động. Quy trình tự động thường gồm ba bước:</p>
+      <ol>
+        <li><strong>Xác định leader đã chết.</strong> Không có cách chắc chắn biết chuyện gì xảy ra (sập, mất điện, mạng…), nên hầu hết hệ thống dùng timeout: node không trả lời trong, ví dụ, 30 giây thì coi như chết.</li>
+        <li><strong>Chọn leader mới</strong> bằng bầu chọn (đa số replica còn lại) hoặc do một <em class="en">controller node</em> chỉ định. Ứng viên tốt nhất là replica có nhiều thay đổi mới nhất của leader cũ, để mất ít dữ liệu nhất. Làm mọi node đồng ý về leader mới là một bài toán đồng thuận (<a href="#ch10">Chương 10</a>).</li>
+        <li><strong>Cấu hình lại hệ thống</strong>: client gửi ghi tới leader mới. Nếu leader cũ quay lại, nó có thể vẫn tin mình là leader; hệ thống phải bảo đảm nó trở thành follower.</li>
+      </ol>
+      <h3>Những gì có thể sai</h3>
+      <ul>
+        <li>Với sao chép bất đồng bộ, leader mới có thể chưa nhận hết các ghi của leader cũ. Cách phổ biến nhất là bỏ luôn các ghi đó, vi phạm kỳ vọng bền vững của client.</li>
+        <li>Bỏ ghi càng nguy hiểm khi hệ thống ngoài phụ thuộc vào nội dung cơ sở dữ liệu. Ở GitHub, một follower MySQL tụt hậu được nâng lên leader; bộ đếm tự tăng của nó thấp hơn của leader cũ nên nó cấp lại những khoá chính đã dùng. Các khoá đó cũng được dùng trong Redis, dẫn tới dữ liệu riêng tư của người này hiện cho người khác.</li>
+        <li>Trong một số tình huống lỗi, hai node cùng tin mình là leader và cùng nhận ghi: split brain. Một số hệ thống có cơ chế tắt một node khi phát hiện hai leader (<dfn data-term="fencing">fencing</dfn>, hay STONITH), nhưng thiết kế không cẩn thận thì có thể tắt cả hai.</li>
+      </ul>
+    </div>
+    <figure class="lab" data-widget="ch6-failover">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Cụm ba node: tắt follower, giết leader, đưa leader cũ quay lại
+        <small>Cụm đang chạy với leader N1 và sao chép bất đồng bộ. Mỗi ô là một bản ghi có id tự tăng; Redis bên dưới lưu id → người dùng. Làm theo các nút, đọc nhật ký để thấy cái gì mất.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>“Bỏ các ghi chưa sao chép” nghe như chi tiết kỹ thuật, nhưng với client đó là dữ liệu đã được báo OK rồi biến mất. Nếu id của dữ liệu đó đã lan sang hệ thống khác (cache, search index, email đã gửi), hậu quả vượt ra ngoài cơ sở dữ liệu.</p></aside>
+  </article>
+
+  <!-- 6.5 -->
+  <article class="topic" id="ch6-timeout" data-num="6.5" data-short="Chọn timeout cho failover" data-keywords="timeout failover unnecessary load spike manual failover">
+    <p class="eyebrow">6.5 · Handling Node Outages (continued)</p>
+    <h2>Bao lâu thì coi leader là đã chết? <span class="vi">Choosing the Failover Timeout</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Timeout dài: khi leader chết thật, hệ thống không ghi được lâu hơn.</li>
+      <li>Timeout ngắn: một đợt tải tăng vọt hay gói tin bị trễ cũng kích hoạt failover không cần thiết, và failover lúc hệ thống đang vật lộn thường làm tình hình tệ hơn.</li>
+      <li>Không có lời giải dễ, nên một số đội vận hành chọn failover bằng tay dù phần mềm hỗ trợ tự động.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Cạm bẫy cuối trong danh sách của sách là câu hỏi tưởng đơn giản: timeout bao nhiêu? Node bị coi là chết khi nó không trả lời trong khoảng timeout. Nhưng “không trả lời” có thể chỉ là “đang trả lời chậm”: một đợt tải tăng đột ngột làm thời gian phản hồi vượt timeout, hoặc mạng trục trặc làm gói tin đến muộn. Nếu hệ thống đã quá tải hay mạng đã có vấn đề, việc đổi leader (kéo theo đồng bộ lại, client kết nối lại) thêm gánh nặng đúng lúc tệ nhất.</p>
+      <p>Mô phỏng dưới vẽ thời gian phản hồi heartbeat của leader trong 24 giờ, với vài đợt tăng vọt do tải và một lần leader chết thật lúc 18 giờ. Kéo timeout để thấy hai cái giá kéo nhau theo hai hướng.</p>
+      <p>Các vấn đề này (node hỏng, mạng không tin được, đánh đổi giữa nhất quán, bền vững, sẵn sàng và độ trễ) là những vấn đề nền tảng của hệ phân tán, được bàn sâu ở <a href="#ch9">Chương 9</a> và <a href="#ch10">Chương 10</a>.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-timeout">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đánh đổi khi chọn timeout
+        <small>Kéo “Timeout” và “Cường độ đợt tải”. Đợt nào vượt đường timeout sẽ gây một lần failover không cần thiết (số liệu minh hoạ).</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Bộ phát hiện lỗi dựa trên timeout chỉ thấy “chậm”, không phân biệt được “chết” với “bận”. Mọi lựa chọn timeout là chọn giữa hai kiểu sai.</p></aside>
+  </article>
+
+  <!-- 6.6 -->
+  <article class="topic" id="ch6-repl-logs" data-num="6.6" data-short="Định dạng replication log" data-keywords="statement-based replication wal shipping write-ahead log logical row-based binlog trigger-based change data capture now rand nondeterministic">
+    <p class="eyebrow">6.6 · Implementation of Replication Logs</p>
+    <h2>Leader thực sự gửi gì cho follower? <span class="vi">Implementation of Replication Logs</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="statement-based">Statement-based</dfn>: gửi nguyên câu SQL. Gọn, nhưng hỏng với hàm không tất định (<code>NOW()</code>, <code>RAND()</code>), cột tự tăng, câu phụ thuộc dữ liệu có sẵn, trigger có tác dụng phụ.</li>
+      <li><dfn data-term="wal-shipping">WAL shipping</dfn>: gửi chính write-ahead log, tức byte nào đổi trong khối đĩa nào. Gắn chặt với storage engine, nên leader và follower thường phải cùng phiên bản.</li>
+      <li><dfn data-term="logical-log">Logical (row-based) log</dfn>: gửi thay đổi ở mức dòng. Tách khỏi storage engine, tương thích ngược dễ hơn, và hệ thống ngoài đọc được (<dfn data-term="cdc">change data capture</dfn>).</li>
+      <li><dfn data-term="trigger-based">Trigger-based</dfn>: đưa sao chép lên tầng ứng dụng để linh hoạt (chỉ một phần dữ liệu, giữa hai loại DB, logic xử lý xung đột), đổi lại chi phí cao và dễ lỗi hơn.</li>
+    </ul></div>
+    <div class="prose">
+      <h3>Sao chép theo câu lệnh</h3>
+      <p>Leader ghi lại mọi câu <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code> và gửi cho follower; follower phân tích và chạy như thể nhận từ client. Nghe hợp lý, nhưng có nhiều cách hỏng: hàm như <code>NOW()</code> hay <code>RAND()</code> cho giá trị khác trên mỗi replica; câu dùng cột tự tăng hoặc <code>UPDATE … WHERE &lt;điều kiện&gt;</code> phải chạy đúng thứ tự trên mọi replica, điều khó khi nhiều giao dịch chạy đồng thời; trigger, stored procedure, hàm do người dùng định nghĩa có thể sinh tác dụng phụ khác nhau. Có thể vá (leader thay hàm không tất định bằng giá trị cố định khi ghi log), nhưng có quá nhiều trường hợp biên. MySQL dùng cách này trước bản 5.1; giờ mặc định chuyển sang row-based nếu câu có gì không tất định. VoltDB vẫn dùng nó và giữ an toàn bằng cách bắt giao dịch phải tất định.</p>
+      <h3>Gửi write-ahead log</h3>
+      <p>Như <a href="#ch4">Chương 4</a> đã nói, storage engine nào cũng có một log chỉ-ghi-thêm: với LSM-tree đó là nơi lưu chính, với B-tree đó là WAL để hồi phục sau sự cố. Leader có thể gửi chính log đó qua mạng, follower dựng lại đúng cấu trúc dữ liệu y như leader. PostgreSQL và Oracle làm vậy. Nhược điểm: log mô tả dữ liệu ở mức rất thấp, nên nếu định dạng lưu trữ đổi giữa hai phiên bản, thường không chạy được leader và follower khác phiên bản. Chi tiết này có ảnh hưởng vận hành lớn: nếu follower được phép mới hơn leader, bạn nâng cấp không downtime bằng cách nâng follower trước rồi failover; nếu không, nâng cấp phải dừng hệ thống.</p>
+      <h3>Log logic (theo dòng)</h3>
+      <p>Dùng định dạng log riêng cho sao chép, tách khỏi biểu diễn vật lý. Với cơ sở dữ liệu quan hệ, đó là chuỗi bản ghi ở mức dòng: dòng được chèn thì có giá trị mới của mọi cột; dòng bị xoá thì có đủ thông tin định danh (thường là khoá chính); dòng được cập nhật thì có định danh và giá trị mới của các cột. Giao dịch sửa nhiều dòng sinh nhiều bản ghi, kèm một bản ghi commit. Binlog của MySQL ở chế độ row-based là ví dụ. Định dạng này cũng dễ cho hệ thống ngoài phân tích, ví dụ đổ sang kho dữ liệu hay dựng cache, index riêng (xem <a href="#ch12">Chương 12</a>).</p>
+      <h3>Sao chép bằng trigger</h3>
+      <p>Các cách trên đều do cơ sở dữ liệu làm, không cần code ứng dụng. Khi cần linh hoạt hơn, có thể dùng công cụ đọc log (Oracle GoldenGate) hoặc trigger: đoạn code tự chạy khi có ghi, chép thay đổi sang một bảng riêng; một tiến trình ngoài đọc bảng đó, áp logic ứng dụng và đẩy sang hệ thống khác. Databus cho Oracle và Bucardo cho Postgres làm như vậy.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-logformats">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Cùng một câu ghi, bốn kiểu replication log
+        <small>Chọn câu lệnh và phương pháp. Ô trái là những gì leader gửi đi; bảng phải so kết quả trên leader và follower, ô đỏ là chỗ lệch.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th>Phương pháp</th><th>Gửi gì</th><th>Điểm mạnh</th><th>Điểm yếu</th></tr></thead>
+      <tbody>
+        <tr><td>Statement-based</td><td>Câu SQL</td><td>Rất gọn</td><td>Không tất định, phụ thuộc thứ tự, tác dụng phụ</td></tr>
+        <tr><td>WAL shipping</td><td>Byte trong khối đĩa</td><td>Bản sao y hệt, không cần dịch</td><td>Gắn với storage engine và phiên bản</td></tr>
+        <tr><td>Logical (row-based)</td><td>Giá trị từng dòng</td><td>Khác phiên bản được, hệ thống ngoài đọc được</td><td>Lớn hơn statement khi một câu sửa nhiều dòng</td></tr>
+        <tr><td>Trigger-based</td><td>Do code ứng dụng quyết định</td><td>Linh hoạt nhất</td><td>Chi phí cao, dễ lỗi hơn</td></tr>
+      </tbody>
+    </table></div>
+  </article>
+
+  <!-- 6.7 -->
+  <article class="topic" id="ch6-lag" data-num="6.7" data-short="Độ trễ sao chép" data-keywords="problems with replication lag eventual consistency read scaling stale">
+    <p class="eyebrow">6.7 · Problems with Replication Lag</p>
+    <h2>Độ trễ sao chép và nhất quán cuối cùng <span class="vi">Problems with Replication Lag</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Web thường đọc nhiều ghi ít, nên có kiến trúc <em class="en">read-scaling</em>: thêm thật nhiều follower để chia tải đọc. Cách này chỉ khả thi với sao chép bất đồng bộ.</li>
+      <li>Đọc từ follower bất đồng bộ có thể ra dữ liệu cũ. Ngừng ghi và chờ thì follower sẽ bắt kịp: đó là <dfn data-term="eventual-consistency">nhất quán cuối cùng</dfn>.</li>
+      <li>“Cuối cùng” cố ý mơ hồ: <dfn data-term="replication-lag">độ trễ sao chép</dfn> thường dưới một giây, nhưng gần quá tải hay mạng có vấn đề thì lên vài giây, vài phút. Khi đó các bất thường trở thành lỗi thật của ứng dụng.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Với tải gồm chủ yếu là đọc, chỉ một phần nhỏ là ghi, có một lựa chọn hấp dẫn: tạo nhiều follower và phân bổ request đọc cho chúng. Leader nhẹ tải, request đọc được phục vụ từ replica gần. Muốn tăng sức đọc chỉ cần thêm follower. Nhưng cách này chỉ thực tế với sao chép bất đồng bộ: đồng bộ tới mọi follower thì một node hỏng làm cả hệ thống không ghi được, và càng nhiều node càng dễ có node hỏng.</p>
+      <p>Hệ quả: chạy cùng một truy vấn trên leader và trên follower cùng lúc có thể ra kết quả khác nhau. Sự không nhất quán này chỉ là tạm thời; nếu ngừng ghi và chờ một lúc, follower sẽ bắt kịp. Thuật ngữ <em class="en">eventual consistency</em> do Douglas Terry và cộng sự đặt ra, được Werner Vogels phổ biến, và thành khẩu hiệu của nhiều dự án NoSQL. Nhưng follower của một cơ sở dữ liệu quan hệ sao chép bất đồng bộ cũng có đúng tính chất đó.</p>
+      <p>Không có giới hạn nào cho việc replica tụt lại bao xa. Ba mục tiếp theo là ba bất thường cụ thể hay gặp khi độ trễ lớn, mỗi cái kèm cách khắc phục.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-lag">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một ghi lan tới năm follower
+        <small>Mỗi follower có độ trễ riêng (số liệu minh hoạ). Kéo “Thời điểm đọc” để xem một request đọc ngẫu nhiên có thấy dữ liệu mới không; bật “gần quá tải” để thấy đuôi độ trễ dài ra.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Câu hỏi nên đặt khi thiết kế: “nếu độ trễ sao chép lên tới vài phút, hay vài giờ, ứng dụng của tôi cư xử ra sao?”. Nếu câu trả lời là “không sao” thì tốt. Nếu không, cần một bảo đảm mạnh hơn.</p></aside>
+  </article>
+
+  <!-- 6.8 -->
+  <article class="topic" id="ch6-ryw" data-num="6.8" data-short="Đọc được cái mình vừa ghi" data-keywords="reading your own writes read-after-write consistency read your writes cross-device">
+    <p class="eyebrow">6.8 · Reading Your Own Writes</p>
+    <h2>Đọc được cái mình vừa ghi <span class="vi">Reading Your Own Writes</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Người dùng gửi bình luận rồi tải lại trang; ghi đi vào leader nhưng đọc từ follower đang trễ. Với họ, dữ liệu như vừa bị mất.</li>
+      <li><dfn data-term="read-after-write">Nhất quán đọc-sau-ghi</dfn> (<em class="en">read-your-writes</em>) bảo đảm người dùng luôn thấy cập nhật của chính mình. Không hứa gì về cập nhật của người khác.</li>
+      <li>Cách làm: đọc thứ người dùng có thể đã sửa từ leader; đọc từ leader trong một phút sau lần ghi; hoặc client nhớ mốc (LSN) của lần ghi cuối và chỉ đọc từ replica đã tới mốc đó.</li>
+      <li>Truy cập từ nhiều thiết bị khó hơn: mốc ghi phải lưu tập trung, và các thiết bị có thể bị định tuyến tới datacenter khác nhau.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Nhiều ứng dụng cho người dùng gửi dữ liệu rồi xem lại cái mình đã gửi: một bản ghi khách hàng, một bình luận. Ghi phải đi qua leader, nhưng xem thì có thể đọc từ follower, nhất là khi dữ liệu được xem nhiều mà ít khi sửa. Hình 5-3 trong sách: người dùng ghi rồi đọc ngay từ một replica chưa nhận được thay đổi.</p>
+      <h3>Các kỹ thuật</h3>
+      <ul>
+        <li><strong>Đọc từ leader những gì người dùng có thể đã sửa.</strong> Cần cách biết “có thể đã sửa” mà không phải truy vấn. Ví dụ hồ sơ trên mạng xã hội chỉ chủ nhân sửa được, nên quy tắc đơn giản: hồ sơ của chính mình đọc từ leader, hồ sơ người khác đọc từ follower.</li>
+        <li><strong>Dựa vào thời gian.</strong> Nếu hầu hết mọi thứ người dùng đều sửa được, cách trên sẽ dồn gần hết đọc về leader. Thay vào đó: trong một phút sau lần cập nhật cuối, mọi đọc đi về leader; hoặc theo dõi độ trễ của follower và không truy vấn follower nào trễ quá một phút.</li>
+        <li><strong>Client nhớ mốc của lần ghi gần nhất.</strong> Hệ thống bảo đảm replica phục vụ đọc đã phản ánh mọi cập nhật tới mốc đó; nếu chưa, chuyển sang replica khác hoặc chờ. Mốc nên là mốc logic (như LSN); nếu dùng đồng hồ hệ thống thì đồng bộ đồng hồ trở nên sống còn (<a href="#ch9">Chương 9</a>).</li>
+        <li>Nếu replica trải qua nhiều datacenter, request nào cần leader phải được định tuyến tới datacenter có leader.</li>
+      </ul>
+      <p>Khi cùng một người dùng truy cập từ laptop và điện thoại, bạn có thể muốn <em>nhất quán đọc-sau-ghi giữa các thiết bị</em>. Code trên điện thoại không biết laptop vừa ghi gì, nên metadata về lần ghi cuối phải được lưu tập trung. Và vì laptop dùng mạng nhà, điện thoại dùng mạng di động, hai thiết bị có thể bị định tuyến tới hai datacenter khác nhau; nếu cách của bạn cần đọc từ leader, có thể phải định tuyến mọi thiết bị của một người về cùng datacenter.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-ryw">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> User 1234 sửa hồ sơ rồi tải lại trang
+        <small>Chọn kỹ thuật, chỉnh độ trễ follower và thời điểm đọc lại, bấm “Chạy kịch bản”. Thử bật “đọc từ thiết bị khác”.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 6.9 -->
+  <article class="topic" id="ch6-monotonic" data-num="6.9" data-short="Đọc đơn điệu" data-keywords="monotonic reads time going backward user 2345 user 1234 comment hash user id">
+    <p class="eyebrow">6.9 · Monotonic Reads</p>
+    <h2>Đọc đơn điệu: thời gian không chạy lùi <span class="vi">Monotonic Reads</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>User 2345 tải lại trang hai lần, lần đầu vào follower ít trễ (thấy bình luận mới của user 1234), lần sau vào follower trễ nhiều (bình luận biến mất). Thời gian như chạy lùi.</li>
+      <li><dfn data-term="monotonic-reads">Đọc đơn điệu</dfn> bảo đảm: một người đọc nhiều lần liên tiếp sẽ không thấy dữ liệu cũ hơn cái đã thấy. Yếu hơn nhất quán mạnh, mạnh hơn nhất quán cuối cùng.</li>
+      <li>Cách làm: mỗi người dùng luôn đọc từ cùng một replica, ví dụ chọn theo hash của user ID. Replica đó hỏng thì phải chuyển hướng.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Bất thường thứ hai xảy ra khi một người đọc nhiều lần từ những replica khác nhau, chuyện rất dễ gặp nếu mỗi lần tải lại trang được định tuyến tới một server ngẫu nhiên. Hình 5-4 trong sách: truy vấn thứ hai quan sát hệ thống ở một thời điểm <em>sớm hơn</em> truy vấn thứ nhất. Nếu lần đầu không trả về gì thì cũng chẳng sao, vì user 2345 không biết user 1234 vừa bình luận. Cái gây bối rối là thấy bình luận xuất hiện rồi lại biến mất.</p>
+      <p>Đọc đơn điệu không hứa bạn luôn thấy giá trị mới nhất; bạn vẫn có thể thấy giá trị cũ. Nó chỉ hứa: đã thấy dữ liệu mới thì không bị kéo về dữ liệu cũ hơn. Chọn replica theo hash của user ID thay vì ngẫu nhiên là đủ, cho tới khi replica đó hỏng và phải đổi sang replica khác.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-monotonic">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> User 2345 bấm tải lại nhiều lần
+        <small>Mỗi lần bấm “Tải lại trang” là một lần đọc 0,7 giây sau lần trước. So định tuyến ngẫu nhiên với định tuyến theo hash, rồi thử làm hỏng replica được chọn.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 6.10 -->
+  <article class="topic" id="ch6-prefix" data-num="6.10" data-short="Đọc tiền tố nhất quán" data-keywords="consistent prefix reads causality mr poons mrs cake partition solutions for replication lag transactions">
+    <p class="eyebrow">6.10 · Consistent Prefix Reads · Solutions for Replication Lag</p>
+    <h2>Câu trả lời đến trước câu hỏi <span class="vi">Consistent Prefix Reads</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Ông Poons hỏi, bà Cake trả lời. Người nghe qua follower có thể nghe câu trả lời trước câu hỏi nếu hai câu nằm ở hai phân vùng có độ trễ khác nhau. Đây là vi phạm quan hệ nhân quả.</li>
+      <li><dfn data-term="consistent-prefix">Đọc tiền tố nhất quán</dfn>: nếu một chuỗi ghi xảy ra theo thứ tự nào thì ai đọc cũng thấy chúng theo đúng thứ tự đó.</li>
+      <li>Vấn đề đặc trưng của cơ sở dữ liệu phân vùng: các phân vùng chạy độc lập, không có thứ tự ghi toàn cục. Cách giải: ghi những thứ có quan hệ nhân quả vào cùng một phân vùng, hoặc dùng thuật toán theo dõi phụ thuộc nhân quả.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Đoạn hội thoại trong sách:</p>
+      <p><em>Ông Poons:</em> “How far into the future can you see, Mrs. Cake?”<br><em>Bà Cake:</em> “About ten seconds usually, Mr. Poons.”</p>
+      <p>Giữa hai câu có quan hệ nhân quả: bà Cake nghe câu hỏi rồi mới trả lời. Giờ một người thứ ba nghe qua follower; câu của bà Cake đi qua follower ít trễ, câu của ông Poons qua follower trễ nhiều. Người đó nghe bà Cake trả lời trước khi ông Poons kịp hỏi. Khả năng tiên tri đáng nể, nhưng rất khó hiểu.</p>
+      <p>Nếu cơ sở dữ liệu luôn áp dụng các ghi theo cùng một thứ tự thì người đọc luôn thấy một “tiền tố” nhất quán của lịch sử, bất thường này không xảy ra. Nhưng trong cơ sở dữ liệu phân vùng (<a href="#ch7">Chương 7</a>), mỗi phân vùng chạy độc lập: khi đọc, bạn có thể thấy phần này ở trạng thái cũ, phần kia ở trạng thái mới.</p>
+      <h3>Giải pháp cho độ trễ sao chép</h3>
+      <p>Ứng dụng có thể tự cung cấp bảo đảm mạnh hơn cơ sở dữ liệu, ví dụ đọc một số thứ từ leader, nhưng làm vậy trong code ứng dụng phức tạp và dễ sai. Giả vờ sao chép là đồng bộ khi thực ra nó bất đồng bộ là công thức cho rắc rối về sau. Sẽ tốt hơn nếu cơ sở dữ liệu “làm đúng” giúp bạn: đó là lý do giao dịch tồn tại. Nhiều hệ thống phân tán đã bỏ giao dịch với lý do quá đắt, và cho rằng nhất quán cuối cùng là tất yếu khi mở rộng. Sách cho rằng nhận định đó có phần đúng nhưng quá đơn giản; <a href="#ch8">Chương 8</a> và <a href="#ch10">Chương 10</a> sẽ quay lại.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-prefix">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Người nghe lén qua hai phân vùng
+        <small>Câu hỏi nằm ở phân vùng 1, câu trả lời ở phân vùng 2. Chỉnh độ trễ follower của từng phân vùng và xem người nghe nhận câu theo thứ tự nào. Bật cách khắc phục để so sánh.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th>Bất thường</th><th>Bảo đảm cần có</th><th>Cách khắc phục điển hình</th></tr></thead>
+      <tbody>
+        <tr><td>Ghi xong tải lại không thấy</td><td>Read-after-write</td><td>Đọc từ leader thứ mình sửa; nhớ LSN lần ghi cuối</td></tr>
+        <tr><td>Thấy rồi lại mất</td><td>Monotonic reads</td><td>Mỗi người dùng đọc cố định một replica (hash user ID)</td></tr>
+        <tr><td>Trả lời trước khi hỏi</td><td>Consistent prefix reads</td><td>Ghi có quan hệ nhân quả vào cùng phân vùng; theo dõi phụ thuộc</td></tr>
+      </tbody>
+    </table></div>
+  </article>
+
+  <!-- 6.11 -->
+  <article class="topic" id="ch6-multi-leader" data-num="6.11" data-short="Nhiều leader: khi nào dùng" data-keywords="multi-leader master-master active active multi-datacenter offline calendar couchdb collaborative editing etherpad google docs">
+    <p class="eyebrow">6.11 · Multi-Leader Replication · Use Cases</p>
+    <h2>Sao chép nhiều leader: khi nào đáng dùng <span class="vi">Use Cases for Multi-Leader Replication</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="multi-leader">Nhiều leader</dfn> (<em class="en">master–master</em>, <em class="en">active/active</em>): nhiều node cùng nhận ghi, mỗi leader đồng thời là follower của các leader khác.</li>
+      <li>Hiếm khi đáng dùng trong một datacenter. Hợp lý khi: chạy nhiều datacenter (mỗi nơi một leader); client làm việc offline (mỗi thiết bị là một leader); soạn thảo cộng tác thời gian thực.</li>
+      <li>So với một leader trên nhiều datacenter: ghi nhanh hơn (xử lý tại chỗ), chịu được mất datacenter và đứt mạng liên datacenter tốt hơn. Cái giá: xung đột ghi phải giải quyết.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Nhược điểm lớn của một leader: mọi ghi phải đi qua nó; không kết nối được tới leader là không ghi được. Mở rộng tự nhiên là cho nhiều node cùng nhận ghi, vẫn sao chép như cũ: node nào xử lý ghi thì chuyển thay đổi cho mọi node khác.</p>
+      <h3>Nhiều datacenter</h3>
+      <p>Mỗi datacenter có một leader; bên trong mỗi datacenter là sao chép leader–follower thường; giữa các datacenter, các leader sao chép cho nhau (Hình 5-6). So sánh:</p>
+      <ul>
+        <li><strong>Hiệu năng.</strong> Một leader: mọi ghi đi qua internet tới datacenter có leader, thêm độ trễ đáng kể. Nhiều leader: ghi xử lý tại datacenter gần, sao chép bất đồng bộ sang nơi khác, độ trễ liên datacenter được giấu khỏi người dùng.</li>
+        <li><strong>Mất cả datacenter.</strong> Một leader: phải failover sang datacenter khác. Nhiều leader: mỗi datacenter chạy độc lập, sao chép bắt kịp khi nơi hỏng hoạt động lại.</li>
+        <li><strong>Sự cố mạng.</strong> Đường truyền liên datacenter qua internet công cộng kém tin cậy hơn mạng nội bộ. Cấu hình một leader rất nhạy với đường này; nhiều leader bất đồng bộ chịu được gián đoạn tạm thời.</li>
+      </ul>
+      <p>Công cụ: Tungsten Replicator cho MySQL, BDR cho PostgreSQL, GoldenGate cho Oracle. Vì thường là tính năng “gắn thêm”, nhiều leader hay vướng cạm bẫy cấu hình và tương tác bất ngờ với khoá tự tăng, trigger, ràng buộc toàn vẹn. Sách gọi nó là vùng nguy hiểm nên tránh nếu có thể.</p>
+      <h3>Client offline và soạn thảo cộng tác</h3>
+      <p>Ứng dụng lịch trên điện thoại, laptop: bạn phải xem và thêm cuộc họp bất cứ lúc nào, kể cả khi không có mạng. Mỗi thiết bị có một cơ sở dữ liệu cục bộ đóng vai leader, đồng bộ bất đồng bộ với các thiết bị khác; độ trễ sao chép có thể là vài giờ, vài ngày. Về kiến trúc, đây là nhiều leader giữa các datacenter được đẩy tới cực điểm: mỗi thiết bị là một “datacenter”, mạng giữa chúng cực kỳ không tin cậy. CouchDB được thiết kế cho kiểu này. Soạn thảo cộng tác (Etherpad, Google Docs) cũng tương tự: thay đổi áp dụng ngay vào bản cục bộ trong trình duyệt rồi sao chép bất đồng bộ. Muốn không xung đột thì phải khoá tài liệu (tương đương một leader); muốn cộng tác nhanh với đơn vị thay đổi nhỏ như một phím gõ thì phải giải quyết xung đột.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-multidc">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ba datacenter, một leader hay ba leader
+        <small>Chọn kiến trúc và vị trí người dùng; thử cắt đường truyền tới Châu Âu hoặc làm sập cả datacenter đó. Độ trễ mạng là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 6.12 -->
+  <article class="topic" id="ch6-conflicts" data-num="6.12" data-short="Xung đột ghi" data-keywords="handling write conflicts wiki title conflict avoidance convergent last write wins merge custom conflict resolution on read on write crdt operational transformation amazon shopping cart meeting room booking">
+    <p class="eyebrow">6.12 · Handling Write Conflicts</p>
+    <h2>Xung đột ghi và cách giải quyết <span class="vi">Handling Write Conflicts</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Hai người cùng sửa tiêu đề trang wiki: người 1 đổi A → B ở leader 1, người 2 đổi A → C ở leader 2. Cả hai đều thành công tại chỗ; xung đột chỉ lộ ra khi sao chép, lúc đó đã quá muộn để hỏi người dùng.</li>
+      <li>Cách đơn giản nhất là <dfn data-term="conflict-avoidance">tránh xung đột</dfn>: mọi ghi cho một bản ghi đi qua cùng một leader.</li>
+      <li>Nếu không tránh được, phải giải quyết theo cách <em>hội tụ</em>: mọi replica ra cùng một giá trị. Các cách: <dfn data-term="lww">last write wins</dfn> (mất dữ liệu), replica ID lớn hơn thắng (cũng mất), gộp giá trị (“B/C”), hoặc lưu xung đột để code ứng dụng xử lý sau.</li>
+      <li>Logic tuỳ biến có thể chạy <em>khi ghi</em> (Bucardo) hoặc <em>khi đọc</em> (CouchDB). Hướng tự động: <dfn data-term="crdt">CRDT</dfn>, mergeable persistent data structures, operational transformation.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ở cơ sở dữ liệu một leader, người ghi thứ hai sẽ bị chặn chờ, hoặc giao dịch bị huỷ để người dùng thử lại. Ở nhiều leader, cả hai ghi đều thành công và xung đột chỉ được phát hiện bất đồng bộ về sau. Có thể phát hiện đồng bộ (chờ sao chép tới mọi replica rồi mới báo thành công), nhưng như thế mất luôn lợi ích chính của nhiều leader; khi đó dùng một leader còn hơn.</p>
+      <h3>Tránh xung đột</h3>
+      <p>Vì nhiều hệ thống nhiều leader xử lý xung đột kém, tránh xung đột là lời khuyên thường gặp. Ví dụ: mọi request của một người dùng luôn được định tuyến tới cùng một datacenter “nhà”; từ góc nhìn người đó, cấu hình là một leader. Cách này vỡ khi phải đổi leader cho bản ghi: datacenter hỏng, hay người dùng chuyển tới gần datacenter khác.</p>
+      <h3>Hội tụ về một trạng thái</h3>
+      <p>Ở leader 1, tiêu đề thành B rồi C; ở leader 2 thành C rồi B. Không thứ tự nào “đúng” hơn. Nếu mỗi replica cứ áp dụng theo thứ tự nó nhận, leader 1 ra C còn leader 2 ra B: không chấp nhận được. Cách giải phải <em>hội tụ</em>:</p>
+      <ul>
+        <li>Gán mỗi ghi một ID duy nhất (timestamp, số ngẫu nhiên dài, UUID, hash), ID lớn nhất thắng, bỏ phần còn lại. Dùng timestamp thì gọi là <em class="en">last write wins</em> (LWW); phổ biến nhưng rất dễ mất dữ liệu.</li>
+        <li>Gán mỗi replica một ID; ghi từ replica số lớn hơn luôn thắng. Cũng mất dữ liệu.</li>
+        <li>Gộp các giá trị, ví dụ sắp theo chữ cái rồi nối: “B/C”.</li>
+        <li>Ghi nhận xung đột vào một cấu trúc giữ đủ thông tin, để code ứng dụng giải quyết sau (có thể hỏi người dùng).</li>
+      </ul>
+      <h3>Logic tuỳ biến và giải quyết tự động</h3>
+      <p><strong>Khi ghi</strong>: cơ sở dữ liệu phát hiện xung đột trong log sao chép thì gọi handler (Bucardo cho viết đoạn Perl); handler chạy nền, phải nhanh, không hỏi người dùng được. <strong>Khi đọc</strong>: lưu mọi phiên bản xung đột, lần đọc sau trả hết cho ứng dụng để nó hỏi người dùng hoặc tự gộp rồi ghi lại (CouchDB). Lưu ý giải quyết xung đột thường ở mức từng dòng hay từng document, không phải cả giao dịch.</p>
+      <p>Code tuỳ biến dễ sai: giỏ hàng Amazon từng giữ lại món được thêm nhưng không giữ thao tác xoá, nên món đã xoá lại hiện về. Nghiên cứu về giải quyết tự động: CRDT (tập, map, danh sách, bộ đếm tự gộp hợp lý, có trong Riak 2.0), cấu trúc dữ liệu bền gộp được (theo dõi lịch sử như Git, gộp ba chiều), và <em class="en">operational transformation</em> (thuật toán đằng sau Etherpad, Google Docs).</p>
+      <p>Có xung đột hiển nhiên như hai ghi cùng sửa một trường. Có xung đột tinh vi hơn: hệ thống đặt phòng họp phải bảo đảm một phòng không bị hai nhóm đặt trùng giờ; nếu hai lượt đặt được tạo trên hai leader khác nhau, kiểm tra phòng trống trước khi đặt cũng không cứu được. <a href="#ch8">Chương 8</a> và <a href="#ch13">Chương 13</a> sẽ quay lại.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-conflict">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Tiêu đề trang wiki: A → B ở leader 1, A → C ở leader 2
+        <small>Chọn cách giải quyết. Lệch đồng hồ của leader 2 ảnh hưởng tới LWW. Ở chế độ “hỏi người dùng”, bạn là người chọn tiêu đề cuối.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 6.13 -->
+  <article class="topic" id="ch6-topologies" data-num="6.13" data-short="Topology nhiều leader" data-keywords="multi-leader replication topologies circular star all-to-all tree causality overtake version vectors node identifier">
+    <p class="eyebrow">6.13 · Multi-Leader Replication Topologies</p>
+    <h2>Topology sao chép giữa các leader <span class="vi">Multi-Leader Replication Topologies</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="topology">Topology sao chép</dfn> là các đường đi mà ghi lan từ node này sang node khác: vòng tròn (mặc định của MySQL), hình sao (tổng quát thành cây), mọi-tới-mọi.</li>
+      <li>Ở vòng tròn và hình sao, ghi phải đi qua nhiều node; để tránh vòng lặp vô hạn, mỗi ghi mang danh sách ID các node đã đi qua. Một node hỏng có thể cắt luồng sao chép.</li>
+      <li>Mọi-tới-mọi chịu lỗi tốt hơn, nhưng thông điệp có thể “vượt” nhau: update đến trước insert. Gắn timestamp không đủ vì đồng hồ không tin được; cần version vector.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Với hai leader chỉ có một topology hợp lý: mỗi bên gửi mọi ghi cho bên kia. Với nhiều hơn thì có nhiều lựa chọn (Hình 5-8). Topology tổng quát nhất là <em class="en">all-to-all</em>: mỗi leader gửi ghi cho mọi leader khác. MySQL mặc định chỉ hỗ trợ <em class="en">circular</em>: mỗi node nhận từ một node và chuyển tiếp (cùng với ghi của nó) cho một node. <em class="en">Star</em>: một node gốc chuyển ghi cho mọi node khác.</p>
+      <p>Ở vòng tròn và hình sao, node phải chuyển tiếp thay đổi nhận được. Mỗi node có ID duy nhất, mỗi ghi được gắn ID các node đã đi qua; node nhận một thay đổi đã gắn ID của chính nó thì bỏ qua. Vấn đề: một node hỏng là luồng sao chép giữa các node khác bị gián đoạn cho tới khi sửa; cấu hình lại để đi vòng qua node hỏng thường phải làm tay.</p>
+      <p>All-to-all có vấn đề riêng: một số đường mạng nhanh hơn đường khác, nên thông điệp có thể vượt nhau (Hình 5-9). Client A chèn một dòng ở leader 1, client B cập nhật dòng đó ở leader 3; leader 2 có thể nhận update (với nó là cập nhật một dòng chưa tồn tại) trước insert. Đây là vấn đề nhân quả giống đọc tiền tố nhất quán. Tại thời điểm sách viết, PostgreSQL BDR không bảo đảm thứ tự nhân quả, còn Tungsten Replicator cho MySQL thậm chí không cố phát hiện xung đột. Nếu dùng hệ thống nhiều leader, hãy đọc kỹ tài liệu và kiểm thử kỹ.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-topology">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Lan truyền một ghi qua năm leader
+        <small>Chọn topology và node nguồn, bấm vào node trong hình để làm nó hỏng, rồi “Gửi write”. Phần dưới minh hoạ update vượt insert trên đường truyền chậm.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 6.14 -->
+  <article class="topic" id="ch6-leaderless" data-num="6.14" data-short="Không leader, read repair" data-keywords="leaderless replication dynamo riak cassandra voldemort node down read repair anti-entropy version number">
+    <p class="eyebrow">6.14 · Leaderless Replication · Writing to the Database When a Node Is Down</p>
+    <h2>Sao chép không leader <span class="vi">Leaderless Replication</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="leaderless">Không leader</dfn> (<em class="en">Dynamo-style</em>): replica nào cũng nhận ghi trực tiếp. Client (hoặc một coordinator) gửi ghi tới nhiều replica song song, và cũng đọc từ nhiều replica song song. Amazon Dynamo, Riak, Cassandra, Voldemort.</li>
+      <li>Không có failover: một replica sập thì nó chỉ bỏ lỡ ghi; ghi vẫn thành công nếu đủ số replica xác nhận.</li>
+      <li>Khi đọc, client thấy các phản hồi khác phiên bản và dùng số phiên bản để chọn bản mới nhất.</li>
+      <li>Replica bắt kịp bằng <dfn data-term="read-repair">read repair</dfn> (client ghi bản mới vào replica cũ khi đọc) và <dfn data-term="anti-entropy">anti-entropy</dfn> (tiến trình nền so và chép dữ liệu thiếu, không theo thứ tự nào).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Single-leader và multi-leader đều dựa trên việc leader quyết định thứ tự ghi. Một số hệ thống bỏ hẳn khái niệm leader. Ý tưởng này có từ rất sớm, bị quên trong thời thống trị của cơ sở dữ liệu quan hệ, rồi thành thời thượng trở lại sau hệ thống Dynamo nội bộ của Amazon. (DynamoDB của AWS là sản phẩm khác, dùng kiến trúc một leader.) Coordinator trong hệ không leader không áp đặt thứ tự ghi, và khác biệt đó có hệ quả sâu sắc.</p>
+      <p>Hình 5-10: cơ sở dữ liệu có ba replica, một replica đang khởi động lại để cài bản cập nhật. User 1234 gửi ghi tới cả ba; hai replica nhận, replica kia bỏ lỡ. Hai trên ba xác nhận là đủ, ghi được coi là thành công. Khi replica kia hoạt động lại, nó thiếu các ghi trong lúc vắng mặt; đọc từ nó sẽ ra giá trị cũ. Vì vậy request đọc cũng gửi tới nhiều node; user 2345 nhận phiên bản 7 từ replica 1 và 2, phiên bản 6 từ replica 3.</p>
+      <h3>Read repair và anti-entropy</h3>
+      <p><strong>Read repair</strong>: thấy replica 3 trả bản cũ, client ghi bản mới vào đó. Hiệu quả với giá trị được đọc thường xuyên. <strong>Anti-entropy</strong>: một tiến trình nền liên tục tìm khác biệt giữa các replica và chép phần thiếu. Khác replication log, nó không chép theo thứ tự nào và có thể trễ đáng kể. Không phải hệ nào cũng có cả hai: Voldemort (lúc sách viết) không có anti-entropy, nên giá trị hiếm khi được đọc có thể thiếu trên vài replica và kém bền hơn.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-leaderless">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ba replica, ghi và đọc song song
+        <small>Bắt đầu như Hình 5-10: replica 3 đã lỡ phiên bản 7. Bấm “Đọc”, bật tắt read repair, chỉnh w và r, làm sập replica, chạy anti-entropy.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 6.15 -->
+  <article class="topic" id="ch6-quorum" data-num="6.15" data-short="Quorum: n, w, r" data-keywords="quorums for reading and writing w + r > n strict quorum limitations of quorum consistency monitoring staleness">
+    <p class="eyebrow">6.15 · Quorums for Reading and Writing · Limitations of Quorum Consistency</p>
+    <h2>Quorum đọc và ghi: w + r &gt; n <span class="vi">Quorums for Reading and Writing</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>n replica; ghi cần w xác nhận, đọc hỏi ít nhất r node. Nếu <strong>w + r &gt; n</strong>, tập đọc và tập ghi phải giao nhau, nên ít nhất một node đọc có giá trị mới nhất. Đó là <dfn data-term="quorum">quorum</dfn>.</li>
+      <li>Thường chọn n lẻ (3 hoặc 5), w = r = (n + 1) / 2 làm tròn lên. w &lt; n thì ghi được khi một node sập; r &lt; n thì đọc được khi một node sập.</li>
+      <li>Ngay cả với w + r &gt; n vẫn có trường hợp đọc cũ: sloppy quorum, ghi đồng thời, ghi đồng thời với đọc, ghi thất bại không rollback, node mang giá trị mới chết và được khôi phục từ bản cũ.</li>
+      <li>Nên giám sát độ cũ (<em class="en">staleness</em>): với leader dễ (hiệu vị trí log), không leader thì khó.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Nếu mọi ghi thành công đều có mặt trên ít nhất 2 trong 3 replica thì tối đa một replica cũ; đọc từ ít nhất 2 replica thì chắc chắn có một bản mới. Tổng quát: n replica, ghi phải được w node xác nhận, đọc phải hỏi r node. Miễn w + r &gt; n, ta kỳ vọng đọc ra giá trị mới. Có thể coi r và w là số phiếu tối thiểu để một lần đọc hay ghi hợp lệ. Bình thường request vẫn gửi tới cả n replica song song; w và r chỉ quyết định phải <em>chờ</em> bao nhiêu phản hồi. Không đủ w hoặc r node trả lời thành công thì báo lỗi, bất kể vì node sập, đĩa đầy hay đứt mạng.</p>
+      <p>Đọc nhiều ghi ít có thể chọn w = n, r = 1: đọc nhanh, nhưng chỉ một node hỏng là mọi ghi thất bại. Đặt w + r ≤ n cũng được: độ trễ thấp hơn, sẵn sàng cao hơn, đổi lại dễ đọc giá trị cũ hơn. Cụm có thể có nhiều hơn n node, nhưng mỗi giá trị chỉ lưu trên n node (đó là phân vùng, <a href="#ch7">Chương 7</a>).</p>
+      <h3>Giới hạn của quorum</h3>
+      <ul>
+        <li>Với sloppy quorum (mục sau), w ghi có thể nằm trên node khác với r đọc, mất sự giao nhau.</li>
+        <li>Hai ghi đồng thời: không rõ cái nào trước; chọn theo timestamp (LWW) thì có thể mất ghi vì lệch đồng hồ.</li>
+        <li>Ghi đồng thời với đọc: ghi mới có trên một số replica, đọc có thể ra cũ hoặc mới.</li>
+        <li>Ghi thành công trên vài replica nhưng tổng số dưới w: báo thất bại nhưng không rollback ở chỗ đã thành công, đọc sau có thể thấy hoặc không.</li>
+        <li>Node mang giá trị mới chết và được khôi phục từ replica mang giá trị cũ: số replica có giá trị mới rơi xuống dưới w.</li>
+        <li>Kể cả khi mọi thứ chạy đúng vẫn có trường hợp xui về thời điểm (xem phần linearizability ở <a href="#ch10">Chương 10</a>).</li>
+      </ul>
+      <p>Vì vậy w và r điều chỉnh <em>xác suất</em> đọc cũ chứ không phải bảo đảm tuyệt đối. Bạn thường cũng không có read-your-writes, monotonic reads hay consistent prefix reads.</p>
+      <h3>Giám sát độ cũ</h3>
+      <p>Với sao chép dựa trên leader, lấy vị trí log của leader trừ vị trí của follower là ra độ trễ. Ở hệ không leader không có thứ tự ghi cố định nên khó hơn; nếu chỉ có read repair, một giá trị ít được đọc có thể cũ tới mức nào cũng được. Nhất quán cuối cùng là bảo đảm cố ý mơ hồ, nhưng để vận hành được cần đo được “cuối cùng” là bao lâu.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-quorum">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Máy tính quorum
+        <small>Chỉnh n, w, r và số node sập. Ô W là node đã nhận ghi, ô R là node trả lời đọc; viền đậm là chỗ giao nhau. Bấm “Lấy mẫu” để thử một cặp ghi/đọc ngẫu nhiên khác.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 6.16 -->
+  <article class="topic" id="ch6-sloppy" data-num="6.16" data-short="Sloppy quorum, hinted handoff" data-keywords="sloppy quorums hinted handoff home nodes network interruption multi-datacenter cassandra riak voldemort">
+    <p class="eyebrow">6.16 · Sloppy Quorums and Hinted Handoff</p>
+    <h2>Sloppy quorum và hinted handoff <span class="vi">Sloppy Quorums and Hinted Handoff</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Đứt mạng có thể cắt client khỏi đa số node “nhà” của một khoá, dù các node đó vẫn sống. Không đủ w hay r thì quorum chặt báo lỗi.</li>
+      <li><dfn data-term="sloppy-quorum">Sloppy quorum</dfn>: vẫn nhận ghi, ghi vào các node tới được dù không phải node nhà. Như bị khoá ngoài cửa thì xin ngủ nhờ sofa nhà hàng xóm.</li>
+      <li>Mạng hồi phục, node giữ hộ chuyển ghi về đúng nhà: <dfn data-term="hinted-handoff">hinted handoff</dfn>.</li>
+      <li>Tăng sẵn sàng ghi, nhưng w + r &gt; n không còn bảo đảm đọc mới: sloppy quorum chỉ bảo đảm dữ liệu nằm trên w node <em>nào đó</em>. Riak bật mặc định; Cassandra và Voldemort tắt mặc định.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Quorum đúng cấu hình chịu được node hỏng mà không cần failover, và chịu được node chậm vì chỉ cần chờ w hoặc r phản hồi. Điều đó khiến hệ không leader hấp dẫn cho nhu cầu sẵn sàng cao, độ trễ thấp, chấp nhận thỉnh thoảng đọc cũ. Nhưng trong một cụm lớn (nhiều hơn hẳn n node), khi mạng bị cắt, client có thể vẫn tới được vài node, chỉ không tới được các node cần cho quorum của một giá trị cụ thể. Người thiết kế phải chọn: báo lỗi mọi request không đủ quorum, hay nhận ghi vào những node tới được dù không thuộc n node nhà?</p>
+      <h3>Nhiều datacenter</h3>
+      <p>Hệ không leader cũng hợp với nhiều datacenter vì được thiết kế để chịu ghi đồng thời xung đột, đứt mạng và độ trễ tăng vọt. Cassandra và Voldemort để n gồm node ở mọi datacenter, cấu hình được bao nhiêu bản ở mỗi nơi; ghi gửi tới mọi replica nhưng client thường chỉ chờ quorum trong datacenter của mình. Riak giữ giao tiếp client–node trong một datacenter, n chỉ tính trong datacenter đó; sao chép liên datacenter chạy nền theo kiểu giống nhiều leader.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-sloppy">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Sáu node, khoá K có ba node nhà A, B, C (n = 3, w = 2, r = 2)
+        <small>Mạng đang bị cắt: client 1 chỉ tới được A, D, E; client 2 chỉ tới được B, C, F. So quorum chặt với sloppy, rồi sửa mạng để hinted handoff chạy.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 6.17 -->
+  <article class="topic" id="ch6-concurrent" data-num="6.17" data-short="Ghi đồng thời, LWW" data-keywords="detecting concurrent writes last write wins lww cassandra uuid happens-before causally dependent concurrency relativity">
+    <p class="eyebrow">6.17 · Detecting Concurrent Writes · Last Write Wins · Happens-Before</p>
+    <h2>Ghi đồng thời, LWW và quan hệ xảy-ra-trước <span class="vi">Detecting Concurrent Writes</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Hệ không leader cho nhiều client cùng ghi một khoá, nên xung đột xảy ra kể cả với quorum chặt. Thông điệp đến các node theo thứ tự khác nhau; mỗi node cứ ghi đè thì sẽ lệch nhau vĩnh viễn.</li>
+      <li>LWW gắn timestamp, giữ cái lớn nhất, bỏ phần còn lại. Hội tụ, nhưng trả giá bằng độ bền: các ghi đã báo thành công bị bỏ im lặng, thậm chí cả ghi không đồng thời nếu đồng hồ lệch. Dùng an toàn khi mỗi khoá chỉ ghi một lần (ví dụ khoá là UUID).</li>
+      <li>A <dfn data-term="happens-before">xảy ra trước</dfn> B nếu B biết về A, phụ thuộc hay xây trên A. Hai thao tác <dfn data-term="concurrent">đồng thời</dfn> nếu không cái nào biết về cái kia, bất kể thời gian vật lý.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Hình 5-12: client A và B cùng ghi khoá X vào kho ba node. Node 1 nhận ghi của A nhưng không bao giờ nhận ghi của B vì sự cố tạm thời; node 2 nhận A rồi B; node 3 nhận B rồi A. Nếu mỗi node ghi đè khi nhận, node 2 kết luận X = B, các node khác kết luận X = A. Muốn nhất quán cuối cùng, các replica phải hội tụ; đáng tiếc phần lớn cài đặt làm việc này khá kém, nên lập trình viên phải hiểu cách cơ sở dữ liệu của mình xử lý xung đột.</p>
+      <h3>Last write wins</h3>
+      <p>Ý tưởng: mỗi replica chỉ giữ giá trị “mới nhất”. Dấu ngoặc kép là cố ý: trong Hình 5-12 không client nào biết về client kia, nên không có cái nào “trước”. Ta ép một thứ tự tuỳ ý bằng timestamp. LWW là cách giải quyết xung đột duy nhất của Cassandra và là tuỳ chọn trong Riak. Nếu mất dữ liệu là không chấp nhận được (khác với cache chẳng hạn), LWW là lựa chọn tồi.</p>
+      <h3>Xảy ra trước và đồng thời</h3>
+      <p>Trong Hình 5-9, insert của A xảy ra trước increment của B vì B tăng đúng giá trị A đã chèn: B phụ thuộc nhân quả vào A. Trong Hình 5-12, hai ghi đồng thời vì không ai biết về ai. Với hai thao tác A, B chỉ có ba khả năng: A trước B, B trước A, hoặc đồng thời. Nếu một cái xảy ra trước, cái sau được ghi đè; nếu đồng thời, có xung đột cần giải quyết.</p>
+      <p>“Đồng thời” không có nghĩa là cùng lúc theo đồng hồ. Người ta hay liên hệ với thuyết tương đối: hai sự kiện ở xa nhau không thể ảnh hưởng nhau nếu khoảng thời gian giữa chúng ngắn hơn thời gian ánh sáng đi hết khoảng cách. Trong máy tính, hai thao tác cách nhau khá lâu vẫn có thể đồng thời nếu mạng chậm hay bị gián đoạn khiến cái này không thể biết về cái kia.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-lww">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Client A và B cùng ghi khoá X vào ba node
+        <small>Chọn cách mỗi node xử lý ghi. Với LWW, thử lệch đồng hồ của client B, và bật “B đã đọc giá trị của A” để thấy LWW bỏ cả một ghi xảy ra sau.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <figure class="lab" data-widget="ch6-hb">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Xảy ra trước hay đồng thời?
+        <small>Đọc từng tình huống và chọn quan hệ giữa hai thao tác.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 6.18 -->
+  <article class="topic" id="ch6-cart" data-num="6.18" data-short="Giỏ hàng: version & sibling" data-keywords="capturing the happens-before relationship shopping cart version number siblings merging concurrently written values tombstone union riak">
+    <p class="eyebrow">6.18 · Capturing the Happens-Before Relationship · Merging Concurrently Written Values</p>
+    <h2>Giỏ hàng: số phiên bản và các sibling <span class="vi">Capturing the Happens-Before Relationship</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Server giữ một số phiên bản cho mỗi khoá, tăng mỗi lần ghi. Đọc trả về mọi giá trị chưa bị ghi đè cùng số phiên bản mới nhất; client phải đọc trước khi ghi.</li>
+      <li>Ghi phải kèm số phiên bản của lần đọc trước và giá trị đã gộp mọi thứ đã đọc. Server ghi đè mọi giá trị có phiên bản ≤ số đó, giữ các giá trị phiên bản cao hơn (chúng đồng thời với ghi mới).</li>
+      <li>Các giá trị đồng thời được giữ lại gọi là <dfn data-term="siblings">sibling</dfn>. Client phải gộp chúng; với giỏ hàng, lấy hợp là hợp lý, nhưng muốn xoá được thì cần <dfn data-term="tombstone">tombstone</dfn>.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Để đơn giản, sách bắt đầu với một replica duy nhất. Hai client cùng thêm món vào một giỏ hàng (nếu ví dụ này có vẻ tầm thường, hãy hình dung hai kiểm soát viên không lưu cùng thêm máy bay vào khu vực họ theo dõi). Giỏ ban đầu trống, hai client thực hiện năm lần ghi (Hình 5-13). Đi từng bước trong thí nghiệm dưới để thấy server chỉ cần nhìn số phiên bản là biết ghi nào đè lên ghi nào, không cần hiểu nội dung giá trị.</p>
+      <p>Trong ví dụ này client không bao giờ hoàn toàn cập nhật, vì luôn có thao tác khác chạy đồng thời. Nhưng phiên bản cũ cuối cùng vẫn bị ghi đè và không ghi nào bị mất. Ghi không kèm số phiên bản thì đồng thời với mọi ghi khác: nó không ghi đè gì, chỉ thêm một sibling.</p>
+      <h3>Gộp các giá trị ghi đồng thời</h3>
+      <p>Thuật toán bảo đảm không dữ liệu nào bị bỏ im lặng, nhưng client phải dọn dẹp bằng cách gộp sibling (Riak gọi là <em class="en">siblings</em>). Đây chính là bài toán giải quyết xung đột ở nhiều leader. Chọn một giá trị theo phiên bản hay timestamp là LWW, tức mất dữ liệu. Với giỏ hàng, lấy hợp: hai sibling cuối là [milk, flour, eggs, bacon] và [eggs, milk, ham], hợp là [milk, flour, eggs, bacon, ham]. Nhưng nếu cho phép xoá món, hợp sẽ làm món đã xoá ở một sibling hiện lại. Vì vậy khi xoá không được bỏ hẳn món đó, mà để lại một dấu xoá kèm số phiên bản: tombstone. Gộp sibling trong code ứng dụng phức tạp và dễ sai, nên Riak có kiểu dữ liệu CRDT tự gộp hợp lý, kể cả giữ được thao tác xoá.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-cart">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hình 5-13 từng bước, rồi tự chơi
+        <small>“Bước tiếp” chạy đúng năm lần ghi trong sách. Sau đó bạn tự chọn client và món để gửi thêm, hoặc gửi ghi không kèm phiên bản.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <figure class="lab" data-widget="ch6-tombstone">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Gộp bằng phép hợp khi có thao tác xoá
+        <small>Hai sibling: một bên còn ham, một bên đã xoá ham. Bật tắt tombstone để xem kết quả gộp.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 6.19 -->
+  <article class="topic" id="ch6-version-vectors" data-num="6.19" data-short="Version vector" data-keywords="version vectors vector clock dotted version vector causal context riak multiple replicas">
+    <p class="eyebrow">6.19 · Version Vectors</p>
+    <h2>Version vector: một số phiên bản cho mỗi replica <span class="vi">Version Vectors</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Nhiều replica cùng nhận ghi thì một số phiên bản không đủ; cần một số cho mỗi replica và mỗi khoá. Tập các số đó là <dfn data-term="version-vector">version vector</dfn>.</li>
+      <li>Vector A đè được B nếu mọi thành phần của A ≥ của B. Nếu mỗi bên lớn hơn ở một chỗ, hai ghi là đồng thời và trở thành sibling.</li>
+      <li>Vector được gửi cho client khi đọc và gửi lại khi ghi (Riak gọi là <em class="en">causal context</em>). Nhờ đó đọc từ replica này rồi ghi vào replica khác vẫn an toàn.</li>
+      <li>Hay bị gọi là <em class="en">vector clock</em>, nhưng hai thứ khác nhau tinh tế; để so trạng thái replica thì version vector là cấu trúc đúng.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Thuật toán giỏ hàng dùng một số phiên bản vì chỉ có một replica. Khi nhiều replica nhận ghi đồng thời mà không có leader, mỗi replica tăng số của <em>chính nó</em> khi xử lý một ghi, và theo dõi các số đã thấy từ replica khác. Thông tin đó cho biết giá trị nào ghi đè được, giá trị nào phải giữ làm sibling. Biến thể đáng chú ý nhất là <em class="en">dotted version vector</em> trong Riak 2.0; cách hoạt động rất giống ví dụ giỏ hàng.</p>
+      <p>Như với số phiên bản đơn, ứng dụng có thể vẫn phải gộp sibling. Version vector bảo đảm đọc từ một replica rồi ghi vào replica khác là an toàn: có thể sinh sibling, nhưng không mất dữ liệu nếu gộp đúng.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-vv">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> So sánh hai version vector và một kịch bản ba replica
+        <small>Bấm + / − để đổi từng thành phần và xem kết luận. Bên dưới, đi từng bước một kịch bản ghi ở ba replica khác nhau.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Số phiên bản và version vector nắm bắt quan hệ “biết về” giữa các thao tác, thứ mà timestamp không làm được. Đó là lý do chúng phân biệt được ghi đè với ghi đồng thời mà không cần tin đồng hồ.</p></aside>
+  </article>
+
+  <!-- review -->
+  <article class="topic" id="ch6-review" data-num="6.★" data-short="Tổng kết & kiểm tra" data-keywords="summary quiz review replication">
+    <p class="eyebrow">6.★ · Summary</p>
+    <h2>Tổng kết chương <span class="vi">Summary</span></h2>
+    <div class="prose">
+      <p>Sao chép phục vụ bốn mục đích: <strong>sẵn sàng cao</strong> (chạy tiếp khi một máy hay cả datacenter chết), <strong>hoạt động khi mất kết nối</strong>, <strong>độ trễ thấp</strong> (dữ liệu gần người dùng) và <strong>mở rộng đọc</strong>. Mục tiêu nghe đơn giản, nhưng đòi hỏi suy nghĩ cẩn thận về đồng thời và mọi thứ có thể hỏng.</p>
+      <div class="table-wrap"><table class="data">
+        <thead><tr><th>Cách</th><th>Ghi vào đâu</th><th>Ưu</th><th>Nhược</th></tr></thead>
+        <tbody>
+          <tr><td>Một leader</td><td>Chỉ leader; follower nhận luồng thay đổi</td><td>Dễ hiểu, không có xung đột</td><td>Đọc từ follower có thể cũ; failover nhiều cạm bẫy</td></tr>
+          <tr><td>Nhiều leader</td><td>Một trong nhiều leader</td><td>Chịu lỗi node, đứt mạng, độ trễ tăng vọt tốt hơn</td><td>Xung đột ghi; nhất quán yếu</td></tr>
+          <tr><td>Không leader</td><td>Nhiều node song song; đọc nhiều node</td><td>Không cần failover, chịu node chậm</td><td>Chỉ có xác suất đọc mới; phải xử lý ghi đồng thời</td></tr>
+        </tbody>
+      </table></div>
+      <p>Đồng bộ hay bất đồng bộ ảnh hưởng sâu tới hành vi khi có lỗi: nâng một follower bất đồng bộ lên làm leader có thể làm mất dữ liệu vừa commit. Ba mô hình nhất quán giúp quyết định ứng dụng cư xử thế nào dưới độ trễ sao chép: <strong>read-after-write</strong> (thấy cái mình vừa gửi), <strong>monotonic reads</strong> (không thấy thời gian chạy lùi), <strong>consistent prefix reads</strong> (thấy dữ liệu theo thứ tự hợp lẽ nhân quả). Cuối cùng, với nhiều leader và không leader, ghi đồng thời là tất yếu; số phiên bản và version vector cho biết thao tác nào xảy ra trước, và sibling cần được gộp cẩn thận. Chương sau đi tới mặt kia của phân tán dữ liệu: chia một tập dữ liệu lớn thành các phân vùng (<a href="#ch7">Chương 7</a>).</p>
+    </div>
+    <div class="quiz">
+      <div class="q" data-answer="2">
+        <p>Leader dùng sao chép hoàn toàn bất đồng bộ, đã báo OK cho client rồi chết hẳn trước khi gửi thay đổi đi. Điều gì xảy ra với ghi đó sau failover?</p>
+        <ol><li>Follower tự lấy lại từ client</li><li>Ghi được giữ vì client đã nhận OK</li><li>Ghi bị mất, dù client đã được xác nhận</li><li>Hệ thống chặn mọi ghi tới khi leader cũ quay lại</li></ol>
+        <p class="explain">Bất đồng bộ nghĩa là OK không chờ follower. Chưa follower nào có ghi, nên leader mới không có nó; khi leader cũ quay lại, phần chưa sao chép thường bị bỏ. Chặn ghi là hành vi của follower đồng bộ bị treo, không phải của bất đồng bộ.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Vì sao statement-based replication có thể làm follower lệch với leader?</p>
+        <ol><li>Vì nó gửi byte trong khối đĩa, phụ thuộc phiên bản</li><li>Vì các hàm như NOW(), RAND() và câu phụ thuộc thứ tự cho kết quả khác khi chạy lại trên follower</li><li>Vì follower không hiểu SQL</li><li>Vì nó chỉ gửi khoá chính</li></ol>
+        <p class="explain">Follower chạy lại câu lệnh, nên mọi thứ không tất định (thời gian, số ngẫu nhiên, cột tự tăng khi thứ tự khác) đều có thể ra kết quả khác. Gửi byte trong khối đĩa là WAL shipping.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>User 2345 thấy bình luận mới, tải lại trang thì bình luận biến mất. Bảo đảm nào bị vi phạm, và cách sửa đơn giản nhất?</p>
+        <ol><li>Monotonic reads; cho mỗi user luôn đọc từ cùng một replica (hash user ID)</li><li>Read-after-write; đọc từ leader một phút sau khi ghi</li><li>Consistent prefix; ghi vào cùng một phân vùng</li><li>Quorum; tăng w</li></ol>
+        <p class="explain">Thấy dữ liệu mới rồi lại thấy dữ liệu cũ hơn là “thời gian chạy lùi”, đúng định nghĩa vi phạm monotonic reads. Read-after-write là về ghi của chính mình; ở đây bình luận là của user 1234.</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>n = 5, w = 2, r = 3. Nhận định nào đúng?</p>
+        <ol><li>Quorum thoả mãn vì r &gt; n/2</li><li>Ghi thất bại nếu một node sập</li><li>Đọc luôn thấy giá trị mới nhất</li><li>w + r = 5 = n nên tập đọc có thể không giao tập ghi; có thể đọc cũ</li></ol>
+        <p class="explain">Điều kiện là w + r &gt; n. Ở đây 2 + 3 = 5 không lớn hơn 5, nên có thể chọn 3 node đọc nằm ngoài 2 node đã ghi. Với w = 2, ghi vẫn thành công khi tới 3 node sập.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Sloppy quorum với w + r &gt; n bảo đảm điều gì?</p>
+        <ol><li>Mọi lần đọc đều thấy giá trị mới nhất</li><li>Chỉ rằng dữ liệu nằm trên w node nào đó; đọc có thể cũ tới khi hinted handoff xong</li><li>Không có ghi nào thành công khi đứt mạng</li><li>Không còn xung đột ghi</li></ol>
+        <p class="explain">Ghi có thể nằm trên node không phải node nhà, nên r node nhà được đọc có thể không chứa nó. Sloppy quorum tăng sẵn sàng ghi, chỉ bảo đảm độ bền.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Trong thuật toán giỏ hàng, server nhận ghi kèm phiên bản 3, đang có sibling ở phiên bản 3 và 4. Server làm gì?</p>
+        <ol><li>Ghi đè cả hai</li><li>Từ chối ghi vì phiên bản cũ</li><li>Ghi đè giá trị phiên bản 3, giữ giá trị phiên bản 4 làm sibling, gán phiên bản mới cho ghi</li><li>Giữ cả hai và bỏ ghi mới</li></ol>
+        <p class="explain">Giá trị có phiên bản ≤ 3 đã được client gộp vào ghi mới nên bị đè; giá trị phiên bản 4 client chưa thấy, nên đồng thời với ghi mới và phải giữ. Đây chính là bước 5 trong Hình 5-13.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Vì sao LWW có thể bỏ cả một ghi không đồng thời?</p>
+        <ol><li>Vì nó dựa trên timestamp đồng hồ, và đồng hồ máy ghi sau có thể chậm hơn</li><li>Vì nó luôn chọn replica có ID nhỏ nhất</li><li>Vì nó gộp các giá trị theo thứ tự chữ cái</li><li>Vì nó cần version vector</li></ol>
+        <p class="explain">LWW không biết ai “biết về” ai, chỉ so timestamp. Nếu B đọc giá trị của A rồi ghi, nhưng đồng hồ của B chậm, timestamp của B nhỏ hơn và ghi của B bị bỏ dù rõ ràng xảy ra sau.</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>Hai version vector [2, 1, 0] và [1, 2, 0]. Quan hệ giữa hai ghi là gì?</p>
+        <ol><li>Cái đầu ghi đè cái sau</li><li>Cái sau ghi đè cái đầu</li><li>Bằng nhau</li><li>Đồng thời: mỗi bên lớn hơn ở một thành phần, nên giữ cả hai làm sibling</li></ol>
+        <p class="explain">Một vector đè được vector kia chỉ khi mọi thành phần lớn hơn hoặc bằng. Ở đây thành phần 1 nghiêng về vector đầu, thành phần 2 nghiêng về vector sau, nên không cái nào biết hết về cái kia.</p>
+      </div>
+    </div>
+  </article>
+</section>

@@ -1,0 +1,524 @@
+<style>
+#ch11 .stage-strip { display: flex; flex-wrap: wrap; gap: 6px; }
+#ch11 .stage-strip button { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer; font: 600 var(--t-xs)/1.3 var(--f-mono); max-width: 100%; text-align: left; }
+#ch11 .stage-strip button small { font: 500 .68rem var(--f-display); color: var(--ink-3); }
+#ch11 .stage-strip button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+#ch11 .stage-strip .arrow { align-self: center; color: var(--ink-3); font-family: var(--f-mono); }
+#ch11 .stage-strip .chip-x { margin-left: 4px; color: var(--bad); font-weight: 700; }
+#ch11 .term-out { font: 400 .76rem/1.5 var(--f-mono); background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; max-height: 260px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; }
+#ch11 .term-out .hl { background: var(--mark-soft); }
+#ch11 .cmdline { font: 600 .78rem/1.5 var(--f-mono); background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; overflow-wrap: anywhere; }
+#ch11 .cmdline .cur { background: var(--mark-soft); border-radius: 3px; }
+#ch11 .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+#ch11 .card-grid.wide { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+#ch11 .mcard { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--bg); min-width: 0; transition: opacity .2s; }
+#ch11 .mcard h5 { margin: 0 0 6px; font: 700 var(--t-xs) var(--f-display); text-transform: uppercase; letter-spacing: .06em; color: var(--ink-2); display: flex; justify-content: space-between; gap: 6px; flex-wrap: wrap; }
+#ch11 .mcard.down { border-style: dashed; opacity: .55; }
+#ch11 .mcard.active { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+#ch11 .mcard .sub { font-size: .68rem; color: var(--ink-3); margin: 6px 0 3px; text-transform: uppercase; letter-spacing: .05em; }
+#ch11 .dim { opacity: .28; }
+#ch11 .kc { display: inline-block; font: 500 .7rem/1.45 var(--f-mono); padding: 0 5px; border-radius: 4px; margin: 0 3px 3px 0; background: var(--surface-2); color: var(--ink); cursor: pointer; border: 1px solid transparent; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: top; }
+#ch11 .kc.p0 { background: var(--accent-soft); }
+#ch11 .kc.p1 { background: var(--violet-soft); }
+#ch11 .kc.p2 { background: var(--mark-soft); }
+#ch11 .kc.p3 { background: var(--ok-soft); }
+#ch11 .kc.bad { background: var(--bad-soft); }
+#ch11 .kc.on { border-color: var(--ink); font-weight: 700; }
+#ch11 .kc.plain { cursor: default; }
+#ch11 .flow-arrow { text-align: center; color: var(--ink-3); font: 600 var(--t-xs) var(--f-display); }
+#ch11 .cells { display: grid; grid-template-columns: repeat(auto-fill, minmax(14px, 1fr)); gap: 3px; }
+#ch11 .cells i { display: block; aspect-ratio: 1; border-radius: 3px; background: var(--accent-soft); border: 1px solid var(--line); }
+#ch11 .cells i.killed { background: var(--bad); border-color: var(--bad); }
+#ch11 .cells i.redo { background: var(--warn-soft); border-color: var(--warn); }
+#ch11 .algo-card { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--bg); min-width: 0; }
+#ch11 .algo-card b { display: block; font-size: var(--t-sm); }
+#ch11 .algo-card p { margin: 4px 0 0; font-size: var(--t-xs); color: var(--ink-2); }
+#ch11 .algo-card.ok { border-color: var(--ok); }
+#ch11 .algo-card.no { opacity: .6; }
+#ch11 .algo-card.pick { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+#ch11 .codepair { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+#ch11 .codepair pre.code { margin: 0; }
+#ch11 .plan { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+#ch11 .plan li { border-left: 3px solid var(--line); padding: 4px 10px; background: var(--bg); border-radius: 0 6px 6px 0; }
+#ch11 .plan li.good { border-left-color: var(--ok); }
+#ch11 .plan li.bad { border-left-color: var(--bad); }
+#ch11 .plan li small { display: block; color: var(--ink-3); font-size: .7rem; }
+#ch11 .kv-row-old td:last-child { color: var(--ink-3); }
+#ch11 .chipwrap { display: inline-flex; align-items: stretch; gap: 2px; max-width: 100%; }
+#ch11 .xbtn { border: 1px solid var(--line); background: var(--bg); color: var(--bad); border-radius: 8px; padding: 0 8px; cursor: pointer; font: 700 var(--t-xs) var(--f-display); }
+#ch11 .toolbox { display: flex; flex-wrap: wrap; gap: 6px; }
+#ch11 .toolbox .btn { font-family: var(--f-mono); font-size: .74rem; height: 30px; padding: 0 10px; }
+#ch11 button.mcard { text-align: left; font: inherit; color: var(--ink); cursor: pointer; width: 100%; }
+#ch11 button.mcard:hover { border-color: var(--accent); }
+#ch11 .grp { margin-bottom: 6px; }
+#ch11 .grp-res { font: 600 .74rem/1.45 var(--f-mono); color: var(--ink); }
+#ch11 .gloss-mini { font-size: var(--t-xs); color: var(--ink-2); }
+</style>
+
+<section class="chapter" id="ch11" data-chapter="11" data-title="Xử lý theo lô" data-edition="1e">
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 11 <span class="ed-badge">Nguồn: ấn bản 1 · Chương 10</span></p>
+    <h1>Batch Processing <span class="vi">Xử lý theo lô</span></h1>
+    <blockquote class="epigraph">A system cannot be successful if it is too strongly influenced by a single person. Once the initial design is complete and fairly robust, the real test begins as people with many different viewpoints undertake their own experiments.<cite>— Donald Knuth</cite></blockquote>
+    <p class="lede">Chương này mở đầu Phần III: thay vì một cơ sở dữ liệu duy nhất, ứng dụng thật gồm nhiều hệ thống, và phần lớn dữ liệu trong đó là <em>dẫn xuất</em> từ một nguồn gốc. Xử lý theo lô là cách cổ điển để tạo ra dữ liệu dẫn xuất: đọc một tập đầu vào cố định, chạy một job, ghi ra đầu ra mới. Ta đi từ một dòng lệnh Unix phân tích log, qua MapReduce và các thuật toán join phân tán, đến Spark/Flink và Pregel, và thấy các ý tưởng của Unix (đầu vào bất biến, ghép công cụ nhỏ) sống sót qua mọi thế hệ.</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- 11.1 -->
+  <article class="topic" id="ch11-derived" data-num="11.1" data-short="Dữ liệu dẫn xuất, 3 kiểu hệ thống" data-keywords="system of record source of truth derived data services batch stream online offline nearline part III">
+    <p class="eyebrow">11.1 · Part III: Derived Data · Introduction</p>
+    <h2>Hệ thống gốc, dữ liệu dẫn xuất và ba kiểu hệ thống <span class="vi">Systems of Record, Derived Data; Services, Batch, Streams</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="system-of-record">Hệ thống gốc</dfn> giữ phiên bản có thẩm quyền của dữ liệu; <dfn data-term="derived-data">dữ liệu dẫn xuất</dfn> (cache, index, materialized view, mô hình gợi ý) được tính ra từ đó và có thể tạo lại nếu mất.</li>
+      <li>Ba kiểu hệ thống: <dfn data-term="online-system">dịch vụ</dfn> (chờ request, đo bằng thời gian phản hồi), <dfn data-term="batch-job">xử lý theo lô</dfn> (đọc đầu vào lớn có giới hạn, đo bằng thông lượng), <dfn data-term="stream-processing">xử lý luồng</dfn> (xử lý sự kiện ngay sau khi xảy ra, độ trễ thấp hơn batch).</li>
+      <li>MapReduce (2004) đưa xử lý theo lô lên quy mô hàng nghìn máy thường. Ý tưởng thì rất cũ: máy lập bảng Hollerith cho điều tra dân số Mỹ năm 1890 đã là xử lý theo lô.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Phần I và II của sách giả định ứng dụng chỉ có <em>một</em> cơ sở dữ liệu. Thực tế, một ứng dụng lớn dùng cùng lúc database, search index, cache, hệ thống phân tích… và phải có cơ chế chuyển dữ liệu giữa chúng. Phần III bàn về việc tích hợp những hệ thống khác nhau đó thành một kiến trúc mạch lạc, và câu hỏi nền tảng là: <strong>dữ liệu nào là gốc, dữ liệu nào được dẫn ra từ dữ liệu nào?</strong></p>
+      <p>Hệ thống gốc (<em class="en">system of record</em>, còn gọi là <em class="en">source of truth</em>) là nơi dữ liệu mới được ghi vào đầu tiên. Mỗi sự kiện được biểu diễn đúng một lần, thường ở dạng chuẩn hoá; nếu hệ thống khác mâu thuẫn với nó thì theo định nghĩa nó đúng. Dữ liệu dẫn xuất về kỹ thuật là dư thừa, nhưng lại thiết yếu cho tốc độ đọc, và từ một nguồn bạn có thể dẫn ra nhiều “góc nhìn” khác nhau. Một database không tự nó là gốc hay dẫn xuất: điều đó phụ thuộc vào cách bạn dùng nó.</p>
+      <p>Hai phần đầu sách cũng chủ yếu nói về kiểu request/response: người dùng hỏi và đứng chờ câu trả lời. Đó không phải cách duy nhất. Một <em>batch job</em> nhận một khối dữ liệu đầu vào <strong>có giới hạn</strong> (<em class="en">bounded</em>), chạy vài phút đến vài ngày, không ai đứng chờ, thường được lên lịch chạy định kỳ (ví dụ mỗi ngày một lần). Thứ quan trọng là <em>thông lượng</em> (<em class="en">throughput</em>): nghiền xong một lượng dữ liệu nhất định mất bao lâu. Xử lý luồng nằm giữa hai cực: giống batch ở chỗ tiêu thụ đầu vào và sinh đầu ra chứ không trả lời request, nhưng xử lý từng sự kiện ngay sau khi nó xảy ra (xem <a href="#ch12">Chương 12</a>).</p>
+    </div>
+    <figure class="lab" data-widget="three-systems">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một ngày lượt xem trang, ba kiểu hệ thống
+        <small>Đổi chu kỳ chạy batch và thời gian chạy job. Xem bao lâu sau khi một lượt xem xảy ra thì nó mới xuất hiện trong kết quả. Phía dưới: xoá bảng dẫn xuất rồi tính lại từ log gốc.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Phân biệt rõ gốc và dẫn xuất làm luồng dữ liệu (<em class="en">dataflow</em>) trở nên tường minh: phần nào nhận đầu vào gì, sinh đầu ra gì, phụ thuộc vào ai. Đây là sợi chỉ xuyên suốt Phần III.</p></aside>
+  </article>
+
+  <!-- 11.2 -->
+  <article class="topic" id="ch11-unix-log" data-num="11.2" data-short="Phân tích log bằng Unix" data-keywords="nginx access log awk sort uniq head pipeline unix tools top 5 pages">
+    <p class="eyebrow">11.2 · Batch Processing with Unix Tools · Simple Log Analysis</p>
+    <h2>Phân tích log nginx bằng một dòng lệnh <span class="vi">Simple Log Analysis</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Mỗi request, nginx ghi một dòng log. Trường thứ 7 (tách theo khoảng trắng) là URL được yêu cầu.</li>
+      <li>Chuỗi <code>cat | awk '{print $7}' | sort | uniq -c | sort -r -n | head -n 5</code> cho ra 5 trang được xem nhiều nhất. Nó xử lý hàng GB log trong vài giây.</li>
+      <li>Đổi một tham số là có phân tích khác: <code>{print $1}</code> cho top IP, <code>'$7 !~ /\.css$/ {print $7}'</code> để bỏ file CSS.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Một dòng log theo định dạng mặc định của nginx trông như sau (thực ra là một dòng duy nhất):</p>
+    </div>
+    <pre class="code">216.58.210.78 - - [27/Feb/2015:17:55:11 +0000] <span class="s">"GET /css/typography.css HTTP/1.1"</span>
+200 3377 <span class="s">"http://martin.kleppmann.com/"</span> <span class="s">"Mozilla/5.0 (Macintosh; ...) Chrome/40.0.2214.115 Safari/537.36"</span>
+
+<span class="c"># định dạng:</span>
+$remote_addr - $remote_user [$time_local] <span class="s">"$request"</span>
+$status $body_bytes_sent <span class="s">"$http_referer"</span> <span class="s">"$http_user_agent"</span></pre>
+    <div class="prose">
+      <p>Dòng này nói: ngày 27/2/2015 lúc 17:55:11 UTC, máy khách 216.58.210.78 yêu cầu <code>/css/typography.css</code>, không đăng nhập (dấu <code>-</code>), nhận mã 200 và 3.377 byte; trình duyệt là Chrome 40 và tải file vì trang <code>http://martin.kleppmann.com/</code> tham chiếu đến nó.</p>
+      <p>Muốn biết năm trang phổ biến nhất, bạn không cần công cụ báo cáo nào, chỉ cần nối sáu chương trình bằng <dfn data-term="unix-pipe">pipe</dfn>:</p>
+    </div>
+    <pre class="code"><span class="fn">cat</span> /var/log/nginx/access.log |  <span class="c"># 1. đọc file log</span>
+  <span class="fn">awk</span> <span class="s">'{print $7}'</span> |              <span class="c"># 2. tách theo khoảng trắng, lấy trường 7 = URL</span>
+  <span class="fn">sort</span>             |              <span class="c"># 3. sắp xếp: URL xuất hiện n lần sẽ nằm liền nhau n dòng</span>
+  <span class="fn">uniq</span> -c          |              <span class="c"># 4. gộp các dòng liền kề giống nhau, kèm bộ đếm</span>
+  <span class="fn">sort</span> -r -n       |              <span class="c"># 5. sắp theo số ở đầu dòng, lớn nhất trước</span>
+  <span class="fn">head</span> -n <span class="n">5</span>                       <span class="c"># 6. chỉ giữ 5 dòng đầu</span></pre>
+    <div class="prose">
+      <p>Kết quả trong sách có dạng <code>4189 /favicon.ico</code>, <code>3631 /2013/05/24/improving-security-of-ssh-private-keys.html</code>, … , <code>915 /css/typography.css</code>. Điều đáng chú ý là vai trò của bước 3: <code>uniq</code> chỉ so sánh <em>hai dòng liền kề</em>, nên nó chỉ đếm đúng khi đầu vào đã được sắp xếp. Sắp xếp là thứ “gom những bản ghi cùng khoá về một chỗ”, và ý tưởng này sẽ trở lại ở MapReduce.</p>
+    </div>
+    <figure class="lab" data-widget="unix-pipeline">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Chạy pipeline từng bước trên một file log mẫu
+        <small>Bấm vào từng lệnh để xem đầu ra của bước đó. Sửa log trong ô bên dưới (thêm, xoá dòng) hoặc đổi chương trình awk; mọi bước tính lại ngay.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Một bài viết được sách trích dẫn có tựa “Command-Line Tools Can Be 235x Faster than Your Hadoop Cluster”. Rất nhiều phân tích làm được trong vài phút với <code>awk</code>, <code>sed</code>, <code>grep</code>, <code>sort</code>, <code>uniq</code>, <code>xargs</code>, và chạy nhanh đến bất ngờ.</p></aside>
+  </article>
+
+  <!-- 11.3 -->
+  <article class="topic" id="ch11-sort-vs-hash" data-num="11.3" data-short="Sắp xếp vs bảng băm" data-keywords="ruby hash table in-memory aggregation sorting working set mergesort spill to disk">
+    <p class="eyebrow">11.3 · Chain of Commands versus Custom Program</p>
+    <h2>Sắp xếp hay gộp trong bộ nhớ? <span class="vi">Sorting versus In-Memory Aggregation</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Cùng phân tích đó viết bằng Ruby dùng một bảng băm <code>url → số lần</code> trong bộ nhớ. Dễ đọc, nhưng luồng thực thi khác hẳn pipeline.</li>
+      <li><dfn data-term="working-set">Working set</dfn> của bảng băm chỉ phụ thuộc số URL <em>khác nhau</em>, không phụ thuộc số dòng log. Nếu nó vừa RAM (ví dụ 1 GB), bảng băm thắng, kể cả trên laptop.</li>
+      <li>Nếu không vừa, sắp xếp thắng: <code>sort</code> sắp từng khúc trong RAM, ghi ra đĩa thành segment rồi trộn (<dfn data-term="external-sort">mergesort</dfn>), toàn truy cập tuần tự. GNU <code>sort</code> tự tràn ra đĩa và tự song song hoá trên nhiều nhân.</li>
+    </ul></div>
+    <pre class="code">counts = <span class="fn">Hash</span>.new(<span class="n">0</span>)                         <span class="c"># bộ đếm mặc định 0</span>
+<span class="fn">File</span>.open(<span class="s">'/var/log/nginx/access.log'</span>) <span class="k">do</span> |file|
+  file.each <span class="k">do</span> |line|
+    url = line.split[<span class="n">6</span>]                        <span class="c"># trường thứ 7 (mảng Ruby đánh số từ 0)</span>
+    counts[url] += <span class="n">1</span>
+  <span class="k">end</span>
+<span class="k">end</span>
+top5 = counts.map{|url, count| [count, url] }.sort.reverse[<span class="n">0</span>...<span class="n">5</span>]
+top5.each{|count, url| puts <span class="s">"#{count} #{url}"</span> }</pre>
+    <div class="prose">
+      <p>Chọn cách nào là chuyện khẩu vị nếu file nhỏ. Khác biệt thật nằm ở <em>luồng thực thi</em> khi file lớn. Bảng băm cần truy cập ngẫu nhiên vào toàn bộ working set: nếu một URL có một triệu dòng log, nó vẫn chỉ tốn một mục trong bảng. Với đa số website nhỏ và vừa, mọi URL khác nhau cộng bộ đếm vừa gọn trong khoảng 1 GB RAM.</p>
+      <p>Nhưng khi working set lớn hơn RAM, bảng băm bắt đầu bị đẩy ra đĩa và mỗi lần tra trở thành một lần đọc ngẫu nhiên, chậm hơn hàng nghìn lần. Cách sắp xếp thì dùng đĩa hiệu quả: đúng nguyên lý của SSTable và LSM-tree (<a href="#ch4">Chương 4</a>), sắp từng khúc trong bộ nhớ, ghi ra thành file segment đã sắp xếp, rồi trộn nhiều segment thành một file lớn. Mergesort chỉ đọc và ghi tuần tự, thứ mà đĩa làm rất tốt. Nút thắt khi đó thường chỉ còn là tốc độ đọc file đầu vào.</p>
+    </div>
+    <figure class="lab" data-widget="sort-vs-hash">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Khi nào bảng băm thắng, khi nào sắp xếp thắng?
+        <small>Kéo số URL khác nhau lên cao hơn lượng RAM và xem thời gian ước tính của bảng băm vọt lên, trong khi sắp xếp ngoài chỉ tăng tuyến tính. Các hằng số (byte/mục, tốc độ đĩa) là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Tối ưu cho I/O tuần tự là chủ đề lặp lại từ Chương 4. Ở đây nó giải thích vì sao một chuỗi lệnh Unix “thô” lại mở rộng tốt cho dữ liệu lớn hơn bộ nhớ, còn chương trình dùng bảng băm thì không.</p></aside>
+  </article>
+
+  <!-- 11.4 -->
+  <article class="topic" id="ch11-unix-philosophy" data-num="11.4" data-short="Triết lý Unix" data-keywords="unix philosophy uniform interface file descriptor stdin stdout separation of logic and wiring transparency experimentation mcilroy">
+    <p class="eyebrow">11.4 · The Unix Philosophy</p>
+    <h2>Triết lý Unix: ghép những công cụ nhỏ <span class="vi">The Unix Philosophy</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="unix-philosophy">Triết lý Unix</dfn>: mỗi chương trình làm tốt một việc; đầu ra của chương trình này sẽ là đầu vào của một chương trình khác chưa biết trước.</li>
+      <li><dfn data-term="uniform-interface">Giao diện thống nhất</dfn>: mọi thứ là file (chuỗi byte), quy ước là các dòng văn bản phân tách bởi <code>\n</code>. Vì thế ai cũng ghép được với ai.</li>
+      <li>Tách logic khỏi việc đấu nối (chỉ đọc <code>stdin</code>, ghi <code>stdout</code>), và minh bạch: đầu vào bất biến, có thể dừng pipeline ở bất kỳ bước nào để xem, chạy lại bao nhiêu lần cũng được.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Năm 1964 Doug McIlroy, người phát minh ra pipe, viết rằng nên có cách nối các chương trình như nối ống tưới vườn: cần xử lý dữ liệu kiểu khác thì vặn thêm một đoạn ống. Năm 1978 triết lý Unix được tóm thành bốn ý: mỗi chương trình làm tốt một việc; mong đợi đầu ra của mọi chương trình trở thành đầu vào của chương trình khác (đừng nhồi thông tin thừa, tránh định dạng nhị phân hay cột cứng nhắc); làm thử sớm, sẵn sàng vứt bỏ phần vụng; dùng công cụ thay vì sức người. Tự động hoá, làm mẫu nhanh, lặp từng bước: nghe rất giống Agile và DevOps ngày nay.</p>
+      <h3>Giao diện thống nhất</h3>
+      <p>Để đầu ra bất kỳ cắm được vào đầu vào bất kỳ, mọi chương trình phải dùng chung một giao diện. Trong Unix đó là file, chính xác hơn là file descriptor: một chuỗi byte có thứ tự. File thật, socket, stdin/stdout, thiết bị như <code>/dev/audio</code> đều dùng chung giao diện này. Theo quy ước, nhiều chương trình coi chuỗi byte là văn bản ASCII, mỗi bản ghi là một dòng. Giao diện không đẹp (<code>{print $7}</code> khó đọc hơn <code>{print $request_url}</code>), nhưng hiếm phần mềm nào ngày nay ghép nối trơn tru được như vậy. Ngay cả hai database cùng mô hình dữ liệu cũng thường khó chuyển dữ liệu qua lại.</p>
+      <h3>Tách logic khỏi việc đấu nối</h3>
+      <p>Chương trình chỉ đọc stdin, ghi stdout, không quan tâm dữ liệu từ đâu tới và đi đâu. Người dùng shell quyết định việc nối dây (một dạng <em>loose coupling</em> hay <em>inversion of control</em>). Vì thế bạn có thể tự viết một công cụ, chẳng hạn đổi IP thành mã quốc gia, và cắm vào giữa pipeline; <code>sort</code> không biết và không cần biết nó đang nói chuyện với chương trình của hệ điều hành hay của bạn. Giới hạn: chương trình cần nhiều đầu vào/đầu ra thì khó, và bạn không pipe thẳng ra kết nối mạng được.</p>
+      <h3>Minh bạch và thử nghiệm</h3>
+      <ul>
+        <li>File đầu vào được coi là bất biến: chạy lệnh bao nhiêu lần, thử bao nhiêu tuỳ chọn cũng không làm hỏng nó.</li>
+        <li>Có thể kết thúc pipeline ở bất kỳ đâu, pipe vào <code>less</code> để xem đầu ra có đúng dạng không.</li>
+        <li>Có thể ghi đầu ra một bước ra file rồi dùng file đó làm đầu vào bước sau, để chạy lại phần sau mà không chạy lại từ đầu.</li>
+      </ul>
+    </div>
+    <figure class="lab" data-widget="pipe-builder">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Tự lắp pipeline, kể cả bằng công cụ tự viết
+        <small>Bấm các lệnh trong “hộp đồ nghề” để nối thêm vào cuối, bấm × để gỡ. Bấm vào một bước để xem đầu ra tại đó (như pipe vào less). Thử bỏ <code>sort</code> trước <code>uniq -c</code> để thấy đếm sai.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Ví dụ khác về giao diện thống nhất: URL và HTTP. Thời BBS, muốn trỏ sang hệ thống khác phải ghi số điện thoại và cấu hình modem; web cho phép liên kết thẳng tới bất kỳ tài nguyên nào trên bất kỳ máy chủ nào. Hạn chế lớn nhất của công cụ Unix: chúng chỉ chạy trên một máy. Đó là chỗ Hadoop bước vào.</p></aside>
+  </article>
+
+  <!-- 11.5 -->
+  <article class="topic" id="ch11-hdfs" data-num="11.5" data-short="HDFS: hệ thống file phân tán" data-keywords="hdfs gfs distributed filesystem namenode datanode block replication erasure coding shared nothing object storage s3">
+    <p class="eyebrow">11.5 · MapReduce and Distributed Filesystems</p>
+    <h2>Hệ thống file phân tán HDFS <span class="vi">MapReduce and Distributed Filesystems</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="mapreduce">MapReduce</dfn> giống công cụ Unix nhưng trải trên hàng nghìn máy: một job giống một tiến trình, không sửa đầu vào, không có tác dụng phụ ngoài việc ghi đầu ra (ghi một lần, tuần tự).</li>
+      <li>Thay cho stdin/stdout, job đọc và ghi file trên <dfn data-term="hdfs">HDFS</dfn> (bản mã nguồn mở của Google File System). Object store như S3, Azure Blob, OpenStack Swift cũng tương tự.</li>
+      <li>HDFS theo kiến trúc <dfn data-term="shared-nothing">shared-nothing</dfn>: mỗi máy chạy một daemon phục vụ phần đĩa của mình; <dfn data-term="namenode">NameNode</dfn> ghi nhớ block nào nằm ở máy nào; block được nhân bản (hoặc mã hoá xoá, <dfn data-term="erasure-coding">erasure coding</dfn>) để chịu lỗi máy và đĩa.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Khác với cách <em>shared-disk</em> của NAS và SAN (một thiết bị lưu trữ tập trung, phần cứng riêng, mạng Fibre Channel), HDFS chỉ cần các máy tính thường nối bằng mạng datacenter thông thường. Mỗi máy góp đĩa của mình; NameNode biến tất cả thành một hệ thống file lớn. Để chịu được lỗi máy hay hỏng đĩa, mỗi block được chép lên vài máy (như sao chép ở <a href="#ch6">Chương 6</a>), hoặc dùng mã Reed–Solomon để khôi phục dữ liệu với chi phí lưu trữ thấp hơn chép nguyên bản. Ý tưởng giống RAID, chỉ khác là việc truy cập và nhân bản đi qua mạng chứ không trong một máy.</p>
+      <p>HDFS mở rộng rất tốt: lúc sách viết, các cụm lớn nhất chạy trên hàng chục nghìn máy với tổng dung lượng hàng trăm petabyte, rẻ hơn nhiều so với thiết bị lưu trữ chuyên dụng cùng dung lượng. Một lợi thế nữa so với object store: scheduler có thể chạy tác vụ tính toán ngay trên máy đang giữ bản sao của block cần đọc (dù lợi thế này mất đi nếu dùng erasure coding, vì phải ghép dữ liệu từ nhiều máy).</p>
+    </div>
+    <figure class="lab" data-widget="hdfs-blocks">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một file trên sáu DataNode
+        <small>Chọn kích thước file và hệ số nhân bản. Bấm vào một máy để làm nó chết (hoặc sống lại). Xem block nào chỉ còn một bản, block nào mất hẳn, rồi bấm “Nhân bản lại”.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>HDFS là “giao diện thống nhất” của thế giới Hadoop, đóng vai trò như file và pipe trong Unix: job nào cũng đọc được đầu ra của job khác, miễn biết tên thư mục.</p></aside>
+  </article>
+
+  <!-- 11.6 -->
+  <article class="topic" id="ch11-mapreduce" data-num="11.6" data-short="Thực thi một job MapReduce" data-keywords="mapper reducer shuffle partition hash of key sort merge map task reduce task locality word count inverted index">
+    <p class="eyebrow">11.6 · MapReduce Job Execution</p>
+    <h2>Một job MapReduce chạy thế nào <span class="vi">MapReduce Job Execution</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Bốn bước giống hệt pipeline phân tích log: tách file thành bản ghi → <dfn data-term="mapper">mapper</dfn> rút ra cặp khoá–giá trị (như <code>awk '{print $7}'</code>) → sắp xếp theo khoá (như <code>sort</code>) → <dfn data-term="reducer">reducer</dfn> duyệt các giá trị cùng khoá (như <code>uniq -c</code>).</li>
+      <li>Song song hoá bằng phân vùng: mỗi block đầu vào là một map task, chạy trên máy đang giữ block đó (<dfn data-term="data-locality">đặt tính toán gần dữ liệu</dfn>). Số reduce task do người viết job chọn.</li>
+      <li>Mapper chia đầu ra theo <em>hash của khoá</em> thành từng phần cho mỗi reducer, ghi thành file đã sắp xếp trên đĩa cục bộ; reducer tải các phần của mình từ mọi mapper và trộn lại. Toàn bộ quá trình đó gọi là <dfn data-term="shuffle">shuffle</dfn>.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Người viết job chỉ cài hai hàm callback. Mapper được gọi một lần cho mỗi bản ghi đầu vào, có thể sinh không, một hoặc nhiều cặp khoá–giá trị, và không giữ trạng thái giữa các bản ghi. Framework gom mọi giá trị cùng khoá rồi gọi reducer với khoá đó và một iterator duyệt qua các giá trị. Bước sắp xếp nằm ngầm giữa hai bước: bạn không phải viết nó. Trong Hadoop, mapper và reducer là các lớp Java; trong MongoDB và CouchDB, chúng là hàm JavaScript (xem <a href="#ch3">Chương 3</a>).</p>
+      <p>Vì mapper và reducer chỉ xử lý một bản ghi tại một thời điểm và không biết dữ liệu đến từ đâu, đi đâu, framework có thể lo toàn bộ phần phức tạp: chép code (file JAR) tới các máy, chạy mapper gần dữ liệu, sắp xếp theo từng giai đoạn (mỗi mapper sắp phần của mình kiểu SSTable), và chuyển dữ liệu qua mạng. Để mọi cặp cùng khoá về cùng một reducer, framework dùng hash của khoá (<a href="#ch7">Chương 7</a>, phân vùng theo hash). Reducer trộn các file đã sắp xếp từ các mapper, nên những bản ghi cùng khoá từ nhiều mapper sẽ nằm liền nhau; đầu ra được ghi lên HDFS (một bản trên đĩa máy chạy reducer, các bản sao trên máy khác).</p>
+      <p>Chữ “shuffle” dễ gây hiểu lầm: không giống xào bài, ở đây chẳng có gì ngẫu nhiên cả.</p>
+    </div>
+    <figure class="lab" data-widget="mr-job">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ba mapper, hai hoặc ba reducer
+        <small>Bấm “Chạy lại từng bước” để xem map → phân vùng và sắp xếp → shuffle → trộn → reduce. Bấm vào một khoá bất kỳ để tô sáng mọi chỗ khoá đó xuất hiện: dù ở mapper nào, nó luôn về cùng một reducer.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Pipeline log có bước <code>sort -r -n</code> thứ hai để xếp hạng. Một job MapReduce chỉ có một lần sắp xếp, nên muốn xếp hạng bạn cần job thứ hai đọc đầu ra của job thứ nhất. Có thể nhìn thế này: mapper chuẩn bị dữ liệu thành dạng sắp xếp được, reducer xử lý dữ liệu đã sắp xếp.</p></aside>
+  </article>
+
+  <!-- 11.7 -->
+  <article class="topic" id="ch11-workflows" data-num="11.7" data-short="Workflow nhiều job" data-keywords="mapreduce workflow chained jobs oozie azkaban luigi airflow pinball scheduler directory pig hive cascading crunch flumejava">
+    <p class="eyebrow">11.7 · MapReduce Workflows</p>
+    <h2>Nối các job thành workflow <span class="vi">MapReduce Workflows</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Một job đếm được lượt xem mỗi URL nhưng không tìm được URL phổ biến nhất (cần lần sắp xếp thứ hai), nên các job thường được nối thành workflow: đầu ra job trước là đầu vào job sau.</li>
+      <li>Hadoop không hỗ trợ workflow: việc nối chỉ là quy ước tên thư mục trên HDFS. Đầu ra chỉ hợp lệ khi job hoàn tất; job thất bại thì đầu ra dở dang bị bỏ.</li>
+      <li><dfn data-term="workflow-scheduler">Workflow scheduler</dfn> (Oozie, Azkaban, Luigi, Airflow, Pinball) chạy job khi mọi job sinh đầu vào cho nó đã thành công. Workflow 50–100 job là bình thường khi xây hệ thống gợi ý.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Workflow MapReduce vì thế giống một chuỗi lệnh mà mỗi lệnh ghi đầu ra ra file tạm và lệnh sau đọc từ file đó, hơn là một pipeline Unix truyền dữ liệu qua bộ đệm nhỏ trong bộ nhớ. Thiết kế này có ưu và nhược điểm mà ta sẽ bàn ở mục 11.14 (materialization). Trong một tổ chức lớn, nhiều đội chạy nhiều job đọc đầu ra của nhau, nên công cụ quản lý luồng dữ liệu phức tạp này rất quan trọng. Các công cụ cấp cao hơn như Pig, Hive, Cascading, Crunch và FlumeJava tự dựng workflow nhiều giai đoạn và tự nối chúng đúng cách.</p>
+    </div>
+    <figure class="lab" data-widget="mr-workflow">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Workflow bốn job trên dòng thời gian
+        <small>Mỗi job có ba task. Job chỉ bắt đầu khi mọi job cung cấp đầu vào cho nó đã xong. Kéo độ chậm của task “lề mề” hoặc cho một job thất bại và xem các job phía sau phải chờ. Thời lượng là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Một task chậm (do lệch dữ liệu hay máy quá tải) giữ chân cả job, và vì job sau chỉ chạy khi job trước hoàn tất, nó giữ chân cả workflow. Đây là một lý do khiến các dataflow engine ra đời.</p></aside>
+  </article>
+
+  <!-- 11.8 -->
+  <article class="topic" id="ch11-reduce-join" data-num="11.8" data-short="Reduce-side join (sort-merge)" data-keywords="join user activity events clickstream user database star schema sort-merge join secondary sort reduce-side bringing related data together">
+    <p class="eyebrow">11.8 · Reduce-Side Joins and Grouping · Sort-Merge Joins</p>
+    <h2>Join phía reducer: sort-merge join <span class="vi">Reduce-Side Joins, Sort-Merge Joins</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>MapReduce không có index: nó đọc toàn bộ đầu vào (như full table scan). Với truy vấn phân tích trên mọi người dùng cùng lúc, điều đó hợp lý. “Join” trong batch nghĩa là giải quyết <em>mọi</em> liên kết trong tập dữ liệu.</li>
+      <li>Ví dụ: log sự kiện hoạt động (chỉ có user ID) join với bảng người dùng (có ngày sinh). Tra database từ xa cho từng sự kiện thì quá chậm và không tất định; hãy chép bảng người dùng lên HDFS.</li>
+      <li><dfn data-term="sort-merge-join">Sort-merge join</dfn>: hai nhóm mapper cùng phát khoá = user ID; shuffle gom mọi bản ghi cùng ID về một lần gọi reducer. <dfn data-term="secondary-sort">Secondary sort</dfn> đảm bảo reducer thấy bản ghi người dùng trước, rồi đến các sự kiện theo thời gian.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Trong nhiều tập dữ liệu, bản ghi này tham chiếu bản ghi kia: khoá ngoại, tham chiếu tài liệu, cạnh của đồ thị. Phi chuẩn hoá giảm được nhu cầu join nhưng hiếm khi bỏ hẳn. Ví dụ trong sách là một phần của star schema (<a href="#ch4">Chương 4</a>): log sự kiện là bảng fact, bảng người dùng là một dimension. Ta muốn biết trang nào được nhóm tuổi nào xem nhiều, nhưng mỗi sự kiện chỉ ghi user ID.</p>
+      <p>Cách ngây thơ là với mỗi sự kiện, hỏi database người dùng trên máy chủ khác. Thông lượng khi đó bị giới hạn bởi thời gian khứ hồi mạng, cache cục bộ hiệu quả hay không tuỳ phân bố dữ liệu, chạy song song nhiều truy vấn thì dễ đánh sập database, và kết quả còn không tất định vì dữ liệu từ xa có thể đổi trong lúc job chạy. Để có thông lượng tốt, tính toán phải cục bộ trên một máy nhiều nhất có thể. Nên ta lấy một bản sao của database người dùng (ví dụ qua ETL từ bản sao lưu) đặt cạnh log trên HDFS.</p>
+      <p>Mapper cho log sự kiện phát <code>(user_id, sự kiện)</code>; mapper cho bảng người dùng phát <code>(user_id, ngày sinh)</code>. Sau khi phân vùng và sắp xếp, mọi bản ghi cùng user ID nằm liền nhau ở đầu vào của cùng một reducer. Nhờ secondary sort, giá trị đầu tiên luôn là bản ghi người dùng: reducer lưu ngày sinh vào một biến cục bộ, duyệt qua các sự kiện và phát <code>(url, tuổi người xem)</code>. Reducer chỉ giữ <em>một</em> bản ghi người dùng trong bộ nhớ tại một thời điểm và không bao giờ gọi mạng.</p>
+      <h3>Gom dữ liệu liên quan về một chỗ</h3>
+      <p>Có thể coi mapper là “gửi tin nhắn” tới reducer: khoá đóng vai trò địa chỉ người nhận. Mọi cặp cùng khoá được giao đến cùng một đích. Mô hình này tách phần giao tiếp mạng vật lý (đưa dữ liệu đến đúng máy) khỏi logic ứng dụng (xử lý dữ liệu khi đã có), trái ngược với cách dùng database thông thường nơi lệnh lấy dữ liệu nằm sâu trong code. Vì MapReduce lo mọi giao tiếp mạng, nó cũng che cho code khỏi lỗi cục bộ như một node khác bị sập: framework tự thử lại task.</p>
+    </div>
+    <figure class="lab" data-widget="sort-merge-join">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Join log hoạt động với bảng người dùng
+        <small>Bấm vào một user ID để theo dõi nó từ hai mapper tới reducer. Tắt “secondary sort” để thấy reducer phải giữ đệm sự kiện vì bản ghi người dùng có thể đến sau. Dữ liệu là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Join kiểu này gọi là sort-merge join vì đầu ra mapper được sắp theo khoá rồi reducer trộn các danh sách đã sắp xếp từ hai phía. Nó không cần giả định gì về dữ liệu đầu vào, nhưng trả giá bằng sắp xếp, chép qua mạng và trộn.</p></aside>
+  </article>
+
+  <!-- 11.9 -->
+  <article class="topic" id="ch11-group-by" data-num="11.9" data-short="GROUP BY và sessionization" data-keywords="group by count sum top k aggregation sessionization a/b testing session cookie">
+    <p class="eyebrow">11.9 · GROUP BY</p>
+    <h2>Gom nhóm và sessionization <span class="vi">GROUP BY</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>GROUP BY dùng đúng mẫu “gom dữ liệu liên quan về một chỗ”: mapper phát khoá là khoá gom nhóm, shuffle đưa cả nhóm về một reducer, reducer tính <code>COUNT(*)</code>, <code>SUM(...)</code> hay top-k.</li>
+      <li>Trên MapReduce, gom nhóm và join trông gần như giống nhau.</li>
+      <li><dfn data-term="sessionization">Sessionization</dfn>: gom mọi sự kiện của một phiên người dùng (rải trên log của nhiều web server) theo session cookie hay user ID để dựng lại chuỗi hành động, ví dụ đánh giá A/B test.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Đếm lượt xem mỗi trang ở mục 11.6 chính là <code>SELECT url, COUNT(*) ... GROUP BY url</code>. Đổi khoá mapper là đổi cách gom; đổi hàm reducer là đổi phép gộp. Nếu bạn có nhiều web server, sự kiện của một người dùng nằm rải rác trong log của nhiều máy. Dùng user ID (hay session cookie) làm khoá gom nhóm sẽ đưa tất cả sự kiện của một người về một chỗ, còn sự kiện của những người khác nhau được trải ra các phân vùng khác nhau. Sau đó reducer có thể xếp các sự kiện theo thời gian và hỏi: người được xem phiên bản mới của website có mua hàng nhiều hơn người xem bản cũ không?</p>
+    </div>
+    <figure class="lab" data-widget="group-by">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Cùng một log, bốn cách gom nhóm
+        <small>Chọn phép gom nhóm. Widget hiện câu SQL tương ứng, khoá mà mapper phát, và kết quả mỗi reducer. Ở chế độ sessionization, xem chuỗi hành động của từng người và tỉ lệ mua theo phiên bản A/B. Dữ liệu là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Chọn khoá cho mapper là quyết định thiết kế quan trọng nhất trong một job: nó quyết định dữ liệu nào gặp nhau ở cùng một lần gọi reducer.</p></aside>
+  </article>
+
+  <!-- 11.10 -->
+  <article class="topic" id="ch11-skew" data-num="11.10" data-short="Xử lý lệch dữ liệu (skew)" data-keywords="skew hot key linchpin object celebrity hot spot skewed join pig crunch sharded join hive two-stage aggregation sampling">
+    <p class="eyebrow">11.10 · Handling Skew</p>
+    <h2>Khoá nóng và lệch tải <span class="vi">Handling Skew</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Mẫu “mọi bản ghi cùng khoá về một chỗ” vỡ khi một khoá có quá nhiều dữ liệu: người nổi tiếng có hàng triệu follower. Những bản ghi đó gọi là <em>linchpin object</em> hay <dfn data-term="hot-key">khoá nóng</dfn>.</li>
+      <li>Một reducer phải xử lý nhiều hơn hẳn các reducer khác (lệch tải, <em>hot spot</em>). Job chỉ xong khi reducer chậm nhất xong.</li>
+      <li>Cách chữa: <dfn data-term="skewed-join">skewed join</dfn> của Pig (lấy mẫu tìm khoá nóng, rải bản ghi của nó ngẫu nhiên lên nhiều reducer, nhân bản phía kia của join); sharded join của Crunch; Hive dùng map-side join cho khoá nóng; với phép gộp thì gộp hai giai đoạn.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ví dụ: gom mọi phản hồi cho bài đăng của một người nổi tiếng vào một reducer. MapReduce bình thường chọn reducer một cách tất định theo hash của khoá, nên khoá nóng luôn rơi vào cùng một chỗ. Skewed join của Pig trước hết chạy một job lấy mẫu để biết khoá nào nóng. Khi join, mapper gửi bản ghi của khoá nóng tới <em>một trong vài reducer chọn ngẫu nhiên</em>; với đầu vào còn lại của join, bản ghi thuộc khoá nóng phải được chép tới tất cả các reducer đó. Công việc được chia ra, đổi lại phải nhân bản một phía. Kỹ thuật này giống cách dùng ngẫu nhiên để giảm hot spot trong database phân vùng (<a href="#ch7">Chương 7</a>). Sharded join của Crunch tương tự nhưng bắt bạn khai báo khoá nóng thay vì lấy mẫu. Hive lại yêu cầu khai báo khoá nóng trong metadata của bảng, lưu chúng ở file riêng, và dùng map-side join (mục sau) cho chúng.</p>
+      <p>Khi gom nhóm và tính tổng theo khoá nóng, có thể làm hai giai đoạn: job thứ nhất gửi bản ghi tới reducer ngẫu nhiên, mỗi reducer gộp một phần và phát ra một giá trị gọn; job thứ hai gộp các giá trị đó thành một giá trị cho mỗi khoá.</p>
+    </div>
+    <figure class="lab" data-widget="skew">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Tải của 8 reducer khi có một khoá nóng
+        <small>Kéo tỉ lệ bản ghi thuộc người nổi tiếng, rồi đổi chiến lược. Phần màu vàng là bản ghi của khoá nóng. Thời gian job bằng reducer bận nhất. 100.000 bản ghi là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Thêm reducer không giúp gì cho một khoá nóng nếu vẫn phân vùng theo hash: mọi bản ghi của khoá đó vẫn rơi vào một reducer. Phải phá tính tất định của việc chọn reducer cho riêng khoá đó.</p></aside>
+  </article>
+
+  <!-- 11.11 -->
+  <article class="topic" id="ch11-map-join" data-num="11.11" data-short="Map-side join" data-keywords="map-side join broadcast hash join replicated join mapjoin partitioned hash join bucketed map join map-side merge join hcatalog hive metastore">
+    <p class="eyebrow">11.11 · Map-Side Joins</p>
+    <h2>Join phía mapper: broadcast, partitioned, merge <span class="vi">Map-Side Joins</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Reduce-side join không cần giả định gì về đầu vào, nhưng sắp xếp, chép tới reducer và trộn rất tốn kém. Nếu biết trước tính chất đầu vào, <dfn data-term="map-side-join">map-side join</dfn> bỏ hẳn reducer và bước sắp xếp.</li>
+      <li><dfn data-term="broadcast-hash-join">Broadcast hash join</dfn>: một phía đủ nhỏ để mỗi mapper nạp toàn bộ vào bảng băm trong RAM. <dfn data-term="partitioned-hash-join">Partitioned hash join</dfn>: hai phía được phân vùng giống nhau, mỗi mapper chỉ nạp một phân vùng.</li>
+      <li><dfn data-term="map-side-merge-join">Map-side merge join</dfn>: hai phía vừa được phân vùng giống nhau vừa được sắp xếp theo cùng khoá, nên mapper trộn tuần tự như reducer, không cần vừa RAM.</li>
+    </ul></div>
+    <div class="prose">
+      <h3>Broadcast hash join</h3>
+      <p>Giả sử bảng người dùng ở ví dụ trước đủ nhỏ. Khi mapper khởi động, nó đọc toàn bộ bảng người dùng từ HDFS vào một bảng băm, rồi quét các sự kiện và tra user ID trong bảng băm. Vẫn có nhiều map task, mỗi task cho một block của đầu vào lớn (log sự kiện), và <em>mỗi</em> task nạp toàn bộ đầu vào nhỏ: đầu vào nhỏ được “phát sóng” (<em class="en">broadcast</em>) tới mọi phân vùng của đầu vào lớn. Pig gọi nó là replicated join, Hive gọi là MapJoin; Cascading, Crunch và Impala cũng dùng. Biến thể: lưu đầu vào nhỏ thành index chỉ-đọc trên đĩa cục bộ; phần hay dùng sẽ nằm trong page cache của hệ điều hành, gần nhanh bằng bảng băm trong RAM mà không cần vừa RAM.</p>
+      <h3>Partitioned hash join</h3>
+      <p>Nếu hai đầu vào được phân vùng giống nhau, có thể áp dụng hash join cho từng phân vùng độc lập. Ví dụ trong sách: phân vùng cả log sự kiện lẫn bảng người dùng theo chữ số cuối của user ID (10 phân vùng mỗi bên). Mapper 3 nạp mọi người dùng có ID tận cùng bằng 3 vào bảng băm, rồi quét các sự kiện của những người dùng đó. Điều kiện: cùng số phân vùng, cùng khoá, cùng hàm hash, thường đúng khi hai đầu vào là đầu ra của các job MapReduce trước đã gom nhóm như vậy. Hive gọi nó là bucketed map join.</p>
+      <h3>Map-side merge join</h3>
+      <p>Nếu hai đầu vào không chỉ phân vùng giống nhau mà còn được sắp xếp theo cùng khoá, kích thước không còn quan trọng: mapper đọc hai file song song theo thứ tự khoá tăng dần và ghép các bản ghi cùng khoá, đúng việc reducer vẫn làm. Thường điều này có nghĩa job trước đã đưa dữ liệu về dạng đó; join có thể làm luôn ở job trước, nhưng tách ra job chỉ-map vẫn hợp lý nếu dữ liệu đã sắp xếp còn dùng cho việc khác.</p>
+      <h3>Hệ quả cho workflow</h3>
+      <p>Đầu ra của reduce-side join được phân vùng và sắp xếp theo khoá join; đầu ra của map-side join được phân vùng và sắp xếp giống <em>đầu vào lớn</em> (mỗi block của đầu vào lớn là một map task). Vì map-side join dựa vào cách bố trí vật lý của dữ liệu, bạn cần biết số phân vùng và khoá phân vùng/sắp xếp, không chỉ định dạng và tên thư mục. Trong Hadoop, metadata này thường nằm trong HCatalog và Hive metastore.</p>
+    </div>
+    <figure class="lab" data-widget="join-picker">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Chọn thuật toán join theo tính chất đầu vào
+        <small>Kéo kích thước bảng người dùng và bộ nhớ mỗi mapper, bật tắt các tính chất phân vùng và sắp xếp. Widget chỉ ra thuật toán nào dùng được, thuật toán nào được chọn, và mỗi mapper phải đọc gì. Kích thước là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Càng biết nhiều về đầu vào (kích thước, phân vùng, thứ tự), join càng rẻ. Không biết gì thì sort-merge join phía reducer luôn dùng được.</p></aside>
+  </article>
+
+  <!-- 11.12 -->
+  <article class="topic" id="ch11-output" data-num="11.12" data-short="Đầu ra của batch workflow" data-keywords="output of batch workflows search index lucene key-value store voldemort terrapin elephantdb hbase bulk load immutable human fault tolerance rollback">
+    <p class="eyebrow">11.12 · The Output of Batch Workflows</p>
+    <h2>Batch tạo ra gì: index, kho khoá–giá trị, và sự bất biến <span class="vi">The Output of Batch Workflows</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Đầu ra của batch thường không phải báo cáo mà là một cấu trúc khác: Google dùng MapReduce (workflow 5–10 job) để xây <dfn data-term="inverted-index">chỉ mục tìm kiếm</dfn>; hệ gợi ý và bộ phân loại học máy xuất ra một database tra theo user ID hay product ID.</li>
+      <li>Ghi thẳng từ mapper/reducer vào database production là ý tồi: chậm (mỗi bản ghi một request), dễ đánh sập database, và phá vỡ đảm bảo “tất cả hoặc không” của job.</li>
+      <li>Tốt hơn: dựng database mới thành file bất biến trên HDFS, rồi nạp hàng loạt vào server chỉ-đọc (Voldemort, Terrapin, ElephantDB, HBase bulk load) và chuyển đổi nguyên tử. Lỗi thì quay về file cũ: <dfn data-term="human-fault-tolerance">khả năng chịu lỗi của con người</dfn>.</li>
+    </ul></div>
+    <div class="prose">
+      <p><strong>Index tìm kiếm.</strong> Một full-text index kiểu Lucene là một file (term dictionary) cho phép tra một từ khoá và lấy danh sách ID mọi tài liệu chứa nó (postings list). Mapper phân vùng tập tài liệu, mỗi reducer xây index cho phân vùng của mình, file index được ghi lên HDFS; việc xây index phân vùng theo tài liệu (<a href="#ch7">Chương 7</a>) song song hoá rất tốt. Index chỉ phục vụ đọc nên bất biến sau khi tạo. Khi tài liệu đổi, có thể chạy lại toàn bộ workflow và thay index cũ bằng index mới (tốn tính toán, nhưng cực dễ suy luận: tài liệu vào, index ra), hoặc cập nhật tăng dần như Lucene vẫn làm với segment (<a href="#ch12">Chương 12</a>). Thử job “Xây chỉ mục ngược” ở widget mục 11.6.</p>
+      <p><strong>Kho khoá–giá trị.</strong> Ghi trực tiếp ra database từ bên trong job có ba vấn đề: mỗi bản ghi một request mạng thì chậm hơn thông lượng batch hàng bậc độ lớn; nhiều task cùng ghi với tốc độ của batch sẽ làm database quá tải và các truy vấn của người dùng chậm theo; và job thất bại giữa chừng để lại tác dụng phụ nhìn thấy được từ bên ngoài, phải lo cả chuyện task chạy lại và speculative execution. Dựng file database trong job là việc MapReduce làm rất giỏi: rút khoá và sắp xếp theo khoá đã là phần lớn công việc xây index. Các kho này chỉ-đọc nên cấu trúc đơn giản, không cần WAL. Khi nạp vào Voldemort, server vẫn phục vụ file cũ trong lúc chép file mới về đĩa cục bộ, chép xong thì chuyển nguyên tử sang file mới; có trục trặc thì chuyển về file cũ vì chúng vẫn còn đó.</p>
+      <h3>Triết lý của đầu ra batch</h3>
+      <ul>
+        <li>Lỡ deploy code lỗi làm đầu ra sai: quay lại phiên bản code trước và chạy lại job, hoặc chỉ cần trỏ về thư mục đầu ra cũ. Database đọc–ghi không có tính chất này: rollback code không sửa được dữ liệu xấu đã ghi.</li>
+        <li>Vì dễ quay lui, phát triển tính năng nhanh hơn: nguyên tắc giảm thiểu những gì không thể đảo ngược.</li>
+        <li>Task lỗi được tự động chạy lại trên cùng đầu vào. Điều này chỉ an toàn vì đầu vào bất biến và đầu ra của task lỗi bị bỏ.</li>
+        <li>Cùng một tập file dùng được cho nhiều job, kể cả job giám sát so sánh đầu ra với lần chạy trước.</li>
+        <li>Như Unix, tách logic khỏi việc đấu nối (thư mục vào/ra): một đội viết job làm tốt một việc, đội khác quyết định chạy nó ở đâu, khi nào.</li>
+      </ul>
+      <p>Khác Unix ở chỗ Hadoop dùng định dạng có cấu trúc như Avro và Parquet (<a href="#ch5">Chương 5</a>, <a href="#ch4">Chương 4</a>) thay cho văn bản không kiểu, bớt đi những chuyển đổi cú pháp vô bổ như <code>{print $7}</code>.</p>
+    </div>
+    <figure class="lab" data-widget="batch-output">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đưa kết quả gợi ý bạn bè ra production
+        <small>Chọn cách đưa đầu ra vào kho phục vụ web, rồi chạy job. Bật “job hỏng giữa chừng” hoặc “code có bug” và thử khôi phục. So sánh cái người dùng nhìn thấy ở hai cách.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Đầu vào bất biến + đầu ra thay thế hoàn toàn + không tác dụng phụ = chạy lại bao nhiêu lần cũng được. Đây là thứ biến một lỗi code thành sự cố vài phút thay vì dữ liệu hỏng vĩnh viễn.</p></aside>
+  </article>
+
+  <!-- 11.13 -->
+  <article class="topic" id="ch11-hadoop-mpp" data-num="11.13" data-short="Hadoop vs MPP database" data-keywords="mpp database teradata gamma diversity of storage data lake schema-on-read sushi principle processing models frequent faults preemption google borg 5% overcommit">
+    <p class="eyebrow">11.13 · Comparing Hadoop to Distributed Databases</p>
+    <h2>Hadoop so với cơ sở dữ liệu MPP <span class="vi">Comparing Hadoop to Distributed Databases</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Các thuật toán join song song đã có trong <dfn data-term="mpp-database">database MPP</dfn> (Gamma, Teradata, Tandem NonStop SQL) hơn một thập kỷ trước MapReduce. Khác biệt: MPP chạy SQL phân tích; MapReduce + HDFS giống một hệ điều hành đa dụng chạy chương trình tuỳ ý.</li>
+      <li>Đa dạng lưu trữ: đổ dữ liệu thô vào HDFS rồi tính sau (<dfn data-term="data-lake">data lake</dfn>, <dfn data-term="schema-on-read">schema-on-read</dfn>, <dfn data-term="sushi-principle">nguyên tắc sushi</dfn>: dữ liệu thô tốt hơn). Đa dạng mô hình xử lý: SQL, MapReduce, học máy, HBase, Impala trên cùng một cụm, cùng một tập file.</li>
+      <li>Thiết kế cho lỗi thường xuyên: MPP huỷ cả truy vấn khi một node lỗi; MapReduce chạy lại từng task và ghi đĩa nhiều. Lý do thật là <dfn data-term="preemption">preemption</dfn>: ở Google, task chạy một giờ có khoảng 5% khả năng bị huỷ để nhường tài nguyên.</li>
+    </ul></div>
+    <div class="prose">
+      <h3>Đa dạng lưu trữ</h3>
+      <p>Database bắt bạn cấu trúc dữ liệu theo một mô hình; file trên HDFS chỉ là chuỗi byte: bản ghi, văn bản, ảnh, video, số đo cảm biến, vector đặc trưng, chuỗi gen… MPP đòi mô hình hoá cẩn thận dữ liệu và truy vấn trước khi nhập vào định dạng riêng. Về lý thuyết, điều đó cho dữ liệu chất lượng hơn; trên thực tế, làm cho dữ liệu có sẵn nhanh, dù ở dạng thô khó dùng, thường đáng giá hơn cố chọn mô hình lý tưởng từ đầu. Việc diễn giải dữ liệu chuyển từ bên sản xuất sang bên tiêu thụ, hữu ích khi hai bên là các đội có ưu tiên khác nhau; và có khi không có một mô hình lý tưởng, chỉ có nhiều góc nhìn cho nhiều mục đích. Hadoop vì thế hay dùng cho ETL: đổ dữ liệu thô từ hệ thống giao dịch vào HDFS, viết job làm sạch, biến đổi sang dạng quan hệ, rồi nhập vào kho dữ liệu MPP.</p>
+      <h3>Đa dạng mô hình xử lý</h3>
+      <p>MPP là phần mềm nguyên khối được tinh chỉnh cho đúng loại truy vấn của nó, và SQL thì biểu đạt tốt, dùng được từ công cụ đồ hoạ như Tableau. Nhưng học máy, xây index tìm kiếm có mô hình xếp hạng, hay phân tích ảnh cần viết code chứ không chỉ viết truy vấn. Có HDFS và MapReduce thì bạn dựng được cả một engine SQL bên trên (Hive), lẫn những thứ không diễn đạt được bằng SQL. Hệ sinh thái Hadoop chứa cả database OLTP truy cập ngẫu nhiên (HBase) lẫn database phân tích kiểu MPP (Impala); cả hai không dùng MapReduce nhưng cùng dùng HDFS, và không phải chuyển dữ liệu qua lại giữa các hệ thống chuyên biệt.</p>
+      <h3>Thiết kế cho lỗi thường xuyên</h3>
+      <p>Truy vấn MPP thường chạy vài giây đến vài phút, nên khi một node sập, huỷ cả truy vấn và chạy lại là chấp nhận được; MPP cũng thích giữ dữ liệu trong RAM (hash join). MapReduce thì chạy lại ở mức từng task và hăng hái ghi xuống đĩa, một phần để chịu lỗi, một phần vì giả định dữ liệu quá lớn để vừa RAM. Nhưng máy hỏng không thường đến thế, vậy có đáng trả chi phí đó? Câu trả lời nằm ở môi trường Google: dịch vụ production và batch chạy chung trên các máy, mỗi task có tài nguyên được container giới hạn và một mức ưu tiên. Task ưu tiên thấp có thể bị huỷ (preempt) khi task ưu tiên cao cần tài nguyên. Nhờ vậy tài nguyên cho việc không-production có thể cấp vượt (<em class="en">overcommit</em>), máy được tận dụng tốt hơn. Batch job “nhặt vụn dưới gầm bàn”, và tỉ lệ bị huỷ cao hơn tỉ lệ lỗi phần cứng hơn một bậc độ lớn. YARN, Mesos và Kubernetes lúc sách viết chưa hỗ trợ preemption theo ưu tiên tổng quát, nên ở môi trường đó, các quyết định thiết kế của MapReduce kém hợp lý hơn.</p>
+    </div>
+    <figure class="lab" data-widget="preemption">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bao nhiêu task bị huỷ giữa chừng?
+        <small>Mặc định là ví dụ của sách: 100 task, mỗi task 10 phút, 5% rủi ro bị huỷ mỗi giờ. Bấm “Chạy mô phỏng” để rút thăm một lần chạy, đổi chiến lược khôi phục để so sánh lượng việc phải làm lại.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>MapReduce chịu được việc task bị huỷ thường xuyên không phải vì phần cứng tệ, mà vì quyền tự do huỷ tiến trình bất kỳ lúc nào giúp cả cụm máy được dùng hiệu quả hơn.</p></aside>
+  </article>
+
+  <!-- 11.14 -->
+  <article class="topic" id="ch11-dataflow" data-num="11.14" data-short="Dataflow engine: Spark, Tez, Flink" data-keywords="beyond mapreduce materialization intermediate state dataflow engine spark tez flink operator dag straggler fault tolerance recomputation rdd lineage deterministic checkpoint pipelined">
+    <p class="eyebrow">11.14 · Beyond MapReduce · Materialization of Intermediate State</p>
+    <h2>Trạng thái trung gian và dataflow engine <span class="vi">Materialization, Dataflow Engines, Fault Tolerance</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>MapReduce ghi toàn bộ trạng thái trung gian giữa các job ra HDFS (<dfn data-term="materialization">materialization</dfn>). Hệ quả: chờ <dfn data-term="straggler">task lề mề</dfn> của job trước, mapper thừa chỉ đọc lại file reducer vừa ghi, và dữ liệu tạm bị nhân bản ba lần.</li>
+      <li><dfn data-term="dataflow-engine">Dataflow engine</dfn> (Spark, Tez, Flink) coi cả workflow là một job; các toán tử (operator) nối với nhau linh hoạt, chỉ sắp xếp khi cần, giữ trạng thái trung gian trong RAM hoặc đĩa cục bộ, và bắt đầu ngay khi đầu vào sẵn sàng.</li>
+      <li>Mất trạng thái trung gian thì tính lại từ dữ liệu còn lại (Spark theo dõi nguồn gốc bằng <dfn data-term="rdd">RDD</dfn>, Flink checkpoint trạng thái operator). Toán tử phải tất định, nếu không phải chạy lại cả phía sau.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ghi đầu ra của một job ra vị trí công khai trên HDFS là hợp lý khi nhiều đội khác cần dùng nó (loose coupling). Nhưng phần lớn file giữa các job chỉ là trạng thái trung gian, dùng đúng một lần bởi job kế tiếp của cùng đội, và workflow gợi ý 50–100 job có rất nhiều thứ như thế. Pipe của Unix thì không ghi trạng thái trung gian ra hết, chỉ truyền dần qua một bộ đệm nhỏ. So với pipe, materialization có ba nhược điểm: job chỉ bắt đầu khi mọi task của job trước xong (và luôn có vài task chậm vì lệch dữ liệu hay tải khác nhau); mapper thường thừa vì có thể gộp vào reducer trước nếu đầu ra reducer đã được phân vùng và sắp xếp đúng cách; và file tạm bị nhân bản trên nhiều node là quá mức cần thiết.</p>
+      <p>Dataflow engine, dựa trên nghiên cứu như Dryad và Nephele, vẫn gọi hàm do người dùng viết cho từng bản ghi trên một luồng và vẫn song song hoá bằng phân vùng, nhưng có nhiều cách nối operator: phân vùng lại và sắp xếp như shuffle (cho sort-merge join, gom nhóm); phân vùng mà không sắp xếp (cho partitioned hash join, vì bảng băm làm xáo thứ tự anyway); hoặc phát sóng một đầu ra tới mọi phân vùng (broadcast hash join). Vì mọi phụ thuộc được khai báo tường minh, scheduler có thể đặt task tiêu thụ cạnh task sản xuất để trao đổi qua bộ nhớ thay vì qua mạng. Tiến trình JVM được tái sử dụng thay vì mỗi task một JVM mới. Workflow viết bằng Pig, Hive hay Cascading chuyển từ MapReduce sang Tez hay Spark chỉ bằng một dòng cấu hình. Tez là thư viện mỏng dựa vào dịch vụ shuffle của YARN; Spark và Flink là framework lớn có tầng mạng, scheduler và API riêng.</p>
+      <h3>Chịu lỗi bằng tính lại</h3>
+      <p>Materialization có một ưu điểm: dữ liệu trung gian bền, task lỗi chỉ việc chạy lại ở máy khác và đọc lại cùng đầu vào. Spark, Flink, Tez không ghi trạng thái trung gian ra HDFS, nên khi một máy hỏng, phần dữ liệu trên máy đó được tính lại từ giai đoạn trước còn sống, hoặc từ đầu vào gốc trên HDFS. Muốn vậy framework phải nhớ mỗi mảnh dữ liệu được tính từ phân vùng nào bằng operator nào. Nếu operator không tất định (duyệt bảng băm không theo thứ tự cố định, số ngẫu nhiên không cố định seed, đồng hồ hệ thống, dữ liệu ngoài), dữ liệu tính lại có thể khác dữ liệu đã gửi xuống dưới, và cách giải quyết thường là huỷ cả các operator phía sau rồi chạy lại. Tính lại cũng không phải lúc nào cũng rẻ: nếu dữ liệu trung gian nhỏ hơn nhiều so với nguồn, hoặc phép tính rất nặng CPU, ghi nó ra file có khi rẻ hơn.</p>
+      <p>Tóm lại, MapReduce giống ghi đầu ra mỗi lệnh ra file tạm, còn dataflow engine giống pipe của Unix (đặc biệt Flink, xây quanh ý tưởng thực thi kiểu pipeline). Phép sắp xếp vẫn phải nhận hết đầu vào mới ra được bản ghi đầu tiên, vì bản ghi cuối có thể có khoá nhỏ nhất. Đầu vào và đầu ra cuối cùng của job vẫn nằm trên HDFS, đầu vào vẫn bất biến và đầu ra vẫn bị thay thế toàn bộ.</p>
+    </div>
+    <figure class="lab" data-widget="dataflow">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Cùng ba giai đoạn, hai cách thực thi
+        <small>So sánh dòng thời gian của workflow MapReduce và dataflow engine. Kéo độ chậm của task lề mề, bật “có bước sắp xếp”, rồi cho một máy hỏng để xem mỗi bên phải làm lại những gì. Thời lượng là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Rất dễ vô tình làm toán tử không tất định: duyệt <code>HashMap</code>, gọi <code>random()</code> không seed, đọc giờ hệ thống. Khi đó cơ chế chịu lỗi bằng tính lại có thể biến một máy hỏng thành lỗi dây chuyền.</p></aside>
+  </article>
+
+  <!-- 11.15 -->
+  <article class="topic" id="ch11-pregel" data-num="11.15" data-short="Đồ thị và mô hình Pregel" data-keywords="graph iterative processing pregel bulk synchronous parallel bsp pagerank giraph graphx gelly superstep vertex message think like a vertex graphchi">
+    <p class="eyebrow">11.15 · Graphs and Iterative Processing</p>
+    <h2>Xử lý đồ thị lặp và mô hình Pregel <span class="vi">Graphs and Iterative Processing, The Pregel Model</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Nhiều thuật toán đồ thị (như <dfn data-term="pagerank">PageRank</dfn>, bao đóng bắc cầu) lặp “cho tới khi xong”. MapReduce chỉ đi qua dữ liệu một lượt, nên phải có scheduler ngoài chạy lại cả job mỗi vòng, đọc và ghi lại toàn bộ đồ thị.</li>
+      <li>Mô hình <dfn data-term="pregel">Pregel</dfn> (bulk synchronous parallel): mỗi vòng (superstep), hàm của mỗi đỉnh nhận mọi tin nhắn gửi cho nó ở vòng trước, cập nhật trạng thái mà nó giữ trong bộ nhớ, rồi gửi tin dọc theo các cạnh.</li>
+      <li>Chịu lỗi bằng checkpoint trạng thái mọi đỉnh ở cuối vòng. Đồ thị thường được phân vùng tuỳ ý theo ID nên tin nhắn qua mạng nhiều; nếu đồ thị vừa một máy, thuật toán một máy thường nhanh hơn.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ở <a href="#ch3">Chương 3</a> ta dùng đồ thị cho truy vấn kiểu OLTP: nhanh chóng tìm vài đỉnh. Trong batch, mục tiêu là phân tích <em>cả</em> đồ thị, thường cho hệ gợi ý hay xếp hạng. PageRank ước lượng độ phổ biến của một trang web dựa trên những trang trỏ tới nó. Lưu ý đừng nhầm: Spark, Flink, Tez sắp xếp các operator thành một DAG, nhưng đó là đồ thị của luồng dữ liệu, còn dữ liệu bên trong thường là các tuple kiểu quan hệ. Trong xử lý đồ thị, chính dữ liệu là đồ thị.</p>
+      <p>Pregel được cài trong Apache Giraph, GraphX của Spark, Gelly của Flink. Ý tưởng giống MapReduce: mapper “gửi tin” tới một lần gọi reducer; ở đây một đỉnh gửi tin tới đỉnh khác, thường dọc theo cạnh. Khác biệt là đỉnh nhớ trạng thái giữa các vòng, nên chỉ cần xử lý tin mới; phần đồ thị không có tin nhắn thì không tốn công. Nó hơi giống mô hình actor, nhưng trạng thái đỉnh và tin nhắn được bảo đảm bền, và giao tiếp theo vòng cố định: mọi tin gửi ở vòng trước được giao ở vòng sau. Dù mạng có thể làm rơi, nhân đôi hay trễ tin (<a href="#ch9">Chương 9</a>), Pregel đảm bảo mỗi tin được xử lý đúng một lần ở vòng sau. Chỗ phải chờ duy nhất là giữa các vòng.</p>
+      <p>Đỉnh không cần biết mình chạy trên máy nào (“think like a vertex”), nên framework có thể phân vùng đồ thị tuỳ ý. Tìm cách phân vùng đặt các đỉnh hay nói chuyện với nhau lên cùng máy là bài toán khó, nên thực tế thường chia theo ID, và lượng tin nhắn giữa các máy có khi còn lớn hơn cả đồ thị. Nếu đồ thị vừa RAM một máy, thuật toán một máy (thậm chí một luồng) dễ thắng bản phân tán; nếu chỉ vừa đĩa một máy, GraphChi là lựa chọn khả thi.</p>
+    </div>
+    <figure class="lab" data-widget="pregel">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> PageRank theo từng superstep
+        <small>Mỗi superstep, mỗi đỉnh chia hạng của mình cho các cạnh đi ra; hạng mới = (1 − d)/N + d × tổng tin nhận được. Bấm “Superstep tiếp” hoặc “Chạy tới hội tụ”. Bấm một đỉnh để xem tin nó nhận. Màu nền cho biết đỉnh nằm trên máy nào.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Cách lặp ngây thơ với MapReduce: scheduler ngoài chạy một job cho mỗi vòng, kiểm tra điều kiện dừng (không còn cạnh để đi, hoặc thay đổi so với vòng trước nhỏ hơn ngưỡng), chưa xong thì chạy vòng nữa. Mỗi vòng đọc và ghi lại toàn bộ đồ thị dù chỉ một phần nhỏ thay đổi.</p></aside>
+  </article>
+
+  <!-- 11.16 -->
+  <article class="topic" id="ch11-high-level" data-num="11.16" data-short="API cấp cao và tối ưu khai báo" data-keywords="high-level api hive pig cascading crunch flumejava dataframe declarative query optimizer cost-based join order column-oriented vectorized execution udf llvm mahout madlib">
+    <p class="eyebrow">11.16 · High-Level APIs and Languages</p>
+    <h2>API cấp cao và bước chuyển sang khai báo <span class="vi">High-Level APIs and Languages</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Hive, Pig, Cascading, Crunch và API của Spark/Flink (lấy cảm hứng từ FlumeJava) dùng khối xây dựng kiểu quan hệ: join, group, filter, aggregate. Ít code hơn, dùng tương tác được trong shell (giống tinh thần Unix), và chuyển engine không cần viết lại.</li>
+      <li>Khi join được khai báo thay vì viết tay, <dfn data-term="cost-based-optimizer">bộ tối ưu dựa trên chi phí</dfn> (Hive, Spark, Flink) tự chọn thuật toán join phù hợp và thứ tự join để giảm trạng thái trung gian.</li>
+      <li>Lọc và chọn cột viết dạng khai báo thay vì callback cho phép chỉ đọc cột cần từ lưu trữ cột và <dfn data-term="vectorized-execution">thực thi vector hoá</dfn> (Spark sinh bytecode JVM, Impala sinh mã máy bằng LLVM). Batch dần giống MPP nhưng vẫn giữ quyền chạy code tuỳ ý.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Đến giờ, việc vận hành batch ở quy mô hàng petabyte trên hơn 10.000 máy coi như đã giải quyết, nên sự chú ý chuyển sang mô hình lập trình, hiệu quả xử lý và mở rộng phạm vi bài toán. Ưu điểm của việc nói “tôi cần join này” thay vì viết code thực hiện join là framework phân tích được tính chất đầu vào và tự chọn giữa các thuật toán ở mục 11.8–11.11. Bạn không cần nhớ hết chúng, đúng như ý tưởng ngôn ngữ truy vấn khai báo ở <a href="#ch3">Chương 3</a>.</p>
+      <p>Nhưng MapReduce và hậu duệ khác SQL ở chỗ dựa trên callback: với mỗi bản ghi, một hàm do người dùng viết được gọi và nó có thể gọi bất kỳ thư viện nào (phân tích cú pháp, xử lý ngôn ngữ tự nhiên, xử lý ảnh, thuật toán số). Quyền tự do đó là thứ phân biệt batch kiểu MapReduce với MPP, nơi hàm do người dùng định nghĩa thường khó dùng và không tích hợp với Maven, npm hay Rubygems. Tuy nhiên, nếu callback chỉ là một điều kiện lọc đơn giản hay chỉ chọn vài trường, gọi hàm cho mỗi bản ghi tốn CPU vô ích; viết nó dạng khai báo cho phép bộ tối ưu tận dụng lưu trữ cột (<a href="#ch4">Chương 4</a>) và vòng lặp chặt thân thiện với cache CPU.</p>
+      <h3>Chuyên biệt cho từng lĩnh vực</h3>
+      <p>Các mẫu xử lý lặp lại đáng có cài đặt dùng lại: Mahout cài thuật toán học máy trên MapReduce, Spark và Flink; MADlib làm điều tương tự bên trong database MPP (Apache HAWQ); thuật toán không gian như k-láng giềng gần nhất, và tìm kiếm xấp xỉ cho phân tích gen. Batch ngày càng có sẵn toán tử khai báo, MPP ngày càng lập trình được: rốt cuộc, tất cả chỉ là hệ thống lưu trữ và xử lý dữ liệu.</p>
+    </div>
+    <figure class="lab" data-widget="optimizer">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Callback mờ đục và truy vấn khai báo
+        <small>Cùng một phân tích: lượt xem theo nhóm tuổi của người dùng ở Việt Nam. Đổi cách viết, kích thước bảng và định dạng lưu trữ; xem bộ tối ưu chọn kế hoạch thực thi nào và đọc bao nhiêu dữ liệu. Kích thước và chi phí là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Khai báo <em>cái gì</em> cho phép hệ thống chọn <em>như thế nào</em>. Batch engine hiện đại lấy cả hai: khai báo cho join, lọc, chọn cột; callback tuỳ ý cho phần logic đặc thù.</p></aside>
+  </article>
+
+  <!-- review -->
+  <article class="topic" id="ch11-review" data-num="11.★" data-short="Tổng kết & kiểm tra">
+    <p class="eyebrow">11.★ · Summary</p>
+    <h2>Tổng kết chương <span class="vi">Summary</span></h2>
+    <div class="prose">
+      <p>Ta bắt đầu từ <code>awk</code>, <code>sort</code>, <code>uniq</code> và thấy triết lý thiết kế của chúng đi tiếp vào MapReduce và các dataflow engine: đầu vào bất biến, đầu ra dành cho một chương trình khác chưa biết, bài toán lớn được giải bằng cách ghép công cụ nhỏ làm tốt một việc. Ở Unix, giao diện thống nhất là file và pipe; ở MapReduce là hệ thống file phân tán. Dataflow engine thêm cơ chế truyền dữ liệu kiểu pipe để khỏi ghi trạng thái trung gian ra HDFS, nhưng đầu vào và đầu ra cuối vẫn nằm trên HDFS.</p>
+      <p>Hai bài toán chính của mọi framework batch phân tán:</p>
+      <ul>
+        <li><strong>Phân vùng.</strong> Mapper được phân vùng theo block đầu vào; đầu ra mapper được phân vùng lại, sắp xếp và trộn vào một số reducer cấu hình được, để gom mọi dữ liệu liên quan (cùng khoá) về một chỗ. Các engine sau MapReduce tránh sắp xếp khi không cần nhưng phân vùng tương tự.</li>
+        <li><strong>Chịu lỗi.</strong> MapReduce ghi đĩa thường xuyên: dễ khôi phục từng task nhưng chậm khi không có lỗi. Dataflow engine giữ nhiều hơn trong bộ nhớ nên phải tính lại nhiều hơn khi một node hỏng; toán tử tất định giảm lượng phải tính lại.</li>
+      </ul>
+      <p>Các thuật toán join: <strong>sort-merge join</strong> (mapper rút khoá, phân vùng–sắp xếp–trộn đưa mọi bản ghi cùng khoá về một lần gọi reducer), <strong>broadcast hash join</strong> (một phía nhỏ được nạp vào bảng băm ở mỗi mapper của phía lớn), <strong>partitioned hash join</strong> (hai phía phân vùng giống nhau, mỗi phân vùng join độc lập). Mô hình lập trình bị giới hạn có chủ đích (callback không trạng thái, không tác dụng phụ ngoài đầu ra) cho phép framework thử lại task an toàn, bỏ đầu ra của task lỗi, và đảm bảo đầu ra cuối giống như không hề có lỗi xảy ra, một ngữ nghĩa mạnh hơn nhiều so với dịch vụ online ghi vào database như một tác dụng phụ.</p>
+      <p>Đặc điểm cốt lõi của batch: đầu vào <dfn data-term="bounded-input">có giới hạn</dfn>, nên job biết khi nào đọc hết và sẽ kết thúc. <a href="#ch12">Chương 12</a> bỏ giả định này: đầu vào là luồng không bao giờ dứt, job không bao giờ “xong”.</p>
+    </div>
+    <div class="quiz">
+      <div class="q" data-answer="2">
+        <p>Trong pipeline <code>cat | awk '{print $7}' | sort | uniq -c | sort -r -n | head -n 5</code>, nếu bỏ lệnh <code>sort</code> đầu tiên thì sao?</p>
+        <ol><li>Kết quả giống hệt, chỉ chậm hơn</li><li>Lệnh báo lỗi vì <code>uniq</code> đòi đầu vào đã sắp xếp</li><li>Kết quả sai: <code>uniq -c</code> chỉ gộp các dòng giống nhau nằm liền kề, nên một URL có thể bị đếm thành nhiều dòng nhỏ</li><li>Kết quả đúng nhưng không còn theo thứ tự giảm dần</li></ol>
+        <p class="explain"><code>uniq</code> không báo lỗi; nó chỉ so sánh dòng hiện tại với dòng trước. Sắp xếp là bước gom mọi lần xuất hiện của cùng một URL về liền nhau, đúng vai trò của bước sort giữa map và reduce trong MapReduce.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Một website có 2 tỷ dòng log nhưng chỉ 50.000 URL khác nhau. Cách nào đếm lượt xem hiệu quả trên một laptop 8 GB RAM?</p>
+        <ol><li>Sắp xếp ngoài, vì dữ liệu log lớn hơn RAM</li><li>Bảng băm trong bộ nhớ, vì working set chỉ phụ thuộc số URL khác nhau và vừa gọn trong RAM</li><li>Không cách nào, phải dùng cụm Hadoop</li><li>Bảng băm, nhưng chỉ khi log nhỏ hơn RAM</li></ol>
+        <p class="explain">Working set của bảng băm là một mục cho mỗi URL khác nhau (vài MB ở đây), bất kể số dòng log. Sắp xếp ngoài chỉ thắng khi số khoá khác nhau quá lớn so với RAM.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Trong MapReduce, điều gì đảm bảo mọi cặp khoá–giá trị cùng khoá đến cùng một reducer?</p>
+        <ol><li>Mỗi mapper chia đầu ra theo hash của khoá, nên cùng khoá luôn vào cùng phân vùng reducer</li><li>NameNode ghi nhớ khoá nào ở reducer nào</li><li>Reducer hỏi tất cả mapper xem ai có khoá của nó</li><li>Mapper chạy trên máy giữ dữ liệu của khoá đó</li></ol>
+        <p class="explain">Phân vùng theo hash của khoá là tất định: mọi mapper tính cùng một hash cho cùng khoá. NameNode chỉ biết vị trí block file; data locality liên quan tới đầu vào của mapper, không phải khoá.</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>Join log sự kiện (hàng TB) với bảng người dùng 200 MB, mỗi mapper có 2 GB RAM, hai bên không được phân vùng theo cách nào đặc biệt. Thuật toán phù hợp nhất?</p>
+        <ol><li>Map-side merge join</li><li>Partitioned hash join</li><li>Reduce-side sort-merge join, vì nó luôn nhanh nhất</li><li>Broadcast hash join: mỗi mapper nạp toàn bộ bảng người dùng vào bảng băm</li></ol>
+        <p class="explain">Merge join và partitioned hash join cần hai bên được phân vùng (và sắp xếp) giống nhau. Sort-merge join luôn <em>dùng được</em> nhưng tốn sắp xếp và shuffle. Phía nhỏ vừa RAM nên broadcast hash join là rẻ nhất.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Vì sao skewed join của Pig gửi bản ghi của khoá nóng tới một reducer chọn <em>ngẫu nhiên</em> trong vài reducer?</p>
+        <ol><li>Để giảm lượng dữ liệu phải shuffle</li><li>Để kết quả không tất định, tránh bị tấn công</li><li>Để chia công việc của khoá nóng cho nhiều reducer; đổi lại bản ghi của khoá đó ở phía kia của join phải được chép tới tất cả các reducer đó</li><li>Vì hàm hash không xử lý được khoá dài</li></ol>
+        <p class="explain">Phân vùng theo hash dồn mọi bản ghi của khoá nóng vào một reducer, và job phải chờ reducer đó. Rải ngẫu nhiên chia tải, cái giá là nhân bản phía còn lại của join.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Một job gợi ý bị deploy với code lỗi, ghi ra gợi ý sai. Cách đưa đầu ra nào cho phép khôi phục nhanh nhất?</p>
+        <ol><li>Mapper ghi thẳng từng bản ghi vào database production, rồi rollback code</li><li>Job ghi file database mới bất biến vào thư mục riêng trên HDFS; server chuyển nguyên tử sang file mới, và có thể chuyển về thư mục cũ ngay khi phát hiện lỗi</li><li>Dùng transaction trong database production</li><li>Chạy job ít thường xuyên hơn</li></ol>
+        <p class="explain">Rollback code không sửa được dữ liệu xấu đã ghi vào database đọc–ghi. Đầu ra bất biến theo phiên bản cho phép quay về phiên bản tốt: khả năng chịu lỗi của con người.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Theo sách, lý do chính khiến MapReduce được thiết kế để chịu việc task bị huỷ thường xuyên là gì?</p>
+        <ol><li>Ở Google, batch chạy với ưu tiên thấp trên máy dùng chung và hay bị huỷ để nhường tài nguyên (khoảng 5% mỗi giờ), cao hơn tỉ lệ lỗi phần cứng hơn một bậc</li><li>Phần cứng thường của Google hỏng liên tục</li><li>Mạng datacenter không đáng tin</li><li>Java hay bị tràn bộ nhớ</li></ol>
+        <p class="explain">Với 100 task mỗi task 10 phút và rủi ro 5%/giờ, khả năng ít nhất một task bị huỷ là hơn 50%. Quyền huỷ tiến trình tuỳ ý cho phép cấp vượt tài nguyên và tận dụng máy tốt hơn.</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>Spark mất trạng thái trung gian khi một máy hỏng. Điều gì khiến việc khôi phục trở nên phức tạp?</p>
+        <ol><li>Dữ liệu trung gian đã được nhân bản ba lần trên HDFS</li><li>Đầu vào gốc trên HDFS đã bị sửa</li><li>Phải chạy lại toàn bộ workflow từ đầu trong mọi trường hợp</li><li>Toán tử không tất định: dữ liệu tính lại có thể khác dữ liệu đã gửi cho operator phía sau, nên thường phải chạy lại cả phía sau</li></ol>
+        <p class="explain">Spark tính lại phần bị mất từ nguồn gốc (RDD lineage), không cần chạy lại cả workflow. Nhưng nếu kết quả tính lại khác bản cũ, các operator phía sau đã dùng bản cũ cũng phải bị huỷ và chạy lại.</p>
+      </div>
+    </div>
+  </article>
+</section>

@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="vi" data-theme="nord">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Breaking Books — Quản lý & Break Sách Tương Tác</title>
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.14/dist/full.min.css" rel="stylesheet" type="text/css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Be Vietnam Pro"', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translate3d(0, 10px, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+    .anim-fade-up {
+      animation: fadeUp 0.32s ease-out both;
+    }
+    .soft-card {
+      transition: transform 0.2s ease-out, border-color 0.2s ease;
+    }
+    .soft-card:hover {
+      transform: translate3d(0, -2px, 0);
+    }
+  </style>
+</head>
+<body class="bg-base-200/35 text-base-content font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- Single Clean Topbar (No duplicate sidebar!) -->
+  <header class="navbar bg-base-100 border-b border-base-content/[0.06] sticky top-0 z-30 px-4 sm:px-8 h-16">
+    <div class="max-w-6xl w-full mx-auto flex items-center justify-between gap-3">
+      <!-- Left: Brand + Book Switcher -->
+      <div class="flex items-center gap-3 min-w-0">
+        <a href="/" class="font-bold text-base sm:text-lg tracking-tight whitespace-nowrap">Breaking Books</a>
+        <span class="opacity-25 hidden sm:inline">/</span>
+        <select id="book-select" class="select select-bordered select-xs sm:select-sm rounded-xl bg-base-200/40 border-base-content/10 font-medium max-w-44 sm:max-w-xs"></select>
+        <button type="button" class="btn btn-xs sm:btn-sm btn-ghost border border-base-content/10 rounded-xl font-normal hidden md:inline-flex" onclick="document.getElementById('modal-newbook').showModal()">
+          + Sách PDF mới
+        </button>
+      </div>
+
+      <!-- Right: CLI Status + Theme -->
+      <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+        <span class="badge badge-sm hidden sm:inline-flex font-mono font-normal opacity-75" id="nav-cli-badge">Claude CLI</span>
+        <select id="theme-select" class="select select-bordered select-xs sm:select-sm rounded-xl bg-base-100 border-base-content/10 font-normal" aria-label="Chọn giao diện">
+          <option value="nord">Nord</option>
+          <option value="lofi">Lofi (Minimal)</option>
+          <option value="retro">Retro (Warm)</option>
+          <option value="cupcake">Cupcake</option>
+          <option value="light">Light</option>
+          <option value="dim">Dim (Dark)</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- Centered Airy Main Container -->
+  <main class="flex-1 py-8 sm:py-12 px-5 sm:px-8 max-w-6xl w-full mx-auto space-y-10">
+
+    <!-- Book Overview Hero Card -->
+    <section class="anim-fade-up rounded-3xl bg-base-100 border border-base-content/[0.07] p-6 sm:p-9">
+      <div class="flex flex-col md:flex-row md:items-start justify-between gap-6">
+        <div class="space-y-2 max-w-2xl">
+          <div class="text-xs font-medium uppercase tracking-widest opacity-50" id="book-subtitle">Designing Data-Intensive Applications</div>
+          <h1 class="text-2xl sm:text-3xl font-bold tracking-tight" id="book-title">Sổ tay DDIA 2e</h1>
+          <p class="text-sm sm:text-base opacity-70 leading-relaxed pt-1" id="book-desc"></p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2.5 shrink-0 pt-1">
+          <a id="btn-read-main" href="/read/ddia-2e/index.html" class="btn btn-primary btn-sm rounded-xl px-5 font-medium shadow-none">
+            📖 Mở đọc sách →
+          </a>
+          <button type="button" class="btn btn-ghost btn-sm rounded-xl border border-base-content/10 font-normal md:hidden" onclick="document.getElementById('modal-newbook').showModal()">
+            + Sách PDF
+          </button>
+          <button type="button" class="btn btn-ghost btn-sm rounded-xl border border-base-content/10 font-normal" id="btn-rebuild">
+            Build lại
+          </button>
+        </div>
+      </div>
+
+      <!-- 4-Metric Strip -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mt-8 pt-7 border-t border-base-content/[0.06]">
+        <div class="space-y-1">
+          <div class="text-xs opacity-50">Chương hoàn chỉnh</div>
+          <div class="text-xl sm:text-2xl font-bold tracking-tight text-success" id="stat-complete">0 / 13</div>
+          <div class="text-xs opacity-60" id="stat-partial">0 đang làm dở</div>
+        </div>
+        <div class="space-y-1">
+          <div class="text-xs opacity-50">Chủ đề (Topics)</div>
+          <div class="text-xl sm:text-2xl font-bold tracking-tight" id="stat-topics">0</div>
+          <div class="text-xs opacity-60">Tóm tắt & giải nghĩa</div>
+        </div>
+        <div class="space-y-1">
+          <div class="text-xs opacity-50">Phòng thí nghiệm</div>
+          <div class="text-xl sm:text-2xl font-bold tracking-tight text-primary" id="stat-widgets">0</div>
+          <div class="text-xs opacity-60">Mô phỏng tương tác</div>
+        </div>
+        <div class="space-y-1">
+          <div class="text-xs opacity-50">Câu hỏi ôn tập</div>
+          <div class="text-xl sm:text-2xl font-bold tracking-tight" id="stat-quizzes">0</div>
+          <div class="text-xs opacity-60">Quiz cuối chương</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Active Claude CLI Job Card (Hidden when idle) -->
+    <div id="job-panel" class="rounded-2xl bg-neutral text-neutral-content p-5 space-y-3 hidden anim-fade-up">
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5 font-mono text-xs sm:text-sm">
+          <span class="loading loading-spinner loading-xs" id="job-spinner"></span>
+          <span id="job-title">Claude CLI đang chạy…</span>
+        </div>
+        <button type="button" class="btn btn-error btn-xs rounded-lg" id="btn-stop-job">Dừng</button>
+      </div>
+      <div id="job-logs" class="bg-black/30 rounded-xl p-3.5 font-mono text-xs max-h-44 overflow-y-auto space-y-1"></div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div class="flex flex-wrap items-center gap-1.5" id="filter-tabs">
+        <button type="button" class="btn btn-xs sm:btn-sm rounded-full px-4 btn-neutral shadow-none" data-filter="all">Tất cả chương</button>
+        <button type="button" class="btn btn-xs sm:btn-sm rounded-full px-4 btn-ghost border border-base-content/10 font-normal" data-filter="complete">Hoàn chỉnh</button>
+        <button type="button" class="btn btn-xs sm:btn-sm rounded-full px-4 btn-ghost border border-base-content/10 font-normal" data-filter="partial">Đang dở</button>
+        <button type="button" class="btn btn-xs sm:btn-sm rounded-full px-4 btn-ghost border border-base-content/10 font-normal" data-filter="pending">Chưa break</button>
+      </div>
+      <button type="button" class="btn btn-ghost btn-xs sm:btn-sm rounded-full opacity-70 hover:opacity-100 font-normal" id="btn-smoke">
+        Kiểm thử Playwright
+      </button>
+    </div>
+
+    <!-- Airy Chapter Cards Grid -->
+    <div id="chapters-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6 pb-12">
+      <!-- Populated by JS -->
+    </div>
+
+  </main>
+
+  <!-- Modal 1: Prompt & Break Runner -->
+  <dialog id="modal-prompt" class="modal">
+    <div class="modal-box max-w-2xl rounded-3xl p-6 sm:p-8 shadow-xl border border-base-content/10">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4">✕</button>
+      </form>
+      <h3 class="font-bold text-lg" id="prompt-modal-title">Break chương với Claude</h3>
+      <div class="py-5 space-y-4">
+        <div class="form-control">
+          <label class="label py-1"><span class="label-text text-xs opacity-70">Chế độ thực thi</span></label>
+          <select id="prompt-mode" class="select select-bordered select-sm rounded-xl w-full">
+            <option value="auto">Tự động phát hiện phần còn thiếu (Khuyên dùng)</option>
+            <option value="js">Chỉ viết / bổ sung mô phỏng JS (src/chN.js)</option>
+            <option value="html">Chỉ viết bài đọc HTML (src/chN.html)</option>
+            <option value="full">Break lại toàn bộ Chương (HTML + JS)</option>
+            <option value="custom">Tùy chỉnh yêu cầu (Custom Prompt)</option>
+          </select>
+        </div>
+        <div class="form-control">
+          <label class="label py-1">
+            <span class="label-text text-xs opacity-70">Prompt (Chạy ngầm qua Claude CLI hoặc Copy vào VS Code Extension)</span>
+          </label>
+          <textarea id="prompt-textarea" class="textarea textarea-bordered rounded-xl font-mono text-xs h-56 leading-relaxed"></textarea>
+        </div>
+      </div>
+      <div class="modal-action">
+        <button type="button" class="btn btn-ghost btn-sm rounded-xl font-normal" id="btn-view-text">Xem Text gốc</button>
+        <button type="button" class="btn btn-outline btn-sm rounded-xl font-normal" id="btn-copy-prompt">Copy cho VS Code</button>
+        <button type="button" class="btn btn-primary btn-sm rounded-xl px-5 shadow-none" id="btn-run-prompt">Chạy bằng Claude CLI</button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop"><button>close</button></form>
+  </dialog>
+
+  <!-- Modal 2: Create New Book from PDF -->
+  <dialog id="modal-newbook" class="modal">
+    <div class="modal-box rounded-3xl p-6 sm:p-8 shadow-xl border border-base-content/10">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-4 top-4">✕</button>
+      </form>
+      <h3 class="font-bold text-lg">Khởi tạo Sách Tương Tác mới từ PDF</h3>
+      <p class="text-xs opacity-60 mt-1">Tự động trích xuất Mục lục (TOC) và cắt văn bản từng chương bằng PyMuPDF.</p>
+      <div class="py-5 space-y-3.5">
+        <div class="form-control">
+          <label class="label py-1">
+            <span class="label-text text-xs opacity-70">Chọn file PDF trong /books</span>
+            <label class="label-text-alt link link-primary cursor-pointer">
+              + Upload PDF mới
+              <input type="file" id="pdf-upload" accept=".pdf" class="hidden" />
+            </label>
+          </label>
+          <select id="nb-pdf" class="select select-bordered select-sm rounded-xl w-full"></select>
+        </div>
+        <div class="form-control">
+          <label class="label py-1"><span class="label-text text-xs opacity-70">Mã thư mục (Slug ID)</span></label>
+          <input type="text" id="nb-id" placeholder="vd: clean-arch" class="input input-bordered input-sm rounded-xl w-full" />
+        </div>
+        <div class="form-control">
+          <label class="label py-1"><span class="label-text text-xs opacity-70">Tên Sổ tay hiển thị</span></label>
+          <input type="text" id="nb-title" placeholder="vd: Sổ tay Clean Architecture" class="input input-bordered input-sm rounded-xl w-full" />
+        </div>
+        <div class="form-control">
+          <label class="label py-1"><span class="label-text text-xs opacity-70">Tên sách gốc & Tác giả</span></label>
+          <input type="text" id="nb-subtitle" placeholder="vd: Clean Architecture · Robert C. Martin" class="input input-bordered input-sm rounded-xl w-full" />
+        </div>
+      </div>
+      <div class="modal-action">
+        <button type="button" class="btn btn-primary btn-sm rounded-xl px-5 shadow-none" id="btn-create-book">Trích xuất PDF & Tạo Sách</button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop"><button>close</button></form>
+  </dialog>
+
+  <script>
+    const state = {
+      books: [],
+      pdfs: [],
+      claude: { available: false, version: '' },
+      activeBookId: new URLSearchParams(location.search).get('book') || 'ddia-2e',
+      filter: 'all',
+      modalCh: null,
+      activeJobId: null,
+      jobs: new Map(),
+    };
+
+    const $ = (s) => document.querySelector(s);
+
+    // Theme Switcher
+    const savedTheme = localStorage.getItem('bb:daisy-theme') || 'nord';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    $('#theme-select').value = savedTheme;
+    $('#theme-select').addEventListener('change', (e) => {
+      const t = e.target.value;
+      document.documentElement.setAttribute('data-theme', t);
+      localStorage.setItem('bb:daisy-theme', t);
+    });
+
+    async function loadOverview() {
+      const res = await fetch('/api/overview');
+      const data = await res.json();
+      if (!data.ok) return;
+      state.claude = data.claude;
+      state.books = data.books || [];
+      state.pdfs = data.pdfs || [];
+      if (!state.books.find((b) => b.id === state.activeBookId) && state.books.length) {
+        state.activeBookId = state.books[0].id;
+      }
+      (data.jobs || []).forEach((j) => state.jobs.set(j.id, j));
+      render();
+    }
+
+    function getBook() {
+      return state.books.find((b) => b.id === state.activeBookId) || state.books[0];
+    }
+
+    function getRunningJob(bookId, chNum) {
+      for (const j of state.jobs.values()) {
+        if (j.bookId === bookId && j.chNum === chNum && j.status === 'running') return j;
+      }
+      return null;
+    }
+
+    function render() {
+      const book = getBook();
+      if (!book) return;
+
+      $('#nav-cli-badge').textContent = state.claude.available ? `Claude CLI ✓` : 'Claude CLI Off';
+
+      // Book Picker
+      const sel = $('#book-select');
+      sel.innerHTML = '';
+      state.books.forEach((b) => {
+        const opt = document.createElement('option');
+        opt.value = b.id;
+        opt.selected = b.id === book.id;
+        opt.textContent = `${b.title} (${b.completeCount}/${b.totalChapters})`;
+        sel.appendChild(opt);
+      });
+
+      // Header & Stats
+      $('#book-subtitle').textContent = `${book.subtitle}${book.author ? ' · ' + book.author : ''}`;
+      $('#book-title').textContent = book.title;
+      $('#book-desc').textContent = book.description || '';
+      $('#btn-read-main').href = `/read/${encodeURIComponent(book.id)}/index.html`;
+
+      $('#stat-complete').textContent = `${book.completeCount} / ${book.totalChapters}`;
+      $('#stat-partial').textContent = `${book.partialCount} chương đang làm dở`;
+      $('#stat-topics').textContent = book.totalTopics;
+      $('#stat-widgets').textContent = book.totalWidgets;
+      $('#stat-quizzes').textContent = book.totalQuizzes;
+
+      // Airy Minimalist Cards Grid
+      const grid = $('#chapters-grid');
+      grid.innerHTML = '';
+      const filtered = book.chapters.filter((c) => state.filter === 'all' || c.status === state.filter);
+
+      filtered.forEach((ch, idx) => {
+        const running = getRunningJob(book.id, ch.n);
+        const card = document.createElement('article');
+        card.className = 'soft-card anim-fade-up rounded-3xl bg-base-100 border border-base-content/[0.07] p-6 flex flex-col justify-between gap-6';
+        card.style.animationDelay = `${Math.min(idx * 30, 250)}ms`;
+
+        let statusPill = `<span class="text-xs font-medium px-2.5 py-1 rounded-full bg-base-200/70 opacity-60">Chưa break</span>`;
+        if (running) {
+          statusPill = `<span class="text-xs font-medium px-3 py-1 rounded-full bg-info/15 text-info inline-flex items-center gap-1.5"><span class="loading loading-spinner loading-xs"></span>Đang chạy</span>`;
+        } else if (ch.status === 'complete') {
+          statusPill = `<span class="text-xs font-medium px-2.5 py-1 rounded-full bg-success/15 text-success">Hoàn chỉnh</span>`;
+        } else if (ch.status === 'partial') {
+          const detail = ch.hasHtml && !ch.hasJs
+            ? `Thiếu ${ch.htmlWidgets.length} labs JS`
+            : (ch.missingWidgets.length ? `Còn thiếu ${ch.missingWidgets.length} labs` : 'Thiếu bài đọc HTML');
+          statusPill = `<span class="text-xs font-medium px-2.5 py-1 rounded-full bg-warning/15 text-warning">${detail}</span>`;
+        }
+
+        const btnBreakLabel = ch.status === 'complete'
+          ? 'Sửa AI'
+          : (ch.hasHtml && (!ch.hasJs || ch.missingWidgets.length) ? 'Hoàn thiện JS' : (!ch.hasHtml && ch.hasJs ? 'Tạo HTML' : 'Break AI'));
+
+        const totalLabs = ch.htmlWidgets.length || ch.jsWidgets.length || 0;
+        const doneLabs = ch.jsWidgets.length || 0;
+        const pct = ch.status === 'complete' ? 100 : (totalLabs ? Math.round((doneLabs / totalLabs) * 100) : (ch.hasHtml ? 50 : 0));
+        const readHref = `/read/${encodeURIComponent(book.id)}/index.html#ch${ch.n}`;
+
+        card.innerHTML = `
+          <div class="space-y-3.5">
+            <div class="flex items-start justify-between gap-3">
+              <span class="font-mono text-xs tracking-wider uppercase opacity-45">Chương ${String(ch.n).padStart(2, '0')}</span>
+              ${statusPill}
+            </div>
+
+            <a href="${readHref}" class="block space-y-1 group">
+              <h2 class="text-base sm:text-lg font-bold tracking-tight group-hover:text-primary transition-colors">${ch.en}</h2>
+              <p class="text-sm opacity-65">${ch.vi || 'Chưa có tiêu đề tiếng Việt'}</p>
+            </a>
+
+            <div class="pt-1 space-y-2">
+              <div class="flex items-center justify-between text-xs opacity-60 font-mono">
+                <span>${ch.topicsCount} bài · ${doneLabs}/${totalLabs} labs · ${ch.quizCount} quiz</span>
+                <span>${pct}%</span>
+              </div>
+              <div class="w-full h-1 bg-base-200 rounded-full overflow-hidden">
+                <div class="h-full bg-primary transition-all duration-300" style="width: ${pct}%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between gap-2 pt-3 border-t border-base-content/[0.05]">
+            <a href="${readHref}" class="btn btn-sm rounded-xl btn-ghost font-medium px-3 -ml-2">
+              Đọc chương →
+            </a>
+            <div class="flex items-center gap-1.5">
+              <button type="button" class="btn btn-xs sm:btn-sm rounded-xl btn-ghost border border-base-content/10 font-normal" data-act="prompt">
+                Prompt
+              </button>
+              <button type="button" class="btn btn-xs sm:btn-sm rounded-xl btn-primary shadow-none font-medium" data-act="break" ${running ? 'disabled' : ''}>
+                ${btnBreakLabel}
+              </button>
+            </div>
+          </div>
+        `;
+
+        card.querySelectorAll('button[data-act]').forEach((el) => {
+          el.addEventListener('click', () => onChapterAction(el.dataset.act, ch));
+        });
+        grid.appendChild(card);
+      });
+    }
+
+    $('#book-select').addEventListener('change', (e) => {
+      state.activeBookId = e.target.value;
+      render();
+    });
+
+    document.querySelectorAll('#filter-tabs button').forEach((t) => {
+      t.addEventListener('click', () => {
+        document.querySelectorAll('#filter-tabs button').forEach((x) => {
+          x.className = 'btn btn-xs sm:btn-sm rounded-full px-4 btn-ghost border border-base-content/10 font-normal';
+        });
+        t.className = 'btn btn-xs sm:btn-sm rounded-full px-4 btn-neutral shadow-none';
+        state.filter = t.dataset.filter;
+        render();
+      });
+    });
+
+    async function onChapterAction(act, ch) {
+      const book = getBook();
+      if (!book) return;
+      if (act === 'break') {
+        startJob(book.id, ch.n, 'auto', '');
+        return;
+      }
+      if (act === 'prompt') {
+        state.modalCh = ch;
+        $('#prompt-modal-title').textContent = `Chương ${ch.n}: ${ch.en}`;
+        $('#prompt-mode').value = 'auto';
+        await loadPromptForModal();
+        $('#modal-prompt').showModal();
+      }
+    }
+
+    async function loadPromptForModal() {
+      const book = getBook();
+      const ch = state.modalCh;
+      if (!book || !ch) return;
+      const mode = $('#prompt-mode').value;
+      if (mode === 'custom') {
+        $('#prompt-textarea').value = '';
+        $('#prompt-textarea').placeholder = 'Nhập yêu cầu tùy chỉnh của bạn...';
+        return;
+      }
+      const res = await fetch(`/api/books/${encodeURIComponent(book.id)}/chapters/${ch.n}/prompt?mode=${mode}`);
+      const data = await res.json();
+      if (data.ok) $('#prompt-textarea').value = data.prompt;
+    }
+
+    $('#prompt-mode').addEventListener('change', loadPromptForModal);
+
+    $('#btn-copy-prompt').addEventListener('click', async () => {
+      await navigator.clipboard.writeText($('#prompt-textarea').value);
+      const b = $('#btn-copy-prompt');
+      b.textContent = '✓ Đã Copy';
+      setTimeout(() => (b.textContent = 'Copy cho VS Code'), 1500);
+    });
+
+    $('#btn-view-text').addEventListener('click', async () => {
+      const book = getBook();
+      const ch = state.modalCh;
+      if (!book || !ch) return;
+      const res = await fetch(`/api/books/${encodeURIComponent(book.id)}/chapters/${ch.n}/text`);
+      const data = await res.json();
+      if (data.ok) $('#prompt-textarea').value = data.text;
+    });
+
+    $('#btn-run-prompt').addEventListener('click', () => {
+      const book = getBook();
+      const ch = state.modalCh;
+      if (!book || !ch) return;
+      $('#modal-prompt').close();
+      startJob(book.id, ch.n, 'custom', $('#prompt-textarea').value);
+    });
+
+    async function startJob(bookId, chNum, mode, customPrompt) {
+      $('#job-panel').classList.remove('hidden');
+      $('#job-logs').innerHTML = '';
+      const res = await fetch('/api/jobs/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookId, chNum, mode, customPrompt }),
+      });
+      const data = await res.json();
+      if (!data.ok) {
+        appendJobLog(data.error || 'Lỗi chạy Claude CLI');
+        return;
+      }
+      state.activeJobId = data.job.id;
+      state.jobs.set(data.job.id, data.job);
+      updateJobPanel(data.job);
+      render();
+    }
+
+    function appendJobLog(text) {
+      const box = $('#job-logs');
+      const d = document.createElement('div');
+      d.textContent = text;
+      box.appendChild(d);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function updateJobPanel(job) {
+      $('#job-panel').classList.remove('hidden');
+      const isRun = job.status === 'running';
+      $('#job-spinner').classList.toggle('hidden', !isRun);
+      $('#btn-stop-job').classList.toggle('hidden', !isRun);
+      $('#job-title').textContent = isRun
+        ? `Đang chạy Claude CLI · Chương ${job.chNum} (${job.chapterTitle})…`
+        : `Hoàn tất Chương ${job.chNum} (${job.status})`;
+    }
+
+    $('#btn-stop-job').addEventListener('click', async () => {
+      if (!state.activeJobId) return;
+      await fetch(`/api/jobs/${encodeURIComponent(state.activeJobId)}/stop`, { method: 'POST' });
+    });
+
+    // SSE stream
+    const es = new EventSource('/api/jobs/stream');
+    es.addEventListener('job-log', (e) => {
+      const { entry } = JSON.parse(e.data);
+      appendJobLog(entry.text);
+    });
+    es.addEventListener('job-update', (e) => {
+      const job = JSON.parse(e.data);
+      state.jobs.set(job.id, job);
+      state.activeJobId = job.id;
+      updateJobPanel(job);
+      render();
+    });
+    es.addEventListener('book-updated', () => loadOverview());
+
+    // Rebuild & Smoke Test
+    $('#btn-rebuild').addEventListener('click', async () => {
+      const book = getBook();
+      if (!book) return;
+      const res = await fetch(`/api/books/${encodeURIComponent(book.id)}/build`, { method: 'POST' });
+      const data = await res.json();
+      await loadOverview();
+      if (data.ok) alert('Build thành công: ' + data.output);
+    });
+
+    $('#btn-smoke').addEventListener('click', async () => {
+      const book = getBook();
+      if (!book) return;
+      const b = $('#btn-smoke');
+      b.disabled = true;
+      b.textContent = 'Đang chạy Playwright…';
+      try {
+        const res = await fetch(`/api/books/${encodeURIComponent(book.id)}/smoke`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ch: 'ch2' }),
+        });
+        const data = await res.json();
+        alert('Kết quả Smoke Test (Ch.2 Desktop & Mobile 400px):\n' + JSON.stringify(data.results, null, 2));
+      } finally {
+        b.disabled = false;
+        b.textContent = 'Kiểm thử Playwright';
+      }
+    });
+
+    // PDF Upload & Create Book
+    function populateNewBookPdfs() {
+      const s = $('#nb-pdf');
+      s.innerHTML = '';
+      state.pdfs.forEach((p) => {
+        const o = document.createElement('option');
+        o.value = p.name;
+        o.textContent = `${p.name} (${(p.size / (1024 * 1024)).toFixed(1)} MB)`;
+        s.appendChild(o);
+      });
+    }
+    document.querySelectorAll('[onclick*="modal-newbook"]').forEach((el) => el.addEventListener('click', populateNewBookPdfs));
+
+    $('#pdf-upload').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      await fetch('/api/books/upload-pdf', {
+        method: 'POST',
+        headers: { 'x-filename': encodeURIComponent(file.name) },
+        body: file,
+      });
+      await loadOverview();
+      populateNewBookPdfs();
+    });
+
+    $('#btn-create-book').addEventListener('click', async () => {
+      const btn = $('#btn-create-book');
+      btn.disabled = true;
+      btn.textContent = 'Đang trích xuất PDF…';
+      try {
+        const parts = $('#nb-subtitle').value.split('·').map((s) => s.trim());
+        const res = await fetch('/api/books/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            pdfFile: $('#nb-pdf').value,
+            id: $('#nb-id').value.trim(),
+            title: $('#nb-title').value.trim(),
+            subtitle: parts[0] || '',
+            author: parts[1] || '',
+          }),
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          alert(data.error || 'Lỗi tạo sách');
+          return;
+        }
+        $('#modal-newbook').close();
+        state.activeBookId = data.book.id;
+        await loadOverview();
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Trích xuất PDF & Tạo Sách';
+      }
+    });
+
+    loadOverview();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1352 @@
+--- [Page 73] ---
+Chapter 2. How to Model
+Microservices
+WORK IN PROGRESS
+Please note that the text below is currently being reworked for the 2nd edition of the book, and is not
+in a complete state. This will be Chapter 2 of the final book.
+If you have any feedback on the book, or suggestions for the 2nd edition, then please contact me on
+book-feedback@samnewman.io and/or complete a short survey here:
+https://oreil.ly/Bldg_MicroServices_survey.
+My opponent’s reasoning reminds me of the heathen, who, being
+asked on what the world stood, replied, “On a tortoise.” But on
+what does the tortoise stand? “On another tortoise.”
+—Joseph Barker (1854)
+So you know what microservices are, and hopefully have a sense of
+their key benefits. You’re probably eager now to go and start making
+them, right? But where to start? In this chapter, we’ll be looking at
+some foundational concepts such as information hiding, coupling,
+and cohesion and understand how they’ll shift our thinking about
+drawing boundaries around our microservices. We’ll also be looking
+at different forms of decomposition you might use, as well as
+focusing more deeply on domain-driven design as a being a hugely
+useful technique in this space.
+We’ll look at how to think about the boundaries of your
+microservices so as to maximize the upsides and avoid some of the
+
+--- [Page 74] ---
+potential downsides. But first, we need something to work with.
+Introducing MusicCorp
+Books about ideas work better with examples. Where possible, I’ll be
+sharing stories from real-world situations, but I’ve found it’s also
+useful to have a fictional scenario with which to work. Throughout
+the book, we’ll be returning to this scenario, seeing how the concept
+of microservices works within this world.
+So let’s turn our attention to the cutting-edge online retailer
+MusicCorp. MusicCorp was recently a brick-and-mortar retailer, but
+after the bottom dropped out of the gramophone record business it
+focused more and more of its efforts online. The company has a
+website, but feels that now is the time to double-down on the online
+world. After all, those smart phones for music are just a passing fad
+(Zunes are way better, obviously) and music fans are quite happy to
+wait for CDs to arrive at their doorsteps. Quality over convenience,
+right? And while they may have just learned that Spotify is in fact a
+digital music service rather than some sort of skin treatment for
+teenagers, MusicCorp are pretty happy with their own focus, and are
+sure all of this streaming business will blow over soon.
+Despite being a little behind the curve, MusicCorp has grand
+ambitions. Luckily, it has decided that its best chance of taking over
+the world is by making sure it can make changes as easily as possible.
+Microservices for the win!
+
+--- [Page 75] ---
+What Makes a Good Microservice
+Boundary?
+Before the team from MusicCorp tears off into the distance, creating
+service after service in an attempt to deliver eight-track tapes to all
+and sundry, let’s put the brakes on and talk a bit about the most
+important underlying idea we need to keep in mind. We want our
+microservices to be able to be changed, deployed, and their
+functionality released to our users in an independent fashion. The
+ability to change one microservice in isolation from another is vital.
+So what things do we need to bear in mind when we think about how
+we draw the boundaries around them?
+In essence, microservices are just another form of modular
+decomposition, albeit one that has network-based interaction between
+the models and all the associated challenges that brings. Luckily, this
+means we can rely on a lot of prior art in the space of modular
+software and structured programming to help guide us in terms of
+working out how to define our boundaries. With that in mind, let’s
+look more deeply at three key concepts which we touched on briefly
+in Chapter 1 and which are vital to grasp when it comes to working
+out what makes for a good microservice boundary - information
+hiding, cohesion, and coupling.
+Information Hiding
+We introduced information hiding in Chapter 1 - a concept developed
+by David Parnas to look at the most effective way to define module
+boundaries. Information hiding describes a desire to hide as many
+
+--- [Page 76] ---
+details as possible behind a module (or in our case microservice)
+boundary. Parnas looked at the benefits that modules should
+theoretically give us , namely:
+Improved Development Time
+By allowing modules to be developed independently, we can
+allow for more work to be done in parallel, and reduce the impact
+of adding more developers to a project.
+Comprehensability
+Each module can be looked at in isolation, and understood in
+isolation. This in turn makes it easier to understand what the
+system as a whole does.
+Flexibility
+Modules can be changed independently from one another,
+allowing for changes to be made to the functionality of the system
+without requiring other modules to change. In addition, modules
+can be combined in different ways to deliver new functionality.
+This list of desirable characteristics nicely complements what we are
+trying to achieve with microservice architectures - and indeed I now
+see microservices as just another form of modular architecture.
+Adrian Colyer has actually looked back at a number of David Parnas’
+papers from this period and examined them with respect to
+microservices, and his summaries are well worth reading .
+The reality as Parnas explored through much of his work, is that
+having modules doesn’t result in you actually achieving these
+outcomes. A lot depends on how the module boundaries are formed.
+1
+2
+
+--- [Page 77] ---
+From his own research information hiding was a key technique to
+help get the most out of our modular architectures, and with a modern
+eye, the same applies to microservices too.
+From another of Parnas’ papers , we have this gem:
+The connections between modules are the assumptions which the
+modules make about each other.
+—David Parnas
+By reducing the number of assumptions that one module (or
+microservice) makes about another, we directly impact the
+connections between them. By keeping the number of assumptions
+small, it is easier to ensure that we can change one module without
+impacting others. If a developer changing a module has a clear
+understanding as to how the module is used by others, it will be
+easier for them to make changes safely in such a way that upstream
+callers won’t also have to change.
+With microservices, this applies as well, except that we also have the
+opportunity to deploy that changed microservice without having to
+deploy anything else, arguably amplifying the three desireable
+characteristics that Parnas describes of improved development time,
+comprehensability and flexibility.
+The implications of information hiding play out in so many ways, and
+I’ll pick up this theme throughout the book.
+Cohesion
+3
+
+--- [Page 78] ---
+One of the most succinct definitions I’ve heard for describing
+cohesion is this: “the code that changes together, stays together.” For
+our purposes, this is a pretty good definition. As we’ve already
+discussed, we’re optimizing our microservice architecture around
+ease of making changes in business functionality—so we want the
+functionality grouped in such a way that we can make changes in as
+few places as possible.
+We want related behavior to sit together, and unrelated behavior to sit
+elsewhere. Why? Well, if we want to change behavior, we want to be
+able to change it in one place, and release that change as soon as
+possible. If we have to change that behavior in lots of different
+places, we’ll have to release lots of different services (perhaps at the
+same time) to deliver that change. Making changes in lots of different
+places is slower, and deploying lots of services at once is risky—both
+of which we want to avoid.
+So we want to find boundaries within our problem domain that help
+ensure that related behavior is in one place, and that communicate
+with other boundaries as loosely as possible. If the related
+functionality is spread across the system, we say that cohesion is
+weak - whereas for our microservice architectures we’re aiming for
+strong cohesion.
+Coupling
+When services are loosely coupled, a change to one service should
+not require a change to another. The whole point of a microservice is
+being able to make a change to one service and deploy it, without
+
+--- [Page 79] ---
+needing to change any other part of the system. This is really quite
+important.
+What sort of things cause tight coupling? A classic mistake is to pick
+an integration style that tightly binds one service to another, causing
+changes inside the service to require a change to consumers.
+A loosely coupled service knows as little as it needs to about the
+services with which it collaborates. This also means we probably
+want to limit the number of different types of calls from one service
+to another, because beyond the potential performance problem, chatty
+communication can lead to tight coupling.
+Coupling though comes in many forms, and I’ve seen a number of
+misunderstandings about the nature of coupling as it pertains to a
+service-based architecture. With that in mind, I think it’s important
+that we explore this topic in more detail, something we’ll do shortly.
+The Interplay of Coupling And Cohesion
+As we’ve already touched on, the concepts of coupling and cohesion
+are obviously related. Logically, if related functionality is spread
+across our system, changes to this functionality will ripple across
+those boundaries, implying tighter coupling. Constantine’s Law ,
+named for structured design pioneer Larry Constantine, sums this up
+neatly:
+A structure is stable if cohesion is strong and coupling is low.
+—Constantine’s Law, Albert Endres and Dieter
+Rombach
+4
+
+--- [Page 80] ---
+The concept here of stability is important to us. For our microservice
+boundaries to deliver on the promise of independent deployability,
+allowing us to work on microservices in parallel and reduce the
+amount of co-ordination between teams working on these services,
+we need some degree of stability in the boundaries themselves. If the
+contract that a microservice exposes is constantly changing in a
+backwards incompatible fashion, then this will cause upstream
+consumers to constantly have to change too.
+Based on this thinking, if we can keep cohesion strong and coupling
+loose, then stability should follow. The one wrinkle here is that
+sometimes parts of your system may be going through so much
+change that stability might be impossible. We’ll look at one such
+example later in this chapter when I share the experiences of the
+product development team behind SnapCI.
+Types Of Coupling
+It’s possible that you could infer from the overview above that all
+coupling is bad. This isn’t strictly true. Ultimately, some coupling in
+our system will be unavoidable. What we want to do is reduce how
+much coupling we have.
+A lot of work has been done to look at the different forms of coupling
+in the context of structured programming, which was largely
+considering modular (non-distributed, monolithic) software. Many of
+these different models for assessing coupling overlap or clash, and in
+any case they speak primarily about things at the code level, rather
+than considering service-based interactions. As microservices are a
+
+--- [Page 81] ---
+style of modular architecture (albeit with the added complexity of
+distributed systems), we can use a lot of these original concepts and
+apply them in the context of our microservice-based systems.
+PRIOR ART IN STRUCTURED PROGRAMMING
+Much of our work in computing involves building on the work that came before. It is sometimes
+impossible to recognize everything that came before, but I have aimed with this second edition to
+highlight prior art where I can, partly to give credit where credit is due, partly as a way of ensuring that
+I lay down some breadcrumbs for those readers who want to explore certain topics in more detail, but
+also to show that many of these ideas are tried and tested.
+When it comes to building on the work that came before, there are few areas in this book that have
+quite as much prior art as structured programming. We’ve already’ mentioned Larry Constantine, and
+his book “Structured Design " with Edward Yourdon is considered one of the most important texts in
+this area. Meilir Page-Jones’s “Practical Guide to Structured Systems Design” was also useful.
+Unfortunately, one thing all of these books have in common is how hard they can be to get hold of
+now, as they are out of print and aren’t made available in ebook form. Yet another reason to support
+your local library!
+Not all the ideas map cleanly, so I have done my best to synthesize a
+working model for the different types of coupling for microservices.
+Where these ideas map cleanly to previous definitions, I’ve stuck
+with those terms. In other places I have had to come up with new
+terms or blend in ideas from elsewhere. So please consider what
+follows to be built on top of a lot of prior art in this space, which I am
+attempting to give more meaning in the context of microservices.
+In Figure 2-1 we see a brief overview of the different types of
+coupling, with them organized from low (desirable) coupling to high
+(undesirable).
+5
+6
+
+--- [Page 82] ---
+Figure 2-1. The different types of coupling, loose to tight coupling
+Next, we’ll look at each form of coupling in turn, and look at
+examples that show how they may manifest themselves in our
+microservice architecture.
+Domain Coupling
+Domain Coupling describes the situation where one microservice
+needs to interact with another microservice, because it needs to make
+use of the functionality that the other microservice provides .
+In Figure 2-2, we see part of how orders for CDs are managed inside
+MusicCorp. In this example, Order Processor calls the Warehouse
+microservice to reserve stock, and the Payment microservice to take
+7
+
+--- [Page 83] ---
+payment. The Order Processor is therefore dependent, and coupled,
+on the Warehouse and Payment microservices for this operation. We
+see no such coupling between Warehouse and Payment though, as
+they don’t interact.
+
+--- [Page 84] ---
+Figure 2-2. An example of Domain Coupling, where Order Processor needs to make use of
+the functionality provided by other microservices
+
+--- [Page 85] ---
+In a microservice architecture, this type of interaction is largely
+unavoidable. A microservice-based system relies on multiple
+microservices collaborating in order for it to do its work. We still
+want to keep this to a minimum though - whenever you see a single
+microservice depending on multiple downstream services in this way
+it can be a cause for concern - it might imply a microservice that is
+doing too much.
+As a general rule, domain coupling is considered to be a loose form
+of coupling, although even here we can hit problems. A microservice
+which needs to talk to lots of downstream microservices might point
+to a situation where too much logic has been centralized. Domain
+Coupling can also become problematic as more complex sets of data
+are sent between services - this can often point to the more
+problematic forms of coupling we’ll explore shortly.
+Just remember the importance of information hiding. Only share what
+you absolutely have to, and only send the absolute minimum amount
+of data that you need.
+
+--- [Page 86] ---
+A BRIEF NOTE ON TEMPORAL COUPLING
+Another form of coupling you may have heard of is temporal coupling. Technically speaking, this type
+of coupling doesn’t fit into the model we are exploring here, as it primarily speaks to runtime concerns.
+In a situation where one microservice needs to call another microservice in a synchronous way, we
+say that these microservices are temporally coupled. They both need to be up and available and
+communicate with each other at the same time in order for the operation to complete. So in Figure 2-3,
+where MusicCorp’s Order Processor is making a synchronous HTTP call to the Warehouse service, for
+the operation to complete Warehouse needs to be up and available at the same time the call is made.
+Figure 2-3. An example of Temporal Coupling, where Order Processor makes a
+synchronous HTTP call to the Warehouse microservice
+If for some reason Warehouse isn’t currently reachable by the Order Processor, then the operation
+fails, as we can’t reserve the CDs to be sent out. Order Processor will also have to block and wait for
+a response from Warehouse as well, potentially causing issues in terms of resource contention.
+Temporal coupling isn’t always bad, it’s just something to be aware of. As you have more
+microservices, and more complex interactions between them, the challenges of temporal coupling can
+increase to such a point that it becomes more difficult to scale your system and keep it working. One
+of the ways to avoid temporal coupling is to use some form of asynchronous communication, such as
+a message broker. We’ll be coming back to the concept of temporal coupling and the associated
+issues in much more detail in Chapter 3
+
+--- [Page 87] ---
+Pass Through Coupling
+Pass through coupling describes a situation where one microservice
+passes data to another microservice purely because it is needed by
+some other further downstream microservice. In many ways it’s one
+of the most problematic forms of implementation coupling, as it
+implies that the caller knows not just that the microservice it is
+invoking calls yet another microservice, but also potentially that it
+needs to know how that one-step-removed microservice works.
+As an example of pass through coupling, let’s look deeper at part of
+how MusicCorp’s order processing works, in Figure 2-4. Here, we
+have an Order Processor, which is sending a request to Warehouse
+to prepare an order for dispatch. As part of the request payload, we
+send along a Shipping Manifest. This Shipping Manifest
+consists not just of the address of the customer, but also the shipping
+type. The Warehouse just passes this manifest on to the downstream
+Shipping microservice.
+8
+
+--- [Page 88] ---
+Figure 2-4. Pass through coupling, where data is passed to a microservice purely because
+another downstream service needs it
+The major issue with pass through coupling is that a change to the
+required data downstream can cause a more significant upstream
+
+--- [Page 89] ---
+change. In our example, if the Shipping now needs the format or
+content of the data to be changed, then both Warehouse and Order
+Processor would likely need to change.
+There are a few ways this can be fixed. The first is to consider if it
+makes sense for the calling microservice to just bypass the
+intermediary. In our example, this might mean Order Processor
+speaks directly to Shipping. Now, in this specific situation, this
+causes some other headaches. Our Order Processor is increasing its
+domain coupling, as Shipping is yet another microservice it needs to
+know about - if that was the only issue, this might still be fine, as
+domain coupling is a looser form of coupling of course. This solution
+gets more complex here though as stock has to be reserved with
+Warehouse before we dispatch the package using Shipping, and after
+the shipping has been done we need to update the stock accordingly.
+This pushes more complexity and logic into the Order Processor
+which was previously hidden inside Warehouse.
+
+--- [Page 90] ---
+
+--- [Page 91] ---
+Figure 2-5. One way to work around pass through coupling involves communicating directly
+with the downstream service
+For this specific example, I might consider a simpler (albeit more
+nuanced) change, namely to totally hide the requirement for a
+Shipping Manifest from Order Processor. The idea of delegating
+the work of both managing stock and arranging for dispatch of the
+package to our Warehouse service makes sense, but we don’t like the
+fact that we have leaked some lower-level implementation, namely
+the fact that the Shipping microservice wants a Shipping
+Manifest. One way to hide this detail would be to have Warehouse
+take in the required information as part of its contract, and then have
+it construct the Shipping Manifest locally. Now, this means that if the
+Shipping service changes its service contract, as long as the required
+data is collected by the Warehouse, then this change will be invisible
+from the viewpoint of the Order Processor.
+
+--- [Page 92] ---
+Figure 2-6. Hiding the need for a Shipping Manifest from the Order Processor
+Whilst this will help protect the Warehouse microservice from some
+changes to Shipping, there are some things that would still require
+all parties to change. Let’s consider the idea that we want to start
+
+--- [Page 93] ---
+shipping internationally. As part of this, the Shipping service needs a
+Customs Declaration as part of the Shipping Manifest. If this is
+an optional parameter, then we could deploy a new version of the
+Shipping microservice without issue. If this was a required
+parameter though, then the Warehouse would need to create one. It
+might be able to do this with existing information that it has (or is
+given), but if it required additional information this might require
+additional information to be passed to it by the Order Processor.
+Although in this case we haven’t eliminated the need for a change to
+be made across all three microservices, we have been given much
+more power about when and how these changes could be made. If we
+had the tight (pass through) coupling of the initial example, adding
+this new required Customs Declaration may require a lock-step
+rollout of all three microservices. At least by hiding this detail we
+could much more easily phase deployment.
+One final approach which could help reduce the pass through
+coupling would be for the order processor to still send the shipping
+manifest to the Shipping microservice via the Warehouse, but to
+have the Warehouse be totally unaware of the structure of the
+Shipping Manifest itself. The Order Processor sends the
+manifest as part of the order request, but the Warehouse makes no
+attempt to look at or process the field - it just treats it like a blob of
+data and doesn’t care about the contents. Instead it just sends it along.
+A change in the format of the the Shipping Manifest would still
+require a change to both the Order Processor and Shipping
+microservice, but as the Warehouse doesn’t care about what is
+actually in the manifest itself it doesn’t need to change.
+
+--- [Page 94] ---
+Common Coupling
+Common coupling occurs when two or more microservices make use
+of a common set of data. A simple and common example of this form
+of coupling would be multiple microservices making use of the same
+shared database, but this could also manifest itself in the use of
+shared memory or a shared filesystem.
+The main issue with common coupling is that changes to the structure
+of the data can impact multiple microservices at once. Consider the
+example of some of MusicCorp’s services in Figure 2-7. As we
+discussed earlier, MusicCorp operate around the world, so need
+various bits of information about the countries in which they operate.
+Here, multiple services are all reading static reference data from a
+shared database. If the schema of this database changed in a
+backwards-incompatible way, it would require changes to each of the
+consumers of the database. In practice, shared data like this tends to
+be very difficult to change as a result.
+
+--- [Page 95] ---
+Figure 2-7. Multiple services accessing shared static reference data related to countries from
+the same database
+The example in Figure 2-7 is, relatively speaking, fairly benign. This
+is because by its very nature static reference data doesn’t tend to
+change often, and also because this data is read-only - as a result I
+tend to be relaxed about sharing static reference data in this way.
+
+--- [Page 96] ---
+Common coupling though becomes more problematic if the structure
+of the common data changes more frequently, or if multiple
+microservices are reading and writing to the same data.
+Figure 2-8 shows us a situation where the Order Processor and
+Warehouse service are both reading and writing from a shared Order
+table, to help manage the process of dispatching CDs to MusicCorp’s
+customers. Both microservices are updating the STATUS column. The
+Order Processor can set the PLACED, PAID, and COMPLETED statuses,
+whereas the Warehouse will apply PICKING or SHIPPED statuses.
+
+--- [Page 97] ---
+Figure 2-8. An example of common coupling where both Order Processor and Warehouse
+are updating the same order record
+
+--- [Page 98] ---
+Although you might consider Figure 2-8 to be a somewhat contrived
+example, this nonetheless straightforward example of common
+coupling helps illustrate a core problem. Conceptually, we have both
+the Order Processor and the Warehouse microservices managing
+different aspects of the lifecycle of an order. When making changes in
+Order Processor, can I be sure that I am not changing the order
+data in such a way that it breaks Warehouse’s view of the world, or
+vice-versa?
+One way to ensure that the state of something is changed in a correct
+fashion, would be to create a finite state machine. A state machine
+can be used to manage the transition of some entity from one state to
+another, ensuring invalid state transitions are prohibited. In Figure 2-
+9, see the allowed transitions of state for an order in MusicCorp. An
+order can go from PLACED to PAID, but not straight from PLACED to
+PICKING (this state machine likely wouldn’t be sufficient for the real-
+world business processes involved in full end-to-end buying and
+shipping of goods, but I wanted to give a simple example to illustrate
+the idea).
+
+--- [Page 99] ---
+Figure 2-9. An overview of the allowable state transitions for an order in MusicCorp
+The problem in this specific example is that both Warehouse and
++Order Processor share responsibilities for managing this state
+machine. How do we ensure that they are both in agreement as to
+what transitions are allowed? There are ways to manage processes
+like this across microservice boundaries, and we will return to this
+topic when we discuss Sagas in [Link to Come].
+
+--- [Page 100] ---
+A potential solution here would be to ensure that one single
+microservice manages the order state. In Figure 2-10, either
+Warehouse or Order Processor can send status update requests to
+the Order service. Here, the Order microservice is the source of truth
+for any given order. In this situation, it is really important that we see
+the requests from Warehouse and Order Processor as just that -
+requests. In this scenario, it is the job of the Order service to manage
+the acceptable state transitions associated with an order aggregate. As
+such, if it received a request from Order Processor to move a status
+from PLACED straight to COMPLETED it is free to reject that request if
+that is an invalid change.
+TIP
+Make sure you see a request that is sent to a microservice as something that the
+downstream microservice can reject if it is invalid.
+An alternative approach I see in such cases is to implement the Order
+service as little more than a wrapper around database CRUD
+operations, where requests just map directly to database updates. This
+is akin to an object having private fields but public getters and setters
+- the behavior has leaked from the microservice to upstream
+consumers (reducing cohesion), and we’re back in the world of
+managing acceptable state transitions across multiple different
+services.
+
+--- [Page 101] ---
+WARNING
+If you see a microservice that just looks like a thin wrapper around database
+CRUD operations, that is a sign that you may have weak cohesion and tighter
+coupling, as logic that should be in that service to manage the data is instead
+spread elsewhere in your system.
+
+--- [Page 102] ---
+
+--- [Page 103] ---
+Figure 2-10. Both Order Processor and Warehouse can request changes are made to an
+order, but the Order microservice decides what requests are acceptable
+Sources of common coupling are also potential sources of resource
+contention. Multiple microservices making use of the same file
+system or database could overload that shared resource, potentially
+causing significant problems if the shared resource becomes slow or
+even entirely unavailable. Shared databases are especially prone to
+this problem, as multiple consumers can run arbitrary queries against
+the database itself, which in turn can have wildly different
+performance characteristics. I’ve seen more than one database
+brought to its knees by an expensive SQL query - I may have even
+been the culprit once or twice .
+So common coupling is sometimes ok, but often not. Even when it’s
+benign, it means that we are limited in what changes can be made to
+the shared data, but it often speaks to a lack of cohesion in our code.
+It can also cause us problems in terms of operational contention too.
+It’s for those reasons that we consider common coupling to be one of
+the least desirable forms of coupling, but it can get worse.
+Content Coupling
+Content coupling describes a situation where an upstream service
+reaches into the internals of a downstream service and changes its
+internal state. The most common manifestation of this is an external
+service directly accessing another microservice’s database and
+changing it directly. The difference between content coupling and
+common coupling are subtle. On the face of it, in both cases two or
+more microservices are reading and writing to the same set of data.
+9
+
+--- [Page 104] ---
+With common coupling, you understand that you are making use of a
+shared, external dependency. You know it’s not under your control.
+With content coupling, the lines of ownership become less clear, and
+it becomes more difficult for developers to change a system.
+Let’s revisit our earlier example from MusicCorp. In Figure 2-11, we
+have an Order service which is supposed to manage the allowable
+state changes to orders in our system. The Order Processor is
+sending requests to the Order service, delegating not just the exact
+change in state that will be made, but also delegating to the Order
+service responsibility for deciding what state transitions are
+allowable. On the other hand, the Warehouse service is directly
+updating the table where order data is stored, bypassing any
+functionality in the Order service which might check for allowable
+changes. We have to hope that the Warehouse service has a consistent
+set of logic to ensure that only valid changes are made. Best case, this
+represents a duplication of logic. Worst case, the checking around
+allowable changes in Warehouse is different to that in the Order
+service, and as a result we could end up with orders in very odd,
+confusing states.
+
+--- [Page 105] ---
+
+--- [Page 106] ---
+Figure 2-11. An example of content coupling, where the Warehouse is directly accessing the
+internal data of the Order service
+In this situation, we also have the issue that the internal data structure
+of our order table is exposed to an outside party. When changing the
+Order service, we now have to be extremely careful about making
+changes to that particular table - that’s even assuming it’s obvious to
+us that this table is being directly accessed by an outside party. The
+easy fix here is to have the Warehouse send requests to the Order
+service itself, where we can vet the request, but also hide the internal
+detail making subsequent changes to the Order service much easier.
+If you are working on a microservice, it’s vital that you have a clear
+separation between what can be changed freely, and what cannot. To
+be explicit, as a developer you need to know when you are changing
+functionality that is part of the contract your service exposes to the
+outside world. You need to ensure that if you make changes here that
+you will not break upstream consumers. Functionality that doesn’t
+impact the contract your microservice exposes can be changed
+without concern.
+It’s certainly the case that all the problems that occur with common
+coupling also apply with content coupling, but content coupling has
+some additional headaches which make it so problematic -
+problematic enough that some people refer to this form of coupling as
+pathological coupling.
+When you allow an outside party to directly access your database,
+your database in effect becomes part of that external contract, albeit
+one you cannot easily reason about what can, or cannot, be changed.
+
+--- [Page 107] ---
+You’ve lost the ability to define what is shared (and therefore cannot
+be changed easily), and what is hidden. Information hiding has gone
+out of the window.
+In short, avoid content coupling.
+Alternatives to Domain-Oriented
+Decomposition
+So far, we’ve looked at the interplay of cohesion and coupling as they
+apply to microservices that arrived pre-formed. And as I introduced
+in Chapter 1, the primary mechanism we use for finding microservice
+boundaries is around the domain itself. Domain-oriented boundaries
+give us benefits in terms of making it easier to align to organizational
+structures, make it easier to combine functionality in different ways
+to deliver different experiences to users, and experience has shown
+that the boundaries also tend to be more stable than other forms of
+decomposition.
+While I think that using the domain as the primary mechanism for
+identifying boundaries for microservices makes the most sense in
+general, there are other approaches that can be useful on occasion,
+either as an alternative to domain-oriented decompositon, or else as
+an additional tool.
+Volatility
+I’ve increasingly heard of a push back against domain-oriented
+decomposition, often by advocates promoting instead that volatility
+
+--- [Page 108] ---
+should be the primary driver for decomposition. Volatility based
+decomposition has you identify the parts of your system going
+through more frequent change, and extract that functionality into their
+own services where they can be more effectively worked on.
+Conceptually, I don’t have a problem with this, but promoting it as
+the only way to do things isn’t helpful, especially when we consider
+the different drivers we might have that are pushing us towards
+microservices. If my biggest issue is related to the need to scale my
+application, a volatility-based decomposition is unlikely to deliver
+much of a benefit for example.
+The mindset behind volatility-based decomposition is also evident in
+approaches like Bimodal IT. A concept put forward by Gartner,
+Bimodal IT neatly breaks the world down into the snappily named
+“Mode 1” (aka Systems Of Record) and “Mode 2” (aka Systems Of
+Innovation) categories based on how fast (or slow) different systems
+need to go. Mode 1 systems, otherwise known as we are told, don’t
+change much, don’t need much business involvement. Mode 2 is
+where the action is, with systems needing to change fast and needing
+a high-touch from the business. Putting aside for one moment the
+drastic oversimplification inherent in such a categorization scheme, it
+also implies a very fixed view of the world, and belies the sorts of
+transformations that are evident across industry as companies look to
+“go digital”. Parts of their system that didn’t need to change much in
+the past suddenly do, in order to open up new market opportunities
+and provide services to their customers in ways that they previously
+didn’t imagine.
+
+--- [Page 109] ---
+Let’s come back to MusicCorp. Their first foray into what we now
+call digital was just having a webpage. All it offered back in the mid-
+90s was a listing of what was for sale, but you just had to phone up to
+place the order. It was little more than an advert in a newspaper.
+Then, online ordering was a thing - now the entire warehouse which
+had up until that point been just handled with paper had to be
+digitized. Who knows, perhaps MusicCorp will at some stage have to
+consider making music available digitally? Although you might
+consider that MusicCorp are behind the times, you can still appreciate
+the amount of upheaval that companies have been going through as
+they understand how changing technology and customer behavior can
+require significant changes in parts of a business that couldn’t be
+easily forseen.
+I also dislike bimodal IT as a concept, as it becomes a way for people
+to dump stuff that is hard to change into a nice neat box and say “we
+don’t need to deal with the issues in there - it’s Mode 1”. It’s yet
+another model that a company can adopt to ensure that nothing
+actually has to change. It also avoids the fact that quite often changes
+in functionality also require changes in “Systems of record” (Mode 1)
+to allow for changes in “Systems of Innovation” (Mode 2). In my
+experience, organizations adopting bimodal IT do end up having two
+speeds - slow and slower.
+To be fair to proponents of volatility-based decomposition, many of
+them aren’t necessarily recommending such simplistic models as
+bimodal IT. In fact I find this technique to be highly useful to help
+determine boundaries if the main driver is about fast time to market -
+extracting functionality that is changing (or needs to change)
+
+--- [Page 110] ---
+frequently makes perfect sense in such a situation. But again, the goal
+determines the most appropriate mechanism.
+Data
+The nature of the data you hold and manage can drive you towards
+different forms of decomposition. For example you might want to
+limit what services handle personally identifiable information (PII),
+to reduce your risk of data breaches, but to also simplify oversight
+and implementation of things like GDPR.
+For one of my recent clients, a payment company we’ll call
+PaymentCo, the use of certain types of data directly influenced the
+decisions we made about system decomposition. PaymentCo handle
+credit card data, and as a result it means that their system needed to
+comply to various requirements set down by Payment Card Industry
+(PCI) about how this data needs to be managed. As part of this, their
+system and processes needed to be audited. They had a need to
+handle the full credit card data, and at a volume that meant their
+system had to comply with PCI Level 1, which is the most stringent
+level, and requires quarterly external assessment of the systems and
+practices related to how this data is managed.
+Many of the PCI requirements are common sense, but the
+requirement to ensure that the whole system complied with these
+requirements, not least the need for the system to be audited by an
+external party, was proving to be quite onerous. As a result, they
+wanted to split out the part of the system which handled the full credit
+card data - meaning that only a subset of the system required this
+
+--- [Page 111] ---
+additional level of oversight. In Figure 2-12 we see a simplified form
+of the design we came up with. Services operating in the green zone
+(shown here enclosed by a dotted lone) never see full credit card
+information - this is limited to processes (and networks) in red zone
+(surrounded by dashes). The gateway diverted calls to the appropriate
+services (and the appropriate zone) - as the credit card information
+passed through this gateway, it was in effect also in the Red zone.
+
+--- [Page 112] ---
+
+--- [Page 113] ---
+Figure 2-12. PaymentCo, who segregate processes based on their use of credit card
+information in order to limit the scope ot PCI
+As credit card information never flowed into the green zone, all
+services in this area could be exempted from a full PCI audit.
+Services in the red zone were in scope for such oversight. When
+working through the design we did everything we could to limit what
+had to be in this red zone. It’s key to note that we had to make sure
+that the credit card information never flowed to the green zone at all -
+if a microservice in the green zone could request this information, or
+that information was sent by a microservice in the red zone back to
+the green zone, then the clear lines of separation would break down.
+Segregation of data is often driven by a variety of privacy and
+security concerns - we’ll come back to this topic and the example of
+PaymentCo later on in [Link to Come].
+Technology
+The need to make use of different technology can also be a factor in
+terms of finding a boundary. You can accommodate different
+databases in a single running microservice, but if you wanted to mix
+different runtime models you may face a challenge. If you identify
+that part of your functionality needs to be implemented in a runtime
+like rust which enables you to eke out additional performance
+improvements, this ends up being a major forcing factor.
+Of course we have to be aware of where this can drive us if adopted
+as a general means of decomposition. The classic three tiered
+architecture that we discussed in the opening chapter, and show again
+
+--- [Page 114] ---
+in Figure 2-13, is an example where related technology is grouped
+together. As we’ve already explored, this is often a less than ideal
+architecture.
+
+--- [Page 115] ---
+
+--- [Page 116] ---
+Figure 2-13. A traditional three-tiered architecture is often driven by technological
+boundaries
+Organizational
+As we established when I introduced Conway’s law back in
+Chapter 1, there is an inherent interplay between organizational
+structure and the system architecture you end up with. Quite aside
+from the studies that have shown this link, in my own anecdotal
+experience I have seen this play out time and time again. How you
+organize yourselves ends up driving your systems architecture, for
+good or ill. When it comes to helping us define our service
+boundaries, we have to consider this as a key part of our decision
+making.
+Defining a service boundary whose ownership would cut across
+multiple different teams is unlikely to yield the outcomes we would
+desire - as we’ll explore further in [Link to Come], shared ownership
+of microservices is a fraught affair. It therefore follows that we must
+take account of the existing organizational structure when considering
+where and when to define boundaries, and in some situations perhaps
+even consider changing the organizational structure to support the
+architecture we want.
+Even when we do work within an existing organizational structure,
+there is a danger that we will not get our boundaries in the right place.
+Many years ago, a few colleagues and I were working with a client in
+California, helping the company adopt some cleaner code practices
+and move more toward automated testing. We’d started with some of
+the low-hanging fruit, such as service decomposition, when we
+
+--- [Page 117] ---
+noticed something much more worrying. I can’t go into too much
+detail as to what the application did, but it was a public-facing
+application with a large, global customer base.
+The team, and system, had grown. Originally one person’s vision, the
+system had taken on more and more features, and more and more
+users. Eventually, the organization decided to increase the capacity of
+the team by having a new group of developers based in Brazil take on
+some of the work. The system got split up, with the front half of the
+application being essentially stateless, implementing the public-
+facing website, as shown in Figure 2-14. The back half of the system
+was simply a remote procedure call (RPC) interface over a data store.
+Essentially, imagine you’d taken a repository layer in your codebase
+and made this a separate service.
+
+--- [Page 118] ---
+
+--- [Page 119] ---
+Figure 2-14. A service boundary split across a technical seam
+Changes frequently had to be made to both services. Both services
+spoke in terms of low-level, RPC-style method calls, which were
+overly brittle (we’ll discuss this further in Chapter 3). The service
+interface was also very chatty too, resulting in performance issues.
+This resulted in the need for elaborate RPC-batching mechanisms. I
+called this onion architecture, as it had lots of layers and made me cry
+when we had to cut through it.
+Now on the face of it, the idea of splitting the previously monolithic
+system along geographical/organizational lines makes perfect sense,
+as we’ll expand on in [Link to Come]. Here, however, rather than
+taking a vertical, business-focused slice through the stack, the team
+picked what was previously an in-process API and made a horizontal
+slice. A better model would have been for the team in California to
+have one end-to-end vertical slice, consisting of the related parts of
+the front end and data access functionality, with the team in Brazil
+taking another slice.
+LAYERING INSIDE VS LAYERING OUTSIDE
+As you can hopefully see by now, I’m not a fan of horizontally layered architecture. Layering though
+can have it’s place. Within a microservice boundary, it can be totally sensible to delineate between
+different layers in order to make the code easier to manage. The problem occurs when this layering
+becomes the mechanism by which your microservice and ownership boundaries are drawn.
+Different Goals, Different Drivers
+
+--- [Page 120] ---
+Microservices are not the goal. You don’t “win” by having
+microservices. Adopting a microservice architecture should be a
+conscious decision, one based on rational decision-making. You
+should be thinking of adopting a microservice architecture in order to
+achieve something that you can’t currently achieve with your existing
+system architecture.
+Without having a handle on what you are trying to achieve, how are
+you going to inform your decision-making process about what
+options you should take? What you are trying to achieve by adopting
+microservices will greatly change where you focus your time, and
+how aggressive you are in creating microservices. It will also help
+guide you in which approach makes the most sense for finding
+microservice boundaries. PaymentCo for example are guided by their
+overriding concern about data.
+In other words, while I can share my own views on how we should
+define a microservice boundary, and the fact that I think modelling
+them around a business domain is a sensible starting point, other
+factors may well come into play in determining what sort of
+decomposition you want to pick.
+Mixing Models And Exceptions
+As I hope is clear so far, I am not dogmatic in terms of how you find
+these boundaries. If you follow the guidelines of information hiding
+and appreciate the interplay of coupling and cohesion, then chances
+are that you’ll avoid some of the worst pitfalls of whatever
+mechanism you pick. I happen to think that by focusing on these
+
+--- [Page 121] ---
+ideas that you are more likely to end up with a domain-oriented
+architecture, but that is by the by. The fact is though that there can
+often be reasons to mix models, even if “domain-oriented” is what
+you decide to pick as your main mechanism for defining microservice
+boundaries.
+The different mechanisms we’ve outlined so far also have a lot of
+potential interplay between them. Being too narrow in your choices
+here will cause you to follow the dogma, rather than do the right
+thing. Volatility-based decomposition can make a lot of sense if your
+focus is on improving the speed of delivery, but if this causes you to
+extract a service which crosses organizational boundaries, then expect
+your pace of change to suffer due to delivery contention.
+I might define a nice Warehouse service based on my understanding
+of the business domain, but if part of that system needs to be
+implemented in C++, and another part in Kotlin, then you’ll need to
+decompose further along those technical lines.
+For me, organizational and domain-driven service boundaries are my
+starting point. It’s the usual tool I pick up, because as a general rule
+of thumb it’s the one that tends to work best. But it’s just that, a
+general model. It’s also extremely rare that the domain is the only
+factor driving this decision making. Typically, a number of the factors
+we outlined above come into play, and which ones influence your
+own decisions will be based on what problems you are trying to
+solve. You need to look at your own specific circumstances to
+determine what works best for you - and hopefully I’ve given you a
+few different options here to consider. Just remember, if someone
+
+--- [Page 122] ---
+says “The only way to do this is X!” they are likely just selling you
+more dogma. You can do better than that.
+With all that said, let’s dive deeper into the topic of domain
+modelling, by exploring domain-driven design in a little more detail.
+Just Enough Domain-Driven Design
+So as we see, modeling our services around a business domain has
+significant advantages for our microservice architecture. The question
+is how to come up with that model—and this is where domain-driven
+design (DDD) comes in.
+The desire to have our programs better represent the real world in
+which the programs themselves will operate is not a new idea.
+Object-oriented programming languages like Simula were developed
+to allow us to model real domains. But it takes more than program
+language capabilities for this idea to really take shape.
+Eric Evans’ Domain-Driven Design
+ presented a series of important
+ideas that helped us better represent the problem domain in our
+programs. A full exploration of these ideas is outside the scope of this
+book, but I’ll provide a brief overview of the most important ideas in
+the context of microservice architectures.
+Ubiquitous Language
+Ubiquitous language refers to the idea that we should strive to use the
+same terms in our code as the users use . The idea is that by having a
+10
+
+--- [Page 123] ---
+common language between the delivery team and the actual people
+who use the system it will be easier to model the real-world domain,
+and should also improve communication.
+As a counter-example, I recall a situation when working at a large,
+global bank. We were working in the area of corporate liquidity, a
+fancy term that basically refers to the ability to move cash between
+different accounts held by the same corporate entity. The product
+owner was really great to work with, and she had a fantastic deep
+understanding of the various products that she wanted to bring to
+market. When working with her, we’d have discussions about things
+like haircuts and end-of-day sweeps, all things which made a lot of
+sense in her world and which had meaning to her customers.
+The code on the other hand had none of this language in there. At
+some point previously, a decision had been made to use a standard
+data model for the database. It was widely refereed to as “The IBM
+banking model”, but I never got to grips as to whether or not this was
+a standard IBM product, or just the creation of a consultant from
+IBM. By defining the loose concept of an “arrangement”, the theory
+went that any banking operation could be modeled. Taking out a
+loan? That was an arrangement. Buying a share? That’s an
+arrangement! Applying for a credit card? Guess what - that’s an
+arrangement too!
+The data model had polluted the code to such an extent that the
+codebase was shorn of all real understanding of the system we were
+building. We weren’t building a generic banking application. We
+were building a system specifically to manage corporate liquidity.
+
+--- [Page 124] ---
+The problem was that we had to map the rich domain language of the
+product owner to the generic code concepts - meaning a lot of work
+in helping translate. Our business analysts were often just spending
+their time explaining the same concepts over and over again as a
+result.
+By working the real world language into the code, things became
+much easier. A developer picking up a story written using the terms
+that had come straight from the product owner was much more likely
+to understand their meaning and work out what needed to be done.
+Aggregate
+In DDD, an aggregate is a somewhat confusing concept, with many
+different definitions out there. Is it just an arbitrary collection of
+objects? The smallest unit I should take out of a database? The model
+that has always worked for me is to first consider an aggregate as a
+representation of a real domain concept—think of something like an
+Order, Invoice, Stock Item, etc. Aggregates typically have a life cycle
+around them, which opens them up to being implemented as a state
+machine.
+As an example in the MusicCorp domain, an Order aggregate might
+contain multiple line items that represent the items in the order. Those
+line items only have meaning as part of the overall Order aggregate.
+We want to treat aggregates as self-contained units; we want to
+ensure that the code that handles the state transitions of an aggregate
+are grouped together, along with the state itself. So one aggregate
+
+--- [Page 125] ---
+should be managed by one microservice, although a single
+microservice might own management of multiple aggregates.
+In general though, think of an aggregate as something which has
+state, has identity, and has a lifecycle that will be managed as part of
+the system. They typically refer to real-world concepts.
+When thinking about aggregates and microservices, a single
+microservice will handle the life cycle and data storage of one or
+more different types of aggregates. If functionality in another service
+wants to change one of these aggregates, it needs to either directly
+request a change in that aggregate, or else have the aggregate itself
+react to other things in the system to initiate its own state transitions,
+perhaps by subscribing to events issued by other microservices.
+The key thing to understand here is that if an outside party requests a
+state transition in an aggregate, the aggregate can say no. You ideally
+want to implement your aggregates in such a way that illegal state
+transitions are impossible.
+Aggregates can have relationships with other aggregates. In Figure 2-
+15, we have a Customer aggregate, which is associated with one or
+more Orders, and one or more Wishlists. Each of these aggregates
+could be managed by the same microservice, or different
+microservice.
+
+--- [Page 126] ---
+Figure 2-15. One Customer aggregate may be associated with one or more Order or Wishlist
+aggregates
+If these relationships between aggregates exist inside the scope of a
+single microservice, the relationships could easily be stored using
+something like a foreign key relationship if using a relational
+database. If the relationships between these aggregates span
+microservice boundaries though, we need some way to model this
+relationship. In Figure 2-16, we have an entry in a financial ledger
+being made against a customer - this could represent a Payment
+aggregate. In the ledger table, we store a reference for the customer,
+here in the form of a URI which we might use if building a REST-
+based system . We’ll revisit the topic of cross-service relationships
+11
+
+--- [Page 127] ---
+of this nature in Chapter 3 to explore the nature and use of these
+references in more detail.
+
+--- [Page 128] ---
+
+--- [Page 129] ---
+Figure 2-16. An example of how a relationship between two aggregates in different
+microservices can be implemented
+There are lots of ways to break a system into aggregates, with some
+choices being highly subjective. You may, for performance reasons or
+ease of implementation, decide to reshape aggregates over time. To
+start with, though, I consider implementation concerns to be
+secondary, initially letting the mental model of the system users be
+my guiding light on initial design until other factors come into play.
+Bounded Context
+A bounded context typically represents a larger organizational
+boundary inside an organization. Within the scope of that boundary,
+explicit responsibilities need to be carried out. That’s all a bit wooly,
+so let’s look at another specific example.
+At Music Corp, our warehouse is a hive of activity—managing orders
+being shipped out (and the odd return), taking delivery of new stock,
+having forklift truck races, and so on. Elsewhere, the finance
+department is perhaps less fun-loving, but still has an important
+function inside our organization, handling payroll, paying for
+shipments, and the like.
+Bounded contexts hide implementation detail. There are internal
+concerns—for example, the types of forklift trucks used is of little
+interest to anyone other than the folks in the warehouse. These
+internal concerns should be hidden from the outside world—they
+don’t need to know, nor should they care.
+
+--- [Page 130] ---
+From an implementation point of view, bounded contexts contain one
+or more aggregates. Some aggregates may be exposed outside the
+bounded context; others may be hidden internally. As with
+aggregates, bounded contexts may have relationships with other
+bounded contexts—when mapped to services, these dependencies
+become inter-service dependencies.
+Let’s return for a moment to the MusicCorp business. Our domain is
+the whole business in which we are operating. It covers everything
+from the warehouse to the reception desk, from finance to ordering.
+We may or may not model all of that in our software, but that is
+nonetheless the domain in which we are operating. Let’s think about
+parts of that domain that look like the bounded contexts that Evans
+refers to.
+HIDDEN MODELS
+For MusicCorp, we can then consider the finance department and the
+warehouse to be two separate bounded contexts. They both have an
+explicit interface to the outside world (in terms of inventory reports,
+pay slips, etc.), and they have details that only they need to know
+about (forklift trucks, calculators).
+Now the finance department doesn’t need to know about the detailed
+inner workings of the warehouse. It does need to know some things,
+though—for example it needs to know about stock levels to keep the
+accounts up to date. Figure 2-17 shows an example context diagram.
+We see concepts that are internal to the warehouse, like Picker
+(people who pick orders), shelves that represent stock locations, and
+
+--- [Page 131] ---
+so on. Likewise, entries in the general ledger is integral to finance but
+is not shared externally here.
+
+--- [Page 132] ---
+
+--- [Page 133] ---
+Figure 2-17. A shared model between the finance department and the warehouse
+To be able to work out the valuation of the company, though, the
+finance employees need information about the stock we hold. The
+stock item then becomes a shared model between the two contexts.
+However, note that we don’t need to blindly expose everything about
+the stock item from the warehouse context. In Figure 2-18, we see
+how Stock Item inside the warehouse bounded context contains
+references to the shelf locations, but the shared representation just
+contains a a count. So there is the internal-only representation, and
+the external representation we expose. Often, when you have
+different internal and external representations, it may be beneficial to
+name them differently to avoid confusion - in this situation, one
+approach could be to call the shared Stock Item a Stock Count
+instead.
+
+--- [Page 134] ---
+Figure 2-18. A model which is shared can decide to hide information that should not be
+shared externally
+SHARED MODELS
+We can also have concepts which appear in more than one bounded
+context. In Figure 2-17 we saw that a customer exists in both
+locations. What does this mean? Is the customer copied? The way to
+think about this is that conceptually, both finance and warehouse
+needs to know something about our customer. Finance need to know
+about the financial payments made to a customer, whereas the
+
+--- [Page 135] ---
+Warehouse needs to know about the customer to the extent that it
+knows what packages have been sent to allow for deliveries to be
+traced.
+When you have a situation like this, a shared model like customer can
+have different meanings in the different bounded contexts, and
+therefore might be called different things. We might be happy to keep
+the name “customer” in Finance, but in Warehouse we might call
+them a “recipient”, as that is the role they play in that context. We
+store information about the customer in both locations, but the
+information is different. Finance stores information about the
+customer’s financial payments (or refunds), the warehouse stores
+information related to the goods shipped. We still may need to link
+both local concepts to a global customer, and we may want to look up
+common, shared information about that customer like their name or
+email address - we could use a technique like that shown in Figure 2-
+16 to achieve this.
+Mapping Aggregates and Bounded Contexts to
+Microservices
+Both the aggregate and the bounded context give us units of cohesion
+with well-defined interfaces with the wider system. The aggregate is
+a self-contained state machine that focuses on a single domain
+concept in our system, with the bounded context representing a
+collection of associated aggregates, again with an explicit interface to
+the wider world.
+
+--- [Page 136] ---
+Both can therefore work well as service boundaries. When starting
+out, as I’ve already mentioned, you want to reduce the number of
+services you work with. As a result, you should probably target
+services that encompass entire bounded contexts. As you find your
+feet, and decide to break these services into smaller services, look to
+split them around aggregate boundaries.
+Turtles All the Way Down
+At the start, you will probably identify a number of coarse-grained
+bounded contexts. But these bounded contexts can in turn contain
+further bounded contexts. For example, you could decompose the
+warehouse into capabilities associated with order fulfillment,
+inventory management, or goods receiving. When considering the
+boundaries of your microservices, first think in terms of the larger,
+coarser-grained contexts, and then subdivide along these nested
+contexts when you’re looking for the benefits of splitting out these
+seams.
+A trick here is that even if you decide to split a service that models an
+entire bounded context into smaller services later on, you can still
+hide this decision from the outside world—perhaps by presenting a
+coarser-grained API to consumers. The decision to decompose a
+service into smaller parts is arguably an implementation decision, so
+we might as well hide it if we can. in Figure 2-19 we see an example
+of this. We’ve split Warehouse down into Inventory and Shipping.
+As far as the outside world is concerned, there is still just the
+Warehouse microservice. Internally though, we’ve further
+decomposed things to allow Inventory to manage Stock Items and
+
+--- [Page 137] ---
+have Shipping manage Shipments. Remember, we want to keep the
+ownership of a single aggregate inside a single microservice.
+
+--- [Page 138] ---
+
+--- [Page 139] ---
+Figure 2-19. The Warehouse service internally has been split into a Finance and Warehouse
+microservice
+This is another form of information hiding - we’ve hidden a decision
+about internal implementation in such a way that if this
+implementation detail changes again in the future then our consumers
+will be unaware.
+Another reason to prefer the nested approach could be to chunk up
+your architecture to simplify testing. For example, when testing
+services that consume the warehouse, I don’t have to stub each
+service inside the warehouse context, just the more coarse-grained
+API. This can also give you a unit of isolation when considering
+larger-scoped tests. I may, for example, decide to have end-to-end
+tests where I launch all services inside the warehouse context, but for
+all other collaborators I might stub them out. We’ll explore more
+about testing and isolation in [Link to Come].
+The Dangers Of Premature Decomposition
+There is a danger in creating decomposing microservices based on an
+unclear understanding of the domain. One such example comes from
+my previous company, ThoughtWorks. One of their products was
+called SnapCI, a hosted continuous integration and continuous
+delivery tool (we’ll discuss those concepts later in [Link to Come]).
+The team had previously worked on another similar tool, Go-CD, a
+now open source continuous delivery tool that can be deployed
+locally rather than being hosted in the cloud.
+
+--- [Page 140] ---
+Although there was some code reuse very early on between the
+SnapCI and Go-CD projects, in the end SnapCI turned out to be a
+completely new codebase. Nonetheless, the previous experience of
+the team in the domain of CD tooling emboldened them to move
+more quickly in identifying boundaries, and building their system as a
+set of microservices.
+After a few months, though, it became clear that the use cases of
+SnapCI were subtly different enough that the initial take on the
+service boundaries wasn’t quite right. This led to lots of changes
+being made across services, and an associated high cost of change.
+Eventually the team merged the services back into one monolithic
+system, giving them time to better understand where the boundaries
+should exist. A year later, the team was then able to split the
+monolithic system apart into microservices, whose boundaries proved
+to be much more stable. This is far from the only example of this
+situation I have seen. Prematurely decomposing a system into
+microservices can be costly, especially if you are new to the domain.
+In many ways, having an existing codebase you want to decompose
+into microservices is much easier than trying to go to microservices
+from the beginning for this very reason.
+Communication in Terms of Business Concepts
+The changes we implement to our system are often about changes the
+business wants to make to how the system behaves. We are changing
+functionality—capabilities—that are exposed to our customers. If our
+systems are decomposed along the bounded contexts that represent
+our domain, the changes we want to make are more likely to be
+
+--- [Page 141] ---
+isolated to one, single microservice boundary. This reduces the
+number of places we need to make a change, and allows us to deploy
+that change quickly.
+It’s also important to think of the communication between these
+microservices in terms of the same business concepts. The modeling
+of your software after your business domain shouldn’t stop at the idea
+of bounded contexts. The same terms and ideas that are shared
+between parts of your organization should be reflected in your
+interfaces. It can be useful to think of forms being sent between these
+microservices, much as forms are sent around an organization.
+Event-storming
+Event Storming, a technique developed by Alberto Brandolini, is a
+collaborative brainstorming exercise designed to help surface a
+domain-model. Rather than having an architect sit in a corner and
+come up with their own representation of what the domain model
+is
+, event storming brings together technical and non-technical
+stakeholders in a joint exercise. The idea is that by making the
+development of the domain model a joint activity, that you end up
+with a shared, joined-up view of the world.
+It’s worth mentioning at this point that while the domain models
+defined using event storming can be used to implement event-driven
+systems, and indeed the mapping is very straightforward, you can
+also use such a domain model to build a more request/response
+oriented system too.
+12
+
+--- [Page 142] ---
+Logistics
+Alberto has some very specific views as to how event storming
+should be run, and on some of these points I am very much in
+agreement. Firstly, get everyone in a room together. This is often the
+most difficult step - getting people’s calendars to line up can be a
+problem, as can finding a room big enough. Those issues were all
+true in a pre-covid world, but as I write this during the virus-related
+lockdown in the UK, I’m aware that this might be even more
+problematic in the future. The key here though is to have all
+stakeholders present at the same time. You want representatives for
+all parts of the domain that you plan to model - users, subject matter
+experts, product owners, whoever is best placed to help represent that
+part of the domain.
+Once in a room together, Alberto suggests the removal of all chairs,
+in order to make sure that everyone gets up and gets involved. As
+someone with a bad back, while this is something I understand, it
+may not work for everyone. One thing I do agree with Alberto about
+is the need to have a large space where the modelling can be done. A
+common solution here is to pin large rolls of brown paper to the walls
+of the room, allowing for all the walls to be used for capturing
+information.
+The main modelling tool is post-it notes to capture different concepts,
+with different coloured post-it notes representing different concepts.
+The Process
+
+--- [Page 143] ---
+The exercise starts with the participants identifying the domain
+events. These represent things that happen in the system - they are the
+facts that you care about. “Order Placed” would be a good event that
+we would care about in the context of MusicCorp, as would
+“Payment Received”. These are captured on orange post-it notes. It is
+at this point that I have another disagreement with Alberto’s structure
+here, as the events are far and away the most numerous things you’ll
+be capturing, and orange post-it notes are surprisingly hard to get
+hold off
+.
+Next, participants identify the commands that cause these events to
+happen. Commands are decisions made by a human to do something
+(a user of the software). Here you are trying to understand the
+boundary of the system, and identify the key human actors in the
+system. Commands are captured on blue post-it notes.
+For the techies in the event storming session, at this stage they should
+be listening to what their non-technical colleagues come up with here.
+A key part of this exercise is not to let any current implementation
+warp the perception of what the domain is (that comes later). At this
+stage you want to create a space where you can get the concepts out
+of the heads of the key stakeholders, and get these ideas out into the
+open.
+With events and commands captured, aggregates come next. The
+events you have at this stage are useful sharing not just what happens
+in the system, but also it starts to highlight what the potential
+aggregates might be. Think of the aforementioned domain event
+“Order Placed”. The noun here - Order - could well be a potential
+13
+
+--- [Page 144] ---
+aggregate. And “Placed” is something that can happen to an order, so
+this may well be part of the life-cycle of the aggregate. Aggregates
+are represented by yellow post-it notes, and the commands and events
+associated with that aggregate are moved and clustered around the
+aggregate. This also helps you understand how aggregates are related
+to each other - events from one aggregate might trigger behavior in
+another.
+With the aggregates identified, they are then grouped into bounded
+contexts. Bounded contexts most commonly follow a company’s
+organizational structure, and the participants of the exercise are well
+placed to understand what aggregates are used by which parts of the
+organization.
+There is more to event storming than this - it was just meant as a brief
+overview. For a more detailed overview of how Event Storming
+works I’d suggest you read the (currently in progress) book “Event
+Storming
+" by Alberto
+Summary
+In this chapter, you’ve learned a bit about what makes a good
+microservice boundary, and how to find seams in our problem space
+that give us the dual benefits of both low coupling and strong
+cohesion. Having a detailed understanding of your domain can be a
+vital tool in helping us find these seams, and by aligning our
+microservices to these boundaries we ensure that the resulting system
+has every chance of keeping those virtues intact. We’ve also got a
+hint about how we can subdivide our microservices further,
+14
+
+--- [Page 145] ---
+something we’ll explore in more depth later. And we also introduced
+MusicCorp, the example domain that we will use throughout this
+book.
+The ideas presented in Eric Evans’s Domain-Driven Design are very
+useful to us in finding sensible boundaries for our services, and I’ve
+just scratched the surface here. I recommend Vaughn Vernon’s book
+Implementing Domain-Driven Design (Addison-Wesley) to help you
+understand the practicalities of this approach.
+Although this chapter has been mostly high-level, we need to get
+much more technical in the next. There are many pitfalls associated
+with implementing interfaces between services that can lead to all
+sorts of trouble, and we will have to take a deep dive into this topic if
+we are to keep our systems from becoming a giant, tangled mess.
+1 Parnas, David, “On the criteria to be used in decomposing systems into modules”,
+1971
+https://kilthub.cmu.edu/articles/On_the_criteria_to_be_used_in_decomposing_system
+s_into_modules/6607958
+2 The obvious starting point is Adrian’s summary of “On the criteria…”
+https://blog.acolyer.org/2016/09/05/on-the-criteria-to-be-used-in-decomposing-
+systems-into-modules/, but the coverage of Parnas’ earlier work “Information
+Distribution Aspects of Design Methodology” contains some great insights along with
+commentary from Parnas himself: https://blog.acolyer.org/2016/10/17/information-
+distribution-aspects-of-design-methodology/
+3 Parnas, David, “Information distribution aspects of design methodology”, 1971
+4 In my book, Monolith To Microservices, I attributed this to Larry Constantine himself.
+While the statement neatly sums up much of Constantine’s work in this space, the
+quote should really be attributed to Albert Endres and Dieter Rombach from their book
+“A Handbook of Software and Systems Engineering”.
+5 Constantine, Larry and Edward Yourdon, Structured Design, Yourdon Press
+
+--- [Page 146] ---
+6 Page-Jones, Meilir, Practical Guide to Structured Systems Design (Yourdon Press
+Computing)
+7 This concept is similar to the Domain Application Protocol which defines the rules by
+which components interact in a REST-based system.
+8 Pass through coupling is my name for what was originally described as Tramp
+coupling by M. Page-Jones: The Practical Guide to Structured Systems Design. I
+chose to use a different term here due to the fact that I found the original term
+somewhat problematic, and not terribly meaningful to a wider audience
+9 OK, more than once or twice. A lot more than once or twice…
+10 Eric Evans, Domain-Driven Design: Tackling Complexity in the Heart of Software
+(Boston: Addison-Wesley, 2004).
+11 I know some people object to the use of templated URIs in REST systems, and I
+understand why - I just want to keep things simple for this example
+12 I mean no disrespect if this is you - I’ve done this myself more than once
+13 I mean, why not yellow? It’s the most common colour!
+14 Event Storming, Alberto Brandolini, Leanpub (work in progress)
+https://leanpub.com/introducing_eventstorming

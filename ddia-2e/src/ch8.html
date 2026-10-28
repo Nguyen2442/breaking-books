@@ -1,0 +1,399 @@
+<style>
+#ch8 .sch-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+#ch8 .sch-chips .chip-done { opacity: .45; text-decoration: line-through; }
+#ch8 .sch-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+#ch8 .sch-col { display: flex; flex-direction: column; gap: 8px; }
+#ch8 .sch-ops { margin: 4px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; font-size: var(--t-xs); }
+#ch8 .sch-ops li { padding: 6px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); }
+#ch8 .sch-ops li.done { border-color: var(--ok); background: var(--ok-soft); }
+#ch8 .sch-ops li.cur { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+#ch8 .sch-ops li.wait { border-color: var(--warn); background: var(--warn-soft); }
+#ch8 .sch-ops li.fail { border-color: var(--bad); background: var(--bad-soft); }
+#ch8 .sch-ops li code { display: block; white-space: pre-wrap; overflow-wrap: anywhere; background: transparent; padding: 0; }
+#ch8 .sch-ops .res { margin-top: 4px; font: 600 var(--t-xs) var(--f-display); color: var(--ink-2); }
+#ch8 .sch-ops .res.ok { color: var(--ok); }
+#ch8 .sch-ops .res.warn { color: var(--warn); }
+#ch8 .sch-ops .res.bad { color: var(--bad); }
+#ch8 .btn-sm { height: 26px; padding: 0 10px; font-size: var(--t-xs); margin-top: 4px; }
+#ch8 .verdict { border-left: 3px solid var(--accent); padding: 10px 14px; border-radius: 0 8px 8px 0; background: var(--bg); }
+#ch8 .verdict b { display: block; font-size: var(--t-sm); margin-bottom: 2px; }
+#ch8 .verdict p { margin: 0; font-size: var(--t-xs); color: var(--ink-2); }
+#ch8 .verdict.ok { border-left-color: var(--ok); background: var(--ok-soft); }
+#ch8 .verdict.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+#ch8 .verdict.bad { border-left-color: var(--bad); background: var(--bad-soft); }
+#ch8 table.data.compact th, #ch8 table.data.compact td { padding: 6px 10px; font-size: var(--t-xs); }
+#ch8 .sch-notes { margin: 0; padding-left: 18px; font-size: var(--t-xs); color: var(--ink-2); }
+#ch8 .cellbtn { border: 1px solid transparent; background: transparent; padding: 2px 4px; border-radius: 6px; cursor: pointer; }
+#ch8 .cellbtn.on { border-color: var(--accent); background: var(--accent-soft); }
+#ch8 .lab-h { margin: 14px 0 4px; font-size: var(--t-sm); color: var(--ink); }
+#ch8 .lk-rows { display: flex; flex-direction: column; gap: 8px; }
+#ch8 .lk-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+</style>
+
+<section class="chapter" id="ch8" data-chapter="8" data-ch="8" data-title="Giao dịch (Transactions)" data-edition="1e">
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 8 <span class="ed-badge">Nguồn: ấn bản 1 · Chương 7</span></p>
+    <h1>Transactions <span class="vi">Giao dịch (Transactions)</span></h1>
+    <blockquote class="epigraph">Transactions are not a law of nature; they were created with a purpose, namely to simplify theprogramming model for applications accessing a database.<cite>— Martin Kleppmann, Designing Data-Intensive Applications (2017)</cite></blockquote>
+    <p class="lede">Trong thế giới thực của hệ thống dữ liệu, phần cứng và phần mềm có thể sập bất cứ lúc nào, mạng có thể ngắt giữa chừng, và hàng trăm client có thể ghi đè lên nhau cùng một mili giây. Giao dịch là lớp trừu tượng lâu đời nhất để che giấu sự hỗn loạn đó. Chương này bóc tách chữ ACID, khảo sát các mức cô lập yếu phổ biến (Read Committed, Snapshot Isolation) cùng những lỗi tranh chấp tinh vi của chúng, rồi đi tới ba cách hiện thực cô lập mạnh nhất: thực thi tuần tự, khoá hai pha (2PL), và Serializable Snapshot Isolation (SSI).</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- 8.1 -->
+  <article class="topic" id="ch8-concept" data-num="8.1" data-short="Khái niệm giao dịch" data-keywords="transaction commit abort rollback partial failure safety">
+    <p class="eyebrow">8.1 · The Slippery Concept of a Transaction</p>
+    <h2>Vì sao ứng dụng cần giao dịch? <span class="vi">The Slippery Concept of a Transaction</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Một <dfn data-term="transaction">giao dịch</dfn> gom nhiều thao tác đọc và ghi thành một đơn vị thực thi logic duy nhất.</li>
+      <li>Toàn bộ các thao tác trong giao dịch hoặc cùng thành công (<dfn data-term="commit">commit</dfn>) hoặc cùng bị huỷ bỏ (<dfn data-term="abort">abort / rollback</dfn>).</li>
+      <li>Nhờ đó lập trình viên không phải tự xử lý trạng thái dở dang khi lỗi xảy ra giữa chừng, và có thể thử lại an toàn.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Gần như mọi cơ sở dữ liệu quan hệ truyền thống và nhiều hệ thống NoSQL thế hệ mới đều xoay quanh khái niệm giao dịch. Khi gom nhiều câu lệnh đọc/ghi vào giữa <code>BEGIN TRANSACTION</code> và <code>COMMIT</code>, cơ sở dữ liệu cam kết rằng nếu có bất kỳ sự cố nào làm tiến trình dừng giữa chừng (ứng dụng crash, đứt mạng, đĩa đầy, hay vi phạm ràng buộc), mọi thay đổi đã thực hiện từ đầu giao dịch sẽ được hoàn tác sạch sẽ.</p>
+      <p>Giao dịch không phải định luật tự nhiên; nó được tạo ra với mục đích duy nhất là <strong>đơn giản hoá mô hình lập trình</strong>. Không có giao dịch, bạn phải tự suy nghĩ về mọi trường hợp thao tác thứ nhất đã ghi xuống đĩa nhưng thao tác thứ hai thất bại.</p>
+    </div>
+    <figure class="lab" data-widget="tx-partial">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Chuyển $100 từ tài khoản A sang B khi có sự cố giữa chừng
+        <small>Chọn loại sự cố xảy ra sau lệnh trừ tiền A. Thử tắt giao dịch để thấy tiền bị mất hoặc bị trừ hai lần khi chạy lại.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Không phải ứng dụng nào cũng cần giao dịch đầy đủ, nhưng hiểu rõ những đảm bảo nào đang có và những rủi ro nào đang hở là điều kiện bắt buộc để chọn đúng công cụ.</p></aside>
+  </article>
+
+  <!-- 8.2 -->
+  <article class="topic" id="ch8-acid" data-num="8.2" data-short="Ý nghĩa thật của ACID" data-keywords="acid atomicity consistency isolation durability base invariant">
+    <p class="eyebrow">8.2 · The Meaning of ACID</p>
+    <h2>Ý nghĩa thật sự của ACID (và BASE) <span class="vi">Atomicity, Consistency, Isolation, Durability</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="acid">ACID</dfn> do Haerder và Reuter đặt năm 1983, nhưng trong thực tế mỗi cơ sở dữ liệu cài đặt một kiểu; còn <dfn data-term="base">BASE</dfn> chỉ có nghĩa mơ hồ là “không phải ACID”.</li>
+      <li><dfn data-term="atomicity">Atomicity</dfn> không nói về đồng thời, mà là khả năng huỷ bỏ (<em>abortability</em>) khi có lỗi để không để lại dữ liệu ghi dở.</li>
+      <li><dfn data-term="consistency-acid">Consistency</dfn> là việc giữ đúng các <dfn data-term="invariant">bất biến</dfn> của bài toán — đây là trách nhiệm của ứng dụng, không phải của riêng cơ sở dữ liệu.</li>
+      <li><dfn data-term="isolation">Isolation</dfn> xử lý các giao dịch chạy đồng thời để tránh <dfn data-term="race-condition">race condition</dfn>; <dfn data-term="durability">Durability</dfn> cam kết dữ liệu đã commit không bị mất (qua WAL trên đĩa hoặc sao chép sang nhiều node).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Trong lập trình đa luồng, một thao tác <em>atomic</em> nghĩa là luồng khác không thể nhìn thấy trạng thái đang chạy dở. Trong ACID thì khác: việc luồng khác nhìn thấy gì thuộc về chữ <strong>Isolation</strong>. Chữ <strong>Atomicity</strong> của ACID chỉ mô tả chuyện gì xảy ra nếu một khách hàng thực hiện nhiều lần ghi nhưng gặp lỗi ở giữa: cơ sở dữ liệu sẽ huỷ bỏ toàn bộ các ghi trước đó.</p>
+      <p>Chữ <strong>Consistency</strong> lại càng dễ gây hiểu lầm: nó bị dùng cho ít nhất bốn khái niệm khác nhau (nhất quán bản sao ở <a href="#ch6">Chương 6</a>, nhất quán băm ở <a href="#ch7">Chương 7</a>, CAP/linearizability ở <a href="#ch10">Chương 10</a>, và bất biến ứng dụng trong ACID). Cơ sở dữ liệu chỉ kiểm tra được vài ràng buộc khai báo trước (<code>FOREIGN KEY</code>, <code>UNIQUE</code>, <code>CHECK</code>); nếu code ứng dụng tính sai số tiền chuyển khoản, cơ sở dữ liệu vẫn vui vẻ commit.</p>
+      <p>Cuối cùng, <strong>Durability</strong> ngày xưa đồng nghĩa với “đã ghi vào đĩa và <code>fsync</code>”. Trong hệ thống phân tán, nó có thể là “đã sao chép sang một số node”. Nhưng không có kỹ thuật đơn lẻ nào bảo đảm tuyệt đối 100%: đĩa có thể hỏng, SSD có thể mất dữ liệu khi cúp điện, và sao chép bất đồng bộ có thể mất các ghi mới nhất khi leader chết.</p>
+    </div>
+    <figure class="lab" data-widget="acid">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Khám phá từng chữ A · C · I · D
+        <small>Chọn từng chữ cái để so sánh quan niệm phổ biến với bản chất kỹ thuật và chạy mô phỏng tương ứng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <figure class="lab" data-widget="durability">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Kỹ thuật nào cứu được dữ liệu trước từng loại thảm hoạ?
+        <small>Bật/tắt sự kết hợp giữa đĩa, sao chép đồng bộ/bất đồng bộ và backup rồi thử các kịch bản sự cố thực tế.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 8.3 -->
+  <article class="topic" id="ch8-multi-object" data-num="8.3" data-short="Một và nhiều đối tượng" data-keywords="single-object multi-object transaction unread emails secondary index foreign key">
+    <p class="eyebrow">8.3 · Single-Object and Multi-Object Operations</p>
+    <h2>Thao tác một đối tượng và giao dịch nhiều đối tượng <span class="vi">Single-Object and Multi-Object Operations</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Một <dfn data-term="multi-object-transaction">giao dịch nhiều đối tượng</dfn> giữ đồng bộ nhiều mảnh dữ liệu có liên hệ với nhau: hàng ở nhiều bảng, tài liệu phi chuẩn hoá, hoặc bảng chính và secondary index.</li>
+      <li>Hình 7-2 &amp; 7-3 trong sách: thêm thư mới vào bảng <code>emails</code> và tăng bộ đếm <code>unread</code> ở bảng <code>mailboxes</code>. Thiếu Isolation thì người đọc thấy thư mới nhưng bộ đếm cũ; thiếu Atomicity thì khi lỗi bộ đếm sẽ lệch vĩnh viễn.</li>
+      <li>Ngay cả trên một đối tượng đơn lẻ, cơ sở dữ liệu vẫn cần tính nguyên tử ở mức lưu trữ (WAL) để tránh đọc phải JSON ghi dở một nửa.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Hãy xét ứng dụng hộp thư điện tử trong sách (Hình 7-2). Để hiện nhanh số thư chưa đọc mà không phải đếm lại mỗi lần, ta lưu trường phi chuẩn hoá <code>unread_counter</code>. Mỗi khi User 1 gửi thư cho User 2, ứng dụng phải vừa <code>INSERT</code> vào bảng <code>emails</code> vừa <code>UPDATE</code> tăng bộ đếm. Nếu User 2 mở hộp thư đúng vào giữa hai bước đó mà không có cô lập, họ sẽ thấy bức thư mới nằm trong danh sách nhưng con số thông báo vẫn là 0. Tệ hơn, nếu bước tăng bộ đếm bị lỗi mà không có rollback (Hình 7-3), hộp thư và bộ đếm sẽ lệch nhau mãi mãi.</p>
+    </div>
+    <figure class="lab" data-widget="sched-unread">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hộp thư và bộ đếm chưa đọc (Hình 7-2 &amp; 7-3)
+        <small>Chạy xen kẽ giữa User 1 gửi thư và User 2 xem hộp thư. Bật “Lỗi khi tăng bộ đếm” và tắt Atomicity để thấy dữ liệu lệch vĩnh viễn.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 8.4 -->
+  <article class="topic" id="ch8-retry" data-num="8.4" data-short="Xử lý lỗi và thử lại" data-keywords="retrying aborted transactions idempotency deduplication exponential backoff">
+    <p class="eyebrow">8.4 · Handling Errors and Aborts</p>
+    <h2>Những cạm bẫy khi tự động thử lại giao dịch <span class="vi">Handling Errors and Aborts</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Khi giao dịch bị abort, ứng dụng thường thử lại (retry). Nghe đơn giản nhưng có nhiều bẫy thực tế.</li>
+      <li>Nếu giao dịch thật ra đã commit trên server nhưng gói xác nhận (ACK) bị rớt trên mạng, việc retry sẽ ghi dữ liệu hai lần trừ khi có cơ chế <dfn data-term="deduplication">chống ghi trùng</dfn> (idempotency key).</li>
+      <li>Nếu lỗi do quá tải, retry ngay lập tức làm tải càng nặng hơn (cần <em>exponential backoff</em>); nếu lỗi do vi phạm ràng buộc vĩnh viễn, retry là vô ích.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Các khung làm việc ORM đôi khi tự động thử lại giao dịch thất bại, nhưng sách chỉ ra năm lý do khiến việc retry ngây thơ gây hậu quả nghiêm trọng: mất kết nối đúng lúc nhận ACK khiến đơn hàng bị tạo trùng; retry bão táp làm sập cơ sở dữ liệu đang quá tải; retry vô nghĩa trước các lỗi logic như sai kiểu dữ liệu hay trùng khoá <code>UNIQUE</code>; và các tác dụng phụ bên ngoài cơ sở dữ liệu (như gửi email xác nhận) bị kích hoạt nhiều lần mỗi khi giao dịch chạy lại.</p>
+    </div>
+    <figure class="lab" data-widget="retry">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đặt hàng kèm gửi email khi mạng và cơ sở dữ liệu gặp lỗi
+        <small>Chọn loại lỗi và bật từng biện pháp bảo vệ (idempotency key, exponential backoff, chỉ retry lỗi tạm thời, gửi email sau commit).</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 8.5 -->
+  <article class="topic" id="ch8-read-committed" data-num="8.5" data-short="Read Committed" data-keywords="read committed read uncommitted dirty read dirty write row-level lock">
+    <p class="eyebrow">8.5 · Weak Isolation Levels · Read Committed</p>
+    <h2>Read Committed: không đọc bẩn, không ghi bẩn <span class="vi">Read Committed</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Mức cô lập cơ bản nhất là <dfn data-term="read-committed">Read Committed</dfn> (mặc định của PostgreSQL, Oracle, SQL Server): đảm bảo <strong>không <dfn data-term="dirty-read">dirty read</dfn></strong> (chỉ đọc dữ liệu đã commit) và <strong>không <dfn data-term="dirty-write">dirty write</dfn></strong> (chỉ ghi đè dữ liệu đã commit). Mức yếu hơn là <dfn data-term="read-uncommitted">Read Uncommitted</dfn> chỉ ngăn dirty write.</li>
+      <li>Các cơ sở dữ liệu ngăn dirty write bằng <dfn data-term="row-level-lock">khoá theo dòng</dfn>: giao dịch muốn sửa hàng nào phải giữ khoá tới khi commit hoặc abort.</li>
+      <li>Để ngăn dirty read, dùng khoá đọc sẽ làm một giao dịch ghi dài chặn mọi người đọc; vì vậy hầu hết hệ thống nhớ giá trị cũ đã commit và trả giá trị đó cho người đọc trong lúc khoá ghi đang bị giữ.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Nếu hai giao dịch cùng sửa nhiều đối tượng mà không có bất kỳ bảo vệ nào, nhiều bất thường sẽ xảy ra. Trong Hình 7-4 (<em>dirty read</em>), User 1 vừa ghi <code>x = 3</code> nhưng chưa ghi xong phần còn lại thì User 2 đã đọc thấy <code>x = 3</code>. Trong Hình 7-5 (<em>dirty write</em>), Alice và Bob cùng đặt mua chiếc xe mã 1234: danh sách bán xe ghi tên Bob (vì Bob ghi bảng đó sau), nhưng hoá đơn lại gửi cho Alice (vì Alice ghi bảng hoá đơn sau)!</p>
+    </div>
+    <figure class="lab" data-widget="sched-dirty-read">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Dirty read (Hình 7-4)
+        <small>So sánh Read Uncommitted và Read Committed; bật tuỳ chọn “User 1 ROLLBACK” để thấy nguy cơ đọc phải dữ liệu chưa từng tồn tại.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <figure class="lab" data-widget="sched-dirty-write">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Dirty write khi Alice và Bob cùng mua một chiếc xe (Hình 7-5)
+        <small>Không có khoá ghi, xe thuộc về một người nhưng hoá đơn lại gửi cho người kia. Chuyển sang Read Committed để xem khoá dòng giữ tính nhất quán.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <figure class="lab" data-widget="rc-impl">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hiện thực Read Committed: khoá đọc hay nhớ giá trị cũ?
+        <small>Kéo thời gian giữ khoá của giao dịch ghi và xem 10 reader bị chặn thế nào nếu dùng khoá đọc.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 8.6 -->
+  <article class="topic" id="ch8-snapshot" data-num="8.6" data-short="Snapshot Isolation & Read Skew" data-keywords="snapshot isolation repeatable read read skew nonrepeatable read alice bank backup">
+    <p class="eyebrow">8.6 · Snapshot Isolation and Repeatable Read</p>
+    <h2>Read Skew và sự ra đời của Snapshot Isolation <span class="vi">Snapshot Isolation and Repeatable Read</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Ở Read Committed, vẫn có <dfn data-term="read-skew">read skew</dfn> (còn gọi là <em>nonrepeatable read</em>): một giao dịch đọc hai tài khoản ở hai thời điểm trước và sau một lệnh chuyển tiền, thấy tổng tiền bị hụt $100 (Hình 7-6).</li>
+      <li>Read skew không chấp nhận được với tác vụ sao lưu (backup) hoặc truy vấn phân tích chạy lâu.</li>
+      <li><dfn data-term="snapshot-isolation">Snapshot Isolation</dfn> giải quyết triệt để bằng cách cho mỗi giao dịch đọc từ một ảnh chụp nhất quán tại thời điểm nó bắt đầu.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Trong Hình 7-6, Alice có hai tài khoản mỗi cái $500 (tổng $1.000). Một giao dịch chuyển $100 từ tài khoản 2 sang tài khoản 1 diễn ra đúng lúc Alice đang xem số dư. Alice đọc tài khoản 1 trước khi chuyển ($500), rồi đọc tài khoản 2 sau khi chuyển ($400) — tổng cộng chỉ còn $900! Với Alice thì không sao nếu cô tải lại trang, nhưng nếu đây là tiến trình backup đang chép cơ sở dữ liệu ra đĩa thì bản backup sẽ bị mất vĩnh viễn $100.</p>
+    </div>
+    <figure class="lab" data-widget="sched-read-skew">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Alice nhìn thấy $100 biến mất (Hình 7-6)
+        <small>Chuyển mức cô lập từ Read Committed sang Snapshot Isolation để thấy Alice luôn đọc được tổng đúng $1.000.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 8.7 -->
+  <article class="topic" id="ch8-mvcc" data-num="8.7" data-short="Hiện thực MVCC" data-keywords="mvcc multi-version concurrency control txid created_by deleted_by visibility rules repeatable read">
+    <p class="eyebrow">8.7 · Implementing Snapshot Isolation</p>
+    <h2>Điều khiển đồng thời đa phiên bản (MVCC) <span class="vi">Multi-Version Concurrency Control</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Nguyên tắc vàng của Snapshot Isolation: <strong>người đọc không bao giờ chặn người ghi, và người ghi không bao giờ chặn người đọc</strong>.</li>
+      <li>Để làm được vậy, cơ sở dữ liệu giữ nhiều phiên bản của cùng một hàng: kỹ thuật đó gọi là <dfn data-term="mvcc">MVCC</dfn>.</li>
+      <li>Mỗi giao dịch có một <dfn data-term="txid">mã giao dịch (txid)</dfn> tăng dần; mỗi phiên bản hàng lưu <code>created_by</code> và <code>deleted_by</code>. Bộ quy tắc hiển thị quyết định giao dịch nào nhìn thấy phiên bản nào (Hình 7-7).</li>
+      <li>Trong chuẩn SQL, mức này thường được gọi một cách gây nhầm lẫn là <dfn data-term="repeatable-read">Repeatable Read</dfn>.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Khi một giao dịch bắt đầu, cơ sở dữ liệu ghi nhận danh sách mọi giao dịch khác đang chạy dở tại khoảnh khắc đó. Một phiên bản hàng được nhìn thấy nếu và chỉ nếu: giao dịch tạo ra nó (<code>created_by</code>) đã commit trước khi ta bắt đầu, và hàng đó chưa bị xoá hoặc giao dịch xoá nó (<code>deleted_by</code>) chưa commit lúc ta bắt đầu. Về sau, khi không còn giao dịch đang chạy nào cần phiên bản cũ nữa, bộ dọn rác (như <code>VACUUM</code> của PostgreSQL) sẽ thu hồi các hàng đã xoá.</p>
+    </div>
+    <figure class="lab" data-widget="mvcc">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bảng phiên bản MVCC và quy tắc hiển thị (Hình 7-7)
+        <small>Thử cho T13 commit hoặc abort, tạo thêm giao dịch đọc mới, và bấm “Dọn rác (GC)” để xem lúc nào phiên bản cũ mới được xoá vật lý.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 8.8 -->
+  <article class="topic" id="ch8-lost-update" data-num="8.8" data-short="Ngăn Lost Update" data-keywords="lost update read-modify-write atomic write select for update compare-and-set">
+    <p class="eyebrow">8.8 · Preventing Lost Updates</p>
+    <h2>Mất cập nhật (Lost Update) và bốn cách phòng tránh <span class="vi">Preventing Lost Updates</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Snapshot Isolation chỉ bảo vệ các truy vấn đọc; khi hai giao dịch cùng thực hiện <dfn data-term="read-modify-write">chu trình đọc–sửa–ghi</dfn> trên một đối tượng, giao dịch commit sau sẽ đè mất thay đổi của giao dịch trước: đó là <dfn data-term="lost-update">lost update</dfn>.</li>
+      <li>Cách 1: dùng <dfn data-term="atomic-write-op">thao tác ghi nguyên tử</dfn> (<code>UPDATE … SET val = val + 1</code>) để cơ sở dữ liệu tự lấy khoá độc quyền.</li>
+      <li>Cách 2: khoá tường minh các hàng sắp sửa bằng <dfn data-term="select-for-update">SELECT … FOR UPDATE</dfn>.</li>
+      <li>Cách 3 &amp; 4: để cơ sở dữ liệu tự phát hiện lost update trong Snapshot Isolation (PostgreSQL, Oracle có; MySQL InnoDB không có!), hoặc dùng <dfn data-term="compare-and-set">compare-and-set (CAS)</dfn>.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Tăng một bộ đếm, thêm một phần tử vào mảng JSON trong một document, hay hai người cùng sửa một trang wiki đều có chung một mẫu: đọc giá trị hiện tại, sửa trong bộ nhớ ứng dụng, rồi ghi đè giá trị mới lại. Nếu hai giao dịch làm việc này song song, một bản sửa sẽ bốc hơi.</p>
+    </div>
+    <figure class="lab" data-widget="sched-lost-update">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hai client cùng tăng bộ đếm (Hình 7-1)
+        <small>Thử đổi giữa các mức cô lập (chú ý sự khác biệt giữa MySQL InnoDB và PostgreSQL ở Snapshot Isolation) và 4 cách viết câu lệnh.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 8.9 -->
+  <article class="topic" id="ch8-write-skew" data-num="8.9" data-short="Write Skew (bác sĩ trực)" data-keywords="write skew doctors on call alice bob invariant select for update">
+    <p class="eyebrow">8.9 · Write Skew and Phantoms</p>
+    <h2>Write Skew: khi cả hai bác sĩ cùng xin nghỉ trực <span class="vi">Write Skew</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Trong Hình 7-8, bệnh viện yêu cầu mỗi ca trực phải có ít nhất 1 bác sĩ. Alice và Bob đang cùng trực; cả hai thấy không khoẻ và cùng bấm nút xin nghỉ.</li>
+      <li>Mỗi giao dịch đếm thấy có 2 người đang trực (≥ 2), nên tự cập nhật bản ghi của <em>riêng mình</em> thành <code>on_call = false</code>. Sau khi cả hai commit, ca trực còn 0 bác sĩ!</li>
+      <li>Hiện tượng này gọi là <dfn data-term="write-skew">write skew</dfn>: hai giao dịch đọc cùng một tập dữ liệu, rồi cập nhật hai đối tượng khác nhau làm phá vỡ bất biến. Snapshot Isolation không tự chặn được vì không có hai giao dịch nào sửa cùng một hàng.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Bạn có thể coi write skew là dạng tổng quát của lost update: thay vì cùng sửa một đối tượng, hai giao dịch đọc các đối tượng giao nhau rồi sửa các đối tượng rời nhau. Nếu không dùng mức cô lập Serializable, cách sửa duy nhất là khoá tường minh mọi hàng mà quyết định của giao dịch phụ thuộc vào bằng <code>SELECT … FOR UPDATE</code>.</p>
+    </div>
+    <figure class="lab" data-widget="sched-write-skew">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ca trực của Alice và Bob (Hình 7-8)
+        <small>Ở Snapshot Isolation mặc định, cả hai đều nghỉ thành công. Đổi sang <code>SELECT … FOR UPDATE</code> hoặc Serializable (2PL / SSI) để giữ đúng ràng buộc.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 8.10 -->
+  <article class="topic" id="ch8-phantoms" data-num="8.10" data-short="Phantom (đặt phòng họp)" data-keywords="phantom meeting room booking select for update absence of rows">
+    <p class="eyebrow">8.10 · Phantoms Causing Write Skew</p>
+    <h2>Phantom: khi thứ cần khoá… chưa tồn tại <span class="vi">Phantoms Causing Write Skew</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Ví dụ đặt phòng họp (Ví dụ 7-2): kiểm tra xem phòng 123 có lịch nào trùng khung 12:00–13:00 không; nếu <code>COUNT = 0</code> thì <code>INSERT</code> lịch mới.</li>
+      <li>Khi một lần ghi ở giao dịch này làm thay đổi tập kết quả tìm kiếm của giao dịch khác, hiệu ứng đó gọi là <dfn data-term="phantom">phantom</dfn>.</li>
+      <li>Ở đây <code>SELECT … FOR UPDATE</code> cũng không cứu được trong Snapshot Isolation: vì truy vấn kiểm tra sự <em>vắng mặt</em> của dòng (trả về 0 hàng), không có hàng nào để gắn khoá cả!</li>
+    </ul></div>
+    <div class="prose">
+      <p>Tất cả các ví dụ như đặt phòng họp, đăng ký username duy nhất, chi tiêu không vượt hạn mức, hay chiếm ô đất trong game nhiều người chơi đều có chung mẫu: đọc bằng một điều kiện <code>WHERE</code> để chắc chắn chưa có bản ghi nào vi phạm, rồi mới <code>INSERT</code> bản ghi mới.</p>
+    </div>
+    <figure class="lab" data-widget="sched-phantom">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hai người dùng cùng đặt phòng 123 lúc 12h trưa (Ví dụ 7-2)
+        <small>Thử bật <code>FOR UPDATE</code> ở mức Snapshot Isolation: vẫn bị đặt trùng vì lúc kiểm tra có 0 hàng khớp để khoá! Chỉ 2PL hoặc SSI mới chặn được.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 8.11 -->
+  <article class="topic" id="ch8-materialize" data-num="8.11" data-short="Cụ thể hoá xung đột" data-keywords="materializing conflicts room slots weak isolation summary">
+    <p class="eyebrow">8.11 · Materializing Conflicts</p>
+    <h2>Cụ thể hoá xung đột và bức tranh toàn cảnh về cô lập yếu <span class="vi">Materializing Conflicts</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Nếu vấn đề của phantom là không có hàng nào để gắn khoá, ta có thể nhân tạo tạo trước các hàng cho mọi tổ hợp phòng × khung giờ 15 phút để khoá chúng: kỹ thuật <dfn data-term="materializing-conflicts">cụ thể hoá xung đột</dfn>.</li>
+      <li>Cách này biến một phantom thành xung đột khoá trên hàng có thật, nhưng làm xấu mô hình dữ liệu và chỉ nên là phương án cuối cùng khi không thể dùng Serializable.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Trước khi bước sang cô lập Serializable, hãy thử kỹ thuật khoá bảng <code>room_slots</code> và ôn lại toàn bộ các hiện tượng tranh chấp qua bảng tổng hợp bên dưới.</p>
+    </div>
+    <figure class="lab" data-widget="sched-materialize">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ngăn đặt trùng phòng bằng bảng <code>room_slots</code> tạo sẵn
+        <small>Ngay ở Read Committed hay Snapshot Isolation, việc khoá các khung 15 phút trong <code>room_slots</code> buộc giao dịch thứ hai phải chờ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <figure class="lab" data-widget="iso-table">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bảng tổng hợp các mức cô lập và hiện tượng tranh chấp
+        <small>Bấm vào từng ô trong ma trận để xem giải thích vì sao mức cô lập đó chặn được (hoặc để lọt) hiện tượng tương ứng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 8.12 -->
+  <article class="topic" id="ch8-serializability" data-num="8.12" data-short="Thực thi tuần tự thật" data-keywords="serializability actual serial execution stored procedure voltdb redis datomic single thread partitioning">
+    <p class="eyebrow">8.12 · Serializability · Actual Serial Execution</p>
+    <h2>Serializability (Cách 1): Thực thi tuần tự trên một luồng <span class="vi">Actual Serial Execution</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="serializability">Serializability</dfn> là mức cô lập mạnh nhất: đảm bảo kết quả cuối cùng luôn giống hệt như khi các giao dịch chạy nối đuôi nhau từng cái một.</li>
+      <li>Cách đơn giản nhất để loại bỏ hoàn toàn đồng thời là <dfn data-term="serial-execution">thực thi tuần tự thật</dfn> trên một luồng CPU duy nhất (VoltDB/H-Store, Redis, Datomic). Cách này trở nên khả thi nhờ RAM đủ rẻ để giữ toàn bộ dữ liệu hoạt động trong bộ nhớ và giao dịch OLTP rất ngắn.</li>
+      <li>Để luồng duy nhất không phải ngồi chờ mạng giữa các câu lệnh, ứng dụng phải đóng gói toàn bộ giao dịch thành một <dfn data-term="stored-procedure">stored procedure</dfn>. Muốn mở rộng ra nhiều lõi CPU, phải phân vùng dữ liệu và hạn chế tối đa <dfn data-term="cross-partition-txn">giao dịch đa partition</dfn>.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Với giao dịch tương tác kiểu truyền thống, ứng dụng gửi câu truy vấn thứ nhất, chờ kết quả qua mạng, tính toán rồi mới gửi câu thứ hai. Nếu cơ sở dữ liệu chỉ chạy một luồng và phải đợi mạng ở mỗi bước, thông lượng sẽ thảm hại. Stored procedure gom toàn bộ code giao dịch vào trong bộ nhớ cơ sở dữ liệu, loại bỏ hoàn toàn độ trễ mạng khỏi đường găng.</p>
+    </div>
+    <figure class="lab" data-widget="serial-exec">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Thông lượng thực thi tuần tự: Stored Procedure và giao dịch đa partition
+        <small>Kéo độ trễ mạng ở phần 1 để thấy vì sao giao dịch tương tác làm nghẽn luồng đơn; kéo tỉ lệ giao dịch đa partition ở phần 2 để thấy nút cổ chai điều phối giữa các lõi.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 8.13 -->
+  <article class="topic" id="ch8-2pl" data-num="8.13" data-short="Khoá hai pha (2PL)" data-keywords="two-phase locking 2pl shared lock exclusive lock deadlock wait-for graph">
+    <p class="eyebrow">8.13 · Two-Phase Locking (2PL)</p>
+    <h2>Serializability (Cách 2): Khoá hai pha (2PL) <span class="vi">Two-Phase Locking (2PL)</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Suốt gần 30 năm, <dfn data-term="two-phase-locking">khoá hai pha (2PL)</dfn> là thuật toán duy nhất được dùng rộng rãi cho Serializable (MySQL InnoDB, SQL Server, DB2).</li>
+      <li>Khác hẳn Snapshot Isolation, trong 2PL <strong>người đọc chặn người ghi và người ghi cũng chặn người đọc</strong>: muốn đọc phải xin <dfn data-term="shared-lock">shared lock</dfn>, muốn sửa phải xin <dfn data-term="exclusive-lock">exclusive lock</dfn>, và giữ mọi khoá tới khi kết thúc giao dịch.</li>
+      <li>Hệ quả là <dfn data-term="deadlock">deadlock</dfn> xảy ra thường xuyên và độ trễ đuôi rất cao khi chỉ một giao dịch chậm giữ khoá.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Tên gọi “hai pha” chỉ đơn giản là: pha thứ nhất (khi giao dịch đang chạy) là lúc lấy thêm các khoá; pha thứ hai (ở cuối giao dịch khi commit/abort) là lúc nhả toàn bộ khoá ra. Khi hai giao dịch cùng giữ shared lock trên hai đối tượng rồi muốn nâng cấp lên exclusive lock, chúng sẽ tạo thành chu trình trong đồ thị chờ (<em>wait-for graph</em>) và cơ sở dữ liệu buộc phải huỷ một bên.</p>
+    </div>
+    <figure class="lab" data-widget="locks-2pl">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bàn điều khiển khoá Shared / Exclusive và đồ thị Deadlock
+        <small>Tự bấm Đọc / Ghi cho T1, T2, T3 hoặc bấm “Tạo deadlock theo kịch bản” để xem chu trình chờ xuất hiện và bị CSDL cắt đứt.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 8.14 -->
+  <article class="topic" id="ch8-predicate" data-num="8.14" data-short="Predicate & Index-Range Lock" data-keywords="predicate lock index-range lock next-key lock phantom 2pl">
+    <p class="eyebrow">8.14 · Predicate Locks and Index-Range Locks</p>
+    <h2>Ngăn Phantom trong 2PL: Khoá vị từ và khoá dải chỉ mục <span class="vi">Predicate Locks and Index-Range Locks</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Khoá trên từng dòng có sẵn không chặn được phantom (như bài toán đặt phòng họp). 2PL cần <dfn data-term="predicate-lock">khoá vị từ (predicate lock)</dfn>: khoá thuộc về mọi đối tượng thoả mãn điều kiện <code>WHERE</code>, kể cả đối tượng chưa được chèn vào.</li>
+      <li>Kiểm tra khoá vị từ trên mọi lệnh ghi rất tốn CPU, nên thực tế các hệ 2PL dùng <dfn data-term="index-range-lock">index-range lock (next-key lock)</dfn>: gắn khoá lên một mục hoặc một khoảng trong chỉ mục B-tree.</li>
+      <li>Index-range lock là một phép xấp xỉ an toàn: nó khoá một vùng rộng hơn điều kiện thật, chấp nhận chặn thừa một số giao dịch vô hại để đổi lấy tốc độ kiểm tra cực nhanh.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Giả sử giao dịch T1 tìm lịch đặt phòng 123 từ 12:00 đến 13:00. Nếu chỉ mục được đánh trên <code>room_id</code>, cơ sở dữ liệu sẽ khoá mục <code>room_id = 123</code> (chặn luôn cả người đặt phòng 123 lúc 15:00). Nếu không có chỉ mục nào phù hợp với câu <code>WHERE</code>, cơ sở dữ liệu buộc phải khoá toàn bộ bảng!</p>
+    </div>
+    <figure class="lab" data-widget="predicate-locks">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Vùng bị khoá bởi Predicate Lock so với Index-Range Lock
+        <small>Đổi loại khoá mà T1 nắm giữ, rồi chọn phòng và giờ đặt của T2 để xem lúc nào T2 bị chặn đúng và lúc nào bị chặn oan.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 8.15 -->
+  <article class="topic" id="ch8-ssi" data-num="8.15" data-short="Serializable Snapshot Isolation" data-keywords="serializable snapshot isolation ssi optimistic pessimistic concurrency control outdated premise rw-antidependency">
+    <p class="eyebrow">8.15 · Serializable Snapshot Isolation (SSI)</p>
+    <h2>Serializability (Cách 3): Serializable Snapshot Isolation (SSI) <span class="vi">Serializable Snapshot Isolation</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Thực thi tuần tự bị giới hạn ở một lõi/partition, còn 2PL là <dfn data-term="pessimistic-cc">điều khiển đồng thời bi quan</dfn> làm tắc nghẽn người đọc. <dfn data-term="ssi">Serializable Snapshot Isolation (SSI)</dfn> (công bố năm 2008, dùng cho mức <code>SERIALIZABLE</code> từ PostgreSQL 9.1) mang lại cả tính khả tuần tự lẫn hiệu năng cao.</li>
+      <li>SSI là <dfn data-term="optimistic-cc">điều khiển đồng thời lạc quan</dfn> đặt trên nền MVCC: mọi lệnh đọc vẫn đọc từ snapshot mà không chặn ai; đến lúc commit, cơ sở dữ liệu kiểm tra xem giao dịch có hành động dựa trên một <dfn data-term="outdated-premise">tiền đề đã cũ</dfn> hay không.</li>
+      <li>Hai trường hợp SSI theo dõi: (1) lúc đọc đã bỏ qua một ghi chưa commit mà nay đã commit (Hình 7-10), và (2) một giao dịch khác ghi đè vào dữ liệu sau khi ta đã đọc nó (Hình 7-11).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Nhờ không chặn người đọc và chỉ huỷ khi thực sự có xung đột đọc–ghi hai chiều (<em>rw-antidependency cycle</em>), SSI hoạt động tuyệt vời khi mức tranh chấp vừa và thấp. Ngược lại, khi rất nhiều giao dịch cùng tranh giành một vài bản ghi nóng, tỉ lệ bị huỷ và phải chạy lại trong SSI sẽ tăng cao.</p>
+    </div>
+    <figure class="lab" data-widget="sched-ssi">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Sổ theo dõi của SSI trong bài toán bác sĩ trực (Hình 7-10 &amp; 7-11)
+        <small>Quan sát “Sổ theo dõi của SSI” bên dưới bảng dữ liệu. Thử đổi sang “Bob chỉ đọc” để thấy SSI thông minh không huỷ ai khi không có ghi xung đột.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <figure class="lab" data-widget="occ-contention">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đọ thông lượng và độ trễ giữa 2PL (bi quan) và SSI (lạc quan)
+        <small>Kéo thanh “Số đối tượng” sang trái (tranh chấp cao) để thấy SSI bị huỷ nhiều, và kéo sang phải (tranh chấp thấp) để thấy SSI vượt xa 2PL.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>SSI mở ra hy vọng biến Serializable thành mức cô lập mặc định trong tương lai: lập trình viên không còn phải tự săn lùng từng chỗ cần gắn <code>FOR UPDATE</code> mà vẫn giữ được tốc độ đọc không khoá của MVCC.</p></aside>
+  </article>
+
+  <!-- 8.★ -->
+  <article class="topic" id="ch8-review" data-num="8.★" data-short="Tổng kết & kiểm tra" data-keywords="summary quiz review transactions acid isolation mvcc 2pl ssi">
+    <p class="eyebrow">8.★ · Summary</p>
+    <h2>Tổng kết chương và tự kiểm tra <span class="vi">Summary</span></h2>
+    <div class="prose">
+      <p>Giao dịch là tầng trừu tượng giúp ứng dụng bỏ qua hàng loạt lỗi phần cứng/phần mềm và các bài toán tranh chấp đồng thời phức tạp. Các mức cô lập từ yếu đến mạnh gồm: <strong>Read Committed</strong> (chống dirty read/write), <strong>Snapshot Isolation / Repeatable Read</strong> (chống read skew bằng MVCC, nhưng vẫn có thể bị lost update, write skew và phantom), và <strong>Serializable</strong> (chống mọi race condition thông qua thực thi tuần tự bằng stored procedure, khoá hai pha 2PL, hoặc SSI).</p>
+    </div>
+    <div class="quiz">
+      <div class="q" data-answer="1">
+        <p>Chữ Atomicity (A) trong ACID thực sự có ý nghĩa gì?</p>
+        <ol><li>Nhiều luồng CPU không thể đọc cùng một biến tại cùng một xung nhịp.</li><li>Nếu giao dịch gặp lỗi và bị huỷ (abort) giữa chừng, mọi thay đổi nó đã ghi đều được hoàn tác để ứng dụng có thể thử lại an toàn.</li><li>Giao dịch luôn thực thi trên một luồng duy nhất.</li><li>Dữ liệu sau khi commit được lưu trên ít nhất hai ổ đĩa.</li></ol>
+        <p class="explain">Trong ACID, việc các giao dịch đồng thời nhìn thấy gì thuộc về chữ Isolation (I). Atomicity mô tả hành vi khi có lỗi (đáng lẽ nên gọi là abortability).</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Các cơ sở dữ liệu hiện thực mức Read Committed thường ngăn chặn Dirty Read bằng cách nào để không làm chậm các truy vấn đọc?</p>
+        <ol><li>Bắt mọi lệnh đọc phải xin shared lock và chờ giao dịch ghi hoàn tất.</li><li>Huỷ ngay lập tức mọi giao dịch ghi chạy quá 100 ms.</li><li>Giữ lại giá trị cũ đã commit và trả giá trị cũ đó cho các truy vấn đọc trong suốt thời gian giao dịch ghi đang giữ khoá dòng.</li><li>Chuyển mọi lệnh đọc sang chạy bằng stored procedure.</li></ol>
+        <p class="explain">Nếu bắt lệnh đọc lấy khoá, một giao dịch ghi dài sẽ chặn toàn bộ người đọc. Nhớ giá trị cũ đã commit giúp người đọc không phải chờ.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Alice có 2 tài khoản mỗi cái $500. Trong lúc có giao dịch chuyển $100 giữa hai tài khoản, Alice đọc tài khoản 1 được $500 và tài khoản 2 được $400 (tổng $900). Đây là hiện tượng gì và mức cô lập nào khắc phục được nó?</p>
+        <ol><li>Read skew (nonrepeatable read); khắc phục bằng Snapshot Isolation (MVCC).</li><li>Dirty read; khắc phục bằng Read Committed.</li><li>Write skew; chỉ khắc phục được bằng 2PL.</li><li>Lost update; khắc phục bằng compare-and-set.</li></ol>
+        <p class="explain">Mỗi lần đọc của Alice đều thấy dữ liệu đã commit (không phải dirty read), nhưng thuộc hai thời điểm khác nhau. Snapshot Isolation cho Alice đọc từ một ảnh chụp nhất quán tại lúc bắt đầu.</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>Hai bác sĩ Alice và Bob cùng kiểm tra thấy ca trực đang có 2 người (≥ 2) rồi mỗi người tự cập nhật bản ghi của chính mình thành nghỉ trực, dẫn tới không còn ai trực. Vì sao Snapshot Isolation không tự động ngăn được lỗi này?</p>
+        <ol><li>Vì Snapshot Isolation cho phép đọc dữ liệu chưa commit.</li><li>Vì MVCC xoá nhầm phiên bản cũ trước khi giao dịch kết thúc.</li><li>Vì cả hai giao dịch đều chỉ đọc mà không ghi.</li><li>Vì đây là Write Skew: hai giao dịch cập nhật hai dòng khác nhau nên không xảy ra xung đột ghi–ghi trên cùng một dòng.</li></ol>
+        <p class="explain">Trình phát hiện lost update của Snapshot Isolation chỉ bắt được trường hợp hai giao dịch cùng sửa một dòng. Với write skew trên hai dòng khác nhau, cần <code>SELECT … FOR UPDATE</code> hoặc mức Serializable.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Vì sao lệnh <code>SELECT … FOR UPDATE</code> không ngăn được việc hai người đặt trùng phòng họp trong cùng một khung giờ ở mức Snapshot Isolation?</p>
+        <ol><li>Vì <code>FOR UPDATE</code> chỉ khoá được cột số nguyên, không khoá được cột thời gian.</li><li>Vì truy vấn kiểm tra lịch trùng trả về 0 dòng: không có dòng nào tồn tại để gắn khoá dòng (hiện tượng Phantom).</li><li>Vì <code>FOR UPDATE</code> tự động bị bỏ qua khi có chỉ mục B-tree.</li><li>Vì Snapshot Isolation tự động giải phóng khoá ngay trước lệnh <code>INSERT</code>.</li></ol>
+        <p class="explain"><code>SELECT … FOR UPDATE</code> gắn khoá lên các dòng được tìm thấy. Khi kiểm tra sự vắng mặt (0 dòng), không có gì để khoá; cần index-range lock (trong 2PL) hoặc SSI.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>So với Khoá hai pha (2PL), ưu điểm lớn nhất của Serializable Snapshot Isolation (SSI) là gì?</p>
+        <ol><li>SSI không bao giờ huỷ bất kỳ giao dịch nào dù mức tranh chấp cao tới đâu.</li><li>SSI chỉ cần một luồng CPU duy nhất và không dùng bộ nhớ cho phiên bản cũ.</li><li>SSI là điều khiển đồng thời lạc quan trên nền MVCC: người đọc không chặn người ghi và người ghi không chặn người đọc, chỉ kiểm tra và huỷ khi commit nếu tiền đề đọc đã cũ.</li><li>SSI không cần chỉ mục hay theo dõi các thao tác đọc của giao dịch.</li></ol>
+        <p class="explain">SSI giữ nguyên đặc tính không chặn đọc/ghi của Snapshot Isolation và chỉ huỷ giao dịch lúc commit khi phát hiện xung đột nhân quả làm tiền đề bị cũ.</p>
+      </div>
+    </div>
+  </article>
+</section>

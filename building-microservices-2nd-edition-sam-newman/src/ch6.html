@@ -1,0 +1,423 @@
+<section class="chapter" id="ch6" data-chapter="6" data-title="Build: CI/CD & tổ chức mã nguồn">
+  <style>
+    #ch6 .ch6-tree { font: 400 .8rem/1.7 var(--f-mono); margin: 0; padding: 0; list-style: none; }
+    #ch6 .ch6-tree li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+    #ch6 .ch6-tree .ind { display: inline-block; width: 1.2em; }
+    #ch6 .ch6-stage { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
+    #ch6 .ch6-stage .box { text-align: center; }
+    #ch6 .ch6-stage .box.on { border-color: var(--accent); background: var(--accent-soft); }
+    #ch6 .ch6-stage .box.ok { border-color: var(--ok); background: var(--ok-soft); }
+    #ch6 .ch6-stage .box.bad { border-color: var(--bad); background: var(--bad-soft); }
+    #ch6 .ch6-stage .box.wait { border-color: var(--warn); background: var(--warn-soft); }
+    #ch6 .ch6-stage .box small { display: block; color: var(--ink-2); font-size: var(--t-xs); }
+    #ch6 .ch6-mono { font-family: var(--f-mono); font-size: .8rem; }
+    #ch6 .lab textarea { min-height: 120px; }
+    #ch6 .ch6-cases .btn { height: auto; min-height: 34px; padding: 6px 12px; text-align: left; white-space: normal; }
+    #ch6 .table-wrap .btn { height: 30px; padding: 0 10px; white-space: nowrap; }
+  </style>
+
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 6</p>
+    <h1>Build <span class="vi">Quy trình build, CI/CD và tổ chức mã nguồn</span></h1>
+    <blockquote class="epigraph">Integrate early, and integrate often.<cite>— Sam Newman, Building Microservices (2nd Edition)</cite></blockquote>
+    <p class="lede">Các chương trước bàn về cách thiết kế microservice. Chương này chuyển sang câu hỏi rất đời thường: chuyện gì xảy ra khi lập trình viên có một thay đổi sẵn sàng để commit? Sam Newman ôn lại Continuous Integration và Continuous Delivery, cách dựng build pipeline, quy tắc “build artifact một lần”, rồi đi vào cuộc tranh luận monorepo hay multi-repo. Mọi lựa chọn ở đây đều quy về một mục tiêu: giữ được khả năng triển khai độc lập cho từng microservice.</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- 6.1 -->
+  <article class="topic" id="ch6-ci-basics" data-num="6.1" data-short="Continuous Integration" data-keywords="continuous integration ci server artifact repository fast feedback traceability">
+    <p class="eyebrow">6.1 · A Brief Introduction to Continuous Integration</p>
+    <h2>Continuous Integration: giữ mọi người đồng bộ <span class="vi">A Brief Introduction to Continuous Integration</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Mục tiêu cốt lõi của <dfn data-term="continuous-integration">Continuous Integration (CI)</dfn> là giữ cho mọi người trong đội đồng bộ với nhau thường xuyên, bằng cách kiểm tra rằng mã mới commit tích hợp đúng với mã hiện có.</li>
+      <li>Mức tối thiểu là tích hợp mỗi ngày một lần; nhiều đội Sam Newman từng làm cùng tích hợp nhiều lần trong ngày.</li>
+      <li>CI thường tạo ra <dfn data-term="deployable-artifact">artifact</dfn> để kiểm tra tiếp. Artifact nên được build đúng một lần và cất vào <dfn data-term="artifact-repository">artifact repository</dfn> để tái sử dụng.</li>
+      <li>Lợi ích: phản hồi nhanh về chất lượng mã, tự động tạo artifact, tạo lại được artifact từ mã đã được quản lý phiên bản, và truy ngược từ artifact đang chạy về đúng commit đã sinh ra nó.</li>
+    </ul></div>
+    <div class="prose">
+      <p>CI đã tồn tại nhiều năm, nhưng sách vẫn dành chỗ ôn lại vì microservice đặt ra những câu hỏi mới: ánh xạ giữa microservice, build và kho mã nguồn có nhiều phương án khác nhau. Trước khi bàn các phương án đó, cần thống nhất CI thực sự làm gì.</p>
+      <p>Quy trình rất quen thuộc: một <dfn data-term="ci-server">CI server</dfn> phát hiện có commit mới, lấy mã về, kiểm tra mã có biên dịch được không, các bài test có qua không. Trong lúc đó nó thường tạo ra một hoặc nhiều artifact, chẳng hạn để triển khai một service đang chạy rồi chạy test vào nó.</p>
+      <h3>Vì sao phải build artifact đúng một lần?</h3>
+      <p>Lý do thứ nhất là tránh làm đi làm lại cùng một việc. Lý do thứ hai quan trọng hơn: bạn cần chắc chắn rằng artifact đem đi triển khai chính là artifact đã được kiểm thử. Để tái sử dụng, artifact được đặt vào một kho lưu trữ, có thể do chính công cụ CI cung cấp hoặc là một hệ thống riêng. Chủ đề <a href="#ch6-artifacts">6.7</a> sẽ quay lại chi tiết.</p>
+      <h3>Tần suất tích hợp quyết định độ đau khi merge</h3>
+      <p>Mỗi ngày bạn không tích hợp, khoảng cách giữa mã của bạn và mã của đồng nghiệp lại lớn thêm. Lần tích hợp tiếp theo phải “trả nợ” toàn bộ khoảng cách đó cùng lúc. Thử nghiệm dưới đây cho thấy lượng thay đổi chưa tích hợp tích tụ ra sao khi giãn khoảng cách giữa các lần tích hợp.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-ci-sync">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Khối lượng thay đổi chưa tích hợp theo thời gian (số liệu minh hoạ)
+        <small>Kéo “khoảng cách giữa hai lần tích hợp” và số lập trình viên. Đường răng cưa là lượng thay đổi đang nằm ngoài mainline; mỗi lần rơi về 0 là một lần merge.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>CI không phải là “có máy build”. CI là thói quen đưa mã vào chung một chỗ thường xuyên và xác minh ngay rằng nó vẫn chạy đúng. Artifact sinh ra từ quá trình đó phải truy ngược được về mã nguồn và các bài test đã chạy.</p></aside>
+  </article>
+
+  <!-- 6.2 -->
+  <article class="topic" id="ch6-really-ci" data-num="6.2" data-short="Bạn có thực sự làm CI?" data-keywords="jez humble three questions mainline broken build red build jenkins circleci travis">
+    <p class="eyebrow">6.2 · Are You Really Doing CI?</p>
+    <h2>Ba câu hỏi của Jez Humble <span class="vi">Are You Really Doing CI?</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Dùng Jenkins, CircleCI hay Travis không có nghĩa là bạn đang làm CI. Nhiều tổ chức nhầm giữa việc <em>dùng công cụ CI</em> và việc <em>thực hành CI</em>.</li>
+      <li>Ba câu hỏi kiểm tra: có check-in vào <dfn data-term="mainline">mainline</dfn> ít nhất mỗi ngày không; có bộ test tự động để xác minh thay đổi không; khi build hỏng, sửa nó có phải ưu tiên số 1 của cả đội không.</li>
+      <li>Khi có <dfn data-term="broken-build">build hỏng (red build)</dfn>, phải dừng mọi check-in không phục vụ việc sửa build. Để thay đổi chồng chất thêm thì thời gian sửa tăng vọt.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Sam Newman đoán rằng tổ chức của bạn gần như chắc chắn đang dùng một công cụ CI. Nhưng một công cụ CI dùng tốt chỉ <em>giúp</em> bạn làm CI, chứ không bảo đảm bạn đang làm đúng. Ông dùng ba câu hỏi của Jez Humble để kiểm tra:</p>
+      <ol>
+        <li><strong>Bạn có check-in vào mainline mỗi ngày một lần không?</strong> Kể cả khi dùng nhánh ngắn hạn, hãy tích hợp vào một nhánh mainline duy nhất càng thường xuyên càng tốt, tối thiểu mỗi ngày. Không làm vậy thì lần tích hợp sau sẽ càng khó.</li>
+        <li><strong>Bạn có bộ test để xác minh thay đổi không?</strong> Không có test, bạn chỉ biết việc tích hợp đúng về mặt cú pháp, không biết hành vi hệ thống có bị phá hay không. CI không có bước kiểm tra hành vi thì không phải là CI.</li>
+        <li><strong>Khi build hỏng, sửa nó có phải ưu tiên số 1 của đội không?</strong> Build xanh nghĩa là thay đổi đã được tích hợp an toàn. Build đỏ nghĩa là thay đổi gần nhất có thể chưa tích hợp được. Sam kể từng gặp đội để build hỏng nhiều ngày liền, và cuối cùng tốn rất nhiều công sức mới đưa được build về xanh.</li>
+      </ol>
+    </div>
+    <figure class="lab" data-widget="ch6-humble-test">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Tự kiểm tra và mô phỏng một build đỏ bị bỏ mặc
+        <small>Trả lời ba câu hỏi bằng các ô đánh dấu, rồi kéo số commit tiếp tục được đẩy lên trong lúc build đang đỏ. Công sức sửa build là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>“Chúng tôi có pipeline trên GitHub Actions” không trả lời được câu hỏi nào trong ba câu trên. Nhánh tính năng sống ba tuần, chạy CI trên nhánh đó, vẫn là trì hoãn tích hợp ba tuần.</p></aside>
+  </article>
+
+  <!-- 6.3 -->
+  <article class="topic" id="ch6-branching" data-num="6.3" data-short="Feature branch vs Trunk" data-keywords="branching feature branching trunk-based development feature flags gitflow dora state of devops patch bomb open source">
+    <p class="eyebrow">6.3 · Branching Models</p>
+    <h2>Mô hình phân nhánh: feature branch hay trunk-based? <span class="vi">Branching Models</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="feature-branching">Feature branching</dfn> cho phép làm việc tách biệt, nhưng bản chất là <em>trì hoãn tích hợp</em>; lúc merge sẽ phức tạp hơn nhiều.</li>
+      <li><dfn data-term="trunk-based-development">Trunk-Based Development</dfn>: mọi người check-in vào cùng một trunk, dùng <dfn data-term="feature-flag">feature flag</dfn> để ẩn phần việc chưa xong. Đây là cách Sam Newman ưu tiên.</li>
+      <li>Báo cáo <dfn data-term="state-of-devops">State of DevOps</dfn> 2016 (DORA và Puppet): nhánh sống dưới một ngày, tổng cộng dưới ba nhánh đang hoạt động, và merge vào trunk hằng ngày đều gắn với hiệu năng cao hơn.</li>
+      <li>Mã nguồn mở hay dùng <dfn data-term="gitflow">GitFlow</dfn> vì có nhiều người đóng góp “không tin cậy”. Dù vậy, báo cáo 2019 vẫn thấy merge sớm và patch nhỏ giúp mọi người nhanh hơn; <dfn data-term="patch-bomb">patch bomb</dfn> khó review và merge chậm.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ít chủ đề nào về build gây tranh cãi như việc dùng nhánh cho phát triển tính năng. Nhìn bề ngoài, mỗi tính năng một nhánh có vẻ hợp lý: bạn làm việc mà không làm phiền ai. Vấn đề là trong suốt thời gian đó bạn không tích hợp với người khác. Khi cuối cùng cũng merge, mọi xung đột dồn lại một lần.</p>
+      <p>Cách thay thế là mọi người cùng check-in vào một “trunk”. Để thay đổi dở dang không ảnh hưởng người khác, dùng feature flag để ẩn chúng. Sam thừa nhận cuộc tranh luận có nhiều sắc thái, nhưng với ông, lợi ích của việc tích hợp thường xuyên đủ lớn để chọn Trunk-Based Development. Thêm nữa, công sức làm feature flag còn có ích cho <dfn data-term="progressive-delivery">progressive delivery</dfn>, sẽ bàn ở <a href="#ch7">Chương 7</a>.</p>
+      <h3>Bằng chứng từ nghiên cứu</h3>
+      <p>Báo cáo State of DevOps 2016 khảo sát nghiêm túc cách các tổ chức trên thế giới chuyển giao phần mềm. Kết luận: nhánh hoặc fork sống rất ngắn (dưới một ngày) trước khi merge vào trunk, dưới ba nhánh đang hoạt động, và merge vào trunk hằng ngày đều là yếu tố của continuous delivery và đóng góp vào hiệu năng cao hơn. Các năm sau, báo cáo tiếp tục tìm thấy bằng chứng theo cùng hướng.</p>
+      <h3>Còn mã nguồn mở thì sao?</h3>
+      <p>Phát triển mã nguồn mở khác với công việc hằng ngày: rất nhiều đóng góp lẻ tẻ từ những người bận rộn, “không tin cậy”, cần một nhóm nhỏ người “tin cậy” duyệt. Đội làm sản phẩm đóng thường là một nhóm gắn bó, ai cũng có quyền commit. Cái hợp với mã nguồn mở chưa chắc hợp với bạn. Dù vậy, báo cáo 2019 vẫn ghi nhận cho mã nguồn mở: merge patch sớm để tránh rebase giúp lập trình viên nhanh hơn, và làm theo lô nhỏ tốt hơn vì patch bomb khiến người bảo trì mất nhiều thời gian review.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-branching">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đối chiếu cách phân nhánh của đội bạn với tiêu chí DORA 2016
+        <small>Chỉnh thời gian sống của nhánh và số nhánh đang mở. Sơ đồ vẽ các nhánh tách khỏi trunk trong 10 ngày làm việc; phần dưới so sánh một patch lớn với cùng thay đổi chia thành nhiều patch nhỏ (thời gian review là số liệu minh hoạ).</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Lời khuyên của sách gói trong một câu: tích hợp sớm, tích hợp thường xuyên. Tránh nhánh sống dài cho tính năng; nếu bắt buộc phải dùng nhánh, hãy giữ chúng thật ngắn.</p></aside>
+  </article>
+
+  <!-- 6.4 -->
+  <article class="topic" id="ch6-pipeline" data-num="6.4" data-short="Build pipeline" data-keywords="build pipeline stages fast tests slow tests catalog build-120 build-121 build-122 thoughtworks">
+    <p class="eyebrow">6.4 · Build Pipelines and Continuous Delivery</p>
+    <h2>Build pipeline: tách nhanh và chậm thành các chặng <span class="vi">Build Pipelines</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Một service thường có nhiều test nhỏ chạy nhanh và ít test phạm vi rộng chạy chậm. Chạy chung một bước thì phải đợi test chậm xong mới biết test nhanh đã hỏng.</li>
+      <li><dfn data-term="build-pipeline">Build pipeline</dfn> chia build thành nhiều chặng: chặng test nhanh chạy trước, qua được mới kích hoạt chặng test chậm. Test nhanh đã hỏng thì chạy test chậm cũng vô ích.</li>
+      <li>Một artifact duy nhất đi qua mọi chặng; mỗi chặng qua được làm tăng niềm tin rằng nó sẽ chạy đúng trên production (Hình 6-1, dịch vụ <code>Catalog</code>).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ngay từ những ngày đầu làm CI, Sam và các đồng nghiệp ở ThoughtWorks nhận ra giá trị của việc có nhiều chặng trong một build. Test là trường hợp điển hình: nếu chạy tất cả cùng lúc và phải chờ các test chậm, ta mất <dfn data-term="fast-feedback">phản hồi nhanh (fast feedback)</dfn> khi test nhanh hỏng.</p>
+      <p>Pipeline cũng cho ta một cách theo dõi tiến trình của phần mềm qua từng chặng. Trong Hình 6-2, ba bản build của <code>Catalog</code> có số phận khác nhau:</p>
+      <div class="table-wrap"><table class="data">
+        <thead><tr><th>Build</th><th>Kết quả</th></tr></thead>
+        <tbody>
+          <tr><td><code>build-120</code></td><td>Hỏng ở chặng test nhanh</td></tr>
+          <tr><td><code>build-121</code></td><td>Qua test nhanh và test chậm, hỏng ở chặng test hiệu năng</td></tr>
+          <tr><td><code>build-122</code></td><td>Đi hết pipeline và lên production</td></tr>
+        </tbody>
+      </table></div>
+      <p>Khi một chặng thất bại, công cụ CI cho ta biết build đã qua những chặng nào và hỏng ở đâu. Muốn sửa thì commit một thay đổi mới, phiên bản mới sẽ phải đi lại toàn bộ các chặng trước khi được phép triển khai.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-pipeline">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Chạy build-120, build-121, build-122 của Catalog qua pipeline
+        <small>Chọn một bản build và kiểu build (một bước hay nhiều chặng), rồi bấm “Chạy build”. So sánh thời điểm lập trình viên nhận được tin xấu. Thời lượng các chặng là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Với build-120, pipeline nhiều chặng báo lỗi sau vài phút. Build một bước báo cùng lỗi đó sau gần một giờ, sau khi đã tốn tài nguyên chạy toàn bộ test chậm và test hiệu năng cho một bản build chắc chắn không dùng được.</p></aside>
+  </article>
+
+  <!-- 6.5 -->
+  <article class="topic" id="ch6-cd" data-num="6.5" data-short="Continuous Delivery" data-keywords="continuous delivery continuous deployment release candidate uat manual stage tooling jez humble dave farley">
+    <p class="eyebrow">6.5 · Continuous Delivery · Tooling</p>
+    <h2>Continuous Delivery, Continuous Deployment và công cụ <span class="vi">Continuous Delivery vs Continuous Deployment</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="continuous-delivery">Continuous Delivery (CD)</dfn> (theo sách cùng tên của Jez Humble và Dave Farley): nhận phản hồi liên tục về mức sẵn sàng production của từng check-in, và coi mỗi check-in là một <dfn data-term="release-candidate">release candidate</dfn>.</li>
+      <li>CD mô hình hoá <em>mọi</em> chặng từ check-in đến production, cả tự động lẫn thủ công, để biết mỗi phiên bản đang ở đâu.</li>
+      <li><dfn data-term="continuous-deployment">Continuous Deployment</dfn>: mọi check-in được xác minh hoàn toàn tự động và bản nào qua được thì tự lên production, không có người can thiệp. Nó là một tập con của Continuous Delivery.</li>
+      <li>Công cụ tốt coi CD là khái niệm hạng nhất, mô hình hoá được cả chặng thủ công như <dfn data-term="uat">UAT</dfn>.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Hai thuật ngữ này hay bị dùng lẫn. Với Continuous Delivery, mỗi check-in là một ứng viên phát hành và ta đánh giá chất lượng của nó để <em>quyết định</em> có triển khai hay không. Con người hoàn toàn có thể đứng ở bước quyết định đó. Với Continuous Deployment, quyết định ấy được giao hết cho các bước kiểm tra tự động.</p>
+      <p>Continuous Deployment không hợp với tất cả mọi người, và nhiều nơi muốn có người quyết định việc triển khai. Nhưng áp dụng CD đồng nghĩa với việc liên tục tối ưu con đường lên production. Pipeline hiển thị rõ ràng giúp thấy chỗ nghẽn, và chỗ nghẽn thường là bước thủ công (ví dụ chuyển từ test hồi quy thủ công sang test chức năng tự động). Càng tự động hoá nhiều, bạn càng tiến gần tới Continuous Deployment.</p>
+      <h3>Công cụ</h3>
+      <p>Sam đã thấy nhiều người cố “hack” công cụ CI để làm CD, kết quả là những hệ thống phức tạp và khó dùng hơn hẳn công cụ được thiết kế cho CD từ đầu. Công cụ hỗ trợ CD đầy đủ cho phép định nghĩa và hiển thị pipeline. Với một chặng thủ công như UAT, bạn thấy bản build kế tiếp sẵn sàng vào môi trường UAT, triển khai nó, và nếu qua kiểm tra thủ công thì đánh dấu chặng đó thành công. Nếu chặng sau là tự động, nó sẽ tự chạy.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-cd">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một pipeline có chặng UAT thủ công
+        <small>Bấm “Commit mới” vài lần để tạo release candidate. Ở chế độ Continuous Delivery, bạn tự duyệt UAT và tự bấm triển khai production. Chuyển sang Continuous Deployment để thấy mọi chặng chạy tự động.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Continuous Delivery trả lời câu hỏi “bản này có <em>sẵn sàng</em> lên production không?”. Continuous Deployment trả lời thêm “và nó đã tự lên production”. Có nút bấm duyệt thủ công vẫn hoàn toàn là Continuous Delivery.</p></aside>
+  </article>
+
+  <!-- 6.6 -->
+  <article class="topic" id="ch6-environments" data-num="6.6" data-short="Đánh đổi & môi trường" data-keywords="environments tradeoffs fast feedback production-like laptop staging">
+    <p class="eyebrow">6.6 · Tradeoffs and Environments</p>
+    <h2>Phản hồi nhanh hay giống production? <span class="vi">Tradeoffs and Environments</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Khi artifact đi qua pipeline, nó được triển khai vào các môi trường khác nhau, mỗi môi trường phục vụ một mục đích riêng.</li>
+      <li>Đầu pipeline cần phản hồi nhanh: phát hiện vấn đề càng sớm thì sửa càng rẻ. Cuối pipeline cần độ chắc chắn, nên dùng <dfn data-term="production-like-environment">môi trường ngày càng giống production</dfn>.</li>
+      <li>Laptop cho phản hồi nhanh nhất nhưng khác production xa nhất. Môi trường sao chép đúng production thì chậm và đắt. Cân bằng hai thứ này là việc cần xem lại liên tục.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Thiết kế pipeline cũng chính là quyết định cần những môi trường nào, và đó là một bài toán cân bằng (Hình 6-3). Bạn có thể triển khai mọi commit vào một bản sao trung thành của production, nhưng việc đó tốn thời gian và tiền. Ngược lại, chỉ chạy test trên laptop thì nhanh nhưng bỏ sót những vấn đề chỉ xuất hiện trên hạ tầng thật.</p>
+      <p>Vì vậy các môi trường được xếp theo thứ tự: rẻ và nhanh ở đầu, chậm và giống production ở cuối. Đặc điểm chi tiết của từng loại môi trường được bàn ở <a href="#ch7">Chương 7</a>.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-environments">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Chọn các môi trường cho pipeline của bạn (số liệu minh hoạ)
+        <small>Bật/tắt từng môi trường. Biểu đồ đặt mỗi môi trường theo thời gian phản hồi (trục ngang) và mức giống production (trục dọc). Các chỉ số cho thấy bạn được gì và mất gì.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Bỏ hết môi trường trung gian để pipeline nhanh hơn thì lỗi chỉ lộ ra trên production. Ngược lại, bắt mọi commit chờ một môi trường giống production hoàn toàn thì lập trình viên mất phản hồi nhanh và bắt đầu gom thay đổi lại, quay về đúng vấn đề mà CI muốn tránh.</p></aside>
+  </article>
+
+  <!-- 6.7 -->
+  <article class="topic" id="ch6-artifacts" data-num="6.7" data-short="Build artifact một lần" data-keywords="artifact creation build once immutable artifactory nexus container registry environment agnostic configuration debug info build-123">
+    <p class="eyebrow">6.7 · Artifact Creation</p>
+    <h2>Build artifact một lần, dùng ở mọi nơi <span class="vi">Artifact Creation</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Quy tắc 1: <dfn data-term="build-once">build artifact một lần duy nhất</dfn>. Build lại tốn thời gian, “có hại cho hành tinh”, và có thể sinh lỗi nếu cấu hình build lệch nhau; ở một số ngôn ngữ, một cờ build khác là đủ làm phần mềm chạy khác.</li>
+      <li>Quy tắc 2: artifact bạn kiểm chứng phải là artifact bạn triển khai.</li>
+      <li>Build sớm trong pipeline (sau khi biên dịch và chạy test nhanh), lưu vào Artifactory, Nexus hoặc container registry, rồi dùng chính artifact đó cho mọi chặng đến production (Hình 6-4, <code>build-123</code>).</li>
+      <li>Artifact phải <dfn data-term="environment-agnostic">không phụ thuộc môi trường (environment-agnostic)</dfn>: cấu hình khác nhau giữa các môi trường phải nằm ngoài artifact.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Loại artifact cụ thể (container image, gói, file JAR…) phụ thuộc vào công nghệ triển khai, sẽ bàn ở chương sau. Ở đây cứ coi nó là “một khối có thể triển khai”. Điều quan trọng là vị trí của việc tạo artifact trong pipeline.</p>
+      <p>Nếu bạn build một microservice, test nó, kết luận “chạy tốt rồi”, rồi build <em>lại</em> để đưa lên production, làm sao bạn biết phần mềm đã kiểm chứng và phần mềm đã triển khai là một? Câu trả lời là không biết được. Vì vậy trong Hình 6-4, artifact của <code>Catalog</code> được tạo ở chặng đầu, và cùng một <code>build-123</code> được triển khai ở các chặng Slow Tests, Performance Tests và Production.</p>
+      <h3>Cấu hình nằm ngoài artifact</h3>
+      <p>Khi một artifact dùng chung cho nhiều môi trường, mọi thứ thay đổi theo môi trường phải được giữ bên ngoài. Ví dụ của sách: ở chặng Slow Tests bạn muốn log từ mức <code>DEBUG</code> trở lên để có thêm thông tin khi test hỏng; ở Performance Tests và Production, bạn đổi sang <code>INFO</code> để giảm khối lượng log. Artifact không đổi, chỉ cấu hình đi kèm thay đổi.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-artifacts">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Build lại ở mỗi chặng hay thăng cấp một artifact?
+        <small>Chọn chiến lược và bấm “Chạy pipeline”. Bật “cờ build khác ở chặng Production” để xem chuyện gì xảy ra khi build lại. Bảng cấu hình cho thấy mức log được đưa vào từ bên ngoài artifact.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Build artifact của microservice một lần. Dùng lại đúng artifact đó ở mọi nơi bạn muốn triển khai phiên bản ấy. Giữ artifact không phụ thuộc môi trường, cấu hình riêng của từng môi trường để ở chỗ khác.</p></aside>
+  </article>
+
+  <!-- 6.8 -->
+  <article class="topic" id="ch6-giant-repo" data-num="6.8" data-short="Một repo, một build" data-keywords="one giant repo one giant build lock-step release cycle time user service">
+    <p class="eyebrow">6.8 · One Giant Repo, One Giant Build</p>
+    <h2>Một repo khổng lồ, một build khổng lồ <span class="vi">One Giant Repo, One Giant Build</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Phương án đơn giản nhất: toàn bộ mã trong một repo, một build duy nhất. Mọi check-in kích hoạt việc kiểm tra tất cả microservice và sinh ra nhiều artifact gắn với cùng một build (Hình 6-5).</li>
+      <li>Chỉ ổn nếu chấp nhận <dfn data-term="lock-step-release">lock-step release</dfn> (triển khai nhiều service cùng lúc). Nói chung đây là mẫu nên tránh, có thể tạm dùng ở giai đoạn rất sớm khi chỉ có một đội.</li>
+      <li>Nhược điểm: sửa một dòng ở <code>User</code> cũng build lại mọi thứ, làm tăng <dfn data-term="cycle-time">cycle time</dfn>; khó biết artifact nào thực sự cần triển khai; một lỗi làm vỡ build chặn mọi đội.</li>
+    </ul></div>
+    <div class="prose">
+      <p>So với các cách khác, phương án này có vẻ đơn giản: ít repo, build dễ hiểu, lập trình viên chỉ cần commit. Sửa nhiều service cùng lúc cũng chỉ là một commit.</p>
+      <p>Nhưng hãy xem cái giá. Sửa một dòng trong service <code>User</code> khiến mọi service khác cũng được kiểm tra và build, nghĩa là bạn chờ những thứ không cần test. Đáng lo hơn là câu hỏi “cần triển khai artifact nào?”. Đoán service nào thực sự thay đổi qua commit message là rất khó, nên các tổ chức dùng cách này thường quay về triển khai tất cả cùng lúc, đúng điều ta muốn tránh.</p>
+      <p>Thêm nữa, nếu thay đổi một dòng ở <code>User</code> làm hỏng build, không ai sửa được các service khác cho đến khi build được khắc phục. Khi nhiều đội dùng chung build này, câu hỏi “ai chịu trách nhiệm?” không có lời đáp rõ ràng. Sam cho biết thực tế ông gần như chỉ thấy cách này ở giai đoạn đầu của dự án.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-giant-repo">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Sửa một dòng trong service User
+        <small>Chọn service bị sửa, bật “thay đổi làm vỡ build” nếu muốn, và so sánh một build khổng lồ với mỗi service một build. Thời gian build từng service là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Một build chung khiến “triển khai tất cả cùng lúc” trở thành lựa chọn mặc định. Từ đó chỉ còn một bước nữa là các service bắt đầu phụ thuộc ngầm vào việc được triển khai cùng nhau, và khả năng triển khai độc lập biến mất.</p></aside>
+  </article>
+
+  <!-- 6.9 -->
+  <article class="topic" id="ch6-multi-repo" data-num="6.9" data-short="Multi-repo & thư viện" data-keywords="one repository per microservice multi-repo shared library connection library invoice payroll versioned artifact">
+    <p class="eyebrow">6.9 · Pattern: One Repository Per Microservice (aka Multi-Repo)</p>
+    <h2>Mỗi microservice một repo và chuyện dùng lại mã <span class="vi">One Repository Per Microservice · Reusing Code Across Repositories</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="multi-repo">Multi-repo</dfn>: mã của mỗi microservice nằm trong repo riêng, ánh xạ thẳng từ thay đổi mã sang build CI (Hình 6-6). Quyền sở hữu cũng gán được theo từng repo.</li>
+      <li>Khó khăn: làm việc với nhiều repo cùng lúc, và với Git không thể commit nguyên tử xuyên repo.</li>
+      <li>Dùng lại mã bằng một <dfn data-term="shared-library">thư viện dùng chung</dfn> đóng gói thành artifact có phiên bản. Ví dụ <code>Invoice</code> và <code>Payroll</code> cùng dùng thư viện <code>Connection</code> (Hình 6-7).</li>
+      <li>Muốn tung bản mới của thư viện thì phải build lại <em>và</em> triển khai lại cả <code>Invoice</code> lẫn <code>Payroll</code>. Không thể làm việc đó nguyên tử nếu muốn giữ khả năng triển khai độc lập.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Thay đổi trong repo <code>User</code> kích hoạt build tương ứng; build qua thì có phiên bản <code>User</code> mới sẵn sàng triển khai. Mối quan hệ một-một này rất dễ hiểu, và nó cho phép áp dụng mô hình sở hữu chặt cho từng microservice.</p>
+      <h3>Dùng lại mã qua thư viện</h3>
+      <p>Không có gì ngăn một microservice phụ thuộc vào mã nằm ở repo khác. Cách đơn giản là đóng gói phần mã cần dùng lại thành thư viện và khai báo nó là phụ thuộc tường minh. Để tung một thay đổi trong <code>Connection</code>, bạn sửa repo của nó, chờ build tạo ra artifact có phiên bản mới, rồi đổi phiên bản thư viện mà <code>Invoice</code> và <code>Payroll</code> dùng. Việc đổi phiên bản có thể làm tay (nếu ghim một phiên bản cụ thể) hoặc tự động tuỳ công cụ CI.</p>
+      <p>Mọi cảnh báo trong phần “DRY and the Perils of Code Reuse” vẫn áp dụng: nếu dùng lại mã qua thư viện, bạn phải chấp nhận thay đổi không được tung ra một cách nguyên tử. Một khó khăn nữa: rất khó biết microservice nào còn dùng phiên bản thư viện cũ, nên việc ngừng hỗ trợ phiên bản cũ trở nên rắc rối.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-multi-repo">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Tung Connection v2 tới Invoice và Payroll
+        <small>Phát hành thư viện mới, rồi lần lượt nâng phiên bản, build và triển khai từng service. Theo dõi khi nào có thể ngừng hỗ trợ Connection v1.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Một bản vá bảo mật trong thư viện dùng chung chỉ thực sự “được tung ra” khi <em>mọi</em> service dùng nó đã được build lại và triển khai lại. Trước thời điểm đó, production vẫn đang chạy mã cũ dù repo thư viện đã có bản sửa.</p></aside>
+  </article>
+
+  <!-- 6.10 -->
+  <article class="topic" id="ch6-cross-repo" data-num="6.10" data-short="Thay đổi xuyên nhiều repo" data-keywords="working across multiple repositories inventory shipping api change commit order coupling service boundaries">
+    <p class="eyebrow">6.10 · Working Across Multiple Repositories</p>
+    <h2>Thay đổi xuyên nhiều repo: Inventory và Shipping <span class="vi">Working Across Multiple Repositories</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Đổi API của <code>Inventory</code> và cập nhật <code>Shipping</code> để dùng API mới: với multi-repo, phải tách thành hai commit ở hai repo (Hình 6-8).</li>
+      <li>Hai commit tách rời có thể một thành một hỏng, và rollback cần hai thay đổi. Nhưng thực tế bạn vẫn nên đi theo thứ tự: <code>Inventory</code> chạy được rồi mới đổi mã client trong <code>Shipping</code>.</li>
+      <li>Nếu liên tục phải sửa nhiều microservice cùng lúc, nhiều khả năng <dfn data-term="service-boundary">ranh giới service</dfn> đặt sai chỗ và các service đang bị ghép nối quá chặt. Thay đổi xuyên service phải là ngoại lệ.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Nhiều người Sam từng trò chuyện coi việc thiếu triển khai nguyên tử là vấn đề lớn. Ông hiểu sự phức tạp đó, nhưng cho rằng trong đa số trường hợp nó chỉ ra một vấn đề sâu hơn. Kiến trúc và ranh giới microservice được tối ưu để thay đổi có khả năng nằm gọn trong một service. Nếu không phải vậy, hãy cân nhắc gộp các microservice lại.</p>
+      <p>Còn sự phiền toái khi phải pull và push nhiều repo trong công việc hằng ngày thì có cách giảm: hầu hết IDE trong 5 năm trở lại đây đều làm việc được với nhiều repo, và bạn có thể viết script bao ngoài để thao tác trên dòng lệnh.</p>
+      <h3>Khi nào dùng multi-repo?</h3>
+      <p>Mẫu này hợp với đội nhỏ cũng như đội lớn. Nếu bạn thấy mình thay đổi xuyên ranh giới service rất nhiều, có thể monorepo hợp hơn, dù bản thân điều đó đã là một tín hiệu cảnh báo. Multi-repo cũng khiến việc dùng lại mã khó hơn monorepo vì mã phải được đóng gói thành artifact có phiên bản.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-cross-repo">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Thứ tự commit và triển khai khi đổi API Inventory
+        <small>Chọn thứ tự rồi bấm “Thực hiện”. Nhật ký cho thấy Shipping gọi Inventory thành công hay thất bại ở từng bước. Phần dưới ước lượng mức ghép nối từ tỉ lệ thay đổi chạm nhiều service.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Nếu bạn liên tục phải đổi nhiều microservice cùng lúc, ranh giới service có lẽ đang sai. Hãy cân nhắc gộp chúng lại thay vì tìm công cụ để commit nguyên tử xuyên repo.</p></aside>
+  </article>
+
+  <!-- 6.11 -->
+  <article class="topic" id="ch6-monorepo" data-num="6.11" data-short="Monorepo & ánh xạ build" data-keywords="monorepo atomic commit atomic deploy mapping to build folders common bazel graph-based build fine-grained reuse">
+    <p class="eyebrow">6.11 · Pattern: Monorepo · Mapping to Build</p>
+    <h2>Monorepo: commit nguyên tử và ánh xạ sang build <span class="vi">Pattern: Monorepo</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="monorepo">Monorepo</dfn>: mã của nhiều microservice nằm trong cùng một repo. Lợi ích chính: <dfn data-term="atomic-commit">atomic commit</dfn> xuyên nhiều dự án và dùng lại mã ở mức chi tiết hơn (Hình 6-9: sửa <code>Inventory</code> và <code>Shipping</code> trong một commit).</li>
+      <li>Commit nguyên tử không cho bạn triển khai nguyên tử. Muốn tung thay đổi nhiều service cùng lúc là vi phạm <dfn data-term="independent-deployability">khả năng triển khai độc lập</dfn>.</li>
+      <li>Ánh xạ sang build: cách khởi đầu là mỗi thư mục một build (Hình 6-10). Thư mục <code>common</code> dùng chung khiến mọi service build lại; dự án lớn cần <dfn data-term="graph-based-build">công cụ build dựa trên đồ thị</dfn> như Bazel.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Có đội dùng monorepo chỉ cho các service của riêng mình; khái niệm này được phổ biến bởi các công ty công nghệ rất lớn, nơi hàng trăm, hàng nghìn lập trình viên làm việc trên cùng một repo. Google là ví dụ nổi tiếng nhất. Ngoài khả năng nhìn thấy mã của người khác, hai lý do chính để chọn monorepo là dùng lại mã dễ dàng và thay đổi được nhiều dự án trong một lần.</p>
+      <h3>Atomic commit khác atomic deploy</h3>
+      <p>Ví dụ <code>Inventory</code> và <code>Shipping</code> ở chủ đề trước giờ chỉ cần một commit. Nhưng phía triển khai vẫn y như multi-repo: bạn vẫn phải tính thứ tự triển khai để tránh lock-step.</p>
+      <h3>Ánh xạ mã sang build</h3>
+      <p>Với multi-repo, mọi thay đổi trong repo kích hoạt build tương ứng. Với monorepo thì phức tạp hơn. Cách đơn giản là gán thư mục cho build: sửa thư mục <code>user-service</code> kích hoạt build <code>User</code>; sửa cả <code>user-service</code> và <code>catalog-service</code> thì cả hai build cùng chạy. Cấu trúc thư mục càng phức tạp, càng xuất hiện nhiều thư mục cùng kích hoạt một build và thư mục kích hoạt nhiều build. Ở đầu kia của phổ, các đội phải dùng công cụ như Bazel (phiên bản mã nguồn mở của công cụ build nội bộ Google). Đổi sang một hệ thống build mới là việc lớn, nhưng monorepo của Google sẽ không thể tồn tại nếu thiếu những công cụ như vậy.</p>
+      <h3>Dùng lại ở mức tệp</h3>
+      <p>Trong multi-repo, muốn dùng mã của người khác thì mã đó phải được đóng gói thành artifact có phiên bản (gói NuGet, file JAR, gói NPM), và bạn có thể kéo vào nhiều hơn mức cần. Về lý thuyết, monorepo cho phép phụ thuộc vào một tệp nguồn duy nhất của dự án khác, đổi lại ánh xạ build phức tạp hơn.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-monorepo">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Commit này kích hoạt những build nào?
+        <small>Đánh dấu các tệp được sửa trong một commit, rồi so sánh hai cách ánh xạ: theo thư mục và theo đồ thị phụ thuộc kiểu Bazel.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Commit được nhiều service trong một lần rất tiện, và chính sự tiện lợi đó khuyến khích thay đổi xuyên service. Nếu commit nguyên tử trở thành thói quen, hãy xem lại ranh giới service trước khi đầu tư thêm công cụ.</p></aside>
+  </article>
+
+  <!-- 6.12 -->
+  <article class="topic" id="ch6-ownership" data-num="6.12" data-short="Sở hữu mã & CODEOWNERS" data-keywords="ownership strong weak collective martin fowler codeowners github perforce pull request review">
+    <p class="eyebrow">6.12 · Defining Ownership</p>
+    <h2>Xác định quyền sở hữu mã trong monorepo <span class="vi">Defining Ownership</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Martin Fowler mô tả một thang sở hữu: <dfn data-term="strong-ownership">Strong Ownership</dfn>, <dfn data-term="weak-ownership">Weak Ownership</dfn> và <dfn data-term="collective-ownership">Collective Ownership</dfn>.</li>
+      <li>Với khoảng 20 lập trình viên trở xuống, Collective Ownership là khả thi. Đông hơn, bạn sẽ muốn chuyển sang Strong hoặc Weak để ranh giới trách nhiệm rõ ràng.</li>
+      <li>Monorepo cần công cụ hỗ trợ sở hữu ở mức thư mục. GitHub hỗ trợ từ 2016 qua tệp <dfn data-term="codeowners">CODEOWNERS</dfn>: chủ sở hữu được tự động yêu cầu review pull request chạm vào tệp của họ.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Sam định nghĩa lại các thuật ngữ cho phù hợp cách làm việc hiện nay:</p>
+      <ul>
+        <li><strong>Strong Ownership</strong>: một nhóm người cụ thể sở hữu đoạn mã. Người ngoài muốn thay đổi phải nhờ nhóm sở hữu làm giúp.</li>
+        <li><strong>Weak Ownership</strong>: vẫn có chủ sở hữu, nhưng người ngoài được phép thay đổi, miễn là thay đổi được một người trong nhóm sở hữu review và chấp nhận. Gửi pull request cho đội sở hữu review trước khi merge thuộc nhóm này.</li>
+        <li><strong>Collective Ownership</strong>: bất kỳ lập trình viên nào cũng sửa được bất kỳ đoạn mã nào.</li>
+      </ul>
+      <p>Đây là thách thức với monorepo nếu công cụ quản lý mã không hỗ trợ phân quyền chi tiết. Google ban đầu dựng cơ chế này trên Perforce trước khi tự xây hệ thống quản lý mã riêng. Ví dụ 6-1 trong sách lấy từ tài liệu của GitHub:</p>
+<pre class="code"><span class="c"># @doctocat sở hữu mọi tệp trong /build/logs ở gốc repo và các thư mục con</span>
+/build/logs/ @doctocat
+
+<span class="c"># @octocat sở hữu mọi tệp trong thư mục apps ở bất kỳ đâu trong repo</span>
+apps/ @octocat
+
+<span class="c"># @doctocat sở hữu mọi tệp trong /docs ở gốc repo</span>
+/docs/ @doctocat</pre>
+      <p>Pull request lớn có thể cần nhiều người duyệt, nhưng vốn dĩ đã có nhiều lý do tốt để giữ pull request nhỏ.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-ownership">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ai phải review pull request này?
+        <small>Sửa tệp CODEOWNERS hoặc danh sách tệp trong pull request. Theo quy tắc của GitHub, mẫu khớp <em>cuối cùng</em> thắng. Đổi mô hình sở hữu để xem người ngoài đội được làm gì.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Chủ đề mô hình sở hữu được sách đào sâu hơn ở phần bàn về tổ chức đội ngũ. Ở chương này, điểm mấu chốt là monorepo càng lớn thì càng cần công cụ biểu diễn được quyền sở hữu theo đường dẫn.</p></aside>
+  </article>
+
+  <!-- 6.13 -->
+  <article class="topic" id="ch6-monorepo-scale" data-num="6.13" data-short="Monorepo ở quy mô lớn" data-keywords="google piper perforce bazel microsoft windows 270gb vfs for git gvfs lerna per-team monorepo facebook twitter uber which approach">
+    <p class="eyebrow">6.13 · Tooling · How “Mono” Is Mono? · Which Approach Would I Use?</p>
+    <h2>Monorepo ở quy mô lớn và lựa chọn của Sam Newman <span class="vi">Tooling, Per-Team Monorepos &amp; Which Approach Would I Use?</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Google phải tự xây <dfn data-term="piper">Piper</dfn> khi Perforce không còn đáp ứng. Năm 2007–2008 có hơn 100 người duy trì công cụ cho lập trình viên, phần lớn để xử lý hệ quả của monorepo. Theo bài báo ACM, 95% mã của Google nằm trong monorepo (năm 2016).</li>
+      <li>Microsoft đưa mã Windows lên Git: thư mục làm việc khoảng 270 GB, nên phải xây <dfn data-term="vfs-for-git">VFS for Git</dfn> để chỉ tải các tệp lập trình viên cần.</li>
+      <li><dfn data-term="per-team-monorepo">Per-team monorepo</dfn>: mỗi đội một monorepo chứa các service của đội. Hợp với đội làm Collective Ownership.</li>
+      <li>Monorepo hợp ở hai đầu: công ty rất lớn có nguồn lực công cụ (Google, Microsoft, Facebook, Twitter, Uber) và nhóm 10–20 lập trình viên. Tổ chức ở giữa chịu đau nhiều nhất. Lựa chọn của Sam: multi-repo.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Monorepo của Google cần lượng kỹ thuật khổng lồ: hệ thống build dựa trên đồ thị đã qua nhiều thế hệ, trình liên kết đối tượng phân tán để tăng tốc build, plugin cho IDE và trình soạn thảo để giữ tệp phụ thuộc đúng. Đầu tư như vậy hợp lý khi bạn có hàng chục nghìn kỹ sư. Sam khuyên ai đang nghĩ “dùng monorepo vì Google dùng” nên đọc bài <em>Why Google Stores Billions of Lines of Code in a Single Repository</em>. Tổ chức của bạn nhiều khả năng không phải Google, không có vấn đề, ràng buộc và nguồn lực kiểu Google.</p>
+      <p>VFS for Git là mã nguồn mở, nhưng Sam chưa gặp đội nào ngoài Microsoft dùng nó; phần lớn chuỗi công cụ monorepo của Google là mã đóng (Bazel là ngoại lệ đáng kể). Ông cũng nhắc tới <dfn data-term="lerna">Lerna</dfn>, công cụ của đội làm trình biên dịch Babel, giúp tạo nhiều artifact có phiên bản từ cùng một repo.</p>
+      <h3>“Mono” đến mức nào?</h3>
+      <p>Ngay Google cũng không để <em>mọi</em> mã trong monorepo; một số dự án phát triển công khai nằm ở nơi khác. Ở các tổ chức khác, một monorepo có thể chỉ bao một hệ thống, nên một công ty có thể có vài monorepo. Biến thể per-team monorepo không hẳn khớp định nghĩa gốc (vốn nói về nhiều đội dùng chung một repo), nhưng mang lại phần lớn lợi ích của monorepo mà tránh được nhiều thách thức ở quy mô lớn, và khớp với ranh giới sở hữu sẵn có trong tổ chức.</p>
+      <h3>Sam chọn gì?</h3>
+      <p>Theo kinh nghiệm của ông, hai lợi thế chính của monorepo là dùng lại mã chi tiết và commit nguyên tử, nhưng chúng không bù được những thách thức xuất hiện khi mở rộng. Với đội nhỏ, cách nào cũng được. Khi quy mô tăng, multi-repo đơn giản hơn. Ông lo ngại ba điều: monorepo khuyến khích thay đổi xuyên service, làm mờ ranh giới sở hữu, và đòi hỏi công cụ mới. Quan điểm này có thể đổi khi công cụ trưởng thành hơn, nhưng tỉ lệ áp dụng các công cụ build dựa trên đồ thị vẫn rất thấp. “So it’s multi-repos for me.”</p>
+    </div>
+    <figure class="lab" data-widget="ch6-repo-chooser">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Tổ chức của bạn nằm ở đâu trên đường cong monorepo?
+        <small>Kéo số lập trình viên và số người làm công cụ nội bộ. Đường cong “độ đau” (minh hoạ) thể hiện nhận định của sách: dễ chịu ở hai đầu, đau nhất ở giữa. Bảng dưới là các con số thật trong sách.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Monorepo nào bạn làm ra cũng sẽ không phải monorepo của Google. Hãy chọn theo quy mô, ranh giới sở hữu và năng lực đầu tư công cụ của chính bạn.</p></aside>
+  </article>
+
+  <!-- review -->
+  <article class="topic" id="ch6-review" data-num="6.★" data-short="Tổng kết & kiểm tra" data-keywords="review quiz summary build ci cd monorepo multi-repo artifact">
+    <p class="eyebrow">6.★ · Summary</p>
+    <h2>Tổng kết chương 6 <span class="vi">Summary &amp; Quiz</span></h2>
+    <div class="prose">
+      <p>Chương này đi từ lúc lập trình viên có thay đổi sẵn sàng đến lúc thay đổi đó có thể lên production, và những ý tưởng ở đây hữu ích dù bạn có dùng microservice hay không:</p>
+      <ul>
+        <li><strong>CI là thực hành, không phải công cụ.</strong> Tích hợp vào mainline ít nhất mỗi ngày, có test xác minh, sửa build hỏng là ưu tiên số 1.</li>
+        <li><strong>Nhánh càng ngắn càng tốt.</strong> Trunk-Based Development cùng feature flag; dữ liệu DORA ủng hộ nhánh dưới một ngày và dưới ba nhánh đang mở.</li>
+        <li><strong>Pipeline cân bằng phản hồi nhanh với độ giống production.</strong> Test nhanh đi trước, môi trường giống production đi sau.</li>
+        <li><strong>Continuous Delivery coi mỗi check-in là release candidate</strong>; Continuous Deployment là tập con, tự động lên production.</li>
+        <li><strong>Build artifact một lần</strong>, triển khai đúng artifact đã kiểm chứng, cấu hình môi trường để bên ngoài.</li>
+        <li><strong>Tổ chức mã nguồn:</strong> tránh một repo một build; multi-repo cho ánh xạ đơn giản; monorepo cho commit nguyên tử nhưng cần công cụ và kỷ luật sở hữu. Lựa chọn của Sam là multi-repo.</li>
+      </ul>
+      <p>Chương tiếp theo, <a href="#ch7">Chương 7 — Deployment</a>, nói về việc đưa các artifact này lên môi trường chạy thật.</p>
+    </div>
+    <figure class="lab" data-widget="ch6-review-map">
+      <figcaption><span class="lab-tag">Ôn tập</span> Ghép tình huống với khuyến nghị của sách
+        <small>Chọn một tình huống; ô bên phải cho biết sách khuyên gì và vì sao, kèm liên kết về chủ đề tương ứng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="quiz">
+      <div class="q" data-answer="2">
+        <p>Đội của bạn dùng Jenkins, mỗi lập trình viên làm trên nhánh riêng 2–3 tuần, mọi nhánh đều chạy unit test. Theo ba câu hỏi của Jez Humble, nhận định nào đúng?</p>
+        <ol><li>Đội đang làm CI vì có công cụ CI và có test.</li><li>Đội đang làm CI miễn là build trên các nhánh luôn xanh.</li><li>Đội chưa làm CI vì không check-in vào mainline ít nhất mỗi ngày.</li></ol>
+        <p class="explain">Câu hỏi đầu tiên là có check-in vào mainline mỗi ngày không. Chạy test trên nhánh sống vài tuần vẫn là trì hoãn tích hợp. Có công cụ không đồng nghĩa với làm CI.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Báo cáo State of DevOps 2016 gắn yếu tố nào với hiệu năng cao?</p>
+        <ol><li>Mỗi tính năng một nhánh, merge khi tính năng hoàn chỉnh.</li><li>Nhánh sống dưới một ngày, dưới ba nhánh đang hoạt động, merge vào trunk hằng ngày.</li><li>Dùng GitFlow với nhánh develop và release riêng.</li></ol>
+        <p class="explain">Đây là trích dẫn trực tiếp trong sách. GitFlow phổ biến ở mã nguồn mở vì đặc thù người đóng góp không tin cậy, không phải vì nó cho hiệu năng cao hơn.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Trong Hình 6-2, build-121 của Catalog hỏng ở chặng test hiệu năng. Điều gì xảy ra tiếp theo?</p>
+        <ol><li>Nó không được triển khai; cần commit thay đổi mới và phiên bản mới phải đi lại mọi chặng.</li><li>Chạy lại riêng chặng hiệu năng cho tới khi qua rồi triển khai build-121.</li><li>Build lại build-121 với cấu hình production rồi triển khai.</li></ol>
+        <p class="explain">Một phiên bản chỉ được triển khai khi qua mọi chặng. Sửa lỗi bằng commit mới; build-122 sau đó đi hết pipeline lên production.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Khác biệt giữa Continuous Delivery và Continuous Deployment là gì?</p>
+        <ol><li>Continuous Delivery không cần pipeline, Continuous Deployment thì cần.</li><li>Continuous Deployment cho phép chặng UAT thủ công trước production.</li><li>Continuous Deployment tự động triển khai mọi bản qua kiểm tra tự động, không có người can thiệp; nó là tập con của Continuous Delivery.</li></ol>
+        <p class="explain">Continuous Delivery coi mỗi check-in là release candidate và có thể có người quyết định triển khai. Continuous Deployment bỏ quyết định thủ công đó.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Bạn muốn log mức DEBUG ở chặng Slow Tests và INFO ở Production. Cách làm đúng theo sách?</p>
+        <ol><li>Build hai artifact với hai mức log khác nhau.</li><li>Dùng một artifact duy nhất, đưa mức log vào qua cấu hình bên ngoài cho từng môi trường.</li><li>Build artifact với DEBUG rồi build lại với INFO trước khi lên production.</li></ol>
+        <p class="explain">Artifact phải không phụ thuộc môi trường. Build lại vi phạm cả “build một lần” lẫn “artifact kiểm chứng là artifact triển khai”.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Invoice và Payroll cùng dùng thư viện Connection (multi-repo). Bạn phát hành Connection v2. Thay đổi đó lên production khi nào?</p>
+        <ol><li>Chỉ khi Invoice và Payroll đã đổi phiên bản phụ thuộc, được build lại và được triển khai lại.</li><li>Ngay khi build của Connection v2 qua.</li><li>Khi có người triển khai repo Connection lên production.</li></ol>
+        <p class="explain">Thư viện chỉ có hiệu lực qua service dùng nó. Không thể tung thay đổi nguyên tử nếu muốn giữ triển khai độc lập.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Monorepo cho phép sửa Inventory và Shipping trong một commit. Điều đó có nghĩa là gì cho việc triển khai?</p>
+        <ol><li>Hai service sẽ được triển khai nguyên tử cùng lúc.</li><li>Không cần quan tâm thứ tự triển khai nữa.</li><li>Không có gì thay đổi: vẫn phải tính thứ tự triển khai để tránh lock-step; commit nguyên tử không phải triển khai nguyên tử.</li></ol>
+        <p class="explain">Sách nhấn mạnh: atomic commit không cho bạn atomic rollout. Muốn tung nhiều service cùng lúc là vi phạm nguyên tắc triển khai độc lập.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Theo sách, monorepo gây đau nhiều nhất cho tổ chức nào?</p>
+        <ol><li>Nhóm 10–20 lập trình viên.</li><li>Tổ chức cỡ trung: đủ lớn để gặp vấn đề cần công cụ mới, nhưng không đủ nguồn lực để đầu tư.</li><li>Công ty như Google hay Microsoft.</li></ol>
+        <p class="explain">Monorepo hoạt động tốt ở hai đầu: nhóm nhỏ và công ty khổng lồ có đội công cụ riêng. Khoảng giữa là nơi điểm đau xuất hiện.</p>
+      </div>
+    </div>
+  </article>
+</section>

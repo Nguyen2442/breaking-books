@@ -1,0 +1,102 @@
+version: '3.9'
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. PostgreSQL 16 with pgvector Extension
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: auramind_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-auramind}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-auramind_secure_password}
+      POSTGRES_DB: ${POSTGRES_DB:-auramind}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    command: >
+      postgres
+      -c max_connections=150
+      -c shared_buffers=256MB
+      -c effective_cache_size=768MB
+      -c maintenance_work_mem=64MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-auramind} -d ${POSTGRES_DB:-auramind}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - auramind_net
+
+  # ----------------------------------------------------------------------------
+  # 2. Redis 7 (Message Broker for BullMQ & Global Caching)
+  # ----------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: auramind_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-auramind_redis_pass}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-auramind_redis_pass}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    networks:
+      - auramind_net
+
+  # ----------------------------------------------------------------------------
+  # 3. NestJS Application Container
+  # ----------------------------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: auramind_api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    ports:
+      - "${PORT:-4000}:4000"
+    environment:
+      NODE_ENV: production
+      PORT: ${PORT:-4000}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-auramind}:${POSTGRES_PASSWORD:-auramind_secure_password}@postgres:5432/${POSTGRES_DB:-auramind}?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-auramind_redis_pass}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash}
+      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_me_in_prod}
+    volumes:
+      - uploads_data:/usr/src/app/uploads
+    networks:
+      - auramind_net
+
+volumes:
+  postgres_data:
+    name: auramind_postgres_data
+  redis_data:
+    name: auramind_redis_data
+  uploads_data:
+    name: auramind_uploads_data
+
+networks:
+  auramind_net:
+    name: auramind_network
+    driver: bridge

@@ -1,0 +1,537 @@
+<section class="chapter" id="ch3" data-ch="3" data-chapter="3" data-title="Các kiểu giao tiếp giữa Microservices">
+  <style>
+    #ch3 .f-ok-soft { fill: var(--ok-soft); }
+    #ch3 .f-warn-soft { fill: var(--warn-soft); }
+    #ch3 .s-thick { stroke-width: 2; }
+    #ch3 .s-thin { stroke-width: 1.2; }
+    #ch3 .viz svg text.sm { font-size: 9.5px; }
+    #ch3 .viz svg text.mono { font-family: var(--f-mono); }
+    #ch3 .c3-kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; margin: 0; font-size: var(--t-sm); }
+    #ch3 .c3-kv dt { color: var(--ink-2); font-weight: 600; }
+    #ch3 .c3-kv dd { margin: 0; }
+    #ch3 .c3-verdict { padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); }
+    #ch3 .c3-verdict.ok { border-color: var(--ok); background: var(--ok-soft); }
+    #ch3 .c3-verdict.warn { border-color: var(--warn); background: var(--warn-soft); }
+    #ch3 .c3-verdict.bad { border-color: var(--bad); background: var(--bad-soft); }
+    #ch3 .c3-verdict b { display: block; margin-bottom: 2px; }
+    #ch3 .c3-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    #ch3 .c3-chips .btn { height: auto; padding: 6px 10px; font-size: var(--t-xs); }
+    #ch3 .c3-chips .btn[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+    #ch3 .c3-code { font: 400 .78rem/1.55 var(--f-mono); background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin: 0; white-space: pre; overflow-x: auto; }
+    #ch3 .c3-code .add { color: var(--bad); font-weight: 600; }
+    #ch3 .c3-code .dim { color: var(--ink-3); }
+  </style>
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 3</p>
+    <h1>Microservice Communication Styles <span class="vi">Các kiểu giao tiếp giữa Microservices</span></h1>
+    <blockquote class="epigraph">“And in a world where we have too many choices and too little time, the obvious thing to do is just ignore stuff.”<cite>— Seth Godin</cite></blockquote>
+    <p class="lede">Theo Sam Newman, nhiều đội làm hỏng giao tiếp giữa các microservice vì chọn công nghệ trước (gRPC, Kafka, REST…) rồi mới nghĩ xem mình cần kiểu tương tác nào. Chương này đi theo thứ tự ngược lại. Trước hết là khác biệt giữa lời gọi trong cùng tiến trình và lời gọi qua mạng. Sau đó tách hai trục: đồng bộ chặn hay bất đồng bộ không chặn, và cộng tác theo request-response, theo sự kiện hay qua dữ liệu chung. Hiểu kiểu tương tác trước thì việc chọn công cụ ở Chương 4 sẽ dễ hơn nhiều.</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- 3.1 -->
+  <article class="topic" id="ch3-inproc-perf" data-num="3.1" data-short="Trong tiến trình vs qua mạng" data-keywords="in-process inter-process performance serialization payload inlining network round trip 1000 calls">
+    <p class="eyebrow">3.1 · From In-Process To Inter-Process — Performance</p>
+    <h2>Lời gọi qua mạng không phải là lời gọi hàm <span class="vi">In-process vs inter-process: chi phí hiệu năng</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Coi hai microservice nói chuyện như hai object gọi phương thức của nhau là một ảo tưởng nguy hiểm: microservice không phải object, và mạng không miễn phí.</li>
+      <li>Lời gọi trong tiến trình có thể được compiler/runtime tối ưu, thậm chí <em>inline</em> mất hẳn; lời gọi qua mạng thì gói tin phải thật sự đi, mỗi vòng khứ hồi trong data center tính bằng mili-giây.</li>
+      <li>Dữ liệu truyền qua mạng phải được tuần tự hoá, gửi đi và giải tuần tự hoá, nên kích thước payload bắt đầu có ý nghĩa.</li>
+      <li>API hợp lý trong tiến trình (gọi 1.000 lần cũng không sao) có thể là thảm hoạ khi biến thành 1.000 network call.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Newman mở chương bằng thứ ông hy vọng là “phần dễ”: lời gọi giữa các tiến trình qua mạng (<dfn data-term="inter-process-call">inter-process call</dfn>) khác hẳn lời gọi bên trong một tiến trình (<dfn data-term="in-process-call">in-process call</dfn>). Rất dễ hình dung một object gọi phương thức trên object khác, rồi ánh xạ thẳng tương tác đó thành hai microservice gọi nhau qua mạng. Lối nghĩ này, theo ông, sẽ kéo ta vào nhiều rắc rối.</p>
+      <h3>Compiler không giúp được bạn qua mạng</h3>
+      <p>Với lời gọi trong tiến trình, compiler và runtime có cả loạt tối ưu, kể cả nội tuyến hoá (<dfn data-term="inlining">inlining</dfn>): chèn thân hàm vào chỗ gọi, coi như chưa từng có lời gọi nào. Với lời gọi liên tiến trình thì không có phép màu nào như vậy, gói tin buộc phải được gửi đi. Chỉ riêng một vòng khứ hồi của một gói tin trong data center đã đo bằng mili-giây, trong khi chi phí gọi một phương thức là thứ bạn gần như không bao giờ phải bận tâm.</p>
+      <p>Hệ quả trực tiếp là phải nghĩ lại thiết kế API. Gọi 1.000 lần qua một ranh giới module trong cùng tiến trình chẳng đáng lo. Nhưng bạn có thật sự muốn 1.000 network call giữa hai microservice? Thường là không. API giữa các microservice nên “thô” hơn: ít lời gọi, mỗi lời gọi làm nhiều việc hơn.</p>
+      <h3>Con trỏ so với byte trên dây</h3>
+      <p>Khi truyền tham số vào một phương thức, cấu trúc dữ liệu thường không di chuyển: bạn chỉ chuyển con trỏ tới vùng nhớ, không cần cấp phát thêm để sao chép. Qua mạng, dữ liệu phải được tuần tự hoá (<dfn data-term="serialization">serialization</dfn>) thành dạng truyền được, gửi đi, rồi giải tuần tự hoá ở đầu kia. Lần cuối bạn để ý kích thước một cấu trúc dữ liệu truyền trong tiến trình là khi nào? Có lẽ chưa bao giờ cần. Giờ thì cần rồi. Newman gợi ý ba hướng: gửi ít dữ liệu hơn (cũng tốt cho <em>information hiding</em>), chọn cơ chế tuần tự hoá hiệu quả hơn, hoặc đẩy dữ liệu lớn ra hệ thống file rồi chỉ truyền “con trỏ” tới nó.</p>
+    </div>
+    <figure class="lab" data-widget="ch3-inproc-cost">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> 1.000 lời gọi: trong tiến trình và qua mạng
+        <small>Đổi số lời gọi và kích thước payload, rồi bật “gộp thành một lời gọi thô” để thấy vì sao API giữa microservice phải được thiết kế khác. Chi phí từng bước là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Newman đã thấy nhiều nỗ lực giấu hẳn việc có network call khỏi lập trình viên. Trừu tượng hoá giúp ta làm nhiều việc hơn, nhưng trừu tượng quá tay thì che mất thông tin quan trọng. Lập trình viên cần biết dòng code nào sẽ đi qua mạng, nếu không thì đừng ngạc nhiên khi gặp nút cổ chai hiệu năng về sau.</p></aside>
+  </article>
+
+  <!-- 3.2 -->
+  <article class="topic" id="ch3-interfaces-errors" data-num="3.2" data-short="Đổi giao diện & ngữ nghĩa lỗi" data-keywords="changing interfaces lock-step deployment error handling transient 4xx 5xx 404 503 501 retry compensating action">
+    <p class="eyebrow">3.2 · Changing Interfaces · Error Handling</p>
+    <h2>Đổi giao diện và xử lý lỗi khi có mạng ở giữa <span class="vi">Changing interfaces and distributed error modes</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Trong một tiến trình, đổi chữ ký phương thức là việc của IDE và được triển khai nguyên tử. Giữa các microservice triển khai độc lập, thay đổi phá vỡ tương thích buộc bạn phải triển khai đồng loạt (<em>lock-step</em>) hoặc tìm cách tung hợp đồng mới theo từng giai đoạn.</li>
+      <li>Lỗi trong tiến trình phần lớn là tất định. Lỗi trong hệ phân tán thì đa dạng hơn: mạng timeout, dịch vụ hạ lưu tạm không có mặt, container bị kill vì ăn quá nhiều bộ nhớ, và đôi khi một phần data center bốc cháy.</li>
+      <li>Nhiều lỗi là thoáng qua và đáng thử lại; nhiều lỗi khác thì không. Vì vậy giao thức cần ngữ nghĩa lỗi đủ giàu để client tự chọn hành động phù hợp. HTTP là ví dụ: 4xx là lỗi của request, 5xx là sự cố phía hạ lưu.</li>
+    </ul></div>
+    <div class="prose">
+      <h3>Đổi giao diện: từ một cú refactor đến một kế hoạch triển khai</h3>
+      <p>Trong cùng tiến trình, cả mã cài đặt giao diện lẫn mã gọi nó nằm chung một gói. Đổi chữ ký phương thức bằng IDE có hỗ trợ refactor thì IDE tự sửa luôn mọi chỗ gọi, và cả hai phía được triển khai cùng lúc. Với microservice, bên cung cấp và bên tiêu thụ là những thứ triển khai riêng. Khi tạo ra một thay đổi không tương thích ngược (<dfn data-term="breaking-change">breaking change</dfn>), bạn chỉ có hai lựa chọn: triển khai đồng loạt (<dfn data-term="lock-step-deployment">lock-step deployment</dfn>) với mọi consumer, hoặc tìm cách tung hợp đồng mới theo từng pha. Lựa chọn thứ nhất đi ngược lại chính lý do ta dùng microservice: khả năng triển khai độc lập.</p>
+      <h3>Lỗi không còn tất định</h3>
+      <p>Trong một tiến trình, lỗi hoặc là thứ đã lường trước và dễ xử lý, hoặc nghiêm trọng đến mức chỉ còn cách ném ngược lên call stack. Trong hệ phân tán, bạn phơi mình ra trước cả loạt lỗi nằm ngoài tầm kiểm soát. Rất nhiều lỗi trong số đó là lỗi thoáng qua (<dfn data-term="transient-error">transient error</dfn>): ngắn hạn, có thể tự hết, nên đáng thử lại. Ví dụ đơn giản nhất là một lần timeout. Những lỗi khác thì thử lại bao nhiêu cũng vô ích.</p>
+      <p>HTTP hiểu rõ điều này. Mọi response đều có mã trạng thái (<dfn data-term="http-status-code">HTTP status code</dfn>), trong đó nhóm 400 và 500 dành cho lỗi:</p>
+      <ul>
+        <li><strong>4xx — lỗi của request.</strong> Hạ lưu đang nói “request của anh có vấn đề”. Có nên thử lại một <code>404 Not Found</code> không? Gần như chắc chắn là không.</li>
+        <li><strong>5xx — sự cố phía hạ lưu.</strong> Một phần trong nhóm này báo hiệu sự cố có thể tạm thời. <code>503 Service Unavailable</code> nói máy chủ chưa xử lý được nhưng có thể chỉ là nhất thời, nên client có thể thử lại. Còn <code>501 Not Implemented</code> thì thử lại cũng chẳng giúp gì.</li>
+      </ul>
+      <p>Dù bạn có dùng giao thức dựa trên HTTP hay không, có được bộ ngữ nghĩa lỗi phong phú sẽ giúp client thực hiện hành động bù trừ (<dfn data-term="compensating-action">compensating action</dfn>) đúng cách, và nhờ đó hệ thống bền vững hơn.</p>
+    </div>
+    <figure class="lab" data-widget="ch3-error-semantics">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Client nên làm gì với từng loại lỗi?
+        <small>Chọn một sự cố, rồi bấm “Gửi request”. So sánh client hiểu ngữ nghĩa lỗi với client “cứ lỗi là thử lại”. Số lần thử lại và thời điểm hạ lưu hồi phục là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Câu “bits of your data centre can catch fire” có một chú thích cuối trang chỉ gồm hai chữ: <em>True story</em>. Newman không đùa khi liệt kê các kiểu lỗi phân tán.</p></aside>
+  </article>
+
+  <!-- 3.3 -->
+  <article class="topic" id="ch3-styles-model" data-num="3.3" data-short="Chọn kiểu trước, công nghệ sau" data-keywords="so many choices technology styles of communication model figure 3-1 synchronous asynchronous request-response event-driven common data kafka">
+    <p class="eyebrow">3.3 · Technology for Inter-process Communication · Styles of Microservice Communication</p>
+    <h2>Chọn kiểu giao tiếp trước, công nghệ sau <span class="vi">Một mô hình gồm năm khái niệm</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Có quá nhiều công nghệ IPC. Người ta thường chọn thứ quen tay hoặc thứ vừa nghe ở hội thảo, và mua kèm luôn một bộ ý tưởng, ràng buộc có thể không hợp bài toán.</li>
+      <li>Ví dụ của Newman: dùng Kafka cho request-response là ý tồi vì nó được thiết kế cho tương tác dựa trên sự kiện.</li>
+      <li>Mô hình (Hình 3-1) có hai trục: <strong>đồng bộ chặn / bất đồng bộ không chặn</strong> và <strong>request-response / event-driven / common data</strong>.</li>
+      <li>Quy trình ra quyết định: chọn đồng bộ hay bất đồng bộ trước. Đồng bộ thì gần như chắc chắn là request-response. Bất đồng bộ thì chọn tiếp giữa event-driven, request-response và common data.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Câu của Seth Godin ở đầu chương mô tả đúng tâm trạng khi nhìn vào thế giới công nghệ giao tiếp liên tiến trình: quá nhiều lựa chọn, quá ít thời gian. Phản xạ tự nhiên là chọn thứ quen thuộc hoặc thứ đang “hot”. Vấn đề là khi chọn một công nghệ, bạn cũng chọn luôn một tư duy và một bộ ràng buộc đi kèm. Làm website mà chọn công nghệ single page app như Angular hay React là chọn sai; dùng Kafka cho request-response cũng vậy. Newman thấy chuyện dùng công nghệ sai chỗ lặp đi lặp lại, cũng như người ta chọn công nghệ mới sáng loáng (“như microservice chẳng hạn!”) mà không xét xem nó có hợp bài toán không.</p>
+      <p>Vì thế ông đề xuất bàn về <em>kiểu</em> giao tiếp trước, rồi mới tìm công nghệ hiện thực kiểu đó. Mô hình ông dùng nhiều năm (Hình 3-1) không nhằm bao quát mọi thứ, chỉ là cái nhìn tổng quan về các kiểu giao tiếp phổ biến nhất trong kiến trúc microservice:</p>
+      <ul>
+        <li><dfn data-term="synchronous-blocking">Synchronous blocking</dfn>: microservice gọi một microservice khác và dừng lại chờ phản hồi.</li>
+        <li><dfn data-term="asynchronous-non-blocking">Asynchronous non-blocking</dfn>: microservice phát lời gọi đi rồi tiếp tục xử lý, bất kể lời gọi đã được nhận hay chưa.</li>
+        <li><dfn data-term="request-response">Request-response</dfn>: gửi yêu cầu nhờ microservice khác làm việc gì đó và chờ một phản hồi cho biết kết quả.</li>
+        <li><dfn data-term="event-driven-communication">Event-driven</dfn>: microservice phát ra sự kiện; ai quan tâm thì tiêu thụ và phản ứng. Bên phát không biết ai (nếu có) đang nghe.</li>
+        <li><dfn data-term="common-data">Common data</dfn>: ít khi được coi là một kiểu giao tiếp, nhưng các microservice vẫn cộng tác qua một nguồn dữ liệu dùng chung.</li>
+      </ul>
+      <h3>Cách Newman dùng mô hình này</h3>
+      <p>Trước khi chọn, ông dành nhiều thời gian tìm hiểu bối cảnh của đội: yêu cầu về độ tin cậy, độ trễ chấp nhận được, khối lượng giao tiếp. Sau đó ông bắt đầu bằng câu hỏi đồng bộ hay bất đồng bộ. Nếu đồng bộ phù hợp thì ta đã ở trong thế giới request-response. Nếu bất đồng bộ hợp lý hơn thì còn một lựa chọn nữa: event-driven, request-response hay common data. Event-driven về bản chất luôn là bất đồng bộ, còn request-response thì hiện thực được theo cả hai cách.</p>
+    </div>
+    <figure class="lab" data-widget="ch3-style-picker">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đi qua cây quyết định của Hình 3-1
+        <small>Chọn một tình huống của MusicCorp (hoặc tự trả lời hai câu hỏi), xem nhánh nào được chọn. Sau đó thử “ép” một công nghệ quen tay vào tình huống đó.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Kiểu giao tiếp là quyết định kiến trúc; công nghệ là quyết định hiện thực. Đảo thứ tự hai việc này thì bạn sẽ để giới hạn của công cụ quyết định thay cho nhu cầu của bài toán.</p></aside>
+  </article>
+
+  <!-- 3.4 -->
+  <article class="topic" id="ch3-sync-blocking" data-num="3.4" data-short="Synchronous blocking" data-keywords="synchronous blocking order processor loyalty temporal coupling cascading failure thread pool latency">
+    <p class="eyebrow">3.4 · Pattern: Synchronous Blocking</p>
+    <h2>Đồng bộ chặn: quen thuộc nhưng gắn chặt về thời gian <span class="vi">Order Processor gọi Loyalty và đứng chờ</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Bên gọi gửi lời gọi xuống hạ lưu rồi chặn cho đến khi lời gọi hoàn tất, thường là đến khi có phản hồi. Vì thế gần như mọi lời gọi đồng bộ chặn cũng là request-response.</li>
+      <li>Ưu điểm: đơn giản, quen thuộc, giống cách ta học lập trình (đọc code như kịch bản, dòng này xong mới tới dòng sau), giống cách gọi SQL hay HTTP lâu nay.</li>
+      <li>Nhược điểm chính: ràng buộc thời gian. Loyalty phải đang sống thì lời gọi mới thành công; Loyalty chậm thì Order Processor chậm theo. Hệ thống dễ bị sự cố lan truyền từ hạ lưu.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Trong Hình 3-2, <strong>Order Processor</strong> gửi lời gọi đồng bộ sang <strong>Loyalty</strong> để cộng điểm cho tài khoản khách hàng, rồi chặn và chờ phản hồi. Lý do chờ có thể là cần kết quả cho bước tiếp theo, hoặc chỉ để chắc lời gọi đã thành công, nếu không thì thử lại.</p>
+      <h3>Vì sao nhiều đội bắt đầu từ đây</h3>
+      <p>Phần lớn chúng ta học lập trình theo phong cách đồng bộ. Hầu hết các lời gọi liên tiến trình ta từng viết, như chạy một câu SQL hay gửi một HTTP request, đều đồng bộ chặn. Khi chuyển từ monolith một tiến trình sang kiến trúc phân tán, có quá nhiều thứ mới cùng lúc, nên giữ lại những gì quen thuộc là hợp lý.</p>
+      <h3>Cái giá: ràng buộc thời gian và sự cố lan truyền</h3>
+      <p>Vấn đề cốt lõi là ràng buộc thời gian (<dfn data-term="temporal-coupling">temporal coupling</dfn>), đã nói sơ ở Chương 2: hai bên phải cùng có mặt tại cùng một thời điểm. Nếu Loyalty không truy cập được, lời gọi thất bại và Order Processor phải tự quyết định hành động bù trừ: thử lại ngay, đệm lại để thử sau, hay bỏ cuộc. Vì bên gọi đang chặn chờ, nếu Loyalty phản hồi chậm (do tải nặng chẳng hạn) hoặc mạng có độ trễ, Order Processor cũng bị treo lâu và đến lượt nó phản hồi chậm với bên gọi nó. Đó là cách lời gọi đồng bộ khiến hệ thống dễ bị sự cố lan truyền (<dfn data-term="cascading-failure">cascading failure</dfn>) hơn lời gọi bất đồng bộ.</p>
+    </div>
+    <figure class="lab" data-widget="ch3-sync-loyalty">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Khi Loyalty chậm, Order Processor chậm theo
+        <small>Kéo độ trễ của Loyalty và lưu lượng đơn hàng, đổi trạng thái Loyalty. Quan sát số luồng của Order Processor bị giữ lại chờ. Kích thước pool, timeout và lưu lượng là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Newman không phản đối lời gọi đồng bộ chặn trong kiến trúc microservice đơn giản. Sự quen thuộc của nó còn là ưu điểm khi đội mới làm quen với hệ phân tán. Rắc rối bắt đầu khi xuất hiện <em>chuỗi</em> lời gọi, chủ đề của bài tiếp theo.</p></aside>
+  </article>
+
+  <!-- 3.5 -->
+  <article class="topic" id="ch3-call-chains" data-num="3.5" data-short="Chuỗi gọi & Fraud Detection" data-keywords="call chain fraud detection payment customer critical path resource contention connections background">
+    <p class="eyebrow">3.5 · Synchronous Blocking — Where To Use It</p>
+    <h2>Chuỗi lời gọi dài và bài toán kiểm tra gian lận <span class="vi">Call chains, critical path và việc đưa Fraud Detection ra chạy nền</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Hình 3-3: Order Processor → Payment → Fraud Detection → Customer, tất cả đồng bộ chặn.</li>
+      <li>Chuỗi càng dài thì bề mặt lỗi càng rộng: sự cố ở bất kỳ microservice nào trong bốn cái, hoặc ở bất kỳ network call nào giữa chúng, cũng làm hỏng cả thao tác.</li>
+      <li>Mỗi mắt xích giữ một kết nối mở để chờ mắt xích sau, dễ gây tranh chấp tài nguyên: cạn kết nối, nghẽn mạng.</li>
+      <li>Cách cải thiện (Hình 3-4): xem lại tương tác, đưa Fraud Detection ra khỏi luồng mua hàng để chạy nền, rút ngắn chuỗi và bỏ bớt một phụ thuộc khỏi đường găng.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ví dụ từ MusicCorp: khi xử lý đơn hàng cần kiểm tra thanh toán có dấu hiệu gian lận hay không. Order Processor gọi <strong>Payment</strong> để thu tiền. Payment muốn hỏi <strong>Fraud Detection</strong> xem có nên cho phép không. Fraud Detection lại cần lấy thông tin từ <strong>Customer</strong>. Bốn microservice, ba chặng, tất cả đều đồng bộ chặn.</p>
+      <h3>Ba vấn đề của một chuỗi gọi</h3>
+      <ul>
+        <li><strong>Bề mặt lỗi lớn hơn.</strong> Thao tác chỉ thành công khi cả bốn dịch vụ và cả ba lời gọi mạng đều ổn. Xác suất thành công là tích của từng xác suất, nên luôn thấp hơn mắt xích yếu nhất.</li>
+        <li><strong>Độ trễ cộng dồn.</strong> Tổng thời gian là tổng thời gian của từng chặng.</li>
+        <li><strong>Tranh chấp tài nguyên (<dfn data-term="resource-contention">resource contention</dfn>).</strong> Order Processor giữ một kết nối mở chờ Payment, Payment giữ một kết nối chờ Fraud Detection, và cứ thế. Càng nhiều kết nối phải giữ, càng dễ cạn kết nối khả dụng hoặc làm mạng nghẽn hơn.</li>
+      </ul>
+      <h3>Rút ngắn chuỗi trước khi thay công nghệ</h3>
+      <p>Thay vì vội đổi sang công nghệ khác, Newman đề nghị xem lại chính các tương tác. Có thể tách Fraud Detection khỏi luồng mua hàng chính và cho nó chạy nền (Hình 3-4). Khi phát hiện vấn đề với một khách hàng cụ thể, nó cập nhật hồ sơ của khách đó, và thông tin này có thể được kiểm tra sớm hơn trong quá trình thanh toán. Thực chất là làm song song một phần công việc. Chuỗi ngắn lại thì độ trễ tổng giảm, và Fraud Detection rời khỏi đường găng (<dfn data-term="critical-path">critical path</dfn>) của luồng mua hàng, bớt đi một phụ thuộc cho một thao tác quan trọng. Một cách khác là giữ nguyên luồng nhưng thay lời gọi chặn bằng tương tác không chặn, chủ đề của bài sau.</p>
+    </div>
+    <figure class="lab" data-widget="ch3-call-chain">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hình 3-3 và Hình 3-4: chuỗi đồng bộ và Fraud Detection chạy nền
+        <small>Kéo độ khả dụng của từng dịch vụ và độ trễ của Fraud Detection, rồi bật “chạy nền”. Độ trễ từng chặng và độ khả dụng là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Phép nhân độ khả dụng rất phũ: bốn dịch vụ, mỗi cái sẵn sàng 99%, cho ra khoảng 96% cho cả chuỗi. Nói cách khác, cứ 25 lần mua thì có khoảng 1 lần thất bại, dù không dịch vụ nào “tệ” cả.</p></aside>
+  </article>
+
+  <!-- 3.6 -->
+  <article class="topic" id="ch3-async-nonblocking" data-num="3.6" data-short="Asynchronous non-blocking" data-keywords="asynchronous non-blocking warehouse dispatch long running async await promise temporal decoupling">
+    <p class="eyebrow">3.6 · Pattern: Asynchronous Non-blocking</p>
+    <h2>Bất đồng bộ không chặn: gửi đi rồi làm việc khác <span class="vi">Order Processor, Warehouse và những tác vụ kéo dài nhiều ngày</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Gửi lời gọi qua mạng không chặn bên gọi; nếu cần phản hồi, bên gọi xử lý khi phản hồi về. Ba dạng phổ biến: qua dữ liệu chung, request-response, và tương tác theo sự kiện.</li>
+      <li>Ưu điểm: hai bên tách rời về thời gian, bên nhận không cần sống đúng lúc lời gọi được gửi; rất hợp với tác vụ chạy lâu như đóng gói và giao đơn hàng.</li>
+      <li>Nhược điểm: phức tạp hơn và nhiều lựa chọn hơn; nếu không hợp mô hình tư duy của bạn thì ban đầu sẽ khó, và có rất nhiều cách thú vị để tự chuốc rắc rối.</li>
+      <li><code>async/await</code> có thể biến một nguồn dữ liệu bất đồng bộ thành tương tác đồng bộ chặn, xét từ góc nhìn đoạn code của bạn.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Với giao tiếp bất đồng bộ không chặn, việc gửi lời gọi qua mạng không chặn microservice gửi. Nó tiếp tục xử lý việc khác, và nếu cần phản hồi thì xử lý khi phản hồi về. Bên gọi và bên nhận được tách rời về thời gian (<dfn data-term="temporal-decoupling">temporal decoupling</dfn>): bên nhận không cần truy cập được đúng lúc lời gọi được thực hiện.</p>
+      <h3>Hình 3-5: giao một gói hàng mất bao lâu?</h3>
+      <p>Order Processor đã thu tiền và quyết định đã đến lúc giao hàng, nên gửi lời gọi sang <strong>Warehouse</strong>. Tìm CD trên kệ, lấy xuống, đóng gói và chờ đơn vị vận chuyển đến lấy có thể mất nhiều giờ, thậm chí nhiều ngày. Mở một kết nối, gửi request, chặn luồng gọi rồi chờ hàng giờ hay hàng ngày là điều không khả thi. Hợp lý hơn là Order Processor gửi một lời gọi bất đồng bộ không chặn, còn Warehouse gọi lại sau để báo tiến độ. Đây là một dạng request-response bất đồng bộ.</p>
+      <h3>Cái giá của sự linh hoạt</h3>
+      <p>Nhược điểm chính so với đồng bộ chặn là độ phức tạp và số lượng lựa chọn. Có nhiều kiểu bất đồng bộ khác nhau, mỗi kiểu lại có cả danh sách công nghệ dài. Nếu lối nghĩ bất đồng bộ chưa khớp với mô hình tư duy của bạn thì giai đoạn đầu sẽ vất vả. Newman dùng bất đồng bộ cho hai trường hợp rõ ràng: <dfn data-term="long-running-process">long-running process</dfn> như ví dụ Warehouse, và những chuỗi gọi dài khó tái cấu trúc.</p>
+      <h3>Khi “async” vẫn là chặn</h3>
+      <p>Cùng một thuật ngữ có thể mang nghĩa rất khác trong ngữ cảnh khác. Trong JavaScript, <dfn data-term="async-await">async/await</dfn> cho phép làm việc với một nguồn dữ liệu có thể là bất đồng bộ nhưng theo phong cách đồng bộ chặn. Ví dụ 3-1 trong sách: tỷ giá EUR/GBP biến động nhiều lần trong ngày và được nhận qua message broker. Ta định nghĩa một <dfn data-term="promise">Promise</dfn>, thứ sẽ được giải quyết ở một thời điểm nào đó trong tương lai:</p>
+      <pre class="code"><span class="k">async function</span> <span class="fn">f</span>() {
+  <span class="k">let</span> eurToGbp = <span class="k">new</span> <span class="fn">Promise</span>((resolve, reject) =&gt; {
+    <span class="c">// lấy tỷ giá EUR → GBP mới nhất từ broker…</span>
+  });
+  <span class="k">var</span> latestRate = <span class="k">await</span> eurToGbp;  <span class="c">// chờ đến khi có tỷ giá</span>
+  <span class="fn">process</span>(latestRate);              <span class="c">// chưa chạy cho tới khi promise hoàn tất</span>
+}</pre>
+      <p>Dù tỷ giá đến theo cách bất đồng bộ, dùng <code>await</code> ở đây nghĩa là hàm <code>f</code> dừng lại cho tới khi promise hoàn tất. Công nghệ bên dưới có thể bất đồng bộ, nhưng với đoạn code này thì đó là tương tác đồng bộ chặn. (Sách lưu ý ví dụ đã được đơn giản hoá, bỏ hẳn phần xử lý lỗi.)</p>
+    </div>
+    <figure class="lab" data-widget="ch3-async-warehouse">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Giao hàng mất hàng giờ: chặn chờ hay để Warehouse gọi lại?
+        <small>Kéo thời gian đóng gói và lưu lượng đơn, đổi chế độ, rồi bấm “Giao một đơn hàng” để xem dòng thời gian. Lưu lượng đơn và các mốc thời gian là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Đừng đánh đồng “dùng thư viện async” với “kiến trúc bất đồng bộ”. Câu hỏi đúng là: bên gọi có <em>phải dừng lại</em> chờ kết quả trước khi làm bước tiếp theo không? Nếu có thì xét về luồng nghiệp vụ, đó vẫn là chặn.</p></aside>
+  </article>
+
+  <!-- 3.7 -->
+  <article class="topic" id="ch3-common-data" data-num="3.7" data-short="Giao tiếp qua dữ liệu chung" data-keywords="common data file system polling new product importer inventory catalog mainframe cots large volume latency">
+    <p class="eyebrow">3.7 · Pattern: Communication Through Common Data</p>
+    <h2>Giao tiếp qua dữ liệu chung: thả file rồi để người khác tự nhặt <span class="vi">Mẫu giao tiếp phổ biến nhất nhưng ít ai gọi tên</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Một microservice ghi dữ liệu vào một vị trí đã thống nhất, một hoặc nhiều microservice khác dùng dữ liệu đó sau. Về bản chất đây là kiểu bất đồng bộ.</li>
+      <li>Cần một kho bền vững (thường hệ thống file là đủ), và mỗi bên tiêu thụ phải tự biết khi nào có dữ liệu mới, thường là bằng polling.</li>
+      <li>Ưu điểm: công nghệ phổ biến, ai cũng dùng được, kể cả mainframe và phần mềm COTS; xử lý khối lượng dữ liệu lớn rất tốt.</li>
+      <li>Nhược điểm: không hợp với yêu cầu độ trễ thấp; kho dùng chung trở thành nguồn ràng buộc; độ tin cậy phụ thuộc vào độ tin cậy của kho.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Giao tiếp qua dữ liệu chung (<em>communication through common data</em>) có rất nhiều cách hiện thực. Đơn giản nhất là một microservice thả file vào một chỗ, rồi một lúc sau microservice khác nhặt file đó lên xử lý. Trong Hình 3-6, <strong>New Product Importer</strong> tạo một file, sau đó <strong>Inventory</strong> và <strong>Catalog</strong> đọc nó. Newman cho rằng đây có lẽ là mẫu giao tiếp liên tiến trình phổ biến nhất, vậy mà ta hay quên coi nó là giao tiếp, vì sự trao đổi giữa các tiến trình diễn ra quá gián tiếp.</p>
+      <h3>Hiện thực</h3>
+      <p>Bạn cần một kho lưu trữ bền vững. Nhiều khi hệ thống file là đủ: Newman từng xây nhiều hệ thống chỉ định kỳ quét thư mục, thấy file mới thì xử lý. Một kho bộ nhớ phân tán đủ bền cũng dùng được. Điều đáng lưu ý là mỗi microservice hạ lưu cần cơ chế riêng để biết có dữ liệu mới, và cách hay gặp nhất là thăm dò định kỳ (<dfn data-term="polling">polling</dfn>).</p>
+      <h3>Ưu điểm</h3>
+      <p>Đọc ghi được file hoặc database là dùng được mẫu này. Công nghệ phổ biến và dễ hiểu giúp các loại hệ thống khác nhau làm việc được với nhau, kể cả ứng dụng mainframe cũ hay phần mềm đóng gói tuỳ biến (<dfn data-term="cots">COTS</dfn>). Khối lượng dữ liệu cũng ít khi là vấn đề: gửi một lần thật nhiều dữ liệu là đất diễn của mẫu này.</p>
+      <h3>Nhược điểm</h3>
+      <p>Vì bên tiêu thụ thường biết có dữ liệu mới nhờ polling hoặc một job chạy theo lịch, mẫu này khó dùng khi cần độ trễ thấp. Có thể kết hợp với một lời gọi khác: ghi file vào hệ thống file dùng chung rồi gửi lời gọi báo cho microservice quan tâm rằng có dữ liệu mới, để rút ngắn khoảng chờ. Nhưng nói chung, nếu đang chuyển khối lượng dữ liệu rất lớn thì độ trễ thấp thường không nằm đầu danh sách yêu cầu. Nếu cần cả khối lượng lớn lẫn xử lý gần thời gian thực thì công nghệ streaming như Kafka hợp hơn.</p>
+      <h3>Dùng khi nào</h3>
+      <p>Mẫu này toả sáng ở hai chỗ. Thứ nhất là khả năng tương tác với những tiến trình bị giới hạn công nghệ: bắt một hệ thống cũ gọi giao diện gRPC hay subscribe topic Kafka của bạn có thể tiện cho bạn nhưng không tiện cho họ, còn mainframe nào cũng đọc được file. Newman đặt câu hỏi: bạn có thể hiện thực mẫu này bằng Redis, nhưng mainframe cũ của bạn có nói chuyện được với Redis không? Thứ hai là chia sẻ dữ liệu khối lượng lớn: cần đẩy một file vài GB hoặc nạp vài triệu dòng vào database thì đây là con đường nên đi.</p>
+    </div>
+    <figure class="lab" data-widget="ch3-common-data-polling">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hình 3-6: New Product Importer thả file, Inventory và Catalog tự polling
+        <small>Đặt chu kỳ polling cho từng bên, bấm “Thả file mới” vài lần, rồi bật “gửi kèm lời gọi báo có file mới”. Chu kỳ polling và kích thước file là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Độ tin cậy của kiểu giao tiếp này bằng đúng độ tin cậy của kho dữ liệu. Thả file vào hệ thống file thì phải chắc hệ thống file đó không hỏng theo những cách “thú vị”.</p></aside>
+  </article>
+
+  <!-- 3.8 -->
+  <article class="topic" id="ch3-lake-warehouse" data-num="3.8" data-short="Data lake, warehouse, shared DB" data-keywords="data lake data warehouse shared database common coupling unidirectional schema change order record">
+    <p class="eyebrow">3.8 · Common Data — Data Lake, Data Warehouse, Shared Database</p>
+    <h2>Data lake, data warehouse và database dùng chung <span class="vi">Ai gánh phần ràng buộc khi cấu trúc dữ liệu thay đổi?</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Data lake và data warehouse là hai ví dụ quen thuộc của common data, nằm ở hai đầu ngược nhau của phổ ràng buộc.</li>
+      <li>Data lake: nguồn đẩy dữ liệu thô theo định dạng tuỳ ý; bên tiêu thụ phải tự biết cách xử lý.</li>
+      <li>Data warehouse: kho có cấu trúc; bên ghi phải biết cấu trúc đó và phải cập nhật khi nó đổi.</li>
+      <li>Cả hai giả định luồng một chiều, nên dễ suy luận. Database dùng chung mà nhiều microservice cùng đọc và ghi (Hình 3-7) thì rắc rối hơn nhiều: đó là common coupling.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Hai ví dụ phổ biến của mẫu dữ liệu chung là <dfn data-term="data-lake">data lake</dfn> và <dfn data-term="data-warehouse">data warehouse</dfn>. Cả hai thường được thiết kế để xử lý khối lượng dữ liệu lớn, nhưng xét về ràng buộc thì chúng nằm ở hai phía:</p>
+      <ul>
+        <li><strong>Data lake:</strong> các nguồn tải lên dữ liệu thô theo bất kỳ định dạng nào họ thấy hợp. Bên tiêu thụ được kỳ vọng tự biết cách xử lý dữ liệu đó, tức là sự hiểu biết về định dạng bị đẩy sang phía đọc.</li>
+        <li><strong>Data warehouse:</strong> bản thân kho là một kho có cấu trúc. Microservice đẩy dữ liệu vào phải biết cấu trúc đó, và khi cấu trúc kho thay đổi thì bên ghi phải được cập nhật.</li>
+      </ul>
+      <p>Cả hai đều giả định thông tin chảy <strong>một chiều</strong>: một microservice công bố dữ liệu, bên hạ lưu đọc và hành động. Luồng một chiều giúp việc suy luận dễ hơn.</p>
+      <h3>Database dùng chung: khi luồng không còn một chiều</h3>
+      <p>Cách hiện thực có vấn đề hơn là <dfn data-term="shared-database">shared database</dfn>, nơi nhiều microservice cùng đọc <em>và</em> ghi vào một kho. Hình 3-7 cho thấy cả Order Processor lẫn Warehouse cùng cập nhật một bản ghi đơn hàng. Đây chính là <dfn data-term="common-coupling">common coupling</dfn> đã bàn ở Chương 2: kho dữ liệu chung trở thành nguồn ràng buộc. Đổi cấu trúc kho theo bất kỳ cách nào cũng có thể làm đứt giao tiếp giữa các microservice, và không ai thật sự sở hữu bản ghi kia.</p>
+    </div>
+    <figure class="lab" data-widget="ch3-lake-warehouse">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đổi cấu trúc kho dùng chung và xem ai phải sửa
+        <small>Chọn loại kho, rồi bấm “Đổi cấu trúc dữ liệu”. Với database dùng chung, thử để Order Processor và Warehouse cùng ghi một bản ghi đơn hàng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Ranh giới giữa “giao tiếp qua dữ liệu chung một chiều” và “database dùng chung” rất mỏng. Khi microservice thứ hai bắt đầu <em>ghi</em> vào kho mà lẽ ra nó chỉ đọc, bạn đã chuyển từ một mẫu chấp nhận được sang common coupling.</p></aside>
+  </article>
+
+  <!-- 3.9 -->
+  <article class="topic" id="ch3-request-response" data-num="3.9" data-short="Request-response & hàng đợi" data-keywords="request-response chart inventory reserve stock command request queue reply queue correlation message broker buffering">
+    <p class="eyebrow">3.9 · Pattern: Request-Response Communication</p>
+    <h2>Request-response: đồng bộ qua kết nối, hoặc bất đồng bộ qua hàng đợi <span class="vi">Giữ hàng trước khi thu tiền, request khác command ở chỗ nào</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Microservice gửi yêu cầu nhờ hạ lưu làm gì đó và chờ phản hồi chứa kết quả. Dùng để lấy dữ liệu (Chart hỏi Inventory tồn kho, Hình 3-8) hoặc để chắc một việc đã xong theo đúng thứ tự (giữ hàng trước khi thu tiền, Hình 3-9).</li>
+      <li>Newman thích gọi là <em>request</em> hơn <em>command</em>: request có thể bị từ chối, và microservice nhận <em>nên</em> tự xét từng yêu cầu theo logic nội bộ của mình.</li>
+      <li>Hiện thực đồng bộ: phản hồi quay về qua chính kết nối đang mở. Hiện thực bất đồng bộ (Hình 3-10): request nằm trong hàng đợi, phản hồi đi qua hàng đợi khác, bên nhận phải biết gửi phản hồi về đâu.</li>
+      <li>Phản hồi có thể về sau rất lâu và về một instance khác, nên cần lưu trạng thái của request gốc (vào database) để ghép lại.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Trong Hình 3-8, microservice <strong>Chart</strong> (tổng hợp các CD bán chạy theo thể loại) gửi request sang <strong>Inventory</strong> để hỏi tồn kho hiện tại của một số CD. Lấy dữ liệu từ microservice khác là trường hợp dùng request-response điển hình. Nhưng đôi khi bạn chỉ cần chắc chắn một việc đã được làm. Ở Hình 3-9, Order Processor yêu cầu Warehouse giữ hàng (<em>reserve stock</em>). Nó chỉ cần biết hàng đã được giữ thành công để tiếp tục thu tiền; nếu không giữ được, chẳng hạn vì món hàng đã hết, thì huỷ thanh toán. Khi các lời gọi phải hoàn tất theo một thứ tự nhất định, request-response là lựa chọn rất thường gặp.</p>
+      <h3>Request hay command?</h3>
+      <p>Có người dùng từ <dfn data-term="command">command</dfn> thay cho request, nhất là trong request-response bất đồng bộ. Ý định giống nhau: bên thượng lưu nhờ bên hạ lưu làm gì đó. Newman thích chữ request hơn vì command ngụ ý một mệnh lệnh phải tuân theo, còn request ngụ ý có thể bị từ chối. Microservice nên xét từng yêu cầu theo logic nội bộ; nếu yêu cầu vi phạm logic đó thì phải từ chối. Dùng từ nào cũng được, miễn nhớ rằng microservice có quyền nói không.</p>
+      <h3>Đồng bộ và bất đồng bộ</h3>
+      <p>Với lời gọi đồng bộ, một kết nối mạng được mở tới hạ lưu, request đi trên kết nối đó, và kết nối được giữ mở chờ phản hồi. Bên trả lời không cần biết gì về bên gửi, nó chỉ trả dữ liệu ngược lại trên kết nối đi vào.</p>
+      <p>Với request-response bất đồng bộ thì không đơn giản như vậy. Trong Hình 3-10, request giữ hàng được gửi dưới dạng một message qua <dfn data-term="message-broker">message broker</dfn>. Message không đi thẳng tới Inventory mà nằm trong một hàng đợi (<dfn data-term="queue">queue</dfn>); Inventory lấy message ra khi nó sẵn sàng, giữ hàng, rồi phải gửi phản hồi vào một hàng đợi khác mà Order Processor đang đọc. Nghĩa là bên nhận request hoặc phải ngầm biết gửi phản hồi về đâu, hoặc phải được cho biết điều đó.</p>
+      <p>Hàng đợi có thêm một lợi ích: nhiều request có thể được đệm lại chờ xử lý. Khi request đến nhanh hơn tốc độ xử lý, microservice lấy request tiếp theo khi sẵn sàng thay vì bị dồn ngập, miễn là hàng đợi hấp thụ được.</p>
+      <h3>Ghép phản hồi với request gốc</h3>
+      <p>Khi phản hồi về theo cách này, bên nhận có thể cần biết nó ứng với request nào. Việc đó khó vì có thể đã qua rất lâu, và tuỳ giao thức, phản hồi không nhất thiết quay về đúng instance đã gửi request. Với ví dụ giữ hàng, ta cần biết phản hồi “đã giữ hàng” thuộc đơn nào để xử lý tiếp đơn đó. Cách dễ nhất là lưu mọi trạng thái của request gốc vào database, để instance nào nhận phản hồi cũng nạp lại được trạng thái và hành động tiếp. Thường ta gắn kèm một mã định danh, như mã đơn hàng hay <dfn data-term="correlation-id">correlation ID</dfn>, vào cả request lẫn phản hồi.</p>
+    </div>
+    <figure class="lab" data-widget="ch3-async-reqresp">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hình 3-10: giữ hàng qua request queue và reply queue
+        <small>Bấm “Gửi 6 yêu cầu giữ hàng” để thấy hàng đợi đệm request. Ba instance Order Processor dùng chung reply queue; tắt “lưu trạng thái vào database” để xem chuyện gì xảy ra khi phản hồi về nhầm instance. Tồn kho là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Request-response hợp với mọi tình huống cần kết quả trước khi xử lý tiếp, hoặc khi bên gọi muốn biết lời gọi thất bại để thực hiện hành động bù trừ như thử lại. Chọn xong request-response thì chỉ còn câu hỏi đồng bộ hay bất đồng bộ, với đúng những đánh đổi đã bàn ở trên.</p></aside>
+  </article>
+
+  <!-- 3.10 -->
+  <article class="topic" id="ch3-parallel-calls" data-num="3.10" data-short="Gọi song song vs tuần tự" data-keywords="parallel sequential calls stockists latency sum max reactive extensions async await promise.all">
+    <p class="eyebrow">3.10 · Parallel vs Sequential Calls</p>
+    <h2>Ba nhà cung cấp, một quyết định: gọi lần lượt hay gọi cùng lúc? <span class="vi">Tổng độ trễ hay độ trễ của lời gọi chậm nhất</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>MusicCorp cần hỏi giá một mặt hàng từ ba nhà cung cấp trước khi quyết định đặt hàng bên nào.</li>
+      <li>Gọi tuần tự: chờ <em>tổng</em> độ trễ. Mỗi lời gọi 1 giây thì phải chờ 3 giây.</li>
+      <li>Gọi song song: độ trễ tổng bằng độ trễ của lời gọi <em>chậm nhất</em>, khoảng 1 giây.</li>
+      <li>Reactive extensions và <code>async/await</code> giúp chạy lời gọi song song, có thể cải thiện đáng kể độ trễ của một số thao tác.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Khi làm việc với request-response, bạn sẽ hay gặp tình huống cần nhiều lời gọi trước khi xử lý tiếp. Ví dụ của Newman: MusicCorp cần kiểm tra giá một mặt hàng ở ba nhà cung cấp (<em>stockist</em>) qua API, và muốn có cả ba mức giá rồi mới chọn nơi đặt hàng.</p>
+      <p>Cách thứ nhất là gọi tuần tự: chờ lời gọi đầu xong rồi mới gọi lời thứ hai. Khi đó thời gian chờ là <strong>tổng</strong> độ trễ của từng lời gọi; mỗi API mất 1 giây thì phải 3 giây sau mới quyết định được. Cách tốt hơn là chạy ba request song song (<dfn data-term="parallel-calls">parallel calls</dfn>). Khi đó độ trễ tổng phụ thuộc vào lời gọi <strong>chậm nhất</strong>, không phải tổng.</p>
+      <p>Thư viện <dfn data-term="reactive-extensions">reactive extensions</dfn> và cơ chế như <code>async/await</code> rất hữu ích cho việc này:</p>
+      <pre class="code"><span class="c">// tuần tự: ~ a + b + c</span>
+<span class="k">const</span> p1 = <span class="k">await</span> <span class="fn">quote</span>(<span class="s">'stockist-a'</span>);
+<span class="k">const</span> p2 = <span class="k">await</span> <span class="fn">quote</span>(<span class="s">'stockist-b'</span>);
+<span class="k">const</span> p3 = <span class="k">await</span> <span class="fn">quote</span>(<span class="s">'stockist-c'</span>);
+
+<span class="c">// song song: ~ max(a, b, c)</span>
+<span class="k">const</span> [q1, q2, q3] = <span class="k">await</span> Promise.<span class="fn">all</span>([
+  <span class="fn">quote</span>(<span class="s">'stockist-a'</span>), <span class="fn">quote</span>(<span class="s">'stockist-b'</span>), <span class="fn">quote</span>(<span class="s">'stockist-c'</span>)
+]);</pre>
+      <p>Đoạn code thứ hai vẫn dùng <code>await</code>, tức vẫn chặn ở mức hàm như đã bàn ở bài 3.6, nhưng nó chặn <em>một lần</em> cho cả ba lời gọi thay vì ba lần nối tiếp.</p>
+    </div>
+    <figure class="lab" data-widget="ch3-parallel-calls">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hỏi giá ba nhà cung cấp
+        <small>Mặc định mỗi lời gọi 1 giây như trong sách. Kéo độ trễ từng nhà cung cấp, chọn tuần tự hoặc song song, rồi bấm “Hỏi giá”.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Gọi song song làm độ trễ tổng bị chi phối bởi lời gọi chậm nhất. Một nhà cung cấp thỉnh thoảng mất 10 giây sẽ kéo cả thao tác lên 10 giây. Song song giải quyết bài toán cộng dồn, không giải quyết bài toán “đuôi chậm”; bạn vẫn cần timeout.</p></aside>
+  </article>
+
+  <!-- 3.11 -->
+  <article class="topic" id="ch3-event-driven" data-num="3.11" data-short="Event-driven: đảo trách nhiệm" data-keywords="event-driven event message warehouse notifications inventory inversion of responsibility loose coupling autonomous teams">
+    <p class="eyebrow">3.11 · Pattern: Event-Driven Communication</p>
+    <h2>Event-driven: phát sự kiện và để người khác tự lo <span class="vi">Đảo ngược trách nhiệm so với request-response</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Thay vì nhờ microservice khác làm gì, microservice phát ra sự kiện, và sự kiện có thể có hoặc không có ai nhận. Đây là kiểu bất đồng bộ về bản chất.</li>
+      <li>Sự kiện là một phát biểu về điều <em>đã xảy ra</em>, gần như luôn là chuyện bên trong thế giới của microservice phát nó. Bên phát không biết ai dùng sự kiện, thậm chí không biết có microservice nào khác tồn tại.</li>
+      <li>Hình 3-11: Warehouse phát sự kiện đóng gói; Notifications gửi email cho khách, Inventory cập nhật tồn kho. Trách nhiệm được đẩy từ Warehouse sang bên nhận, giống cách tổ chức trao quyền cho các đội tự chủ.</li>
+      <li>Event là sự thật (payload); message là phương tiện truyền qua kênh bất đồng bộ.</li>
+    </ul></div>
+    <div class="prose">
+      <p>So với request-response, giao tiếp theo sự kiện trông khá lạ. Microservice không nhờ ai làm gì, nó chỉ phát ra <dfn data-term="event">event</dfn>, và các microservice khác có thể nhận hoặc không. Vì các bên lắng nghe chạy trên luồng thực thi riêng, tương tác này luôn là bất đồng bộ.</p>
+      <p>Trong Hình 3-11, <strong>Warehouse</strong> phát các sự kiện liên quan tới việc đóng gói một đơn hàng. Hai microservice nhận chúng: <strong>Notifications</strong> gửi email báo khách về thay đổi trạng thái đơn, còn <strong>Inventory</strong> cập nhật tồn kho khi hàng được cho vào thùng. Warehouse chỉ phát sự kiện và giả định ai quan tâm sẽ tự phản ứng. Nó không biết bên nhận là ai, nên tương tác theo sự kiện nhìn chung ràng buộc lỏng hơn nhiều.</p>
+      <h3>Đảo ngược trách nhiệm</h3>
+      <p>Đây là một sự đảo ngược trách nhiệm (<dfn data-term="inversion-of-responsibility">inversion of responsibility</dfn>), và cần thời gian để quen. Với request-response, ta sẽ để Warehouse bảo Notifications gửi email khi thích hợp, tức Warehouse phải biết sự kiện nào cần báo cho khách. Với event-driven, trách nhiệm đó nằm trong Notifications. Cách phân bổ này phản chiếu điều các tổ chức làm khi muốn có đội tự chủ: không giữ mọi trách nhiệm ở trung tâm mà đẩy xuống từng đội. Đẩy trách nhiệm từ Warehouse sang các bên nhận giúp Warehouse đơn giản hơn, và “trí tuệ” của hệ thống được phân bố đều hơn. Newman sẽ quay lại ý này khi so sánh choreography với orchestration ở chương sau.</p>
+      <h3>Event và message</h3>
+      <p>Hai khái niệm này hay bị lẫn. Event là một sự thật: phát biểu rằng một điều đã xảy ra, kèm thông tin về chính xác điều gì. <dfn data-term="message">Message</dfn> là thứ ta gửi qua một cơ chế giao tiếp bất đồng bộ như message broker. Để phát một event, cách điển hình là đặt nó vào một message: <strong>message là phương tiện, event là payload</strong>. Tương tự, ta có thể đặt một request làm payload của message, và đó là một dạng request-response bất đồng bộ.</p>
+    </div>
+    <figure class="lab" data-widget="ch3-event-inversion">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hình 3-11: thêm một bên quan tâm, ai phải sửa code?
+        <small>Đổi giữa “Warehouse gọi trực tiếp” và “Warehouse phát sự kiện”, rồi bật/tắt các microservice quan tâm. Theo dõi Warehouse phải biết về bao nhiêu dịch vụ và phải triển khai lại bao nhiêu lần.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Câu hỏi để phân biệt: bên gửi đang <em>nhờ</em> làm việc gì (request) hay đang <em>kể lại</em> điều đã xảy ra (event)? Nếu bên gửi phải biết ai cần phản ứng và phản ứng thế nào thì đó không phải event-driven, dù bạn có dùng broker.</p></aside>
+  </article>
+
+  <!-- 3.12 -->
+  <article class="topic" id="ch3-broker-atom" data-num="3.12" data-short="Message broker vs ATOM" data-keywords="message broker rabbitmq atom feed http polling competing consumer enterprise service bus smart endpoints dumb pipes sunk cost">
+    <p class="eyebrow">3.12 · Event-Driven — Implementation</p>
+    <h2>Hiện thực event: message broker hay ATOM qua HTTP? <span class="vi">Middleware “ngốc”, endpoint “khôn”, và mẫu Competing Consumer</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Cần hai thứ: cách để microservice phát event, và cách để bên tiêu thụ biết event đã xảy ra.</li>
+      <li>Broker như RabbitMQ lo cả hai: nhận publish, quản lý subscription, thậm chí theo dõi trạng thái của consumer. Đổi lại là thêm một hệ thống phải vận hành.</li>
+      <li>Coi chừng middleware: giữ middleware “ngốc”, đặt trí tuệ ở endpoint (bài học từ Enterprise Service Bus).</li>
+      <li>ATOM qua HTTP tận dụng được đặc tả và thư viện sẵn có, nhưng độ trễ kém và phải tự xây những thứ broker cho sẵn, như Competing Consumer không xử lý trùng.</li>
+    </ul></div>
+    <div class="prose">
+      <h3>Message broker</h3>
+      <p>Theo truyền thống, broker như RabbitMQ xử lý cả hai vế: producer dùng API để publish event lên broker; broker quản lý subscription và báo cho consumer khi có event mới; nhiều broker còn giúp quản lý trạng thái consumer, như nhớ consumer đã thấy message nào. Các hệ thống này thường được thiết kế để mở rộng và chịu lỗi tốt, nhưng không miễn phí: thêm một hệ thống phải chạy khi phát triển và kiểm thử, thêm máy móc và chuyên môn để duy trì. Khi đã chạy ổn, đây là cách cực kỳ hiệu quả để xây kiến trúc event-driven ràng buộc lỏng. Newman tự nhận là người ủng hộ.</p>
+      <p>Tuy vậy, hãy cảnh giác với thế giới middleware, mà message broker chỉ là một phần nhỏ. Hàng đợi tự nó là thứ hợp lý và hữu ích, nhưng các vendor có xu hướng đóng gói thêm đủ thứ, đẩy ngày càng nhiều logic vào middleware, như trường hợp <dfn data-term="enterprise-service-bus">Enterprise Service Bus</dfn>. Lời khuyên: <dfn data-term="smart-endpoints-dumb-pipes">keep your middleware dumb, and keep the smarts in the endpoints</dfn>.</p>
+      <h3>ATOM: phát event qua HTTP</h3>
+      <p><dfn data-term="atom">ATOM</dfn> là một đặc tả tuân theo REST, định nghĩa ngữ nghĩa để công bố feed tài nguyên, và có nhiều thư viện client để tạo và đọc feed. Dịch vụ Customer có thể publish event lên một feed như vậy mỗi khi có thay đổi, còn consumer chỉ việc poll feed để tìm thay đổi. Điểm cộng: dùng lại được đặc tả và thư viện có sẵn, và HTTP mở rộng rất tốt. Điểm trừ: HTTP không giỏi độ trễ thấp (mảng mà một số broker rất mạnh), và consumer vẫn phải tự nhớ đã xem message nào, tự quản lý lịch poll.</p>
+      <p>Newman từng thấy người ta mất rất nhiều công tự cài lại những hành vi mà broker phù hợp cho sẵn, chỉ để ATOM chạy được. Ví dụ là mẫu <dfn data-term="competing-consumers">Competing Consumer</dfn>: dựng nhiều worker cùng tranh nhau lấy message, rất hợp để tăng số worker xử lý một danh sách công việc độc lập. Nhưng ta muốn tránh hai worker nhận cùng một message, nếu không một việc sẽ bị làm nhiều lần. Với broker, một hàng đợi tiêu chuẩn lo việc đó. Với ATOM, ta phải tự quản lý trạng thái dùng chung giữa các worker để giảm khả năng làm trùng.</p>
+      <p>Lời khuyên của Newman: nếu đã có sẵn một broker tốt và bền, hãy dùng nó để publish và subscribe event. Nếu chưa có, cứ thử ATOM, nhưng cẩn thận với ngụy biện chi phí chìm (<dfn data-term="sunk-cost-fallacy">sunk-cost fallacy</dfn>): khi thấy mình ngày càng muốn thêm những tính năng mà broker có sẵn, có lẽ đã đến lúc đổi hướng. Còn về định dạng dữ liệu, cân nhắc giống hệt giao tiếp đồng bộ: đang dùng JSON vui vẻ thì cứ tiếp tục.</p>
+    </div>
+    <figure class="lab" data-widget="ch3-broker-atom">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Competing Consumer: 4 worker, 12 công việc
+        <small>Chạy cùng một hàng việc qua hàng đợi của broker và qua một feed ATOM mà mỗi worker tự poll. Với ATOM, thử bật “tự xây trạng thái dùng chung”. Chu kỳ poll và thời gian xử lý là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>“Chúng ta chỉ cần thêm một chút nữa là ATOM làm được việc đó” là câu mở đầu quen thuộc của ngụy biện chi phí chìm. Hãy đếm những tính năng broker mà bạn đang tự viết lại.</p></aside>
+  </article>
+
+  <!-- 3.13 -->
+  <article class="topic" id="ch3-event-content" data-num="3.13" data-short="Trong một event có gì?" data-keywords="what's in an event just an id fully detailed event customer registered loyalty notifications kafka 1mb rabbitmq 512mb pii information hiding event sourcing">
+    <p class="eyebrow">3.13 · What’s In An Event?</p>
+    <h2>Event chỉ chứa ID, hay chứa đầy đủ thông tin? <span class="vi">CustomerRegistered, Loyalty, Notifications và giới hạn kích thước message</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Hình 3-12: Customer phát event “khách hàng mới đăng ký”. Loyalty mở tài khoản tích điểm, Notifications gửi email chào mừng.</li>
+      <li><strong>Chỉ ID:</strong> Loyalty đủ dùng, nhưng Notifications phải gọi ngược về Customer để lấy email và tên. Thêm domain coupling, và nếu năm microservice cùng cần thêm dữ liệu thì Customer bị dội một loạt request.</li>
+      <li><strong>Đầy đủ thông tin</strong> (lựa chọn của Newman): đưa vào event mọi thứ bạn sẵn lòng chia sẻ qua API. Bên nhận tự đủ, event còn đóng vai trò lịch sử phục vụ audit hay event sourcing.</li>
+      <li>Đánh đổi: kích thước (Kafka mặc định 1 MB, RabbitMQ tối đa lý thuyết 512 MB, giảm từ 2 GB), lộ dữ liệu nhạy cảm như PII, và mọi trường trong event trở thành một phần hợp đồng.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Với request, ta nhờ microservice làm gì đó và cung cấp thông tin cần cho thao tác ấy. Với event, ta phát ra một sự thật mà bên khác có thể quan tâm, nhưng bên phát không thể và không nên biết ai nhận. Vậy làm sao biết bên nhận cần thông tin gì? Nói cách khác, trong một event nên có gì?</p>
+      <h3>Chỉ ID</h3>
+      <p>Phương án thứ nhất là event chỉ chứa mã định danh của khách hàng mới (<dfn data-term="id-only-event">ID-only event</dfn>, Hình 3-13). Loyalty chỉ cần mã này để tạo tài khoản tích điểm tương ứng. Notifications thì biết phải gửi email chào mừng nhưng cần thêm ít nhất địa chỉ email, và có lẽ cả tên khách để email có chút cá nhân. Thông tin đó không có trong event, nên Notifications buộc phải gọi Customer để lấy. Hệ quả:</p>
+      <ul>
+        <li>Notifications giờ phải biết Customer tồn tại, thêm một <dfn data-term="domain-coupling">domain coupling</dfn>. Đó là loại ràng buộc lỏng trong phổ đã bàn ở Chương 2, nhưng vẫn nên tránh khi có thể.</li>
+        <li>Khi có nhiều bên nhận, bên phát có thể bị dội request. Thử hình dung năm microservice cùng nhận event tạo khách hàng và đều cần thêm thông tin: cả năm sẽ gọi Customer ngay lập tức. Càng nhiều bên quan tâm, tác động càng đáng kể.</li>
+      </ul>
+      <h3>Event đầy đủ thông tin</h3>
+      <p>Phương án Newman thích hơn (<dfn data-term="fully-detailed-event">fully detailed event</dfn>, Hình 3-14) là đưa vào event mọi thứ bạn sẵn lòng chia sẻ qua API. Nếu đã cho Notifications hỏi email và tên khách, sao không đưa luôn chúng vào event? Notifications trở nên tự đủ, thậm chí không cần biết Customer tồn tại. Event giàu thông tin còn là bản ghi lịch sử về những gì đã xảy ra với một thực thể, hữu ích cho hệ thống audit, hoặc để dựng lại trạng thái thực thể tại các thời điểm khác nhau như trong <dfn data-term="event-sourcing">event sourcing</dfn>.</p>
+      <h3>Đánh đổi của event đầy đủ</h3>
+      <ul>
+        <li><strong>Kích thước.</strong> Broker hiện đại có giới hạn khá rộng: Kafka mặc định tối đa 1 MB mỗi message; bản RabbitMQ mới nhất có giới hạn lý thuyết 512 MB (giảm từ 2 GB trước đó), dù message cỡ đó chắc chắn gây vấn đề hiệu năng. 1 MB vẫn chứa được khá nhiều. Nếu bắt đầu lo về kích thước, hãy dùng cách lai: một phần thông tin trong event, phần lớn hơn tra cứu khi cần.</li>
+        <li><strong>Lộ dữ liệu.</strong> Loyalty không cần email hay tên khách nhưng vẫn nhận được. Nếu muốn giới hạn microservice nào được thấy thông tin định danh cá nhân (<dfn data-term="pii">PII</dfn>) hay số thẻ thanh toán, có thể dùng kỹ thuật như Split Horizon Communication mà sách bàn ở phần sau.</li>
+        <li><strong>Hợp đồng.</strong> Đã đưa dữ liệu vào event thì nó thành một phần hợp đồng với thế giới bên ngoài; xoá một trường có thể làm hỏng bên khác. <dfn data-term="information-hiding">Information hiding</dfn> vẫn quan trọng: càng nhiều dữ liệu trong event, bên ngoài càng có nhiều giả định về nó. Quy tắc của Newman: sẵn lòng chia sẻ dữ liệu đó qua API request-response thì mới đưa vào event.</li>
+      </ul>
+    </div>
+    <figure class="lab" data-widget="ch3-event-content">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Thiết kế event CustomerRegistered
+        <small>Chọn kiểu event, kéo số microservice cần thêm thông tin (sách ví dụ 5), và thử nhét một trường lớn vào event để chạm giới hạn 1 MB của Kafka. Kích thước từng trường là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>“My general rule is that I am OK putting information into an event if I’d be happy sharing the same data over a request-response API.” Câu này giải được hầu hết tranh luận về nội dung event: event không phải cửa sau để lộ dữ liệu mà API của bạn vốn đang giấu.</p></aside>
+  </article>
+
+  <!-- 3.14 -->
+  <article class="topic" id="ch3-did-it-work" data-num="3.14" data-short="Nó có chạy không? Poison message" data-keywords="did it work catastrophic failover pricing bank 2006 competing consumer transacted queue maximum retry dead letter queue message hospital correlation id monitoring">
+    <p class="eyebrow">3.14 · Did It Work?</p>
+    <h2>Chuyện năm 2006: một message giết hết worker <span class="vi">Catastrophic failover, giới hạn retry và dead letter queue</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Bất đồng bộ và event-driven có thể giúp hệ thống tách rời và mở rộng tốt hơn, nhưng làm tăng độ phức tạp: phản hồi về node nào? node đó chết thì sao? phải lưu trạng thái ở đâu?</li>
+      <li>Năm 2006, hệ thống định giá cho một ngân hàng dùng Competing Consumer trên một transacted queue. Một bug khiến một loại request định giá làm crash worker; request được trả lại hàng đợi rồi giết worker tiếp theo. Martin Fowler gọi đó là <em>catastrophic failover</em>.</li>
+      <li>Cách khắc phục: sửa bug, đặt giới hạn retry tối đa, dựng <em>message hospital</em> (dead letter queue) kèm giao diện để xem và phát lại message lỗi.</li>
+      <li>Hãy thận trọng khi áp dụng các ý tưởng này; có monitoring tốt và cân nhắc nghiêm túc correlation ID.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Event-driven có vẻ dẫn tới hệ thống tách rời và dễ mở rộng hơn nhiều, và đúng là có thể. Nhưng độ phức tạp tăng lên, không chỉ ở việc quản lý publish và subscribe mà ở cả những vấn đề khác. Với request-response bất đồng bộ chạy lâu, phải nghĩ xem làm gì khi phản hồi về: nó có về đúng node đã gửi request không? Nếu có mà node đó đã chết thì sao? Nếu không thì có cần lưu thông tin ở đâu đó để phản ứng không? Bất đồng bộ ngắn hạn dễ quản lý hơn nếu có API phù hợp, nhưng vẫn là một lối nghĩ khác với lập trình viên đã quen gọi phương thức đồng bộ trong tiến trình.</p>
+      <h3>Một câu chuyện cảnh giác</h3>
+      <p>Năm 2006, Newman làm một hệ thống định giá cho ngân hàng. Hệ thống theo dõi các sự kiện thị trường, xác định những mục nào trong danh mục cần định giá lại, rồi đẩy tất cả vào một hàng đợi. Một grid tạo ra một nhóm worker định giá có thể co giãn theo yêu cầu. Các worker dùng mẫu Competing Consumer, mỗi con ngấu nghiến message nhanh nhất có thể cho đến khi hết việc.</p>
+      <p>Hệ thống chạy ngon, cả đội khá tự mãn. Rồi một ngày, ngay sau một lần release, worker liên tục chết. Chết, chết nữa, chết mãi. Cuối cùng họ tìm ra: một bug khiến một loại request định giá làm worker crash. Họ dùng hàng đợi có giao dịch (<dfn data-term="transacted-queue">transacted queue</dfn>): khi worker chết, khoá của nó trên request hết hạn, request được đặt lại vào hàng đợi, rồi worker khác nhặt lên và chết theo. Đây là ví dụ kinh điển của cái Martin Fowler gọi là <dfn data-term="catastrophic-failover">catastrophic failover</dfn>.</p>
+      <p>Ngoài bug, họ còn quên đặt giới hạn retry tối đa (<dfn data-term="maximum-retry-limit">maximum retry limit</dfn>) cho công việc trên hàng đợi. Họ sửa bug và cấu hình giới hạn retry. Nhưng họ cũng nhận ra cần cách để xem và có thể phát lại những message lỗi. Kết quả là một <em>message hospital</em> hay hàng đợi thư chết (<dfn data-term="dead-letter-queue">dead letter queue</dfn>), nơi message thất bại được chuyển tới, cùng một giao diện để xem và thử lại khi cần. Những vấn đề kiểu này không hiện ra ngay nếu bạn chỉ quen giao tiếp đồng bộ điểm-điểm.</p>
+      <h3>Lời khuyên của Newman</h3>
+      <p>Độ phức tạp của kiến trúc event-driven và lập trình bất đồng bộ nói chung khiến Newman khuyên nên thận trọng về tốc độ áp dụng. Hãy chắc là có monitoring tốt, và cân nhắc nghiêm túc việc dùng correlation ID để lần theo request xuyên qua ranh giới tiến trình. Ông cũng giới thiệu cuốn <em>Enterprise Integration Patterns</em> (Addison-Wesley) cho ai muốn tìm hiểu sâu các mẫu messaging.</p>
+    </div>
+    <figure class="lab" data-widget="ch3-poison-message">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Định giá lại danh mục với một message “độc”
+        <small>Bấm “Chạy định giá” khi chưa bật gì để thấy catastrophic failover. Sau đó bật giới hạn retry và dead letter queue rồi chạy lại. Số worker, số message và thời gian xử lý là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Giới hạn retry mà không có dead letter queue thì message độc chỉ bị vứt đi: worker sống, nhưng một mục trong danh mục không bao giờ được định giá và không ai biết. Hai cơ chế này phải đi cùng nhau.</p></aside>
+  </article>
+
+  <!-- review -->
+  <article class="topic" id="ch3-review" data-num="3.★" data-short="Tổng kết &amp; kiểm tra">
+    <p class="eyebrow">3.★ · Summary</p>
+    <h2>Tổng kết chương 3 <span class="vi">Chọn kiểu tương tác trước, rồi mới chọn công nghệ</span></h2>
+    <div class="prose">
+      <p>Chương này tách các kiểu giao tiếp chính giữa microservice và bàn về đánh đổi của từng kiểu. Không phải lúc nào cũng có một đáp án đúng duy nhất, nhưng có một quy trình suy nghĩ rõ ràng:</p>
+      <ol>
+        <li><strong>Đừng giả vờ mạng không tồn tại.</strong> Lời gọi qua mạng chậm hơn nhiều bậc, cần tuần tự hoá, khó thay đổi giao diện và có những kiểu lỗi không tất định. Thiết kế API thô hơn và dùng ngữ nghĩa lỗi giàu thông tin.</li>
+        <li><strong>Đồng bộ hay bất đồng bộ?</strong> Đồng bộ chặn quen thuộc và đơn giản, nhưng mang ràng buộc thời gian và dễ lan truyền sự cố, nhất là qua chuỗi gọi dài. Bất đồng bộ không chặn tách rời về thời gian, hợp với tác vụ dài, nhưng phức tạp hơn.</li>
+        <li><strong>Nếu bất đồng bộ: kiểu cộng tác nào?</strong> Common data cho khối lượng lớn và hệ thống cũ; request-response khi cần kết quả hoặc cần thứ tự; event-driven khi muốn đẩy trách nhiệm về phía bên nhận và giữ bên phát không biết ai đang nghe.</li>
+        <li><strong>Chuẩn bị cho mặt tối của bất đồng bộ.</strong> Ghép phản hồi bằng trạng thái lưu bền và correlation ID; giới hạn retry; dead letter queue; monitoring.</li>
+      </ol>
+      <p>Chương 4 đi vào công nghệ cụ thể để hiện thực các kiểu này (RPC, REST, GraphQL, message broker). Chương 5 bàn về cách nhiều microservice phối hợp để hiện thực một luồng nghiệp vụ (<a href="#ch5">Chương 5 — Workflow</a>).</p>
+    </div>
+    <div class="quiz">
+      <div class="q" data-answer="2">
+        <p>Câu 1. Vì sao một API “gọi 1.000 lần cũng không sao” trong monolith lại có thể là vấn đề khi tách thành hai microservice?</p>
+        <ol>
+          <li>Vì microservice không được phép gọi nhau quá 100 lần mỗi giây.</li>
+          <li>Vì JSON không biểu diễn được cấu trúc dữ liệu lồng nhau.</li>
+          <li>Vì mỗi lời gọi giờ là một network call tốn mili-giây cho vòng khứ hồi, cộng chi phí tuần tự hoá payload, và không còn tối ưu như inlining.</li>
+          <li>Vì IDE không refactor được code ở nhiều repository.</li>
+        </ol>
+        <p class="explain">Lời gọi trong tiến trình có thể được inline và chỉ truyền con trỏ; lời gọi qua mạng phải gửi gói tin thật và tuần tự hoá dữ liệu. 1.000 lần mili-giây là cả giây. Vì vậy API giữa các microservice nên được thiết kế thô hơn.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Câu 2. Client nhận <code>503 Service Unavailable</code> và <code>404 Not Found</code>. Phản ứng nào hợp lý nhất?</p>
+        <ol>
+          <li>Thử lại cả hai ngay lập tức cho đến khi thành công.</li>
+          <li>Có thể thử lại 503 sau một lúc vì đó có thể là trạng thái tạm thời; không thử lại 404 vì đó là lỗi của chính request.</li>
+          <li>Không bao giờ thử lại vì mọi lỗi 5xx đều vĩnh viễn.</li>
+          <li>Thử lại 404 vì tài nguyên có thể vừa được tạo, bỏ qua 503.</li>
+        </ol>
+        <p class="explain">Nhóm 4xx báo request có vấn đề (thử lại 404 hầu như vô ích). Một phần nhóm 5xx, như 503, báo sự cố có thể tạm thời nên đáng thử lại; còn 501 Not Implemented thì thử lại không giúp gì.</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>Câu 3. Theo mô hình của Newman, nếu đã quyết định một tương tác là <em>đồng bộ</em>, kiểu cộng tác gần như chắc chắn sẽ là gì?</p>
+        <ol>
+          <li>Event-driven.</li>
+          <li>Common data.</li>
+          <li>Bất kỳ kiểu nào trong ba kiểu.</li>
+          <li>Request-response.</li>
+        </ol>
+        <p class="explain">Lời gọi đồng bộ chặn thường chờ phản hồi từ hạ lưu, nên gần như luôn là request-response. Event-driven về bản chất là bất đồng bộ; common data cũng vậy. Chỉ request-response mới hiện thực được theo cả hai cách.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Câu 4. Trong luồng Order Processor → Payment → Fraud Detection → Customer, cải tiến nào Newman gợi ý <em>trước</em> khi nghĩ tới đổi công nghệ?</p>
+        <ol>
+          <li>Xem lại tương tác: đưa Fraud Detection ra chạy nền và cập nhật hồ sơ khách hàng để thanh toán kiểm tra sớm, rút ngắn chuỗi và bỏ một phụ thuộc khỏi đường găng.</li>
+          <li>Gộp cả bốn microservice thành một để tránh network call.</li>
+          <li>Tăng timeout của Order Processor lên vài phút.</li>
+          <li>Cho Payment đọc thẳng database của Customer.</li>
+        </ol>
+        <p class="explain">Hình 3-4 cho thấy việc đưa Fraud Detection khỏi luồng mua hàng giúp giảm độ dài chuỗi, cải thiện độ trễ tổng và giảm bề mặt lỗi của thao tác quan trọng. Thay lời gọi chặn bằng bất đồng bộ là phương án thứ hai.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Câu 5. Request-response bất đồng bộ qua hàng đợi (Hình 3-10) gặp thách thức nào mà phiên bản đồng bộ không có?</p>
+        <ol>
+          <li>Không gửi được JSON qua hàng đợi.</li>
+          <li>Bên gửi phải giữ kết nối mở cho tới khi Inventory trả lời.</li>
+          <li>Bên nhận phải biết gửi phản hồi về đâu, và phản hồi có thể về sau rất lâu, về một instance khác, nên phải lưu trạng thái request gốc để ghép lại.</li>
+          <li>Hàng đợi chỉ chứa được một request tại một thời điểm.</li>
+        </ol>
+        <p class="explain">Lời gọi đồng bộ trả phản hồi trên chính kết nối đang mở. Qua hàng đợi thì kết nối ấy không còn; cần một reply queue, và cần lưu trạng thái (ví dụ vào database, kèm mã đơn hàng) để instance nào nhận phản hồi cũng xử lý tiếp được.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Câu 6. MusicCorp hỏi giá ba nhà cung cấp, mỗi lời gọi mất 1 giây. Gọi song song thì độ trễ tổng xấp xỉ bao nhiêu?</p>
+        <ol>
+          <li>3 giây, vì vẫn có ba lời gọi.</li>
+          <li>Khoảng 1 giây, bằng lời gọi chậm nhất.</li>
+          <li>0,33 giây, vì chia đều cho ba.</li>
+          <li>Không xác định được nếu không dùng message broker.</li>
+        </ol>
+        <p class="explain">Tuần tự thì chờ tổng (3 giây); song song thì chờ lời gọi chậm nhất (khoảng 1 giây).</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>Câu 7. Nhược điểm nào của event <em>chỉ chứa ID</em> được Newman nêu ra?</p>
+        <ol>
+          <li>Vượt giới hạn 1 MB của Kafka.</li>
+          <li>Làm lộ email khách hàng cho Loyalty.</li>
+          <li>Khiến Customer không thể lưu dữ liệu.</li>
+          <li>Bên nhận cần thêm dữ liệu (như Notifications) phải gọi ngược Customer: thêm domain coupling, và nhiều bên cùng gọi thì Customer bị dội request.</li>
+        </ol>
+        <p class="explain">Event chỉ có ID rất nhỏ và không lộ PII, nhưng đẩy bên nhận vào thế phải biết và gọi về bên phát. Lộ PII cho Loyalty là đánh đổi của event <em>đầy đủ</em> thông tin.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Câu 8. Trong câu chuyện hệ thống định giá năm 2006, điều gì biến một bug ở một loại request thành việc toàn bộ worker lần lượt chết?</p>
+        <ol>
+          <li>Mạng chuyển từ TCP sang UDP.</li>
+          <li>Transacted queue trả request lại hàng đợi khi khoá của worker hết hạn, và không có giới hạn retry, nên message độc cứ lần lượt giết từng worker.</li>
+          <li>Các worker dùng chung một bảng database.</li>
+          <li>Message vượt quá giới hạn 512 MB của RabbitMQ.</li>
+        </ol>
+        <p class="explain">Đó là catastrophic failover. Cách sửa: sửa bug, đặt giới hạn retry tối đa, và thêm message hospital (dead letter queue) có giao diện để xem và phát lại message lỗi.</p>
+      </div>
+    </div>
+  </article>
+</section>

@@ -1,0 +1,646 @@
+<style>
+#ch12 .msgs { display: flex; flex-wrap: wrap; gap: 4px; min-height: 26px; align-items: center; }
+#ch12 .m { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 5px; border: 1px solid var(--line); background: var(--surface); font: 600 .72rem/1.5 var(--f-mono); color: var(--ink); white-space: nowrap; }
+#ch12 .m small { font-weight: 400; color: var(--ink-3); font-size: .66rem; }
+#ch12 .m.acc { background: var(--accent-soft); border-color: var(--accent); }
+#ch12 .m.vio { background: var(--violet-soft); border-color: var(--violet); }
+#ch12 .m.ok { background: var(--ok-soft); border-color: var(--ok); }
+#ch12 .m.warn { background: var(--warn-soft); border-color: var(--warn); }
+#ch12 .m.bad { background: var(--bad-soft); border-color: var(--bad); }
+#ch12 .m.mk { background: var(--mark-soft); border-color: var(--mark); }
+#ch12 .m.dim { opacity: .45; text-decoration: line-through; }
+#ch12 .m.ghost { border-style: dashed; color: var(--ink-3); background: transparent; }
+#ch12 .lane { display: grid; grid-template-columns: minmax(84px, 120px) minmax(0, 1fr); gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+#ch12 .lane:last-child { border-bottom: 0; }
+#ch12 .lane > b { font-size: var(--t-xs); color: var(--ink-2); }
+#ch12 .step-note { border-left: 3px solid var(--accent); padding: 6px 12px; background: var(--bg); border-radius: 0 8px 8px 0; min-height: 3em; }
+#ch12 .seat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; max-width: 360px; }
+#ch12 .seat { border: 1px solid var(--line); border-radius: 7px; padding: 6px; text-align: center; background: var(--surface); font-size: var(--t-xs); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#ch12 .seat.taken { background: var(--accent-soft); border-color: var(--accent); }
+#ch12 .tl-boxes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+#ch12 .tl-box { border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; background: var(--bg); font-size: var(--t-xs); min-height: 70px; min-width: 0; }
+#ch12 .tl-box b { display: block; margin-bottom: 4px; }
+#ch12 .tl-box .it { font-family: var(--f-mono); font-size: .7rem; padding: 1px 5px; border-radius: 3px; background: var(--accent-soft); margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#ch12 .tl-box .it.new { background: var(--mark-soft); }
+#ch12 .row-ctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+#ch12 .row-ctl select { max-width: 100%; }
+#ch12 .legend-row { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: var(--t-xs); color: var(--ink-2); }
+#ch12 .legend-row i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; border: 1px solid var(--line); }
+#ch12 table.data td, #ch12 table.data th { white-space: nowrap; }
+#ch12 table.data td.wrap { white-space: normal; }
+</style>
+
+<section class="chapter" id="ch12" data-chapter="12" data-title="Xử lý luồng" data-edition="1e">
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 12 <span class="ed-badge">Nguồn: ấn bản 1 · Chương 11</span></p>
+    <h1>Stream Processing <span class="vi">Xử lý luồng</span></h1>
+    <blockquote class="epigraph">A complex system that works is invariably found to have evolved from a simple system that works. The inverse proposition also appears to be true: A complex system designed from scratch never works and cannot be made to work.<cite>— John Gall, Systemantics (1975)</cite></blockquote>
+    <p class="lede">Batch processing ở <a href="#ch11">Chương 11</a> giả định đầu vào có kích thước hữu hạn. Thực tế dữ liệu đến liên tục và không bao giờ “xong”. Chương này coi dữ liệu như một luồng sự kiện vô tận: truyền nó qua message broker và log, nhìn database như một luồng thay đổi, rồi xử lý luồng với các vấn đề riêng của nó: thời gian, cửa sổ, join và chịu lỗi.</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- 12.1 -->
+  <article class="topic" id="ch12-transmitting" data-num="12.1" data-short="Truyền luồng sự kiện" data-keywords="event producer consumer topic polling notification unbounded stream">
+    <p class="eyebrow">12.1 · Transmitting Event Streams</p>
+    <h2>Từ file đến luồng sự kiện <span class="vi">Transmitting Event Streams</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Dữ liệu thực tế là <dfn data-term="unbounded">không giới hạn</dfn>: hôm nay người dùng tạo dữ liệu, ngày mai họ tạo tiếp. Batch phải cắt nhân tạo thành từng ngày, từng giờ; stream processing xử lý từng sự kiện ngay khi nó xảy ra.</li>
+      <li>Đơn vị dữ liệu là <dfn data-term="event">event</dfn>: một bản ghi nhỏ, bất biến, mô tả điều đã xảy ra, thường kèm timestamp.</li>
+      <li>Event được tạo một lần bởi <dfn data-term="producer">producer</dfn>, có thể được nhiều <dfn data-term="consumer">consumer</dfn> xử lý; các event liên quan gom thành một <dfn data-term="topic">topic</dfn>.</li>
+      <li>Dùng file hoặc database rồi để consumer <dfn data-term="polling">polling</dfn> thì được, nhưng poll càng dày thì càng nhiều lần hỏi về tay không. Tốt hơn là consumer được <em>thông báo</em> khi có event mới.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Trong batch, đầu vào và đầu ra là file. Bản tương đương trong thế giới luồng là gì? Ở batch, bước đầu tiên thường là parse file thành các record. Trong stream processing, record được gọi là <em class="en">event</em>, nhưng về bản chất là một thứ: một đối tượng nhỏ, tự chứa đủ thông tin, bất biến, ghi lại chi tiết của một việc đã xảy ra. Đó có thể là hành động của người dùng (xem trang, mua hàng), một số đo từ cảm biến nhiệt độ, một chỉ số CPU, hay mỗi dòng trong log của web server.</p>
+      <p>Event được mã hoá như mọi dữ liệu khác (chuỗi, JSON, binary, xem <a href="#ch5">Chương 5</a>), nên có thể ghi vào file, chèn vào bảng, hoặc gửi qua mạng sang node khác. Tương tự cách một file được ghi một lần rồi nhiều job đọc, một event được producer (còn gọi là <em class="en">publisher</em>, <em class="en">sender</em>) sinh ra một lần rồi nhiều consumer (<em class="en">subscriber</em>, <em class="en">recipient</em>) xử lý. Filename gom các record liên quan; ở đây vai trò đó thuộc về topic (hay <em class="en">stream</em>).</p>
+      <h3>Vì sao không chỉ dùng database rồi polling?</h3>
+      <p>Về nguyên tắc, một datastore là đủ để nối producer và consumer: producer ghi mọi event vào đó, consumer định kỳ hỏi “có gì mới kể từ lần trước không?”. Đó chính là batch chạy mỗi ngày. Nhưng khi muốn độ trễ thấp, ta phải poll dày, và khi poll dày thì tỉ lệ lần hỏi có kết quả giảm, chi phí trên mỗi event tăng. Database truyền thống có <em class="en">trigger</em> để phản ứng với thay đổi, nhưng trigger rất hạn chế và giống một thứ “gắn thêm” vào thiết kế. Vì vậy người ta làm ra công cụ chuyên dụng để <em>đẩy</em> thông báo event tới consumer.</p>
+    </div>
+    <figure class="lab" data-widget="poll-push">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Polling hay được thông báo?
+        <small>Kéo tần suất event và khoảng cách giữa hai lần poll. Mỗi vạch xám trên làn polling là một request về tay không. Số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Polling buộc bạn chọn giữa độ trễ cao (poll thưa) và lãng phí (poll dày). Thông báo (push) cho cả hai: độ trễ thấp và không có request rỗng. Đó là lý do tồn tại của messaging system.</p></aside>
+  </article>
+
+  <!-- 12.2 -->
+  <article class="topic" id="ch12-messaging" data-num="12.2" data-short="Hệ thống messaging" data-keywords="messaging publish subscribe backpressure flow control drop buffer queue durability crash">
+    <p class="eyebrow">12.2 · Messaging Systems</p>
+    <h2>Hai câu hỏi để phân loại messaging system <span class="vi">Messaging Systems</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Messaging system cho phép nhiều producer gửi vào cùng một topic và nhiều consumer nhận từ topic đó (mô hình <em class="en">publish/subscribe</em>), khác với Unix pipe hay TCP chỉ nối một-một.</li>
+      <li>Câu hỏi 1: producer gửi nhanh hơn consumer xử lý thì sao? Ba lựa chọn: <strong>bỏ message</strong>, <strong>đệm vào hàng đợi</strong>, hoặc <dfn data-term="backpressure">backpressure</dfn> (chặn producer lại).</li>
+      <li>Câu hỏi 2: node sập hoặc tạm offline thì có mất message không? Bền vững cần ghi đĩa và/hoặc replicate, và cái đó có giá.</li>
+      <li>Mất message có chấp nhận được không tuỳ ứng dụng: mất một điểm đo cảm biến thì thường không sao, nhưng nếu đang đếm thì mỗi message mất là một con số sai.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Cách thông thường để báo cho consumer có event mới là dùng một <em class="en">messaging system</em>: producer gửi message chứa event, hệ thống đẩy nó tới consumer. Mỗi hệ thống chọn một cách khác nhau, và không có câu trả lời đúng cho mọi trường hợp. Hai câu hỏi sau giúp phân biệt chúng.</p>
+      <h3>Khi producer nhanh hơn consumer</h3>
+      <ul>
+        <li><strong>Bỏ message</strong> (<em class="en">drop</em>): đơn giản, nhanh, nhưng mất dữ liệu.</li>
+        <li><strong>Đệm</strong> (<em class="en">buffer</em>) vào hàng đợi: phải hỏi tiếp hàng đợi lớn lên thì sao. Hệ thống sập khi hết RAM, hay tràn xuống đĩa? Nếu tràn xuống đĩa thì hiệu năng thay đổi thế nào?</li>
+        <li><strong>Backpressure</strong> (còn gọi là <em class="en">flow control</em>): chặn producer cho tới khi consumer rút bớt. Unix pipe và TCP làm vậy: bộ đệm nhỏ cố định, đầy thì bên gửi bị block (xem phần nghẽn mạng ở <a href="#ch9">Chương 9</a>).</li>
+      </ul>
+      <h3>Khi node sập</h3>
+      <p>Giống database, muốn không mất message thì phải ghi đĩa và/hoặc replicate. Nếu chịu được thỉnh thoảng mất message, bạn có thể đạt throughput cao hơn và độ trễ thấp hơn trên cùng phần cứng. Nhưng cẩn thận: khi một lượng lớn message bị bỏ, metric sai đi mà không ai nhận ra ngay.</p>
+      <p>Batch ở <a href="#ch11">Chương 11</a> có một tính chất rất đẹp: task lỗi được chạy lại tự động, output dở dang bị bỏ, nên kết quả giống hệt như chưa từng có lỗi. Cuối chương này (<a href="#ch12-microbatch">12.19</a>) ta sẽ xem làm sao có được đảm bảo tương tự cho luồng.</p>
+    </div>
+    <figure class="lab" data-widget="overload">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Producer nhanh hơn consumer: bỏ, đệm hay chặn?
+        <small>Mô phỏng 60 giây. Chọn chiến lược, đổi tốc độ hai bên, bật “broker sập ở giây 40” để thấy câu hỏi thứ hai. Số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>“Hàng đợi không giới hạn” không có thật. Hàng đợi trong RAM sẽ hết RAM; hàng đợi tràn xuống đĩa làm mỗi message chậm đi, có khi khiến consumer càng tụt lại xa hơn. Hãy biết rõ hệ thống của bạn làm gì khi hàng đợi lớn lên.</p></aside>
+  </article>
+
+  <!-- 12.3 -->
+  <article class="topic" id="ch12-brokers" data-num="12.3" data-short="Gửi trực tiếp vs broker" data-keywords="udp multicast zeromq statsd webhook message broker queue jms amqp rabbitmq database">
+    <p class="eyebrow">12.3 · Direct Messaging · Message Brokers</p>
+    <h2>Gửi thẳng cho consumer hay qua message broker <span class="vi">Direct Messaging and Message Brokers</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Gửi trực tiếp (UDP multicast cho bảng giá chứng khoán, ZeroMQ, StatsD, <dfn data-term="webhook">webhook</dfn>) nhanh, nhưng ứng dụng phải tự lo chuyện mất message, và thường giả định producer lẫn consumer luôn online.</li>
+      <li><dfn data-term="message-broker">Message broker</dfn> (message queue) là một server trung gian, về bản chất là một loại database tối ưu cho luồng message. Client đến rồi đi, sập rồi lên lại, broker vẫn giữ message.</li>
+      <li>Broker thường cho hàng đợi không giới hạn và giao message <em>bất đồng bộ</em>: producer chỉ chờ broker xác nhận đã nhận, không chờ consumer xử lý.</li>
+      <li>So với database: broker xoá message khi đã giao, giả định hàng đợi ngắn, không có truy vấn tuỳ ý, nhưng <em>chủ động báo</em> khi có dữ liệu mới.</li>
+    </ul></div>
+    <div class="prose">
+      <h3>Gửi trực tiếp từ producer đến consumer</h3>
+      <p>Nhiều hệ thống không đi qua node trung gian. UDP multicast được dùng nhiều trong tài chính vì độ trễ thấp; bản thân UDP không tin cậy, nên giao thức tầng ứng dụng phải tự khôi phục gói mất (producer phải nhớ gói đã gửi để gửi lại khi được yêu cầu). ZeroMQ và nanomsg làm publish/subscribe trên TCP hoặc multicast. StatsD và Brubeck gom metric qua UDP, nên bộ đếm chỉ đúng nếu không mất gói nào, tức là chỉ gần đúng. Webhook là khi một service đăng ký URL callback với service khác, và service kia gọi HTTP tới URL đó mỗi khi có event.</p>
+      <p>Các cách này chạy tốt trong đúng hoàn cảnh của chúng, nhưng khả năng chịu lỗi hạn chế. Consumer offline thì bỏ lỡ message gửi trong lúc đó. Một số giao thức cho producer gửi lại, nhưng nếu chính producer sập thì bộ đệm chờ gửi lại cũng mất theo.</p>
+      <h3>Message broker</h3>
+      <p>Broker chạy như một server, producer và consumer là client. Dữ liệu được tập trung ở broker nên chuyện bền vững chuyển về broker: có broker chỉ giữ trong RAM, có broker ghi đĩa để không mất khi sập. Vì có hàng đợi, consumer thường bất đồng bộ: message được giao vào một lúc nào đó, thường trong vài phần giây, có khi muộn hơn nhiều nếu hàng đợi đang dồn.</p>
+    </div>
+    <figure class="lab" data-widget="direct-broker">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Consumer offline, producer sập: message nào còn sống?
+        <small>Producer gửi m1…m8, mỗi giây một message. Bật/tắt hai sự cố và đổi cách gửi để so sánh.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Broker so với database</h3>
+      <p>Một số broker còn tham gia two-phase commit qua XA/JTA (xem <a href="#ch10">Chương 10</a>), nên khá giống database. Nhưng vẫn có những khác biệt thực tế quan trọng:</p>
+    </div>
+    <div class="table-wrap"><table class="data">
+      <thead><tr><th>Khía cạnh</th><th>Database</th><th>Message broker kiểu JMS/AMQP</th></tr></thead>
+      <tbody>
+        <tr><td>Thời gian giữ dữ liệu</td><td class="wrap">Tới khi bị xoá tường minh</td><td class="wrap">Xoá khi đã giao thành công; không hợp để lưu lâu dài</td></tr>
+        <tr><td>Kích thước làm việc</td><td class="wrap">Có thể rất lớn</td><td class="wrap">Giả định hàng đợi ngắn; hàng đợi dài (tràn đĩa) làm throughput giảm</td></tr>
+        <tr><td>Chọn dữ liệu</td><td class="wrap">Secondary index, truy vấn tìm kiếm</td><td class="wrap">Đăng ký theo mẫu tên topic</td></tr>
+        <tr><td>Khi dữ liệu đổi</td><td class="wrap">Kết quả truy vấn là snapshot; client không biết nó đã cũ trừ khi hỏi lại</td><td class="wrap">Không truy vấn tuỳ ý được, nhưng chủ động báo khi có message mới</td></tr>
+      </tbody>
+    </table></div>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Đây là góc nhìn “truyền thống” được chuẩn hoá trong JMS và AMQP, cài đặt bởi RabbitMQ, ActiveMQ, HornetQ, Qpid, TIBCO EMS, IBM MQ, Azure Service Bus, Google Cloud Pub/Sub.</p></aside>
+  </article>
+
+  <!-- 12.4 -->
+  <article class="topic" id="ch12-consumers" data-num="12.4" data-short="Nhiều consumer & ack" data-keywords="load balancing fan-out shared subscription acknowledgment redelivery reordering">
+    <p class="eyebrow">12.4 · Multiple Consumers · Acknowledgments and Redelivery</p>
+    <h2>Chia việc hay phát cho tất cả, và cái giá của việc gửi lại <span class="vi">Multiple Consumers, Acknowledgments and Redelivery</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="load-balancing">Load balancing</dfn>: mỗi message chỉ tới <em>một</em> consumer, để nhiều consumer chia nhau việc nặng.</li>
+      <li><dfn data-term="fan-out">Fan-out</dfn>: mỗi message tới <em>tất cả</em> consumer, giống nhiều batch job cùng đọc một file đầu vào. Hai kiểu kết hợp được: mỗi nhóm nhận đủ, trong nhóm thì chia nhau.</li>
+      <li>Consumer có thể sập giữa chừng, nên broker dùng <dfn data-term="acknowledgment">acknowledgment</dfn>: consumer phải báo “xong rồi” thì message mới bị xoá; không nhận được ack thì broker giao lại cho consumer khác.</li>
+      <li>Load balancing cộng với giao lại <em>chắc chắn</em> làm đảo thứ tự message, kể cả khi broker cố giữ thứ tự.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Khi nhiều consumer đọc cùng một topic, có hai mẫu chính (Hình 11-1 trong sách). Load balancing hữu ích khi xử lý mỗi message tốn kém và bạn muốn thêm consumer để chạy song song; broker có thể giao message cho consumer tuỳ ý. Trong AMQP, bạn làm vậy bằng cách cho nhiều client cùng đọc một queue; trong JMS nó tên là <em class="en">shared subscription</em>. Fan-out cho phép nhiều consumer độc lập cùng “nghe” một kênh phát mà không ảnh hưởng nhau (JMS gọi là <em class="en">topic subscription</em>, AMQP là <em class="en">exchange binding</em>).</p>
+    </div>
+    <figure class="lab" data-widget="lb-fanout">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Load balancing, fan-out và kết hợp hai nhóm
+        <small>Chọn chế độ rồi bấm “Gửi 6 message” để xem từng message đi đâu.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Acknowledgment và giao lại</h3>
+      <p>Nếu kết nối với một client bị đóng hoặc hết thời gian chờ mà broker chưa nhận ack, nó giả định message chưa được xử lý và giao lại cho consumer khác. Lưu ý: có thể message thực ra <em>đã</em> xử lý xong, chỉ là ack bị mất trên mạng. Xử lý trường hợp đó cần một giao thức atomic commit (xem <a href="#ch10">Chương 10</a>).</p>
+      <p>Hình 11-2 trong sách cho thấy hệ quả với thứ tự: consumer 2 sập khi đang xử lý m3, cùng lúc consumer 1 đang xử lý m4. m3 được giao lại cho consumer 1, nên consumer 1 thấy m4, m3, m5. Đi từng bước dưới đây.</p>
+    </div>
+    <figure class="lab" data-widget="redelivery">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Giao lại làm đảo thứ tự (Hình 11-2)
+        <small>Bấm “Bước tiếp” để đi qua từng bước. Đổi kịch bản sang “ack bị mất” để thấy m3 bị xử lý hai lần.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Muốn tránh đảo thứ tự thì dùng một queue riêng cho mỗi consumer (tức là bỏ load balancing). Đảo thứ tự không sao nếu các message hoàn toàn độc lập, nhưng sẽ thành vấn đề khi giữa chúng có quan hệ nhân quả, như ta sẽ thấy ở phần CDC và join.</p></aside>
+  </article>
+
+  <!-- 12.5 -->
+  <article class="topic" id="ch12-partitioned-logs" data-num="12.5" data-short="Log phân vùng (Kafka)" data-keywords="partitioned log kafka kinesis offset consumer group replay append-only partition">
+    <p class="eyebrow">12.5 · Partitioned Logs</p>
+    <h2>Dùng log để lưu message <span class="vi">Partitioned Logs</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Broker kiểu AMQP/JMS mang tư duy “tạm thời”: nhận message là phá huỷ nó. Không chạy lại được consumer, consumer mới không đọc được quá khứ.</li>
+      <li><dfn data-term="log-based-broker">Broker dựa trên log</dfn> kết hợp lưu trữ bền của database với thông báo độ trễ thấp của messaging: producer append vào cuối log, consumer đọc tuần tự, như <code>tail -f</code>.</li>
+      <li>Log được chia partition để mở rộng; mỗi message trong một partition có một <dfn data-term="offset">offset</dfn> tăng dần. Thứ tự toàn phần trong partition, không có thứ tự giữa các partition.</li>
+      <li>Một <dfn data-term="consumer-group">consumer group</dfn> chia nhau <em>cả partition</em>; mỗi nhóm có offset riêng, đọc không xoá gì, nên tua lại để đọc lại là chuyện bình thường.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Gửi một gói tin hay gọi một service thường là thao tác thoáng qua, không để lại dấu vết lâu dài. Ngay cả broker ghi message xuống đĩa cũng xoá ngay sau khi giao. Database và filesystem thì ngược lại: mọi thứ đã ghi được giữ cho tới khi ai đó chủ động xoá. Khác biệt tư duy này ảnh hưởng lớn tới cách tạo dữ liệu dẫn xuất. Batch cho phép chạy lại job bao nhiêu lần tuỳ thích vì đầu vào chỉ đọc; còn với AMQP/JMS, nhận message kèm ack là xoá nó khỏi broker, nên chạy lại cùng consumer không cho cùng kết quả. Consumer mới thêm vào chỉ thấy message gửi <em>sau</em> lúc nó đăng ký.</p>
+      <p>Log chỉ là một dãy record chỉ-append trên đĩa, cùng cấu trúc ta đã gặp ở storage engine (<a href="#ch4">Chương 4</a>) và replication (<a href="#ch6">Chương 6</a>). Để vượt quá throughput của một đĩa, log được chia partition (<a href="#ch7">Chương 7</a>), mỗi partition trên một máy, đọc ghi độc lập. Một topic là một nhóm partition chở cùng loại message. Broker gán cho mỗi message một số thứ tự tăng dần trong partition, gọi là offset.</p>
+      <p>Apache Kafka, Amazon Kinesis Streams và DistributedLog của Twitter hoạt động như vậy. Dù ghi mọi message xuống đĩa, chúng đạt hàng triệu message mỗi giây nhờ partition trên nhiều máy, và chịu lỗi nhờ replicate.</p>
+      <h3>Consumer offset</h3>
+      <p>Đọc partition tuần tự khiến việc theo dõi tiến độ rất rẻ: mọi message có offset nhỏ hơn offset hiện tại của consumer đã xử lý xong, lớn hơn là chưa. Broker không cần lưu ack cho từng message, chỉ cần định kỳ ghi lại offset. Offset này giống hệt <em class="en">log sequence number</em> trong replication một leader: broker như leader, consumer như follower. Nếu một consumer sập, partition của nó được giao cho node khác trong nhóm, và node đó bắt đầu từ offset <em>đã ghi lại gần nhất</em>. Những message đã xử lý nhưng chưa ghi offset sẽ bị xử lý lần nữa.</p>
+    </div>
+    <figure class="lab" data-widget="kafka-log">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một topic 3 partition, hai consumer group
+        <small>Producer ghi theo key (cùng key luôn vào cùng partition). Nhóm A chia partition cho các consumer; nhóm B đọc độc lập. Thử thêm consumer thứ 4, cho một consumer sập trước khi commit, và tua nhóm B về offset 0.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Với log, “đọc” không còn là thao tác phá huỷ. Tác dụng phụ duy nhất của việc xử lý (ngoài output) là offset tiến lên, và offset nằm trong tay consumer. Bạn có thể chạy một bản sao consumer từ offset của hôm qua, ghi output ra chỗ khác, sửa code rồi chạy lại bao nhiêu lần cũng được: đúng tinh thần của batch.</p></aside>
+  </article>
+
+  <!-- 12.6 -->
+  <article class="topic" id="ch12-logs-vs-mq" data-num="12.6" data-short="Log vs messaging, dung lượng" data-keywords="head-of-line blocking partition parallelism disk space segment retention circular ring buffer lag replay">
+    <p class="eyebrow">12.6 · Logs Compared to Traditional Messaging · Disk Space Usage</p>
+    <h2>Log so với messaging truyền thống, và giới hạn đĩa <span class="vi">Logs vs Traditional Messaging, Disk Space Usage</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Log có sẵn fan-out (nhiều consumer đọc độc lập). Load balancing thì thô: broker giao <em>cả partition</em>, nên số consumer song song tối đa bằng số partition.</li>
+      <li>Một message chậm chặn mọi message sau nó trong cùng partition: <dfn data-term="head-of-line-blocking">head-of-line blocking</dfn>.</li>
+      <li>Chọn JMS/AMQP khi message tốn kém, cần song song từng message, thứ tự không quan trọng. Chọn log khi throughput cao, mỗi message nhanh, thứ tự quan trọng.</li>
+      <li>Log được chia segment, segment cũ bị xoá: thực chất là một <dfn data-term="circular-buffer">bộ đệm vòng</dfn> rất lớn trên đĩa. Đĩa 6 TB ghi 150 MB/s thì chứa được khoảng 11 giờ message ở tốc độ tối đa.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Vì đọc không xoá message, fan-out là miễn phí. Để chia việc trong một nhóm, broker giao từng partition cho một node; node đó đọc tuần tự, đơn luồng. Có thể nghĩ ra trò hai consumer cùng đọc một partition, một người lo offset chẵn, một người lo offset lẻ, nhưng nói chung xử lý một partition đơn luồng là tốt hơn, muốn song song hơn thì thêm partition. Cái giá của sự thô này là hai điểm trong tóm tắt: trần số consumer và head-of-line blocking.</p>
+    </div>
+    <figure class="lab" data-widget="hol">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> 12 message, một message chậm: chia từng message hay chia partition?
+        <small>Mỗi ô là thời gian xử lý một message. Kéo độ chậm của m3, số consumer và số partition. Số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Dung lượng đĩa và consumer bị tụt lại</h3>
+      <p>Chỉ append thì sớm muộn sẽ hết đĩa. Log được chia thành segment, thỉnh thoảng segment cũ bị xoá hoặc chuyển sang kho lưu trữ. Nếu một consumer chậm đến mức offset của nó trỏ vào segment đã xoá, nó sẽ mất message. Phép tính nhanh trong sách: đĩa 6 TB, ghi tuần tự 150 MB/s, ghi hết tốc lực thì khoảng 11 giờ là đầy. Tỉ lệ này giữ nguyên khi thêm đĩa và máy. Thực tế hiếm ai dùng hết băng thông ghi, nên log thường giữ được vài ngày, thậm chí vài tuần.</p>
+      <p>Trong phân loại ở <a href="#ch12-messaging">12.2</a>, log là kiểu <em>đệm</em> với bộ đệm lớn nhưng cố định. Throughput của log gần như không đổi dù giữ bao lâu, vì message nào cũng được ghi đĩa; trái với broker giữ trong RAM rồi chậm hẳn khi phải tràn xuống đĩa. Bạn có thể theo dõi consumer cách đầu log bao xa và cảnh báo khi nó tụt nhiều; bộ đệm đủ lớn để con người kịp sửa. Consumer tụt lại chỉ hại chính nó, không ảnh hưởng consumer khác, và consumer đã tắt không tốn tài nguyên gì ngoài một con số offset. Với broker truyền thống thì phải nhớ xoá queue của consumer đã tắt, nếu không nó tiếp tục tích message và chiếm RAM.</p>
+    </div>
+    <figure class="lab" data-widget="retention">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Log là bộ đệm vòng trên đĩa
+        <small>Mặc định là số trong sách (6 TB, 150 MB/s, ghi tối đa). Kéo “consumer tụt lại” vượt quá dung lượng bộ đệm để thấy message bị mất.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 12.7 -->
+  <article class="topic" id="ch12-dual-writes" data-num="12.7" data-short="Đồng bộ hệ thống: dual writes" data-keywords="dual writes race condition search index cache sync inconsistent etl">
+    <p class="eyebrow">12.7 · Databases and Streams · Keeping Systems in Sync</p>
+    <h2>Dual writes và cuộc đua không ai thắng <span class="vi">Keeping Systems in Sync</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Một lần ghi vào database cũng là một event. Replication log chính là luồng event ghi của leader; state machine replication là “cùng event, cùng thứ tự, cùng kết quả”.</li>
+      <li>Ứng dụng thật kết hợp nhiều hệ thống (OLTP, cache, full-text index, warehouse), mỗi cái có bản sao dữ liệu riêng, và chúng phải được đồng bộ.</li>
+      <li><dfn data-term="dual-writes">Dual writes</dfn>: code ứng dụng tự ghi vào từng hệ thống. Hai client đồng thời có thể làm database và search index lệch nhau <em>vĩnh viễn</em>, mà không có lỗi nào xảy ra.</li>
+      <li>Thêm nữa, một lần ghi có thể thành công còn lần kia thất bại. Bắt chúng cùng thành công hoặc cùng thất bại là bài toán atomic commit, rất đắt.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ta đã mượn ý tưởng database cho messaging (log bền vững). Giờ đi theo chiều ngược lại: mượn ý tưởng luồng cho database. Event có thể là hành động người dùng, số đo cảm biến, nhưng cũng có thể là “một bản ghi vừa được ghi vào database”. Replication log (<a href="#ch6">Chương 6</a>) là luồng các event ghi như vậy; follower áp dụng luồng đó để có bản sao giống hệt. Nguyên tắc state machine replication (<a href="#ch10">Chương 10</a>) nói: mọi replica xử lý cùng các event theo cùng thứ tự thì sẽ cùng trạng thái cuối. Lại là luồng event.</p>
+      <p>Không có hệ thống nào đáp ứng hết mọi nhu cầu lưu trữ, truy vấn và xử lý. Với warehouse, đồng bộ thường là ETL: chụp toàn bộ database, biến đổi, nạp hàng loạt, tức là batch. Khi dump toàn bộ quá chậm, người ta hay dùng dual writes: ghi database xong thì cập nhật search index, rồi vô hiệu cache (hoặc làm đồng thời).</p>
+      <p>Vấn đề nằm ở Hình 11-4: client 1 đặt X = A, client 2 đặt X = B. Cả hai ghi database trước rồi ghi search index. Do thời điểm xui, database thấy A rồi B (cuối cùng là B), còn index thấy B rồi A (cuối cùng là A). Không có lỗi nào, nhưng hai hệ thống lệch nhau mãi mãi. Trừ khi có cơ chế phát hiện ghi đồng thời như version vector (<a href="#ch6">Chương 6</a>), bạn thậm chí không nhận ra: một giá trị lặng lẽ đè lên giá trị kia.</p>
+    </div>
+    <figure class="lab" data-widget="dual-writes">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hai client, hai hệ thống, bốn lần ghi
+        <small>Chọn thứ tự như Hình 11-4 hoặc bấm “Chạy ngẫu nhiên” để random độ trễ mạng. Sau đó đổi sang CDC: client chỉ ghi database, index đi theo changelog.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Gốc của vấn đề: không có leader chung. Database có leader của nó, index có leader của nó, không ai theo ai, nên xung đột giống multi-leader replication. Sẽ tốt hơn nhiều nếu chỉ có một leader, ví dụ database, và biến search index thành <em>follower</em> của database. Đó chính là change data capture.</p></aside>
+  </article>
+
+  <!-- 12.8 -->
+  <article class="topic" id="ch12-cdc" data-num="12.8" data-short="Change data capture" data-keywords="cdc change data capture debezium maxwell bottled water databus snapshot offset kafka connect change stream rethinkdb firebase">
+    <p class="eyebrow">12.8 · Change Data Capture</p>
+    <h2>Change data capture và snapshot ban đầu <span class="vi">Change Data Capture</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="change-data-capture">Change data capture</dfn> (CDC): quan sát mọi thay đổi ghi vào database và đưa chúng ra thành một luồng, để hệ thống khác áp dụng <em>đúng thứ tự đó</em>.</li>
+      <li>CDC biến một database thành leader (system of record) và mọi hệ thống dẫn xuất thành follower. Log-based broker hợp để chở luồng này vì giữ thứ tự.</li>
+      <li>Cài bằng trigger (dễ vỡ, tốn) hoặc parse replication log (bền hơn nhưng phải xử lý đổi schema). CDC thường bất đồng bộ, nên mọi vấn đề replication lag đều xuất hiện.</li>
+      <li>Không giữ được toàn bộ lịch sử log thì cần <dfn data-term="initial-snapshot">snapshot ban đầu</dfn>, và snapshot phải gắn với <em>một offset xác định</em> trong changelog.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Suốt nhiều thập kỷ, replication log bị coi là chi tiết nội bộ của database, không phải API công khai: client phải truy vấn qua data model và ngôn ngữ truy vấn, không ai được parse log. Vì vậy rất khó lấy mọi thay đổi trong một database và replicate sang công nghệ khác như search index, cache hay warehouse. Gần đây CDC được quan tâm nhiều, nhất là khi thay đổi được đưa ra thành luồng ngay khi ghi.</p>
+      <p>Search index, warehouse là các hệ thống dữ liệu dẫn xuất, chỉ là một góc nhìn khác vào dữ liệu trong system of record (xem <a href="#ch1-derived">1.x Dữ liệu dẫn xuất</a>). Ví dụ triển khai: Databus của LinkedIn, Wormhole của Facebook, Sherpa của Yahoo!; Bottled Water cho PostgreSQL (giải mã write-ahead log), Maxwell và Debezium cho MySQL (parse binlog), Mongoriver cho oplog MongoDB, GoldenGate cho Oracle.</p>
+      <p>CDC thường bất đồng bộ: database không chờ consumer áp dụng xong mới commit. Ưu điểm là thêm một consumer chậm không làm chậm system of record; nhược điểm là mọi vấn đề replication lag (<a href="#ch6">Chương 6</a>) đều áp dụng.</p>
+      <h3>Snapshot ban đầu</h3>
+      <p>Có đủ log mọi thay đổi từ trước tới nay thì phát lại là dựng được toàn bộ database. Nhưng giữ log mãi tốn đĩa và phát lại quá lâu, nên log bị cắt bớt. Dựng một full-text index mới cần bản sao <em>toàn bộ</em> database: chỉ áp phần log gần đây là thiếu những item lâu không đổi. Vì vậy ta bắt đầu từ một snapshot nhất quán, giống cách thêm follower mới ở <a href="#ch6">Chương 6</a>, và snapshot đó phải ứng với một vị trí đã biết trong log để biết bắt đầu áp thay đổi từ đâu.</p>
+    </div>
+    <figure class="lab" data-widget="cdc-snapshot">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Dựng search index mới từ changelog đã bị cắt
+        <small>Log chỉ còn giữ từ offset 10. Chọn cách dựng index và so với database (dòng tô vàng là sai lệch).</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>API hỗ trợ change stream</h3>
+      <p>Ngày càng nhiều database coi <dfn data-term="change-stream">change stream</dfn> là giao diện hạng nhất, thay vì CDC kiểu chắp vá và “dịch ngược”:</p>
+      <ul>
+        <li>RethinkDB cho truy vấn đăng ký nhận thông báo khi kết quả của nó thay đổi.</li>
+        <li>Firebase và CouchDB đồng bộ dữ liệu dựa trên change feed, và mở feed đó cho ứng dụng.</li>
+        <li>Meteor dùng oplog của MongoDB để theo dõi thay đổi và cập nhật giao diện.</li>
+        <li>VoltDB cho transaction xuất dữ liệu liên tục ra một luồng: một “bảng” chỉ chèn được, không truy vấn được; consumer bên ngoài đọc log các tuple theo thứ tự commit.</li>
+        <li>Kafka Connect tích hợp công cụ CDC cho nhiều database với Kafka; vào Kafka rồi thì luồng thay đổi nuôi được search index lẫn stream processor.</li>
+      </ul>
+    </div>
+  </article>
+
+  <!-- 12.9 -->
+  <article class="topic" id="ch12-log-compaction" data-num="12.9" data-short="Log compaction" data-keywords="log compaction tombstone key latest value kafka compacted topic rebuild">
+    <p class="eyebrow">12.9 · Log Compaction</p>
+    <h2>Log compaction: giữ giá trị mới nhất của mỗi key <span class="vi">Log Compaction</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Nếu mỗi thay đổi CDC mang primary key và giá trị mới thay hẳn giá trị cũ, chỉ cần giữ lần ghi <em>mới nhất</em> của mỗi key.</li>
+      <li><dfn data-term="log-compaction">Log compaction</dfn> chạy nền, bỏ các bản ghi cũ trùng key; <dfn data-term="tombstone">tombstone</dfn> (giá trị null) đánh dấu key đã bị xoá.</li>
+      <li>Dung lượng log sau compaction phụ thuộc vào <em>nội dung hiện tại</em> của database, không phụ thuộc số lần ghi.</li>
+      <li>Muốn dựng lại index: chạy consumer mới từ offset 0 của topic đã compaction. Không cần snapshot database nguồn nữa. Kafka hỗ trợ tính năng này.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Nếu chỉ giữ được một phần lịch sử log, mỗi lần thêm hệ thống dẫn xuất mới bạn lại phải làm snapshot. Log compaction là lựa chọn thay thế. Ta đã gặp nó ở storage engine kiểu log (hash index, <a href="#ch4">Chương 4</a>): storage engine định kỳ tìm các bản ghi cùng key, bỏ bản trùng, chỉ giữ cập nhật gần nhất. Key nào chưa bị ghi đè hay xoá thì ở trong log mãi mãi.</p>
+      <p>Áp vào broker dựa trên log và CDC: log sau compaction đảm bảo chứa giá trị mới nhất của mọi key (có thể kèm vài giá trị cũ chưa dọn), tức là một bản sao đầy đủ của database. Nhờ vậy broker không chỉ là kênh truyền tạm thời mà còn là nơi lưu trữ bền.</p>
+    </div>
+    <figure class="lab" data-widget="compaction">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Compaction chạy trực tiếp
+        <small>Ghi cập nhật, xoá key bằng tombstone, chạy compaction, hoặc bấm “Tự chạy” để producer ghi liên tục và compaction chạy định kỳ. Bản ghi gạch ngang là bản đã bị thay thế.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Compaction chỉ đúng khi mỗi event là <em>trạng thái mới đầy đủ</em> của một key. Với event kiểu “cộng thêm 5” hay “người dùng huỷ đăng ký”, event sau không thay thế event trước, nên không compaction kiểu này được (xem event sourcing ở mục sau).</p></aside>
+  </article>
+
+  <!-- 12.10 -->
+  <article class="topic" id="ch12-event-sourcing" data-num="12.10" data-short="Event sourcing, command" data-keywords="event sourcing ddd command event validation immutable fact seat reservation snapshot">
+    <p class="eyebrow">12.10 · Event Sourcing · Commands and Events</p>
+    <h2>Event sourcing: command trở thành event <span class="vi">Event Sourcing, Commands and Events</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="event-sourcing">Event sourcing</dfn> (từ cộng đồng DDD) cũng lưu mọi thay đổi thành log event, nhưng ở tầng <em>ứng dụng</em>: event mô tả việc người dùng làm, không phải thay đổi trạng thái cấp thấp. Bài <a href="#ch3-event-sourcing">Event sourcing ở Chương 3</a> đã trình bày chi tiết.</li>
+      <li>CDC: ứng dụng dùng database kiểu mutable, log được trích ở tầng thấp, ứng dụng không cần biết. Event sourcing: ứng dụng chủ động ghi event bất biến, cấm sửa xoá.</li>
+      <li>Event sourcing cần toàn bộ lịch sử để dựng trạng thái (không compaction được như CDC); snapshot chỉ là tối ưu hiệu năng.</li>
+      <li>Yêu cầu của người dùng ban đầu là <dfn data-term="command">command</dfn>, có thể thất bại. Chỉ khi kiểm tra hợp lệ xong nó mới thành <em>event</em>: một sự thật bất biến mà consumer không được từ chối.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ví dụ trong sách: event “sinh viên huỷ đăng ký môn học” nói rõ ý định một cách trung lập, còn các tác dụng phụ “xoá một dòng trong bảng enrollments, thêm lý do huỷ vào bảng feedback” đã ngầm giả định cách dữ liệu sẽ được dùng. Khi có tính năng mới, như “nhường chỗ cho người tiếp theo trong danh sách chờ”, event sourcing chỉ cần nối thêm một tác dụng phụ vào event có sẵn. Event sourcing giống mô hình <em class="en">chronicle</em>, và event log giống bảng fact trong star schema.</p>
+      <p>Người dùng muốn thấy trạng thái hiện tại (giỏ hàng có gì), không phải danh sách thay đổi. Nên ứng dụng phải biến log event thành trạng thái để đọc. Phép biến đổi này có thể tuỳ ý, nhưng phải <em>tất định</em>, để chạy lại thì ra cùng kết quả.</p>
+      <h3>Command và event</h3>
+      <p>Khi người dùng muốn đăng ký một username hay giữ một ghế trên máy bay, ứng dụng phải kiểm tra username hay ghế đó còn trống. Kiểm tra xong mới sinh event “ghế 2B đã được giữ cho khách X”. Lúc đó nó là sự thật: dù khách sau này đổi ý hay huỷ, sự thật “họ từng giữ ghế đó” vẫn đúng, và việc huỷ là một event riêng thêm vào sau. Vì consumer không được từ chối event (nó đã nằm trong log, có thể đã được consumer khác đọc), việc kiểm tra command phải làm <em>đồng bộ</em> trước khi thành event, ví dụ bằng serializable transaction kiểm tra và ghi event một cách nguyên tử. Cách khác: tách thành hai event, “giữ tạm” rồi “xác nhận” sau khi kiểm tra bất đồng bộ.</p>
+    </div>
+    <figure class="lab" data-widget="cmd-event">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đặt ghế: command được kiểm tra, event được ghi
+        <small>Chọn khách và ghế rồi gửi command. Command hợp lệ thành event trong log; trạng thái sơ đồ ghế được tính lại từ log. Thử nút “Hai khách cùng đặt 2B”.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 12.11 -->
+  <article class="topic" id="ch12-immutability" data-num="12.11" data-short="Trạng thái, luồng, bất biến" data-keywords="state stream immutability changelog integrate derivative ledger cqrs views concurrency excision deletion">
+    <p class="eyebrow">12.11 · State, Streams, and Immutability</p>
+    <h2>Trạng thái là tích phân của luồng <span class="vi">State, Streams, and Immutability</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Trạng thái thay đổi được và log event bất biến không mâu thuẫn: chúng là hai mặt của một đồng xu. Trạng thái là tích phân của luồng theo thời gian; <dfn data-term="changelog">changelog</dfn> là đạo hàm của trạng thái.</li>
+      <li>“Sự thật là log. Database là cache của một phần log” (Pat Helland). Kế toán đã làm vậy hàng thế kỷ: sổ cái chỉ ghi thêm, sai thì ghi bút toán bù, không tẩy xoá.</li>
+      <li>Tách cách ghi khỏi cách đọc (<dfn data-term="cqrs">CQRS</dfn>): từ một log có thể dựng nhiều view đọc khác nhau, thêm view mới mà không cần migration.</li>
+      <li>Nhược điểm: view cập nhật bất đồng bộ nên có thể không “đọc được cái mình vừa ghi”. Và bất biến có giới hạn: dữ liệu đổi nhiều, hay luật bắt xoá thật (<dfn data-term="excision">excision</dfn>).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Danh sách ghế trống là kết quả của các lượt đặt đã xử lý; số dư tài khoản là kết quả của các khoản ghi có, ghi nợ; biểu đồ thời gian phản hồi là tổng hợp của từng request. Dù trạng thái đổi thế nào, luôn có một dãy event gây ra nó. Lưu changelog bền vững thì trạng thái trở nên tái tạo được. Coi log là system of record và mọi trạng thái là dẫn xuất từ nó thì dòng dữ liệu dễ suy luận hơn nhiều. Log compaction là cầu nối: chỉ giữ phiên bản mới nhất của mỗi bản ghi.</p>
+      <h3>Lợi ích của event bất biến</h3>
+      <p>Nếu lỡ deploy code lỗi ghi dữ liệu xấu, phục hồi khó hơn nhiều khi code được phép ghi đè. Với log bất biến, dễ chẩn đoán chuyện gì đã xảy ra và sửa. Event cũng giữ nhiều thông tin hơn trạng thái: khách thêm một món vào giỏ rồi bỏ ra, xét về giao hàng thì như chưa có gì, nhưng với phân tích thì biết được họ đã cân nhắc món đó.</p>
+      <h3>Nhiều view từ cùng một log</h3>
+      <p>Druid nạp thẳng từ Kafka, Pistachio dùng Kafka làm commit log, Kafka Connect đổ dữ liệu ra nhiều database và index. Muốn trình bày dữ liệu cũ theo cách mới, bạn dựng một view mới từ log và chạy song song với hệ thống cũ, không cần migration schema phức tạp; xong thì tắt hệ thống cũ. Tranh luận chuẩn hoá hay phi chuẩn hoá cũng bớt quan trọng: phi chuẩn hoá trong view đọc là hợp lý vì quá trình dịch từ log giữ cho nó nhất quán. Home timeline của Twitter (<a href="#ch2-fanout">2.3</a>) là ví dụ: phi chuẩn hoá mạnh, nhưng dịch vụ fan-out giữ nó đồng bộ.</p>
+    </div>
+    <figure class="lab" data-widget="log-views">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Một log giỏ hàng, nhiều view
+        <small>Kéo thanh “phát lại đến event” để thấy trạng thái là tích luỹ của log. Thêm view mới dựng từ đầu log, hoặc thử xoá thật dữ liệu của một khách.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Kiểm soát đồng thời</h3>
+      <p>Nhược điểm lớn nhất của event sourcing và CDC: consumer thường bất đồng bộ, nên người dùng ghi vào log rồi đọc view có thể chưa thấy lần ghi của mình (xem “đọc được cái mình vừa ghi” ở <a href="#ch6">Chương 6</a>). Một cách là cập nhật view đồng bộ cùng lúc append event, cần transaction gộp hai việc: hoặc để log và view chung một hệ lưu trữ, hoặc dùng distributed transaction, hoặc dùng total order broadcast (<a href="#ch10">Chương 10</a>).</p>
+      <p>Mặt khác, log lại đơn giản hoá kiểm soát đồng thời. Phần lớn nhu cầu transaction nhiều đối tượng đến từ một hành động phải sửa nhiều chỗ. Với event sourcing, một event tự mô tả đủ hành động, nên chỉ cần <em>một</em> lần ghi (append), dễ làm nguyên tử. Nếu log và trạng thái được partition giống nhau, một consumer đơn luồng không cần khoá gì: log đã định ra thứ tự tuần tự trong mỗi partition (như thực thi tuần tự ở <a href="#ch8">Chương 8</a>).</p>
+    </div>
+    <figure class="lab" data-widget="async-view">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ghi vào log rồi đọc ngay từ view
+        <small>1.000 người dùng đổi tên hiển thị rồi mở trang hồ sơ. Kéo độ trễ của consumer và thời điểm đọc. Số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Giới hạn của bất biến</h3>
+      <p>Nhiều hệ thống không theo event sourcing vẫn dựa vào bất biến: snapshot isolation dùng dữ liệu nhiều phiên bản, Git và Mercurial giữ lịch sử bất biến. Nhưng giữ lịch sử mãi được hay không tuỳ vào mức độ biến động: workload chủ yếu thêm mới thì dễ; workload cập nhật và xoá nhiều trên tập dữ liệu nhỏ thì lịch sử phình to, phân mảnh, và hiệu năng compaction, garbage collection trở nên sống còn.</p>
+      <p>Còn có lý do hành chính: luật bảo vệ quyền riêng tư bắt xoá dữ liệu cá nhân khi người dùng đóng tài khoản, thông tin sai phải được gỡ, dữ liệu nhạy cảm bị lộ phải được thu hồi. Lúc đó thêm một event “coi như đã xoá” là không đủ; bạn thật sự muốn viết lại lịch sử. Datomic gọi đó là excision, Fossil gọi là <em class="en">shunning</em>. Xoá thật rất khó, vì bản sao nằm khắp nơi: storage engine, filesystem, SSD thường ghi chỗ mới thay vì ghi đè, còn backup thì cố tình bất biến. Xoá thường là “làm cho khó lấy lại hơn” chứ không phải “không thể lấy lại” (xem thêm <a href="#ch13">Chương 13</a>).</p>
+    </div>
+  </article>
+
+  <!-- 12.12 -->
+  <article class="topic" id="ch12-uses" data-num="12.12" data-short="Ứng dụng của xử lý luồng" data-keywords="processing streams operator job cep complex event processing analytics materialized view search percolator actor rpc">
+    <p class="eyebrow">12.12 · Processing Streams · Uses of Stream Processing</p>
+    <h2>Làm gì với luồng: lưu truy vấn, cho dữ liệu chảy qua <span class="vi">Uses of Stream Processing</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Có luồng rồi thì: (1) ghi vào database/cache/index, (2) đẩy tới con người (email, push, dashboard), hoặc (3) biến một hay nhiều luồng thành luồng khác. Đoạn code làm (3) gọi là <em class="en">operator</em> hay <em class="en">job</em>.</li>
+      <li>Khác biệt cốt lõi với batch: luồng không bao giờ kết thúc. Không sort được, nên không có sort-merge join; chịu lỗi không thể “chạy lại từ đầu” một job đã chạy nhiều năm.</li>
+      <li><dfn data-term="cep">Complex event processing</dfn> và search trên luồng đảo ngược vai trò: <em>truy vấn</em> được lưu lâu dài, <em>dữ liệu</em> chảy qua chúng.</li>
+      <li><dfn data-term="stream-analytics">Stream analytics</dfn> lo tổng hợp và thống kê theo cửa sổ; duy trì <dfn data-term="materialized-view">materialized view</dfn> cần cửa sổ kéo dài tới tận “đầu thời gian”.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Stream processor đọc luồng đầu vào kiểu chỉ đọc và ghi đầu ra kiểu chỉ append ra nơi khác, giống Unix process và MapReduce job ở <a href="#ch11">Chương 11</a>. Partition và song song hoá cũng tương tự, các phép map, filter cũng y như vậy. Ứng dụng lâu đời nhất là giám sát: phát hiện gian lận thẻ tín dụng, hệ thống giao dịch theo luật giá, giám sát máy móc nhà máy, hệ thống quân sự theo dõi dấu hiệu tấn công.</p>
+      <h3>Complex event processing</h3>
+      <p>CEP (từ thập niên 1990) giống regular expression cho luồng event: bạn khai báo mẫu (thường bằng ngôn ngữ kiểu SQL hoặc giao diện đồ hoạ), engine giữ một state machine để khớp mẫu, và khi khớp thì phát ra một “complex event”. Database bình thường lưu dữ liệu lâu dài và coi truy vấn là tạm thời; CEP thì ngược lại. Ví dụ: Esper, IBM InfoSphere Streams, Apama, TIBCO StreamBase, SQLstream; Samza cũng có SQL.</p>
+      <h3>Stream analytics</h3>
+      <p>Ranh giới với CEP mờ, nhưng analytics ít quan tâm chuỗi event cụ thể mà quan tâm tổng hợp: tốc độ một loại event mỗi khoảng thời gian, trung bình trượt, so sánh với cùng giờ tuần trước. Khoảng thời gian để tổng hợp gọi là <em>cửa sổ</em> (<a href="#ch12-windows">12.14</a>). Đôi khi dùng thuật toán xác suất như Bloom filter, HyperLogLog, ước lượng percentile: kết quả gần đúng nhưng tốn ít bộ nhớ hơn. Điều đó khiến nhiều người tưởng stream processing luôn “ước lượng”, nhưng sai: thuật toán xác suất chỉ là tối ưu. Framework: Storm, Spark Streaming, Flink, Concord, Samza, Kafka Streams; dịch vụ: Google Cloud Dataflow, Azure Stream Analytics.</p>
+      <h3>Materialized view và search trên luồng</h3>
+      <p>Giữ cache, index, warehouse đồng bộ là trường hợp riêng của duy trì materialized view; trạng thái ứng dụng trong event sourcing cũng vậy. Khác analytics, nó cần mọi event từ đầu (trừ những gì compaction đã bỏ), điều ngược với giả định cửa sổ ngắn của một số framework; Samza và Kafka Streams hỗ trợ tốt nhờ log compaction của Kafka. Search trên luồng thì như dịch vụ theo dõi báo chí, hay trang bất động sản báo khi có căn mới khớp tiêu chí: truy vấn được lưu trước, mỗi tài liệu mới chạy qua các truy vấn. Tính năng <dfn data-term="percolator">percolator</dfn> của Elasticsearch làm điều này; có nhiều truy vấn thì đánh index cả truy vấn để thu hẹp tập cần thử.</p>
+    </div>
+    <figure class="lab" data-widget="stored-queries">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Truy vấn đứng yên, event chảy qua
+        <small>Chọn CEP (mẫu gian lận thẻ) hoặc search trên luồng (tin đăng bất động sản). Bấm “Phát event” để đẩy thêm event qua các truy vấn đã lưu. Dữ liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Message passing và RPC (như actor model) cũng dựa trên message, nhưng không phải stream processor: actor chủ yếu là cơ chế quản lý đồng thời, giao tiếp tạm thời và một-một, có thể vòng request/response tuỳ ý; còn event log thì bền, nhiều subscriber, và pipeline thường không có chu trình. Có vùng giao: Storm có <em class="en">distributed RPC</em> trộn truy vấn người dùng vào luồng event. Nhiều actor framework không đảm bảo giao message khi sập, nên phải tự thêm retry.</p></aside>
+  </article>
+
+  <!-- 12.13 -->
+  <article class="topic" id="ch12-event-time" data-num="12.13" data-short="Event time vs processing time" data-keywords="event time processing time straggler window ready watermark correction clock device server three timestamps star wars">
+    <p class="eyebrow">12.13 · Reasoning About Time</p>
+    <h2>Event time hay processing time <span class="vi">Reasoning About Time</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="event-time">Event time</dfn> là lúc sự việc xảy ra (timestamp trong event); <dfn data-term="processing-time">processing time</dfn> là đồng hồ của máy đang xử lý. Lẫn hai cái là ra dữ liệu sai.</li>
+      <li>Xử lý trễ vì hàng đợi, lỗi mạng, broker nghẽn, consumer khởi động lại, hay phát lại quá khứ. Trễ còn làm đảo thứ tự event.</li>
+      <li>Với event time, bạn không bao giờ chắc đã nhận đủ event của một cửa sổ. Event đến sau khi đã đóng cửa sổ là <dfn data-term="straggler">straggler</dfn>: bỏ qua (và đếm số bỏ) hoặc phát bản sửa.</li>
+      <li>Đồng hồ thiết bị người dùng không đáng tin. Ghi ba timestamp (xảy ra theo thiết bị, gửi theo thiết bị, nhận theo server) để ước lượng độ lệch đồng hồ.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Batch nhai một năm dữ liệu trong vài phút, nên đương nhiên nó dùng timestamp trong event; nhìn đồng hồ của máy chạy batch là vô nghĩa. Dùng timestamp trong event còn làm kết quả tất định. Nhiều stream framework lại dùng đồng hồ cục bộ để chia cửa sổ: đơn giản, và chấp nhận được khi độ trễ từ lúc tạo đến lúc xử lý rất nhỏ. Nhưng hỏng ngay khi có trễ đáng kể.</p>
+      <p>Hình dung loạt phim Star Wars: Tập IV ra năm 1977, V năm 1980, VI năm 1983, rồi I, II, III vào 1999, 2002, 2005, và VII năm 2015. Xem theo thứ tự ra rạp thì thứ tự “xử lý” lệch với thứ tự câu chuyện. Số tập giống event timestamp, ngày bạn xem giống processing time. Con người tự chỉnh được, thuật toán thì phải được viết riêng để làm vậy.</p>
+      <p>Ví dụ Hình 11-7: bạn đếm request mỗi phút. Redeploy làm stream processor dừng một phút, khi lên lại nó xử lý dồn backlog. Đếm theo processing time sẽ thấy một “cú tăng vọt” bất thường, trong khi tốc độ request thật vẫn đều.</p>
+      <h3>Khi nào thì đủ?</h3>
+      <p>Bạn đã đếm event có timestamp ở phút 37, giờ đa số event mới đã thuộc phút 38 và 39. Khi nào tuyên bố xong phút 37 và xuất con số? Có thể chờ một lúc không thấy event mới thì đóng, nhưng vẫn có event bị kẹt trên máy khác vì sự cố mạng. Có thể dùng một message đặc biệt “từ giờ không còn event nào có timestamp trước t” để kích hoạt đóng cửa sổ, nhưng khi nhiều producer trên nhiều máy mỗi cái có ngưỡng riêng, consumer phải theo dõi từng producer.</p>
+    </div>
+    <figure class="lab" data-widget="event-time">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đếm event mỗi phút: theo lúc xử lý hay theo lúc xảy ra?
+        <small>Tốc độ event thật đều 10 event/phút. Chọn kịch bản trễ, đổi thời gian chờ trước khi đóng cửa sổ và cách xử lý straggler. Số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <div class="prose">
+      <h3>Rốt cuộc là đồng hồ của ai?</h3>
+      <p>Một app di động gửi event dùng cho metric. App có thể được dùng khi offline, lưu event lại và gửi khi có mạng, có khi vài giờ hay vài ngày sau. Với consumer, đó là straggler cực muộn. Timestamp đúng nghĩa là lúc người dùng tương tác, theo đồng hồ thiết bị. Nhưng đồng hồ thiết bị do người dùng kiểm soát, có thể bị chỉnh sai (vô tình hay cố ý, xem <a href="#ch9">Chương 9</a>). Đồng hồ server đáng tin hơn nhưng ít ý nghĩa hơn. Cách xử lý: ghi ba timestamp, lấy (nhận theo server) trừ (gửi theo thiết bị) để ước lượng độ lệch đồng hồ, rồi áp độ lệch đó vào thời điểm xảy ra. Giả định: độ trễ mạng nhỏ so với độ chính xác cần, và độ lệch đồng hồ không đổi từ lúc xảy ra đến lúc gửi.</p>
+    </div>
+    <figure class="lab" data-widget="three-clocks">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ba timestamp và một đồng hồ thiết bị chạy sai
+        <small>Đặt đồng hồ điện thoại nhanh/chậm, thời gian offline và độ trễ mạng. Sai số của cách ước lượng chỉ còn đúng bằng độ trễ mạng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Đây không phải vấn đề riêng của stream: batch gặp y hệt khi suy luận về thời gian. Chỉ là trong stream ta ý thức rõ hơn về thời gian đang trôi.</p></aside>
+  </article>
+
+  <!-- 12.14 -->
+  <article class="topic" id="ch12-windows" data-num="12.14" data-short="Các loại cửa sổ" data-keywords="window tumbling hopping sliding session sessionization aggregation">
+    <p class="eyebrow">12.14 · Types of Windows</p>
+    <h2>Bốn loại cửa sổ trên cùng một luồng <span class="vi">Types of Windows</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="tumbling-window">Tumbling</dfn>: độ dài cố định, mỗi event thuộc đúng một cửa sổ (làm tròn timestamp xuống phút).</li>
+      <li><dfn data-term="hopping-window">Hopping</dfn>: độ dài cố định nhưng chồng lên nhau để làm mượt; 5 phút, bước nhảy 1 phút. Cài bằng tumbling 1 phút rồi gộp các cửa sổ liền kề.</li>
+      <li><dfn data-term="sliding-window">Sliding</dfn>: gom các event nằm trong một khoảng của nhau, không có ranh giới cố định. 10:03:39 và 10:08:12 cách nhau dưới 5 phút nên chung một cửa sổ trượt 5 phút.</li>
+      <li><dfn data-term="session-window">Session</dfn>: không có độ dài cố định; gom event của cùng một người dùng gần nhau, đóng khi họ im lặng một lúc (ví dụ 30 phút).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Biết cách xác định timestamp rồi, bước tiếp là định nghĩa cửa sổ để tổng hợp: đếm event, tính trung bình giá trị trong cửa sổ. Tumbling 1 phút gom mọi event từ 10:03:00 tới 10:03:59 vào một cửa sổ, 10:04:00 tới 10:04:59 vào cửa sổ tiếp theo. Hopping 5 phút bước 1 phút chứa 10:03:00–10:07:59, rồi 10:04:00–10:08:59. Sliding được cài bằng một bộ đệm event sắp theo thời gian, bỏ event cũ khi nó hết hạn. Session window (sessionization) là yêu cầu thường gặp trong phân tích website.</p>
+    </div>
+    <figure class="lab" data-widget="windows">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Cùng 14 event, bốn cách chia cửa sổ
+        <small>Chuyển loại cửa sổ và kéo tham số. Ở chế độ sliding, bấm vào một chấm event để xem cửa sổ kết thúc tại nó. Khoảng lặng phiên được thu nhỏ để vừa trục thời gian (sách dùng 30 phút).</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 12.15 -->
+  <article class="topic" id="ch12-stream-stream" data-num="12.15" data-short="Join stream–stream" data-keywords="stream join window join search click click-through rate session id state">
+    <p class="eyebrow">12.15 · Stream Joins · Stream-stream join</p>
+    <h2>Join hai luồng trong một cửa sổ <span class="vi">Stream-Stream Join (Window Join)</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Có ba loại join trên luồng: stream-stream, stream-table, table-table. Event mới có thể xuất hiện bất cứ lúc nào nên khó hơn join trong batch.</li>
+      <li><dfn data-term="stream-stream-join">Stream-stream join</dfn>: ví dụ ghép event tìm kiếm với event click cùng session ID để tính click-through rate. Click có thể không bao giờ đến, đến sau vài giây hay vài tuần, thậm chí đến trước event search.</li>
+      <li>Chọn một cửa sổ join (ví dụ tối đa 1 giờ). Processor giữ trạng thái: mọi event trong giờ qua, index theo session ID.</li>
+      <li>Nhúng chi tiết search vào event click không thay được join: bạn chỉ thấy search có click, mất hẳn những search không ai click.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Batch ở <a href="#ch11">Chương 11</a> join dữ liệu theo key, và join là phần quan trọng của pipeline. Stream processing tổng quát hoá pipeline cho dữ liệu vô hạn, nên nhu cầu join y như vậy. Mỗi khi có event search hay click, processor thêm nó vào index tương ứng và kiểm tra index kia xem đã có event cùng session ID chưa. Có thì phát event “kết quả nào được click”; event search hết hạn mà không có click thì phát event “không kết quả nào được click”. Hệ thống quảng cáo cần phân tích tương tự.</p>
+    </div>
+    <figure class="lab" data-widget="ss-join">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Ghép search với click theo session
+        <small>Bấm “Xử lý event tiếp” để đưa từng event vào processor. Xem trạng thái hai index và luồng đầu ra. Kéo độ dài cửa sổ join rồi chạy lại. Dữ liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 12.16 -->
+  <article class="topic" id="ch12-stream-table" data-num="12.16" data-short="Join stream–table" data-keywords="stream table join enrichment user profile changelog local copy hash join cdc">
+    <p class="eyebrow">12.16 · Stream-table join</p>
+    <h2>Làm giàu event bằng bảng profile <span class="vi">Stream-Table Join (Stream Enrichment)</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="stream-table-join">Stream-table join</dfn>: mỗi event hoạt động mang user ID được “làm giàu” bằng thông tin profile từ database.</li>
+      <li>Gọi database từ xa cho mỗi event thì chậm và dễ làm quá tải database. Tốt hơn: giữ một bản sao cục bộ trong processor (hash table trong RAM hoặc index trên đĩa), giống hash join phía map.</li>
+      <li>Khác batch: processor chạy mãi, profile thay đổi, nên bản sao cục bộ phải được cập nhật bằng CDC từ changelog của bảng profile.</li>
+      <li>Thực chất đây là join hai luồng, trong đó luồng changelog có cửa sổ dài tới “đầu thời gian”, bản mới đè bản cũ.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ví dụ ở <a href="#ch11">Chương 11</a> (Hình 10-2): join event hoạt động với database profile người dùng. Coi event hoạt động là luồng, ta làm cùng phép join liên tục. Đầu ra là luồng event hoạt động đã được thêm thông tin profile. Với luồng event thì join có thể không cần cửa sổ nào; với luồng changelog thì cửa sổ là vô hạn.</p>
+    </div>
+    <figure class="lab" data-widget="enrich">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Event hoạt động + changelog profile
+        <small>So sánh “gọi DB từ xa” với “bản sao cục bộ + CDC”. Đổi vị trí của event cập nhật profile trong luồng đầu vào để thấy kết quả join phụ thuộc vào thứ tự. Độ trễ là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 12.17 -->
+  <article class="topic" id="ch12-table-table" data-num="12.17" data-short="Join table–table" data-keywords="table table join materialized view twitter timeline follows tweets product rule">
+    <p class="eyebrow">12.17 · Table-table join</p>
+    <h2>Duy trì timeline Twitter như một view join <span class="vi">Table-Table Join (Materialized View Maintenance)</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Timeline cache (<a href="#ch2-fanout">2.3</a>) là một “hộp thư” cho mỗi người dùng, đọc chỉ cần một lần tra.</li>
+      <li>Duy trì nó cần hai luồng: tweet (gửi, xoá) và quan hệ follow (follow, unfollow). Processor giữ danh sách follower của từng người.</li>
+      <li><dfn data-term="table-table-join">Table-table join</dfn>: cả hai đầu vào là changelog của bảng; timeline là cache của kết quả câu SQL join <code>tweets</code> với <code>follows</code>.</li>
+      <li>Quy tắc đạo hàm của tích: (u·v)′ = u′v + uv′. Thay đổi của tweets join với follows hiện tại, thay đổi của follows join với tweets hiện tại.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Các event cần xử lý: khi u gửi tweet, thêm vào timeline của mọi người theo dõi u; khi xoá tweet, gỡ khỏi mọi timeline; khi u1 follow u2, thêm tweet gần đây của u2 vào timeline u1; khi u1 unfollow u2, gỡ tweet của u2 khỏi timeline u1. Nhìn theo cách khác, processor đang duy trì materialized view cho câu truy vấn:</p>
+    </div>
+    <pre class="code"><span class="k">SELECT</span> follows.follower_id <span class="k">AS</span> timeline_id,
+  <span class="fn">array_agg</span>(tweets.* <span class="k">ORDER BY</span> tweets.timestamp <span class="k">DESC</span>)
+<span class="k">FROM</span> tweets
+<span class="k">JOIN</span> follows <span class="k">ON</span> follows.followee_id = tweets.sender_id
+<span class="k">GROUP BY</span> follows.follower_id</pre>
+    <figure class="lab" data-widget="timeline-join">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hai changelog, một materialized view
+        <small>Đăng, xoá tweet; follow, unfollow. Mỗi thay đổi được join với trạng thái hiện tại của phía kia; dòng tô vàng trong timeline là mục vừa thay đổi.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 12.18 -->
+  <article class="topic" id="ch12-join-time" data-num="12.18" data-short="Join phụ thuộc thời gian" data-keywords="time dependence join nondeterministic slowly changing dimension scd tax rate version id">
+    <p class="eyebrow">12.18 · Time-dependence of joins</p>
+    <h2>Join với trạng thái ở thời điểm nào? <span class="vi">Time-Dependence of Joins</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Cả ba loại join đều giữ trạng thái từ một đầu vào và tra nó khi có message từ đầu vào kia. Thứ tự các event duy trì trạng thái là quan trọng (follow rồi unfollow khác unfollow rồi follow).</li>
+      <li>Log partition chỉ giữ thứ tự trong một partition, không giữ thứ tự giữa các luồng. Thứ tự xen kẽ không xác định thì join <em>không tất định</em>: chạy lại cùng đầu vào chưa chắc ra cùng kết quả.</li>
+      <li>Kho dữ liệu gọi đây là <dfn data-term="slowly-changing-dimension">slowly changing dimension</dfn> (SCD). Cách thường dùng: gán ID riêng cho mỗi phiên bản bản ghi (mỗi lần đổi thuế suất có ID mới), hoá đơn mang ID thuế suất lúc bán.</li>
+      <li>Cái giá: không compaction được nữa, vì phải giữ mọi phiên bản.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Trong ví dụ stream-table, nếu người dùng cập nhật profile, event hoạt động nào join với profile cũ, event nào với profile mới? Một ví dụ khác: bán hàng phải áp đúng thuế suất, mà thuế suất phụ thuộc quốc gia, loại hàng, và <em>ngày bán</em>. Khi xử lý lại dữ liệu lịch sử, thuế suất cần dùng là thuế suất lúc bán, có thể khác thuế suất hiện tại.</p>
+    </div>
+    <figure class="lab" data-widget="scd">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Hoá đơn và bảng thuế suất thay đổi theo thời gian
+        <small>Thuế suất đổi từ 10% xuống 8% ngày 01/07. So sánh join với “thuế suất hiện tại” và join theo ID phiên bản, khi chạy trực tiếp và khi chạy lại sau. Thuế suất và hoá đơn là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 12.19 -->
+  <article class="topic" id="ch12-microbatch" data-num="12.19" data-short="Microbatch, checkpoint" data-keywords="fault tolerance exactly-once effectively-once microbatching spark streaming checkpoint flink barrier atomic commit side effect">
+    <p class="eyebrow">12.19 · Fault Tolerance · Microbatching and Checkpointing · Atomic Commit Revisited</p>
+    <h2>Chịu lỗi: microbatch, checkpoint và atomic commit <span class="vi">Microbatching, Checkpointing, Atomic Commit</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Batch có <dfn data-term="exactly-once">exactly-once semantics</dfn> (gọi là <em class="en">effectively-once</em> thì đúng hơn): record có thể bị xử lý nhiều lần, nhưng hiệu ứng thấy được như chỉ một lần. Luồng vô hạn nên không thể “chờ xong rồi mới công bố output”.</li>
+      <li><dfn data-term="microbatching">Microbatching</dfn> (Spark Streaming): cắt luồng thành khối khoảng 1 giây, mỗi khối là một batch nhỏ. Khối nhỏ thì tốn điều phối, khối lớn thì trễ.</li>
+      <li><dfn data-term="checkpointing">Checkpointing</dfn> (Flink): định kỳ ghi trạng thái ra kho bền, kích hoạt bằng barrier trong luồng; sập thì quay lại checkpoint gần nhất và bỏ output sau đó.</li>
+      <li>Hai cách trên chỉ đúng <em>bên trong</em> framework. Output ra ngoài (ghi DB, gửi email) sẽ xảy ra hai lần, trừ khi mọi output, thay đổi trạng thái và việc dời offset được commit nguyên tử.</li>
+    </ul></div>
+    <div class="prose">
+      <p>MapReduce chịu lỗi dễ vì đầu vào bất biến, mỗi task ghi output vào file riêng, và output chỉ hiện ra khi task thành công. Với luồng, ta cần cơ chế mịn hơn. Microbatching ngầm tạo ra một tumbling window bằng kích thước batch, tính theo <em>processing time</em>; job cần cửa sổ lớn hơn phải tự mang trạng thái qua các batch. Checkpoint của Flink thì không ép kích thước cửa sổ nào.</p>
+      <h3>Atomic commit, nhìn lại</h3>
+      <p>Muốn trông như xử lý đúng một lần khi có lỗi, mọi output và tác dụng phụ của việc xử lý một event phải xảy ra khi và chỉ khi xử lý thành công: message gửi cho operator sau hoặc hệ thống ngoài (kể cả email, push), ghi database, thay đổi trạng thái operator, và ack đầu vào (kể cả dời offset). Tất cả cùng xảy ra hoặc cùng không. Đó là chủ đề exactly-once ở phần distributed transaction (<a href="#ch10">Chương 10</a>). Google Cloud Dataflow và VoltDB cài được hiệu quả, Kafka có kế hoạch tương tự, vì chúng không cố làm transaction xuyên nhiều công nghệ khác nhau như XA mà giữ mọi thứ bên trong framework, và gộp nhiều message vào một transaction để chia nhỏ chi phí.</p>
+    </div>
+    <figure class="lab" data-widget="checkpoint">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Sập giữa chừng: cái gì được làm lại, cái gì bị lặp?
+        <small>20 event, mỗi event cập nhật bộ đếm nội bộ và gửi một email. Chọn microbatch hay checkpoint, kéo kích thước và vị trí sập, bật atomic commit. Chi phí điều phối là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 12.20 -->
+  <article class="topic" id="ch12-idempotence" data-num="12.20" data-short="Idempotence" data-keywords="idempotent idempotence offset stored with write duplicate trident fencing deterministic replay">
+    <p class="eyebrow">12.20 · Idempotence</p>
+    <h2>Idempotence: làm lại cũng không sao <span class="vi">Idempotence</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Một thao tác <dfn data-term="idempotence">idempotent</dfn> làm nhiều lần có cùng hiệu ứng như làm một lần. Gán một key bằng giá trị cố định là idempotent; tăng bộ đếm thì không.</li>
+      <li>Thao tác không tự nhiên idempotent thường có thể làm cho idempotent bằng chút metadata: ghi kèm offset của message gây ra lần ghi đó, để biết lần ghi đã được áp dụng chưa.</li>
+      <li>Điều kiện: chạy lại phải phát lại cùng message theo cùng thứ tự (log-based broker làm được), xử lý phải tất định, và không node nào khác ghi cùng giá trị đồng thời. Khi chuyển node cần fencing để chặn node “tưởng chết mà vẫn sống”.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Mục tiêu: bỏ output dở dang của task lỗi, để chạy lại an toàn mà không có hiệu ứng hai lần. Distributed transaction là một cách; idempotence là cách khác, rẻ hơn. Trạng thái của Storm Trident dựa trên ý tưởng này. Fencing đã gặp ở phần “leader và lock” (<a href="#ch9">Chương 9</a>). Dù có nhiều điều kiện như vậy, idempotent là cách hiệu quả để có exactly-once với chi phí nhỏ.</p>
+    </div>
+    <figure class="lab" data-widget="idempotence">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Consumer sập sau khi ghi DB, trước khi commit offset
+        <small>8 message, mỗi message cộng 1 lượt xem cho trang /home. Consumer commit offset sau mỗi 3 message và sập ngay sau khi ghi message offset 5. Đổi cách ghi rồi chạy từng bước.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <!-- 12.21 -->
+  <article class="topic" id="ch12-rebuild" data-num="12.21" data-short="Dựng lại state sau lỗi" data-keywords="rebuilding state failure local state remote datastore flink snapshot samza kafka streams changelog topic voltdb redundant replay">
+    <p class="eyebrow">12.21 · Rebuilding state after a failure</p>
+    <h2>Dựng lại trạng thái sau khi sập <span class="vi">Rebuilding State After a Failure</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Mọi xử lý có trạng thái (bộ đếm, trung bình, histogram theo cửa sổ; bảng và index dùng cho join) phải khôi phục được trạng thái sau lỗi.</li>
+      <li>Giữ trạng thái ở datastore từ xa có replicate: an toàn nhưng mỗi message một lần gọi mạng, chậm.</li>
+      <li>Giữ trạng thái cục bộ và replicate định kỳ: Flink chụp snapshot ra HDFS; Samza và Kafka Streams gửi thay đổi trạng thái vào một topic Kafka có log compaction; VoltDB xử lý dư thừa mỗi message trên nhiều node.</li>
+      <li>Có khi không cần replicate: cửa sổ ngắn thì phát lại input; bản sao database qua CDC thì dựng lại từ changelog đã compaction.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Không có lựa chọn tốt nhất cho mọi trường hợp. Tất cả phụ thuộc hiệu năng của hạ tầng: ở một số hệ thống, độ trễ mạng còn thấp hơn độ trễ truy cập đĩa, băng thông mạng ngang băng thông đĩa. Và ưu thế của trạng thái cục bộ hay từ xa có thể đổi chiều khi công nghệ lưu trữ và mạng thay đổi. Bộ tính dưới đây chỉ để cảm nhận hình dạng của đánh đổi.</p>
+    </div>
+    <figure class="lab" data-widget="rebuild">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Năm cách giữ trạng thái, thời gian khôi phục bao lâu?
+        <small>Kéo kích thước trạng thái, tốc độ event, chu kỳ snapshot và độ dài cửa sổ. Mọi tốc độ đĩa, mạng là số liệu minh hoạ.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Các kỹ thuật cho join và chịu lỗi đều dựa trên cùng hai năng lực của log: lưu trạng thái dưới dạng luồng (changelog, compaction) và phát lại message. Đó là sợi chỉ xuyên suốt chương.</p></aside>
+  </article>
+
+  <!-- review -->
+  <article class="topic" id="ch12-review" data-num="12.★" data-short="Tổng kết & kiểm tra" data-keywords="summary review quiz">
+    <p class="eyebrow">12.★ · Summary</p>
+    <h2>Tổng kết chương <span class="vi">Summary</span></h2>
+    <div class="prose">
+      <p>Xử lý luồng rất giống batch, nhưng chạy liên tục trên dữ liệu không giới hạn. Message broker và event log là bản tương đương của filesystem. Có hai loại broker:</p>
+      <ul>
+        <li><strong>Kiểu AMQP/JMS</strong>: giao từng message cho consumer, consumer ack từng message, message bị xoá sau ack. Hợp với hàng đợi tác vụ, như một dạng RPC bất đồng bộ, khi thứ tự không quan trọng và không cần đọc lại.</li>
+        <li><strong>Dựa trên log</strong>: giao cả partition cho một consumer, luôn giữ thứ tự; song song qua partition; consumer theo dõi tiến độ bằng offset; message được giữ trên đĩa nên tua lại được. Rất hợp cho xử lý luồng sinh ra trạng thái và luồng dẫn xuất.</li>
+      </ul>
+      <p>Luồng đến từ hoạt động người dùng, cảm biến, data feed, và cả từ các lần ghi database: changelog lấy được qua CDC (ngầm) hoặc event sourcing (chủ động). Log compaction cho phép luồng giữ bản sao đầy đủ của database. Nhìn database như luồng mở ra cách tích hợp hệ thống mạnh: giữ index, cache, hệ thống phân tích luôn cập nhật, thậm chí dựng view mới từ đầu log.</p>
+      <p>Ứng dụng của xử lý luồng gồm tìm mẫu event (CEP), tổng hợp theo cửa sổ (stream analytics) và giữ hệ thống dẫn xuất cập nhật (materialized view). Suy luận về thời gian khó: phân biệt event time với processing time, xử lý straggler. Ba loại join: stream-stream (event trong một cửa sổ, có thể là self-join), stream-table (làm giàu event bằng bản sao cục bộ của bảng qua changelog), table-table (hai changelog, đầu ra là luồng thay đổi của materialized view). Cuối cùng, exactly-once trong luồng đạt được bằng microbatching, checkpoint, transaction hoặc ghi idempotent.</p>
+    </div>
+    <div class="quiz">
+      <div class="q" data-answer="2">
+        <p>Bạn chia việc xử lý ảnh (mỗi ảnh mất vài giây, thứ tự không quan trọng) cho 20 worker. Loại broker nào hợp hơn?</p>
+        <ol><li>Log-based broker với 3 partition</li><li>Gửi trực tiếp bằng UDP multicast</li><li>Broker kiểu JMS/AMQP với load balancing từng message</li></ol>
+        <p class="explain">Message tốn kém, cần song song từng message, không cần thứ tự: đúng trường hợp của JMS/AMQP. Log với 3 partition chỉ cho tối đa 3 consumer song song và bị head-of-line blocking. UDP multicast là fan-out và có thể mất message.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Vì sao load balancing kết hợp với giao lại (redelivery) làm đảo thứ tự message?</p>
+        <ol><li>Message chưa ack của consumer bị sập được giao lại cho consumer khác, lúc đó consumer kia đã xử lý message đến sau</li><li>Broker cố tình xáo trộn message để chia tải đều</li><li>Producer gửi lại message khi không nhận được ack</li></ol>
+        <p class="explain">Trong Hình 11-2, consumer 2 sập khi đang xử lý m3; m3 được giao lại cho consumer 1 sau khi nó đã xử lý m4, nên thứ tự là m4, m3, m5. Broker vẫn cố giữ thứ tự, nhưng việc giao lại phá nó.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Đĩa 6 TB, ghi tuần tự 150 MB/s, ghi hết tốc lực liên tục. Log giữ được khoảng bao lâu trước khi bắt đầu xoá segment cũ?</p>
+        <ol><li>Khoảng 40 phút</li><li>Khoảng 11 giờ</li><li>Khoảng 11 ngày</li></ol>
+        <p class="explain">6.000.000 MB / 150 MB/s = 40.000 giây ≈ 11,1 giờ. Thực tế ít khi dùng hết băng thông ghi nên log thường giữ được vài ngày đến vài tuần.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Hai client cùng đặt X (A và B) bằng dual writes: ghi database rồi ghi search index. Không có request nào lỗi. Kết quả xấu nhất là gì?</p>
+        <ol><li>Cả hai hệ thống cùng có A</li><li>Một lần ghi bị từ chối và client nhận lỗi</li><li>Database là B, search index là A, lệch nhau vĩnh viễn mà không ai được báo</li></ol>
+        <p class="explain">Hai hệ thống nhận các lần ghi theo thứ tự khác nhau và không có leader chung. Không có lỗi nào xảy ra nên không ai biết. CDC sửa bằng cách cho index đi theo thứ tự ghi của database.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Tại sao log compaction dùng được cho CDC nhưng thường không dùng được cho event sourcing?</p>
+        <ol><li>Vì event sourcing không lưu event trên đĩa</li><li>Vì event CDC chứa toàn bộ giá trị mới của bản ghi, còn event sourcing ghi ý định hành động, event sau không thay thế event trước</li><li>Vì Kafka không hỗ trợ event sourcing</li></ol>
+        <p class="explain">Compaction giữ bản ghi mới nhất mỗi key, chỉ đúng khi bản mới thay thế hoàn toàn bản cũ. Event kiểu “thêm món vào giỏ” cần toàn bộ lịch sử để dựng trạng thái.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Stream processor dừng 1 phút để redeploy rồi xử lý dồn backlog. Biểu đồ request/phút theo processing time sẽ trông thế nào?</p>
+        <ol><li>Một phút bằng 0 rồi một cú tăng vọt giả, dù tốc độ thật vẫn đều</li><li>Giống hệt biểu đồ theo event time</li><li>Thiếu dữ liệu vĩnh viễn cho phút bị dừng</li></ol>
+        <p class="explain">Đó là Hình 11-7. Event không mất, chỉ bị xử lý muộn; đếm theo processing time dồn chúng vào phút xử lý. Đếm theo event time thì đều.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Bạn muốn biết số lượt tương tác trong mỗi phiên truy cập của người dùng, phiên kết thúc khi họ im lặng 30 phút. Dùng cửa sổ nào?</p>
+        <ol><li>Tumbling 30 phút</li><li>Hopping 30 phút, bước 5 phút</li><li>Session window với khoảng lặng 30 phút</li></ol>
+        <p class="explain">Session window không có độ dài cố định; nó gom event của cùng một người dùng gần nhau và đóng khi có khoảng lặng. Tumbling và hopping cắt theo ranh giới cố định, có thể chẻ một phiên làm đôi.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Consumer cộng bộ đếm trong database ngoài, rồi mới commit offset. Nó sập giữa hai việc. Cách nào giúp chạy lại không đếm trùng với chi phí nhỏ?</p>
+        <ol><li>Checkpoint trạng thái nội bộ thường xuyên hơn</li><li>Ghi offset của message cùng với giá trị bộ đếm, bỏ qua message có offset không lớn hơn offset đã lưu</li><li>Chuyển sang processing time</li></ol>
+        <p class="explain">Lưu offset kèm lần ghi biến thao tác tăng thành idempotent. Checkpoint chỉ bảo vệ trạng thái bên trong framework, không chặn được tác dụng phụ ra ngoài bị lặp.</p>
+      </div>
+    </div>
+  </article>
+</section>

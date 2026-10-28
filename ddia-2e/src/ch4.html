@@ -1,0 +1,396 @@
+<style>
+#ch4 .c4-narrow { max-width: 180px; }
+#ch4 .c4-file, #ch4 .c4-recs { border: 1px solid var(--line); border-radius: 8px; background: var(--bg); padding: 6px; font: 500 .76rem/1.5 var(--f-mono); max-height: 260px; overflow: auto; }
+#ch4 .c4-out { margin: 0; min-height: 90px; }
+#ch4 .c4-line { display: flex; justify-content: space-between; gap: 10px; padding: 2px 6px; border-radius: 4px; border-bottom: 1px dashed var(--line); }
+#ch4 .c4-line:last-child { border-bottom: 0; }
+#ch4 .c4-line .off { color: var(--ink-3); font-variant-numeric: tabular-nums; flex-shrink: 0; }
+#ch4 .c4-line .kv { overflow-wrap: anywhere; }
+#ch4 .c4-line.scan { background: var(--accent-soft); }
+#ch4 .c4-line.hit { background: var(--mark-soft); font-weight: 700; outline: 1.5px solid var(--mark); }
+#ch4 .c4-line.stale { text-decoration: line-through; color: var(--ink-3); opacity: .65; }
+#ch4 .c4-line.tomb { background: var(--bad-soft); color: var(--bad); }
+#ch4 .c4-line.used { background: var(--ok-soft); color: var(--ok); font-weight: 600; }
+#ch4 .c4-line.head { outline: 1.5px solid var(--mark); background: var(--mark-soft); }
+#ch4 .c4-segs, #ch4 .c4-merge-in { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+#ch4 .c4-seg { border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; background: var(--surface); display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+#ch4 .c4-seg.active { border-color: var(--accent); }
+#ch4 .c4-seg.checked { outline: 2px solid var(--mark); }
+#ch4 .c4-seg.skipped { opacity: .6; border-style: dashed; }
+#ch4 .c4-seg-head { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; justify-content: space-between; font-size: var(--t-xs); }
+#ch4 .c4-hash { border-top: 1px solid var(--line); padding-top: 6px; display: flex; flex-direction: column; gap: 2px; font: 500 .74rem/1.4 var(--f-mono); }
+#ch4 .c4-hash-wide { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--bg); }
+#ch4 .c4-hrow { display: flex; justify-content: space-between; padding: 1px 6px; border-radius: 4px; }
+#ch4 .c4-hrow.hit { background: var(--mark-soft); font-weight: 700; }
+#ch4 .c4-mini { font-size: var(--t-xs); color: var(--ink-3); display: block; }
+#ch4 .c4-empty { color: var(--ink-3); font-style: italic; font-size: var(--t-xs); padding: 4px; }
+#ch4 .c4-block { border: 1px solid var(--line); border-radius: 6px; padding: 6px; margin-bottom: 6px; background: var(--surface); }
+#ch4 .c4-block.on { border-color: var(--mark); background: var(--mark-soft); }
+#ch4 .c4-msg { font-size: var(--t-sm); padding: 8px 10px; border-radius: 8px; background: var(--bg); border: 1px solid var(--line); margin: 6px 0; }
+#ch4 .c4-split-13 { grid-template-columns: minmax(160px, 1fr) minmax(0, 2fr); }
+@media (max-width: 640px) { #ch4 .c4-split-13 { grid-template-columns: 1fr; } }
+#ch4 .c4-bits { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+#ch4 .c4-bit { width: 14px; height: 14px; border-radius: 3px; background: var(--surface-2); border: 1px solid var(--line); display: inline-flex; align-items: center; justify-content: center; font: 600 .62rem var(--f-mono); color: var(--ink-3); }
+#ch4 .c4-bits.big .c4-bit { width: 22px; height: 22px; }
+#ch4 .c4-bit.on { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+#ch4 .c4-bit.probe { outline: 2px solid var(--mark); }
+#ch4 .c4-bit.probe.miss { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+#ch4 .c4-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+#ch4 .c4-chip { cursor: pointer; border: 0; }
+#ch4 .c4-ops { margin: 0; padding-left: 18px; font-size: var(--t-xs); display: flex; flex-direction: column; gap: 6px; }
+#ch4 .c4-ops li.done { color: var(--ok); }
+#ch4 .c4-ops li.crash { color: var(--bad); font-weight: 700; }
+#ch4 .c4-ops li.todo { color: var(--ink-3); }
+#ch4 .c4-disk { display: flex; flex-direction: column; gap: 8px; }
+#ch4 .c4-row { display: flex; flex-wrap: wrap; gap: 6px; }
+#ch4 .c4-page { padding: 6px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); font: 500 .75rem var(--f-mono); }
+#ch4 .c4-page.root { border-color: var(--accent); background: var(--accent-soft); }
+#ch4 .c4-page.live { border-color: var(--ok); background: var(--ok-soft); }
+#ch4 .c4-page.orphan { border-color: var(--bad); background: var(--bad-soft); }
+#ch4 .c4-page.garbage { border-style: dashed; opacity: .7; }
+</style>
+
+<section class="chapter" id="ch4" data-ch="4" data-chapter="4" data-title="Lưu trữ và truy xuất" data-edition="1e">
+  <header class="chapter-head">
+    <p class="eyebrow">Chương 4 <span class="ed-badge">Nguồn: ấn bản 1 · Chương 3</span></p>
+    <h1>Storage and Retrieval <span class="vi">Lưu trữ và truy xuất</span></h1>
+    <blockquote class="epigraph">There is nothing more practical than a good theory.<cite>— Kurt Lewin (1952)</cite></blockquote>
+    <p class="lede">Ở mức cơ bản nhất, cơ sở dữ liệu chỉ cần làm hai việc: khi bạn đưa dữ liệu vào thì nó lưu lại, và khi bạn hỏi lại sau đó thì nó trả dữ liệu ra. Chương này đi sâu vào cách các <em class="en">storage engine</em> thực hiện hai việc đó dưới nắp máy, tập trung vào hai họ chỉ mục lớn nhất trong các hệ OLTP hiện đại: họ <strong>log-structured</strong> (Bitcask, SSTable, LSM-tree) và họ <strong>page-oriented</strong> (B-tree).</p>
+    <nav class="chapter-map"></nav>
+  </header>
+
+  <!-- 4.1 -->
+  <article class="topic" id="ch4-simple-db" data-num="4.1" data-short="Database đơn giản nhất & log" data-keywords="append-only log db_set db_get index O(1) O(n) storage engine">
+    <p class="eyebrow">4.1 · Data Structures That Power Your Database</p>
+    <h2>Cơ sở dữ liệu bằng hai hàm Bash và sự đánh đổi đọc–ghi <span class="vi">The World’s Simplest Database</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Hai hàm Bash <code>db_set</code> và <code>db_get</code> nối thêm từng cặp <code>key,value</code> vào cuối một file là một <dfn data-term="log">log</dfn> chỉ ghi nối thêm (<dfn data-term="append-only">append-only</dfn>).</li>
+      <li>Ghi kiểu nối thêm cực nhanh (độ phức tạp $O(1)$), nhưng đọc phải quét toàn bộ file từ đầu đến cuối ($O(n)$).</li>
+      <li>Muốn đọc nhanh, ta cần thêm một cấu trúc phụ trợ gọi là <dfn data-term="index">index</dfn> (chỉ mục). Chỉ mục luôn làm tăng tốc độ đọc nhưng làm chậm thao tác ghi.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Để hiểu một <dfn data-term="storage-engine">storage engine</dfn> hoạt động thế nào, sách bắt đầu bằng cơ sở dữ liệu đơn giản nhất thế giới viết bằng hai hàm Bash:</p>
+      <pre class="code">#!/bin/bash
+db_set () {
+    echo "$1,$2" &gt;&gt; database
+}
+db_get () {
+    grep "^$1," database | sed -e "s/^$1,//" | tail -n 1
+}</pre>
+      <p>Mỗi lần gọi <code>db_set key value</code>, nó chỉ nối một dòng vào cuối file <code>database</code>; nếu cập nhật một khoá nhiều lần, giá trị cũ không bị ghi đè mà dòng mới được nối tiếp xuống dưới. Khi đọc bằng <code>db_get</code>, nó tìm mọi dòng khớp khoá và lấy dòng cuối cùng (<code>tail -n 1</code>).</p>
+      <p>Hàm <code>db_set</code> có hiệu năng cực tốt cho một kịch bản đơn giản như vậy, vì nối thêm vào cuối file là thao tác tuần tự rất nhanh trên cả ổ cứng từ (HDD) lẫn SSD. Nhiều cơ sở dữ liệu thực tế dùng đúng nguyên lý này: một <mark>log chỉ ghi nối thêm</mark>. Ngược lại, <code>db_get</code> có hiệu năng rất tệ nếu bạn có nhiều bản ghi: chi phí tra cứu là $O(n)$, tăng gấp đôi số dòng trong file thì thời gian đọc cũng tăng gấp đôi.</p>
+      <p>Để tìm nhanh giá trị của một khoá mà không phải quét cả file, ta cần một <strong>chỉ mục (index)</strong>. Ý tưởng xuyên suốt mọi loại chỉ mục: giữ thêm một ít siêu dữ liệu (metadata) làm biển chỉ đường giúp định vị dữ liệu. Nhưng mọi chỉ mục đều có cái giá không tránh khỏi: mỗi lần ghi dữ liệu, cơ sở dữ liệu còn phải cập nhật chỉ mục.</p>
+    </div>
+    <figure class="lab" data-widget="simple-db">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> <code>db_set</code> và <code>db_get</code> trên file nối thêm
+        <small>Thử ghi và đọc khoá <code>42</code>, bấm “Append 20 dòng ngẫu nhiên”, rồi bật hash index trong RAM để so sánh số dòng phải đọc.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Đây là một trong những sự đánh đổi quan trọng nhất trong hệ thống lưu trữ: chỉ mục được chọn khéo sẽ tăng tốc truy vấn đọc, nhưng <em>mọi</em> chỉ mục đều làm chậm thao tác ghi. Vì vậy cơ sở dữ liệu không tự động đánh chỉ mục mọi thứ mà để lập trình viên chọn dựa trên mẫu truy vấn của ứng dụng.</p></aside>
+  </article>
+
+  <!-- 4.2 -->
+  <article class="topic" id="ch4-bitcask" data-num="4.2" data-short="Hash index, segment & compaction" data-keywords="hash index bitcask riak byte offset segment compaction tombstone">
+    <p class="eyebrow">4.2 · Hash Indexes · Compaction and Segmentation</p>
+    <h2>Chỉ mục băm trong RAM, phân đoạn và dọn rác <span class="vi">Hash Indexes, Segments, and Compaction</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="hash-index">Hash index</dfn> giữ một bảng băm trong RAM ánh xạ mỗi <code>key</code> tới vị trí <dfn data-term="byte-offset">byte offset</dfn> mới nhất của nó trong file trên đĩa (cách làm của <dfn data-term="bitcask">Bitcask</dfn> trong Riak).</li>
+      <li>Để tránh cạn đĩa khi cứ ghi nối thêm mãi, log được cắt thành các <dfn data-term="segment">segment</dfn> (đoạn); khi đoạn đạt kích thước nhất định thì đóng băng và mở đoạn mới.</li>
+      <li>Tiến trình nền thực hiện <dfn data-term="compaction">compaction</dfn> (nén bỏ bản ghi cũ trùng khoá) và gộp nhiều đoạn lại. Muốn xoá một khoá, ta ghi một bản ghi đánh dấu xoá gọi là <dfn data-term="tombstone">tombstone</dfn>.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Chỉ mục đơn giản nhất cho dữ liệu key–value là một bảng băm (hash map) nằm trong bộ nhớ: mỗi khoá trỏ tới vị trí byte chính xác trong file dữ liệu nơi giá trị mới nhất của khoá đó được ghi. Khi bạn <code>db_set</code> một dòng mới vào cuối file, bạn cập nhật luôn bảng băm trong RAM với offset vừa ghi. Khi <code>db_get</code>, bạn tra bảng băm để biết offset, thực hiện đúng một lệnh <code>seek</code> trên đĩa và đọc giá trị ra.</p>
+      <p>Nghe rất đơn giản, nhưng đây chính là kiến trúc thực tế của <strong>Bitcask</strong> (storage engine mặc định trong Riak). Nó cực kỳ phù hợp khi số lượng khoá khác nhau không quá lớn (vừa đủ giữ bảng băm trong RAM), nhưng mỗi khoá lại được cập nhật rất thường xuyên — ví dụ sách nêu: khoá là URL của một video mèo, còn giá trị là số lượt xem được cộng thêm liên tục.</p>
+      <h3>Phân đoạn (segmentation) và nén (compaction)</h3>
+      <p>Làm sao tránh việc file log phình to mãi tới hết đĩa? Giải pháp là chia log thành các đoạn (segment) có kích thước cố định. Khi đoạn đang ghi đầy, ta đóng nó lại (từ nay bất biến, chỉ đọc) và ghi tiếp vào đoạn mới. Sau đó, một luồng nền chạy <strong>compaction</strong> trên các đoạn đã đóng: chỉ giữ lại giá trị mới nhất của mỗi khoá, vứt bỏ mọi giá trị cũ bị ghi đè, đồng thời gộp nhiều đoạn nhỏ thành một đoạn mới gọn hơn. Vì các đoạn đã đóng là bất biến, việc đọc và ghi vẫn diễn ra bình thường trên file cũ trong lúc luồng nền tạo file mới; khi gộp xong mới chuyển con trỏ đọc sang file mới và xoá file cũ.</p>
+      <p>Để xoá một khoá và giá trị của nó, bạn không sửa đoạn cũ mà nối thêm một bản ghi đặc biệt gọi là <strong>tombstone</strong> (bia mộ). Khi quá trình gộp đoạn gặp tombstone, nó biết khoá đó đã bị xoá và loại bỏ luôn mọi giá trị trước đó của khoá khỏi đoạn mới.</p>
+    </div>
+    <figure class="lab" data-widget="bitcask">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Bitcask: các đoạn bất biến, bảng băm theo đoạn và compaction
+        <small>Phát thử vài lượt xem video mèo, xoá một khoá bằng tombstone, rồi bấm “Gộp &amp; nén các đoạn đã đóng” để dọn các bản ghi cũ bị gạch ngang.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Hai giới hạn lớn của chỉ mục bảng băm: (1) toàn bộ các khoá phải nằm vừa trong RAM, vì bảng băm trên đĩa rất chậm do truy cập ngẫu nhiên và xử lý đụng độ; (2) truy vấn theo khoảng (<em class="en">range query</em>, ví dụ quét từ <code>kitty00000</code> đến <code>kitty99999</code>) không hiệu quả, bạn buộc phải tra từng khoá một.</p></aside>
+  </article>
+
+  <!-- 4.3 -->
+  <article class="topic" id="ch4-crash-recovery" data-num="4.3" data-short="Khôi phục sau crash & hint file" data-keywords="crash recovery checksum hint file partial record sequential write">
+    <p class="eyebrow">4.3 · Implementation Details of Log-Structured Hash Indexes</p>
+    <h2>Chi tiết vận hành thực tế: bản ghi dở dang, checksum và hint file <span class="vi">Crash Recovery, Checksums, and Hint Files</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Nếu cơ sở dữ liệu bị crash giữa lúc đang nối thêm một bản ghi, mỗi bản ghi cần kèm <dfn data-term="checksum">checksum</dfn> để phát hiện và bỏ qua phần dữ liệu ghi dở.</li>
+      <li>Khi khởi động lại, bảng băm trong RAM mất sạch. Đọc lại toàn bộ các đoạn dữ liệu từ đầu để dựng lại bảng băm sẽ rất lâu nếu file lớn.</li>
+      <li>Bitcask tăng tốc khởi động bằng cách lưu kèm mỗi đoạn một <dfn data-term="hint-file">hint file</dfn> (chụp nhanh bảng băm của đoạn đó, chỉ chứa khoá và offset mà không chứa value).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Để ý tưởng log chỉ ghi nối thêm chạy tin cậy trong thực tế, sách chỉ ra một loạt chi tiết quan trọng:</p>
+      <ul>
+        <li><strong>Định dạng file:</strong> CSV chỉ tốt cho minh hoạ. Thực tế nhanh và đơn giản hơn là dùng định dạng nhị phân: ghi độ dài chuỗi theo byte trước, rồi ghi chuỗi dữ liệu thô để không cần escape dấu phẩy hay xuống dòng.</li>
+        <li><strong>Bản ghi ghi dở (<em class="en">partially written records</em>):</strong> cơ sở dữ liệu có thể mất điện hoặc crash bất cứ lúc nào, kể cả khi mới ghi được một nửa bản ghi xuống đĩa. Bitcask đính kèm <strong>checksum</strong> vào mỗi bản ghi để khi đọc lại phát hiện ngay bản ghi bị hỏng và lờ nó đi.</li>
+        <li><strong>Khôi phục sau sự cố (<dfn data-term="crash-recovery">crash recovery</dfn>):</strong> nếu tiến trình khởi động lại, bảng băm trong RAM biến mất. Về nguyên tắc, bạn có thể khôi phục bằng cách đọc mọi file đoạn từ cũ tới mới và cập nhật offset cho từng khoá. Nhưng nếu các file đoạn chứa những value lớn và tổng dung lượng hàng chục gigabyte, việc quét lại toàn bộ sẽ mất rất nhiều thời gian. Bitcask giải quyết bằng <strong>hint file</strong>: một file nhỏ đi kèm mỗi đoạn đã đóng, chỉ ghi bản chụp bảng băm (khoá + offset), nên nạp lại vào RAM cực nhanh.</li>
+        <li><strong>Kiểm soát đồng thời (<em class="en">concurrency control</em>):</strong> vì chỉ ghi nối thêm vào một file hiện hành, lựa chọn phổ biến là chỉ dùng một luồng ghi duy nhất (mọi thao tác ghi tuần tự hoá trên luồng này), trong khi các đoạn dữ liệu là bất biến nên nhiều luồng có thể đọc đồng thời mà không cần khoá phức tạp.</li>
+      </ul>
+    </div>
+    <figure class="lab" data-widget="crash-recovery">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Mất điện giữa chừng: checksum cắt bỏ bản ghi hỏng và hint file cứu thời gian khởi động
+        <small>Thử kéo kích thước value lớn lên và chuyển giữa “Quét lại toàn bộ file” với “Nạp hint file” để thấy lượng byte phải đọc từ đĩa chênh nhau thế nào.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Ghi nối thêm tuần tự được ưa chuộng hơn ghi đè tại chỗ không chỉ vì nhanh hơn (nhất là trên ổ cứng từ và cả flash SSD), mà còn vì xử lý crash đơn giản hơn nhiều: bạn không bao giờ rơi vào tình huống một giá trị cũ trên đĩa bị ghi đè một nửa bởi giá trị mới.</p></aside>
+  </article>
+
+  <!-- 4.4 -->
+  <article class="topic" id="ch4-sstable-merge" data-num="4.4" data-short="SSTable & gộp kiểu mergesort" data-keywords="sstable sorted string table mergesort compaction range query">
+    <p class="eyebrow">4.4 · SSTables and LSM-Trees · Merging Segments</p>
+    <h2>SSTable: giữ các đoạn được sắp xếp theo khoá <span class="vi">Sorted String Tables (SSTables) and Mergesort Compaction</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="sstable">SSTable</dfn> (<em class="en">Sorted String Table</em>) thêm một quy tắc đơn giản vào file đoạn: các cặp key–value trong đoạn phải được <strong>sắp xếp theo khoá</strong> và mỗi khoá chỉ xuất hiện một lần trong mỗi đoạn đã gộp.</li>
+      <li>Gộp nhiều đoạn SSTable rất hiệu quả ngay cả khi file lớn hơn RAM, vì dùng đúng thuật toán <dfn data-term="mergesort">mergesort</dfn>: đọc đồng thời đầu các đoạn, chọn khoá nhỏ nhất ghi ra đoạn mới.</li>
+      <li>Nếu nhiều đoạn cùng chứa một khoá, ta chỉ giữ lại giá trị từ đoạn mới nhất và bỏ các bản cũ.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Ở thiết kế trước, các bản ghi trong file đoạn nằm theo đúng thứ tự thời gian chúng được ghi. Bây giờ ta chỉ thay đổi một điều: yêu cầu chuỗi các cặp key–value trong file đoạn phải được <strong>sắp xếp theo khoá</strong>. Định dạng này được gọi là <strong>SSTable</strong> (<em class="en">Sorted String Table</em>).</p>
+      <p>Thoạt nghe quy tắc này có vẻ phá vỡ khả năng ghi tuần tự, nhưng như ta sẽ thấy ở mục sau, việc sắp xếp trong RAM rất dễ. Đổi lại, SSTable mang lại những lợi thế to lớn so với đoạn dùng bảng băm:</p>
+      <ol>
+        <li><strong>Gộp các đoạn đơn giản và hiệu quả</strong> ngay cả khi tổng dung lượng các file lớn hơn bộ nhớ RAM rất nhiều. Cách làm giống hệt bước trộn của thuật toán <em>mergesort</em> (Hình 3-4 trong sách): bạn mở các đoạn đầu vào cùng lúc, nhìn vào bản ghi đầu tiên của mỗi đoạn, chép bản ghi có khoá nhỏ nhất sang file đoạn đầu ra, rồi nhích con trỏ của đoạn đó lên.</li>
+        <li>Nếu cùng một khoá xuất hiện ở nhiều đoạn đầu vào thì sao? Vì mỗi đoạn chứa các lượt ghi trong một khoảng thời gian nhất định, mọi giá trị trong đoạn mới hơn chắc chắn mới hơn giá trị trong đoạn cũ. Khi trộn, bạn chỉ cần giữ lại giá trị của đoạn mới nhất và vứt bỏ các bản ở đoạn cũ hơn.</li>
+      </ol>
+    </div>
+    <figure class="lab" data-widget="sstable-merge">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Trộn và nén 3 đoạn SSTable bằng thuật toán mergesort
+        <small>Bấm “Bước tiếp” hoặc “Chạy hết” để xem 3 con trỏ trượt dọc theo các đoạn đã sắp xếp. Chú ý khi khoá <code>handful</code> hoặc <code>handicap</code> trùng nhau, giá trị ở Đoạn 3 (mới nhất) luôn thắng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-book"><b>Trong sách</b><p>Ví dụ của sách (Hình 3-4) dùng các từ tiếng Anh bắt đầu bằng <code>hand…</code> (<code>handbag</code>, <code>handful</code>, <code>handicap</code>, <code>handiwork</code>…) làm khoá và số lần xuất hiện làm giá trị. Chỉ cần vài con trỏ đọc tuần tự là trộn xong các file nhiều gigabyte.</p></aside>
+  </article>
+
+  <!-- 4.5 -->
+  <article class="topic" id="ch4-sparse-index" data-num="4.5" data-short="Sparse index & nén block" data-keywords="sparse index block compression range scan in-memory index">
+    <p class="eyebrow">4.5 · Sparse In-Memory Indexes and Block Compression</p>
+    <h2>Chỉ mục thưa trong RAM và nén theo khối <span class="vi">Sparse Indexes and Block Compression</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Vì các khoá trong SSTable đã được sắp xếp, bạn không cần giữ mọi khoá trong RAM: một <dfn data-term="sparse-index">sparse index</dfn> (chỉ mục thưa) chỉ cần nhớ offset của một khoá sau mỗi vài kilobyte dữ liệu.</li>
+      <li>Khi tìm một khoá, ta tra chỉ mục thưa để biết nó nằm giữa hai mốc nào, nhảy tới mốc dưới và quét một đoạn ngắn trên đĩa.</li>
+      <li>Các bản ghi giữa hai mốc chỉ mục có thể được gom thành một khối và nén lại trước khi ghi xuống đĩa, vừa tiết kiệm dung lượng vừa giảm băng thông I/O.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Lợi thế lớn thứ hai của SSTable là để tìm một khoá trong file, bạn không còn phải giữ toàn bộ các khoá trong bộ nhớ nữa. Giả sử bạn đang tìm khoá <code>handiwork</code> (Hình 3-5 trong sách), nhưng bạn không biết byte offset chính xác của nó trong file. Tuy nhiên, nếu bạn biết offset của <code>handbag</code> và của <code>handsome</code>, thì nhờ các khoá đã được sắp xếp theo thứ tự từ điển, bạn biết chắc chắn rằng nếu <code>handiwork</code> tồn tại, nó <em>bắt buộc</em> phải nằm giữa hai vị trí đó.</p>
+      <p>Do đó, chỉ mục trong RAM có thể là <strong>chỉ mục thưa (sparse index)</strong>: cứ vài kilobyte của file đoạn mới cần lưu một khoá vào bảng chỉ mục, vì quét tuần tự vài kilobyte trên đĩa diễn ra cực nhanh.</p>
+      <p>Hơn nữa, vì mỗi lần đọc đằng nào cũng phải quét qua một khoảng bản ghi giữa hai mốc chỉ mục thưa, ta có thể gom các bản ghi đó thành một <strong>khối (block)</strong> và nén khối đó trước khi ghi xuống đĩa. Mỗi mục trong chỉ mục thưa lúc này trỏ thẳng tới đầu một khối đã nén. Bên cạnh việc tiết kiệm dung lượng đĩa, nén khối còn giảm lượng dữ liệu phải truyền qua bus I/O.</p>
+    </div>
+    <figure class="lab" data-widget="sparse-index">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Tra cứu trên SSTable với sparse index và nén theo block
+        <small>Kéo thanh “Một mục index cho mỗi … bản ghi” để thấy sự đánh đổi giữa kích thước chỉ mục trong RAM và số bản ghi phải quét trong block trên đĩa.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Với SSTable, kể cả khi tổng số khoá lớn hơn dung lượng RAM, bạn vẫn tra cứu nhanh được nhờ chỉ mục thưa, đồng thời hỗ trợ truy vấn khoảng (<em class="en">range query</em>) rất tự nhiên vì các khoá nằm cạnh nhau trên đĩa.</p></aside>
+  </article>
+
+  <!-- 4.6 -->
+  <article class="topic" id="ch4-lsm" data-num="4.6" data-short="LSM-tree & Memtable" data-keywords="lsm-tree memtable red-black tree avl leveldb rocksdb cassandra hbase wal">
+    <p class="eyebrow">4.6 · Constructing and Maintaining SSTables · LSM-Trees</p>
+    <h2>LSM-tree: từ Memtable trong bộ nhớ tới chuỗi SSTable trên đĩa <span class="vi">LSM-Trees and Memtables</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Lượt ghi mới đến theo thứ tự bất kỳ, nhưng được chèn vào một cây cân bằng trong RAM gọi là <dfn data-term="memtable">memtable</dfn> (ví dụ cây đỏ–đen hoặc AVL) để luôn giữ thứ tự theo khoá.</li>
+      <li>Khi memtable lớn vượt ngưỡng (thường vài megabyte), nó được ghi tuần tự xuống đĩa thành một file SSTable mới nhất.</li>
+      <li>Khi đọc, ta tìm trong memtable trước, rồi lần lượt từ SSTable mới nhất về cũ nhất. Cấu trúc này gọi là <dfn data-term="lsm-tree">LSM-tree</dfn> (<em class="en">Log-Structured Merge-Tree</em>), dùng trong LevelDB, RocksDB, Cassandra, HBase.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Làm thế nào để dữ liệu được sắp xếp theo khoá ngay từ đầu khi các lượt ghi đến theo thứ tự ngẫu nhiên? Giữ cấu trúc sắp xếp trên đĩa thì khó, nhưng giữ trong RAM thì rất dễ bằng các cấu trúc cây tìm kiếm cân bằng quen thuộc như cây đỏ–đen (<em class="en">red-black tree</em>) hoặc cây AVL. Với chúng, bạn có thể chèn khoá theo thứ tự bất kỳ và đọc lại theo thứ tự đã sắp xếp.</p>
+      <p>Quy trình hoạt động của storage engine lúc này như sau:</p>
+      <ol>
+        <li>Khi có một lượt ghi tới, thêm nó vào cây cân bằng trong bộ nhớ — thường được gọi là <strong>memtable</strong>.</li>
+        <li>Khi memtable lớn hơn một ngưỡng (thường vài megabyte), xuất toàn bộ memtable ra đĩa thành một file SSTable. Việc này rất hiệu quả vì cây đã giữ sẵn các khoá theo thứ tự sắp xếp. File SSTable mới trở thành đoạn mới nhất của cơ sở dữ liệu; trong lúc ghi xuống đĩa, các lượt ghi mới chuyển sang một memtable mới.</li>
+        <li>Để phục vụ một yêu cầu đọc, trước hết tìm khoá trong memtable; nếu không thấy thì tìm trong đoạn SSTable mới nhất trên đĩa, rồi đoạn mới nhì, cứ thế lùi dần cho tới khi thấy (hoặc hết các đoạn).</li>
+        <li>Thỉnh thoảng, chạy tiến trình gộp và nén (compaction) ở nền để kết hợp các file đoạn và bỏ các giá trị đã bị ghi đè hoặc bị xoá.</li>
+      </ol>
+      <p>Nếu cơ sở dữ liệu bị crash thì sao? Những lượt ghi mới nhất nằm trong memtable chưa kịp xuất ra đĩa sẽ bị mất. Để tránh điều đó, ta chỉ cần giữ thêm một file nhật ký riêng trên đĩa để nối thêm ngay mỗi lượt ghi trước khi đưa vào memtable (giống như ở mục trước, thường gọi là nhật ký ghi trước — WAL). File log này không cần sắp xếp theo khoá vì mục đích duy nhất của nó là dựng lại memtable sau khi crash; mỗi lần memtable được xuất xong thành SSTable thì log tương ứng được xoá đi.</p>
+      <p>Thuật toán này do Patrick O’Neil và cộng sự công bố năm 1996 dưới tên <strong>Log-Structured Merge-Tree (LSM-tree)</strong>. Các storage engine dựa trên nguyên lý trộn và nén các file đã sắp xếp thường được gọi chung là họ lưu trữ <em>LSM</em> (như LevelDB, RocksDB, Cassandra, HBase, và cả chỉ mục tìm kiếm toàn văn Lucene trong Elasticsearch/Solr).</p>
+    </div>
+    <figure class="lab" data-widget="lsm">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Đường ghi và đường đọc hoàn chỉnh của một LSM-tree
+        <small>Thử ghi thêm khoá để memtable tự flush thành SSTable, tra một khoá có tồn tại và không tồn tại, hoặc bấm “Crash &amp; khôi phục” để thấy WAL cứu dữ liệu trong memtable.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Có hai chiến lược phổ biến để xác định thời điểm và cách gộp các SSTable: <dfn data-term="size-tiered-compaction">size-tiered compaction</dfn> (các SSTable mới và nhỏ hơn được gộp dần thành các SSTable cũ và lớn hơn; HBase, Cassandra hỗ trợ) và <dfn data-term="leveled-compaction">leveled compaction</dfn> (chia khoảng khoá thành nhiều SSTable nhỏ hơn và đẩy dữ liệu cũ xuống các tầng tuần tự; LevelDB, RocksDB dùng).</p></aside>
+  </article>
+
+  <!-- 4.7 -->
+  <article class="topic" id="ch4-bloom" data-num="4.7" data-short="Tối ưu LSM bằng Bloom filter" data-keywords="bloom filter false positive hash functions non-existent key">
+    <p class="eyebrow">4.7 · Performance Optimizations · Bloom Filters</p>
+    <h2>Bloom filter: làm sao biết một khoá chắc chắn không tồn tại? <span class="vi">Optimizing LSM-Trees with Bloom Filters</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Nếu không tối ưu, LSM-tree có thể rất chậm khi tra cứu một khoá <strong>không tồn tại</strong>: phải kiểm tra memtable rồi đi lùi qua mọi SSTable tới tận đoạn cũ nhất mới dám kết luận là không có.</li>
+      <li><dfn data-term="bloom-filter">Bloom filter</dfn> là cấu trúc dữ liệu xác suất tiết kiệm bộ nhớ để xấp xỉ tập hợp các khoá trong một SSTable.</li>
+      <li>Bloom filter có thể báo nhầm (<dfn data-term="false-positive">false positive</dfn>: nói “có thể có” dù thực tế không có), nhưng <strong>không bao giờ bỏ sót</strong> (nếu nói “không có” thì chắc chắn 100% khoá đó không nằm trong SSTable, khỏi cần đọc đĩa).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Với hàng chục details tinh chỉnh có thể giúp LSM-tree chạy tốt hơn, quan trọng nhất là xử lý trường hợp tra cứu một khoá không tồn tại trong cơ sở dữ liệu. Nếu không có thông tin phụ trợ, bạn phải kiểm tra memtable, rồi đọc chỉ mục thưa và quét khối của SSTable mới nhất, rồi SSTable kế tiếp… đi ngược về tận đoạn cũ nhất trước khi chắc chắn khoá không tồn tại.</p>
+      <p>Để tránh phải đọc đĩa vô ích như vậy, các storage engine thường dùng thêm <strong>Bloom filter</strong>. Một Bloom filter là mảng gồm $m$ bit (ban đầu toàn bằng 0) đi kèm $k$ hàm băm độc lập. Khi thêm một khoá vào SSTable, ta băm khoá đó bằng cả $k$ hàm băm và bật các bit tương ứng lên 1.</p>
+      <p>Khi kiểm tra xem một khoá có nằm trong SSTable hay không, ta lại tính $k$ vị trí bit của khoá đó:</p>
+      <ul>
+        <li>Nếu có <em>bất kỳ</em> bit nào trong $k$ vị trí bằng 0, khoá đó <strong>chắc chắn chưa từng được thêm</strong> vào SSTable này — ta bỏ qua luôn file SSTable mà không tốn một lần đọc đĩa nào.</li>
+        <li>Nếu tất cả $k$ vị trí đều bằng 1, khoá đó <em>có thể</em> có trong SSTable (hoặc tình cờ các khoá khác đã bật đúng các bit đó — tức là báo nhầm, <em>false positive</em>), và chỉ khi đó ta mới đọc SSTable trên đĩa.</li>
+      </ul>
+    </div>
+    <figure class="lab" data-widget="bloom">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Cấu tạo bên trong một Bloom filter ($m$ bit, $k$ hàm băm)
+        <small>Kiểm tra khoá không có trong tập (như <code>handle</code>), thêm dần nhiều khoá vào tập hoặc giảm số bit $m$ để thấy tỉ lệ bit bằng 1 tăng lên và xác suất báo nhầm tăng theo.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Chỉ cần khoảng 10 bit bộ nhớ cho mỗi khoá với $k \approx 7$ hàm băm là xác suất báo nhầm của Bloom filter giảm xuống dưới 1%, nghĩa là tiết kiệm được 99% số lần đọc đĩa thừa khi tra khoá không tồn tại.</p></aside>
+  </article>
+
+  <!-- 4.8 -->
+  <article class="topic" id="ch4-btree" data-num="4.8" data-short="B-tree: chỉ mục theo trang" data-keywords="b-tree page block branching factor split overwrite in-place 4kb">
+    <p class="eyebrow">4.8 · B-Trees</p>
+    <h2>B-tree: chia cơ sở dữ liệu thành các trang kích thước cố định <span class="vi">B-Trees: Fixed-Size Pages and Branching Factor</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li><dfn data-term="b-tree">B-tree</dfn> (ra đời năm 1970) vẫn là cấu trúc chỉ mục tiêu chuẩn trong hầu hết các cơ sở dữ liệu quan hệ và nhiều hệ phi quan hệ.</li>
+      <li>Khác với LSM-tree chia dữ liệu thành các đoạn có kích thước thay đổi và luôn ghi tuần tự file mới, B-tree chia cơ sở dữ liệu thành các <dfn data-term="page">trang (page / block)</dfn> kích thước cố định (thường 4 KB) và <strong>ghi đè trang tại chỗ</strong> trên đĩa.</li>
+      <li>Số tham chiếu trang con trong một trang gọi là <dfn data-term="branching-factor">branching factor</dfn> (thường hàng trăm). Một B-tree 4 tầng trang 4 KB với branching factor 500 chứa được tới 256 TB.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Các chỉ mục log-structured đang ngày càng phổ biến, nhưng chúng không phải loại chỉ mục phổ biến nhất. Cấu trúc chỉ mục được dùng rộng rãi nhất vẫn là <strong>B-tree</strong>, được giới thiệu năm 1970 và trở thành chuẩn mực ở gần như mọi hệ quản trị cơ sở dữ liệu quan hệ.</p>
+      <p>Giống SSTable, B-tree giữ các cặp key–value được sắp xếp theo khoá, cho phép tra cứu theo khoá và truy vấn khoảng hiệu quả. Nhưng triết lý thiết kế của hai bên hoàn toàn khác nhau: B-tree chia cơ sở dữ liệu thành các khối hoặc <strong>trang (page)</strong> kích thước cố định — truyền thống là 4 KB (đôi khi lớn hơn) — và đọc hoặc ghi một trang mỗi lần. Thiết kế này bám sát phần cứng bên dưới, vì ổ đĩa cũng được tổ chức thành các khối kích thước cố định.</p>
+      <p>Mỗi trang được định danh bằng một địa chỉ hoặc vị trí trên đĩa, cho phép trang này tham chiếu tới trang khác — tương tự con trỏ nhưng ở trên đĩa thay vì trong RAM. Một trang được chỉ định làm <em>gốc (root)</em> của B-tree. Khi tra cứu một khoá, bạn bắt đầu từ gốc: trang gốc chứa một số khoá đóng vai trò ranh giới và các con trỏ tới trang con. Ví dụ nếu bạn tìm khoá <code>251</code> (Hình 3-6 trong sách), bạn đi theo con trỏ nằm giữa ranh giới <code>200</code> và <code>300</code> xuống trang con, và tiếp tục như vậy cho tới khi gặp <em>trang lá (leaf page)</em> chứa giá trị của từng khoá.</p>
+      <p>Khi cập nhật giá trị của một khoá đã có, bạn tìm trang lá chứa nó, sửa giá trị trong trang đó và ghi đè cả trang trả lại vị trí cũ trên đĩa. Khi thêm một khoá mới mà trang lá không còn đủ chỗ trống, trang đó bị <strong>tách (split)</strong> thành hai trang nửa đầy, và trang cha được cập nhật để ghi nhận ranh giới khoá mới (Hình 3-7). Thuật toán này đảm bảo cây luôn <em>cân bằng</em>: một B-tree có $n$ khoá luôn có độ sâu $O(\log n)$. Hầu hết các database chỉ cần 3 hoặc 4 tầng là đủ, nên không cần đi qua nhiều con trỏ trang khi đọc.</p>
+    </div>
+    <figure class="lab" data-widget="btree">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Tra cứu và chèn khoá gây tách trang trên B-tree + máy tính sức chứa
+        <small>Thử chèn các khoá (ví dụ <code>252</code>, <code>253</code>) để xem trang lá đầy bị tách đôi và đẩy khoá phân cách lên trang cha. Phía dưới: tính sức chứa của B-tree theo branching factor.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Với trang 4 KB và <em class="en">branching factor</em> 500, một B-tree 4 tầng lưu được tối đa $500^4 \times 4\text{ KB} \approx 256\text{ TB}$. Hầu hết các trang ở tầng cao (gốc và tầng kế gốc) luôn nằm sẵn trong bộ nhớ đệm (buffer pool), nên một lần tra cứu thường chỉ cần đọc 1–2 trang từ đĩa.</p></aside>
+  </article>
+
+  <!-- 4.9 -->
+  <article class="topic" id="ch4-btree-wal" data-num="4.9" data-short="B-tree tin cậy: WAL & Copy-on-Write" data-keywords="write-ahead log wal redo log copy-on-write lmdb latches orphan page">
+    <p class="eyebrow">4.9 · Making B-Trees Reliable · Optimizations</p>
+    <h2>Làm cho B-tree tin cậy: Write-Ahead Log và Copy-on-Write <span class="vi">Making B-Trees Reliable: WAL and Copy-on-Write</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Thao tác cơ bản của B-tree là ghi đè trang trên đĩa. Khi một lần chèn làm tách trang, bạn phải ghi đè nhiều trang khác nhau (hai trang con mới và trang cha).</li>
+      <li>Nếu database crash sau khi mới ghi được một phần số trang đó, chỉ mục sẽ bị hỏng (ví dụ xuất hiện trang mồ côi không có cha nào trỏ tới).</li>
+      <li>Để chống crash, B-tree dùng <dfn data-term="wal">Write-Ahead Log (WAL)</dfn> (nhật ký ghi trước, hay redo log), hoặc dùng <dfn data-term="copy-on-write">copy-on-write</dfn> (như LMDB). Đồng thời các luồng truy cập trang dùng khoá nhẹ gọi là <dfn data-term="latch">latch</dfn>.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Khác với cấu trúc log-structured chỉ nối thêm file mới và không bao giờ sửa file tại chỗ, thao tác cơ bản của B-tree là <strong>ghi đè một trang trên đĩa bằng dữ liệu mới</strong> (giữ nguyên địa chỉ trang để không phải sửa mọi con trỏ trỏ tới nó). Ghi đè tại chỗ rất nguy hiểm khi một thao tác đòi hỏi phải sửa nhiều trang cùng lúc — điển hình là khi chèn khoá làm tràn trang lá: bạn phải ghi hai trang đã tách <em>và</em> ghi đè trang cha để cập nhật con trỏ tới hai trang con mới.</p>
+      <p>Nếu cơ sở dữ liệu bị crash khi mới ghi được một vài trang trong số đó, bạn sẽ thu được một chỉ mục bị hỏng (<em class="en">corrupted index</em>): chẳng hạn có một trang mồ côi (<em class="en">orphan page</em>) không phải con của trang nào, hoặc một phần khoá biến mất khỏi cây.</p>
+      <p>Để B-tree tự hồi phục sau khi crash, các bản cài đặt chuẩn phải thêm một cấu trúc phụ trên đĩa: <strong>nhật ký ghi trước (<em class="en">write-ahead log</em> — WAL, còn gọi là redo log)</strong>. Đây là một file chỉ ghi nối thêm: mọi sửa đổi trên B-tree <em>bắt buộc</em> phải được ghi vào WAL trước khi được phép sửa vào các trang của cây. Khi khởi động lại sau crash, WAL được dùng để khôi phục B-tree về trạng thái nhất quán.</p>
+      <p>Một vấn đề khác của việc cập nhật trang tại chỗ là kiểm soát đồng thời: nếu nhiều luồng truy cập B-tree cùng lúc, một luồng đọc có thể nhìn thấy cây đang ở trạng thái dở dang khi luồng khác đang tách trang. Việc bảo vệ này thường được thực hiện bằng cách khoá các phần của cây bằng những khoá nhẹ gọi là <strong>latch</strong> (khác với khoá transaction ở tầng cao hơn). Về mặt này, hướng log-structured đơn giản hơn nhiều vì mọi việc gộp đoạn diễn ra ở nền trên file mới mà không làm phiền các truy vấn đang đọc.</p>
+      <h3>Copy-on-write và các tối ưu của B-tree</h3>
+      <p>Một số cơ sở dữ liệu (như LMDB) thay thế việc ghi đè trang và WAL bằng sơ đồ <strong>copy-on-write</strong>: trang bị sửa không bao giờ được ghi đè tại chỗ mà được ghi sang một vị trí mới trên đĩa, rồi tạo phiên bản mới của các trang cha trên đường lên tới gốc trỏ vào vị trí mới đó. Ngoài ra, B-tree lâu năm còn có nhiều tối ưu như: viết tắt khoá (<em class="en">abbreviating keys</em>) ở các trang trong để tăng branching factor, cố gắng xếp các trang lá liên tiếp nhau trên đĩa, hoặc thêm con trỏ ngang giữa các trang lá anh em để quét theo thứ tự mà không cần nhảy ngược lên trang cha.</p>
+    </div>
+    <figure class="lab" data-widget="btree-wal">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Mất điện ngay giữa lúc B-tree đang tách trang
+        <small>Kéo thanh “Mất điện sau khi hoàn tất … thao tác ghi” ở chế độ Không WAL để thấy khoá bị mất và trang mồ côi xuất hiện, rồi chuyển sang Có WAL hoặc Copy-on-write.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-warn"><b>Cạm bẫy</b><p>Ngay cả việc ghi đè <em>một</em> trang trên đĩa cũng có thể không nguyên tử ở tầng phần cứng nếu mất điện đúng lúc ổ đĩa mới ghi được một nửa trang (gọi là <em class="en">torn page</em>). Vì thế các engine như InnoDB (MySQL) còn phải dùng thêm cơ chế <em class="en">doublewrite buffer</em> hoặc ghi trọn cả trang vào WAL.</p></aside>
+  </article>
+
+  <!-- 4.10 -->
+  <article class="topic" id="ch4-write-amp" data-num="4.10" data-short="So sánh B-tree và LSM-tree" data-keywords="write amplification ssd wear fragmentation compression b-tree vs lsm-tree">
+    <p class="eyebrow">4.10 · Comparing B-Trees and LSM-Trees</p>
+    <h2>Đặt B-tree và LSM-tree lên bàn cân: khuếch đại ghi và dung lượng đĩa <span class="vi">Comparing B-Trees and LSM-Trees</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Quy tắc ngón tay cái: <strong>LSM-tree thường ghi nhanh hơn, còn B-tree thường đọc nhanh hơn</strong>.</li>
+      <li>Một lần ghi từ ứng dụng kéo theo nhiều lần ghi xuống đĩa trong suốt vòng đời dữ liệu — hiệu ứng đó gọi là <dfn data-term="write-amplification">khuếch đại ghi (write amplification)</dfn>. LSM-tree thường có hệ số khuếch đại ghi thấp hơn B-tree.</li>
+      <li>SSTable bất biến không bị <dfn data-term="fragmentation">phân mảnh (fragmentation)</dfn> và nén tốt hơn trang B-tree, nên file LSM-tree thường nhỏ hơn đáng kể trên đĩa.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Dù B-tree đã trưởng thành hơn, LSM-tree cũng rất đáng chú ý nhờ đặc tính hiệu năng của nó. Nhìn chung, truy vấn đọc trên LSM-tree thường chậm hơn vì phải kiểm tra nhiều cấu trúc dữ liệu và nhiều SSTable ở các tầng compaction khác nhau. Vậy tại sao người ta vẫn chọn LSM-tree?</p>
+      <h3>Khuếch đại ghi (Write amplification)</h3>
+      <p>Với B-tree, mỗi mẩu dữ liệu phải được ghi ít nhất hai lần: một lần vào WAL và một lần vào chính trang của cây (và có thể ghi thêm khi trang bị tách). Hơn nữa, ngay cả khi chỉ đổi vài byte trong một trang 4 KB hay 16 KB, database vẫn phải ghi đè <em>toàn bộ trang</em>. Với LSM-tree, dữ liệu cũng bị ghi lại nhiều lần do quá trình compaction và gộp các SSTable, nhưng các thao tác ghi của LSM-tree là ghi tuần tự các file SSTable gọn gàng thay vì ghi đè cả một trang lớn vì vài byte thay đổi.</p>
+      <p>Tỉ số giữa số byte thực tế ghi xuống đĩa và số byte ứng dụng yêu cầu ghi gọi là <strong>khuếch đại ghi (<em class="en">write amplification</em>)</strong>. Chỉ số này đặc biệt quan trọng trên ổ SSD (vì bộ nhớ flash chỉ chịu được số lần xoá–ghi hữu hạn trước khi mòn hỏng) và trong các ứng dụng ghi nặng nơi băng thông đĩa là nút thắt cổ chai: khuếch đại ghi càng thấp thì cơ sở dữ liệu xử lý được càng nhiều lượt ghi mỗi giây trong cùng băng thông đĩa.</p>
+      <h3>Nén tốt hơn và ít phân mảnh hơn</h3>
+      <p>Vì trang B-tree có kích thước cố định và khi tách trang thường chừa lại không gian trống trong trang, một phần dung lượng đĩa luôn bị bỏ phí do <strong>phân mảnh (<em class="en">fragmentation</em>)</strong>. Ngược lại, các file SSTable được viết liền mạch theo khối và định kỳ được viết lại để loại bỏ các bản ghi cũ hoặc đã xoá, nên có chi phí lưu trữ thấp hơn và tỉ lệ nén tốt hơn nhiều.</p>
+    </div>
+    <figure class="lab" data-widget="write-amp">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Mô hình khuếch đại ghi, thông lượng ghi tối đa và số lần đọc đĩa
+        <small>Thử giảm kích thước bản ghi xuống 50–100 B hoặc tăng trang B-tree lên 16 KB để thấy khuếch đại ghi của B-tree vọt lên khi mỗi lần ghi làm bẩn một trang khác nhau.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-real"><b>Thực tế</b><p>Trên nhiều loại phần cứng (đặc biệt là ổ cứng từ HDD, và ở mức độ nhất định trên cả SSD do cách firmware quản lý khối xoá), ghi tuần tự nhanh hơn ghi ngẫu nhiên rất nhiều — đó là lợi thế kép của LSM-tree bên cạnh khuếch đại ghi thấp hơn.</p></aside>
+  </article>
+
+  <!-- 4.11 -->
+  <article class="topic" id="ch4-compaction-backlog" data-num="4.11" data-short="Nhược điểm LSM & chỉ mục khác" data-keywords="compaction stall tail latency secondary index clustered index covering index full-text fuzzy">
+    <p class="eyebrow">4.11 · Downsides of LSM-Trees · Other Indexing Structures</p>
+    <h2>Nhược điểm của LSM-tree và các cấu trúc chỉ mục khác <span class="vi">Downsides of LSM-Trees and Other Indexing Structures</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Quá trình compaction ở nền của LSM-tree tranh chấp băng thông đĩa với các thao tác đọc/ghi đang phục vụ người dùng, dễ gây vọt độ trễ đuôi (p99).</li>
+      <li>Ở tốc độ ghi cao, nếu compaction không theo kịp tốc độ dữ liệu mới đổ vào, số SSTable chưa gộp cứ chất chồng lên mãi, làm đọc ngày càng chậm và cạn dung lượng đĩa.</li>
+      <li>Ngoài chỉ mục khoá chính, database còn có <dfn data-term="clustered-index">clustered index</dfn>, <dfn data-term="covering-index">covering index</dfn>, chỉ mục đa cột, chỉ mục toàn văn và tìm kiếm mờ (<dfn data-term="fuzzy-search">fuzzy search</dfn>).</li>
+    </ul></div>
+    <div class="prose">
+      <p>Lưu trữ kiểu log-structured cũng có những mặt trái đáng kể mà người vận hành phải lưu ý:</p>
+      <ul>
+        <li><strong>Nhiễu từ tiến trình compaction:</strong> đĩa có băng thông hữu hạn và phải chia sẻ giữa các thao tác ghi mới (WAL + flush memtable), các truy vấn đọc và luồng compaction chạy nền. Khi compaction gộp các SSTable lớn, nó có thể ngốn phần lớn băng thông đĩa và làm các truy vấn đang chạy bị chờ — dẫn tới độ trễ ở các phân vị cao (p95, p99) kém dự đoán hơn B-tree.</li>
+        <li><strong>Compaction không theo kịp tốc độ ghi:</strong> nếu tốc độ ghi vào quá lớn và băng thông đĩa không đủ cho compaction, số lượng SSTable chưa gộp trên đĩa sẽ tăng lên không ngừng. Hậu quả kép: dung lượng đĩa cạn dần, và mỗi truy vấn đọc ngày càng chậm vì phải kiểm tra nhiều file đoạn hơn. Đáng ngại hơn, các bản cài đặt LSM-tree thường không tự động hãm tốc độ ghi của client khi compaction bị tụt hậu, nên bạn <em>bắt buộc</em> phải có giám sát và cảnh báo cho tình huống này.</li>
+        <li><strong>Khóa chỉ xuất hiện một chỗ trong B-tree:</strong> trong B-tree, mỗi khoá nằm ở đúng một vị trí duy nhất trong chỉ mục, nên các cơ sở dữ liệu quan hệ rất thích dùng B-tree để cài đặt khoá giao dịch (<em class="en">transactional locks</em>) gắn trực tiếp vào khoảng khoá trong cây.</li>
+      </ul>
+      <h3>Các cấu trúc chỉ mục khác trong chương</h3>
+      <p>Cho tới đây ta mới bàn các chỉ mục khoá–giá trị (tương ứng khoá chính trong mô hình quan hệ). Chương này còn điểm qua bức tranh rộng hơn của các cấu trúc chỉ mục:</p>
+      <ul>
+        <li><strong>Chỉ mục phụ (<em class="en">secondary index</em>):</strong> khoá không phải là duy nhất; nhiều hàng có thể mang cùng một giá trị được đánh chỉ mục. Giá trị trong chỉ mục có thể là danh sách các định danh hàng trong <dfn data-term="heap-file">heap file</dfn> (file chứa các hàng không theo thứ tự cụ thể), hoặc nếu lưu thẳng cả hàng vào trong chỉ mục thì gọi là <strong>clustered index</strong> (như khoá chính của InnoDB). Giải pháp trung dung là <strong>covering index</strong> (chỉ mục bao phủ): lưu kèm một vài cột hay được truy vấn ngay trong chỉ mục để đọc không phải nhảy sang heap file.</li>
+        <li><strong>Chỉ mục đa cột và không gian:</strong> chỉ mục ghép (<em class="en">concatenated index</em>) nối nhiều cột theo thứ tự nhưng chỉ lọc nhanh được theo tiền tố cột đầu; muốn tìm kiếm đồng thời theo kinh độ và vĩ độ thì cần chỉ mục không gian nhiều chiều như <dfn data-term="r-tree">R-tree</dfn>.</li>
+        <li><strong>Tìm kiếm toàn văn và tìm kiếm mờ (<em class="en">fuzzy search</em>):</strong> Lucene dùng cấu trúc tương tự SSTable cho <em>inverted index</em> (từ điển các từ trỏ tới danh sách tài liệu) kết hợp với ôtômat hữu hạn (<em class="en">levenshtein automaton</em>) trên cây tiền tố để tìm nhanh các từ có khoảng cách chỉnh sửa nhỏ (sửa lỗi chính tả).</li>
+        <li><strong>Cơ sở dữ liệu trong bộ nhớ (<dfn data-term="in-memory-db">in-memory database</dfn>):</strong> như Redis, VoltDB, MemSQL. Điều thú vị là chúng chạy nhanh không chỉ vì không phải đọc đĩa (database dựa trên đĩa cũng cache phần lớn dữ liệu nóng trong RAM), mà chủ yếu vì tránh được chi phí <em>mã hoá cấu trúc dữ liệu trong bộ nhớ sang định dạng lưu trên đĩa</em>.</li>
+      </ul>
+    </div>
+    <figure class="lab" data-widget="compaction-backlog">
+      <figcaption><span class="lab-tag">Thử nghiệm</span> Khi tốc độ ghi làm luồng compaction bị tụt hậu
+        <small>Tăng dần “Tốc độ ghi vào” lên khoảng 40–50 MB/s hoặc giảm băng thông đĩa để thấy số SSTable chưa gộp vượt ngưỡng và đi lên mãi không dừng.</small></figcaption>
+      <div class="lab-body"></div>
+    </figure>
+    <aside class="callout callout-key"><b>Ghi nhớ</b><p>Với LSM-tree, giám sát số lượng SSTable chưa gộp và băng thông compaction là việc sống còn khi vận hành hệ thống chịu tải ghi cao.</p></aside>
+  </article>
+
+  <!-- 4.★ Review -->
+  <article class="topic" id="ch4-review" data-num="4.★" data-short="Tổng kết & kiểm tra" data-keywords="summary quiz review storage engine lsm btree">
+    <p class="eyebrow">4.★ · Summary</p>
+    <h2>Tổng kết chương 4 và tự kiểm tra <span class="vi">Summary &amp; Quiz</span></h2>
+    <div class="tldr"><h3>Tóm tắt</h3><ul>
+      <li>Các storage engine cho OLTP chia làm hai trường phái chính: <strong>log-structured</strong> (chỉ nối thêm vào đoạn và xóa/gộp ở nền: Bitcask, SSTable, LSM-tree) và <strong>update-in-place</strong> (ghi đè các trang kích thước cố định trên đĩa: B-tree).</li>
+      <li>Log-structured biến ghi ngẫu nhiên thành ghi tuần tự nên có thông lượng ghi cao hơn và file gọn hơn; B-tree có độ trễ đọc ổn định hơn và mỗi khoá nằm ở đúng một nơi.</li>
+      <li>Nắm vững cách storage engine hoạt động bên dưới giúp bạn chọn đúng công cụ và tinh chỉnh tham số hiệu quả cho tải thực tế của ứng dụng.</li>
+    </ul></div>
+    <div class="prose">
+      <p>Trong chương này ta đã bóc tách lớp vỏ của cơ sở dữ liệu để xem cách nó lưu trữ và tìm lại dữ liệu. Từ một file log chỉ nối thêm đơn giản, ta thấy vì sao phải đánh đổi giữa tốc độ ghi và tốc độ đọc, vì sao SSTable sắp xếp theo khoá cho phép dùng chỉ mục thưa trong RAM và trộn bằng mergesort, cách LSM-tree kết hợp memtable với chuỗi SSTable và Bloom filter, cũng như cách B-tree quản lý các trang kích thước cố định cùng Write-Ahead Log để đảm bảo an toàn khi mất điện.</p>
+      <h3>Kiểm tra nhanh</h3>
+    </div>
+    <div class="quiz">
+      <div class="q" data-answer="1">
+        <p>Vì sao thêm chỉ mục (index) vào bảng cơ sở dữ liệu luôn cần cân nhắc kỹ thay vì đánh chỉ mục mọi cột?</p>
+        <ol><li>Vì chỉ mục làm truy vấn SELECT chậm đi</li><li>Vì mọi chỉ mục đều phải được cập nhật mỗi khi ghi dữ liệu, làm chậm thao tác ghi và tốn thêm dung lượng lưu trữ</li><li>Vì một bảng chỉ được phép có tối đa một chỉ mục</li><li>Vì chỉ mục không hoạt động được trên ổ SSD</li></ol>
+        <p class="explain">Chỉ mục là cấu trúc dữ liệu phụ trợ giúp tăng tốc độ đọc, nhưng mỗi lần chèn, sửa hoặc xoá bản ghi, database đều phải tốn thêm công cập nhật từng chỉ mục liên quan.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Hạn chế lớn nhất của chỉ mục bảng băm trong RAM kiểu Bitcask là gì?</p>
+        <ol><li>Không cập nhật được giá trị của khoá đã tồn tại</li><li>Ghi chậm vì phải ghi đè tại chỗ</li><li>Toàn bộ các khoá phải nằm vừa trong RAM và truy vấn theo khoảng (range query) không hiệu quả</li><li>Không thể khôi phục dữ liệu sau khi khởi động lại</li></ol>
+        <p class="explain">Bảng băm trong RAM của Bitcask cần một mục cho mỗi khoá hiện có, và vì các khoá bị băm ngẫu nhiên nên không thể quét tuần tự một khoảng khoá liền nhau.</p>
+      </div>
+      <div class="q" data-answer="0">
+        <p>Nhờ đặc điểm nào mà SSTable chỉ cần một chỉ mục thưa (sparse index) trong RAM thay vì phải lưu vị trí của mọi khoá?</p>
+        <ol><li>Các cặp key–value trong file đoạn SSTable đã được sắp xếp theo khoá</li><li>Mọi giá trị trong SSTable có độ dài bằng nhau</li><li>SSTable luôn nằm trọn trong bộ nhớ RAM</li><li>SSTable dùng cây B-tree ghi đè tại chỗ</li></ol>
+        <p class="explain">Vì file SSTable đã sắp xếp theo khoá, chỉ cần biết offset của hai mốc khoá trong chỉ mục thưa là ta biết mọi khoá nằm giữa chúng theo thứ tự từ điển đều nằm trong khối dữ liệu giữa hai offset đó.</p>
+      </div>
+      <div class="q" data-answer="3">
+        <p>Vai trò của Bloom filter trong LSM-tree là gì?</p>
+        <ol><li>Giữ cho các khoá trong memtable luôn được sắp xếp</li><li>Thay thế hoàn toàn cho Write-Ahead Log khi crash</li><li>Nén các khối dữ liệu trong SSTable nhỏ đi 40%</li><li>Cho biết nhanh một khoá chắc chắn không nằm trong một SSTable để tránh phải đọc đĩa vô ích</li></ol>
+        <p class="explain">Bloom filter không bao giờ có false negative: nếu nó báo khoá không có mặt trong SSTable thì ta bỏ qua được ngay file đó mà không cần đọc đĩa.</p>
+      </div>
+      <div class="q" data-answer="1">
+        <p>Tại sao B-tree truyền thống cần có thêm Write-Ahead Log (WAL) trên đĩa?</p>
+        <ol><li>Để tăng tốc truy vấn khoảng trên các trang lá</li><li>Để khôi phục B-tree về trạng thái nhất quán nếu database bị crash giữa một thao tác phải ghi đè nhiều trang (như tách trang)</li><li>Để sắp xếp các khoá trong RAM trước khi xuất ra SSTable</li><li>Để giảm kích thước của mỗi trang từ 16 KB xuống 4 KB</li></ol>
+        <p class="explain">Khi tách trang trong B-tree, nhiều trang phải được ghi đè riêng lẻ. Nếu mất điện giữa chừng mà không có WAL, cấu trúc con trỏ giữa các trang sẽ bị gãy hoặc sinh ra trang mồ côi.</p>
+      </div>
+      <div class="q" data-answer="2">
+        <p>Điều gì xảy ra với một LSM-tree nếu tốc độ ghi cao kéo dài làm quá trình compaction ở nền không theo kịp?</p>
+        <ol><li>Cơ sở dữ liệu tự động chuyển sang cấu trúc B-tree</li><li>Các lượt ghi mới tự động ghi đè lên SSTable cũ nhất</li><li>Số lượng SSTable chưa gộp trên đĩa tăng lên mãi, khiến truy vấn đọc ngày càng chậm và đĩa dần đầy</li><li>Chỉ có memtable bị ảnh hưởng còn đĩa không bị sao</li></ol>
+        <p class="explain">Khi compaction không kịp gộp các đoạn mới flush xuống, số SSTable phình lên làm mỗi lượt đọc phải kiểm tra nhiều file hơn và các bản ghi cũ không được dọn, dẫn tới hết dung lượng đĩa.</p>
+      </div>
+    </div>
+  </article>
+</section>
