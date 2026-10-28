@@ -16,7 +16,14 @@ import {
   RotateCw,
   X,
   Sparkles,
+  Brain,
+  Flame,
 } from "lucide-react";
+import {
+  CrossBookRagPanel,
+  SpacedRepetitionDeck,
+  ActionHabitTracker,
+} from "../components/MoatWorkspacePanels";
 
 // Cover colours for generated book covers (picked by hashing the book id)
 const COVERS = [
@@ -84,6 +91,7 @@ export default function LibraryPage() {
   });
 
   // Upload flow: null | { step: 0..3, pct, fileName, error, warning, bookId }
+  const [activeTab, setActiveTab] = useState("books"); // "books" | "rag" | "learning"
   const [upload, setUpload] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef(null);
@@ -252,6 +260,57 @@ export default function LibraryPage() {
           </div>
         </section>
 
+        {/* Feature Navigation Tabs */}
+        <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 w-fit">
+          <button
+            type="button"
+            onClick={() => setActiveTab("books")}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === "books"
+                ? "bg-white dark:bg-[#141822] text-slate-900 dark:text-white shadow-sm"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            }`}
+          >
+            <BookOpen className="w-4 h-4 text-orange-500" />
+            Kho Sách Tương Tác
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("rag")}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === "rag"
+                ? "bg-white dark:bg-[#141822] text-indigo-600 dark:text-indigo-400 shadow-sm"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            }`}
+          >
+            <Brain className="w-4 h-4 text-indigo-500" />
+            Hỏi Đáp Liên Sách (Cross-Book RAG)
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("learning")}
+            className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === "learning"
+                ? "bg-white dark:bg-[#141822] text-amber-600 dark:text-amber-400 shadow-sm"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            }`}
+          >
+            <Flame className="w-4 h-4 text-amber-500" />
+            Ghi Nhớ Thích Ứng & Hành Động
+          </button>
+        </div>
+
+        {activeTab === "rag" && <CrossBookRagPanel />}
+
+        {activeTab === "learning" && (
+          <div className="space-y-8">
+            <SpacedRepetitionDeck />
+            <ActionHabitTracker />
+          </div>
+        )}
+
+        {activeTab === "books" && (
+          <>
         {/* Upload: one drop zone that turns into a step-by-step progress panel */}
         <section aria-label="Thêm sách mới">
           <input
@@ -495,6 +554,8 @@ export default function LibraryPage() {
               ))}
             </ul>
           </section>
+        )}
+        </>
         )}
 
         <footer className="pt-6 border-t border-slate-200 dark:border-white/10 text-xs text-slate-400 text-center">

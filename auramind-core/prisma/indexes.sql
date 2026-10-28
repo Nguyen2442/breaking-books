@@ -16,3 +16,11 @@ WITH (m = 16, ef_construction = 64);
 -- 3. Composite index for chapter lookup and ordering
 CREATE INDEX IF NOT EXISTS idx_chapters_book_order 
 ON chapters (book_id, chapter_number ASC);
+
+-- 4. Adaptive Spaced Repetition Index (Sub-millisecond retrieval of due flashcards)
+CREATE INDEX IF NOT EXISTS idx_flashcards_user_due 
+ON flashcard_reviews (user_id, next_review_at ASC);
+
+-- 5. Action Engine Status & Due Date Index
+CREATE INDEX IF NOT EXISTS idx_action_items_user_status 
+ON action_items (user_id, status, due_date ASC);

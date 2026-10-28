@@ -1,10 +1,10 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
-import { PrismaClient } from '@prisma/client';
 import * as crypto from 'crypto';
 import * as pdfParse from 'pdf-parse';
 import { GeminiService } from '../ai/gemini.service';
+import { PrismaService } from '../../prisma/prisma.service';
 
 export interface ChunkedChapter {
   chapterNumber: number;
@@ -16,18 +16,18 @@ export interface ChunkedChapter {
 @Injectable()
 export class BooksService {
   private readonly logger = new Logger(BooksService.name);
-  private readonly prisma = new PrismaClient();
 
   constructor(
     @InjectQueue('book-processing-queue') private readonly bookQueue: Queue,
-    private readonly geminiService: GeminiService
+    private readonly geminiService: GeminiService,
+    private readonly prisma: PrismaService,
   ) {}
 
   /**
    * Receive raw uploaded book PDF, extract text, divide into standard chapters (2,000 - 4,000 words)
    * and enqueue background jobs asynchronously.
    */
-  async processUploadedBook(file: Express.Multer.File, title?: string, author?: string) {
+  async processUploadedBook(file: Express.Multer.File, title?: string, author?: string, userId?: string) {
     this.logger.log(`Parsing uploaded PDF: "${file.originalname}" (${(file.size / 1024 / 1024).toFixed(2)} MB)...`);
 
     // 1. Parse PDF text
@@ -42,6 +42,7 @@ export class BooksService {
     // 3. Create Book record in PostgreSQL
     const book = await this.prisma.book.create({
       data: {
+        userId: userId || null,
         title: bookTitle,
         author: author || 'Unknown Author',
         pageCount: pdfData.numpages || 0,

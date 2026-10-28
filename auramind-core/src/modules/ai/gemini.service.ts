@@ -181,4 +181,53 @@ Hãy bóc tách tri thức toàn diện của chương sách trên theo đúng c
 
     return values;
   }
+
+  /**
+   * General-purpose text synthesis with custom System Instruction and Prompt
+   */
+  async generateText(
+    systemInstruction: string,
+    prompt: string,
+    temperature: number = 0.3
+  ): Promise<string> {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${this.defaultModel}:generateContent?key=${this.apiKey}`;
+
+    const body = {
+      systemInstruction: {
+        parts: [{ text: systemInstruction }],
+      },
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: prompt }],
+        },
+      ],
+      generationConfig: {
+        temperature,
+        maxOutputTokens: 8192,
+      },
+    };
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      this.logger.error(`Gemini text generation failed: ${errText}`);
+      throw new HttpException(`Gemini API Error (${res.status}): ${errText}`, HttpStatus.BAD_GATEWAY);
+    }
+
+    const data = await res.json();
+    const candidate = data.candidates?.[0];
+    const text = candidate?.content?.parts?.[0]?.text;
+
+    if (!text) {
+      throw new Error('Gemini trả về kết quả rỗng (No text content returned)');
+    }
+
+    return text;
+  }
 }

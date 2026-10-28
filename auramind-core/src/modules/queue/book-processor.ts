@@ -3,7 +3,7 @@ import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import * as crypto from 'crypto';
 import { GeminiService } from '../ai/gemini.service';
-import { PrismaClient } from '@prisma/client';
+import { PrismaService } from '../../prisma/prisma.service';
 
 export interface ProcessChapterJobPayload {
   chapterId: string;
@@ -19,9 +19,11 @@ export interface ProcessChapterJobPayload {
 })
 export class BookProcessor extends WorkerHost {
   private readonly logger = new Logger(BookProcessor.name);
-  private readonly prisma = new PrismaClient();
 
-  constructor(private readonly geminiService: GeminiService) {
+  constructor(
+    private readonly geminiService: GeminiService,
+    private readonly prisma: PrismaService,
+  ) {
     super();
   }
 

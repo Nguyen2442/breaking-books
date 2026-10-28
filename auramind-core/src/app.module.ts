@@ -1,10 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { BullModule } from '@nestjs/bullmq';
+import { PrismaModule } from './prisma/prisma.module';
 import { GeminiService } from './modules/ai/gemini.service';
 import { BooksController } from './modules/books/books.controller';
 import { BooksService } from './modules/books/books.service';
 import { BookProcessor } from './modules/queue/book-processor';
+import { RagModule } from './modules/rag/rag.module';
+import { SpacedRepetitionModule } from './modules/spaced-repetition/spaced-repetition.module';
+import { ActionEngineModule } from './modules/action-engine/action-engine.module';
+import { RustEngineClient } from './common/rust-engine.client';
 
 @Module({
   imports: [
@@ -13,6 +18,9 @@ import { BookProcessor } from './modules/queue/book-processor';
       isGlobal: true,
       envFilePath: ['.env', '.env.local'],
     }),
+
+    // Global Database Singleton
+    PrismaModule,
 
     // Redis BullMQ Configuration
     BullModule.forRootAsync({
@@ -31,8 +39,13 @@ import { BookProcessor } from './modules/queue/book-processor';
     BullModule.registerQueue({
       name: 'book-processing-queue',
     }),
+
+    // Proprietary Moats
+    RagModule,
+    SpacedRepetitionModule,
+    ActionEngineModule,
   ],
   controllers: [BooksController],
-  providers: [GeminiService, BooksService, BookProcessor],
+  providers: [GeminiService, BooksService, BookProcessor, RustEngineClient],
 })
 export class AppModule {}

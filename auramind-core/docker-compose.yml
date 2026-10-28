@@ -58,7 +58,24 @@ services:
       - auramind_net
 
   # ----------------------------------------------------------------------------
-  # 3. NestJS Application Container
+  # 3. Rust High-Performance Compute Engine (Chunking, Vector Re-Ranking, SM-2)
+  # ----------------------------------------------------------------------------
+  engine:
+    build:
+      context: ../auramind-engine
+      dockerfile: Dockerfile
+    container_name: auramind_engine
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+      RUST_LOG: info
+    networks:
+      - auramind_net
+
+  # ----------------------------------------------------------------------------
+  # 4. NestJS Application Container
   # ----------------------------------------------------------------------------
   api:
     build:
@@ -76,6 +93,7 @@ services:
     environment:
       NODE_ENV: production
       PORT: ${PORT:-4000}
+      RUST_ENGINE_URL: http://engine:8080
       DATABASE_URL: postgresql://${POSTGRES_USER:-auramind}:${POSTGRES_PASSWORD:-auramind_secure_password}@postgres:5432/${POSTGRES_DB:-auramind}?schema=public
       REDIS_HOST: redis
       REDIS_PORT: 6379

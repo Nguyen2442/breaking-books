@@ -1,0 +1,18 @@
+[package]
+name = "auramind-engine"
+version = "0.1.0"
+edition = "2021"
+description = "AuraMind Ultra-High Performance Rust Engine for Semantic Chunking, Vector Re-Ranking, and Spaced Repetition"
+authors = ["AuraMind Principal Architect"]
+
+[dependencies]
+axum = "0.7"
+tokio = { version = "1.38", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+rayon = "1.10"
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+

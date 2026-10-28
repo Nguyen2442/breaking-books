@@ -38,13 +38,14 @@ export class BooksController {
   async uploadBook(
     @UploadedFile() file: Express.Multer.File,
     @Body('title') title?: string,
-    @Body('author') author?: string
+    @Body('author') author?: string,
+    @Body('userId') userId?: string
   ) {
     if (!file) {
       throw new BadRequestException('Vui lòng chọn file sách để tải lên.');
     }
 
-    return await this.booksService.processUploadedBook(file, title, author);
+    return await this.booksService.processUploadedBook(file, title, author, userId);
   }
 
   /**
