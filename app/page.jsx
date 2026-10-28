@@ -350,14 +350,26 @@ export default function LibraryPage() {
               key={pb.id}
               className="mb-6 rounded-2xl bg-teal-50 dark:bg-teal-950/40 border border-teal-500/30 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
-              <div className="space-y-1 min-w-0">
-                <div className="flex items-center gap-2 text-teal-800 dark:text-teal-300 font-semibold text-base">
-                  <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-                  <span className="truncate">Đang phân tích và viết bài học: {pb.title}</span>
+              <div className="flex items-center gap-4 min-w-0">
+                {(pb.coverUrl || pb.id) && (
+                  <div className="w-12 h-16 rounded-md overflow-hidden shrink-0 shadow-md ring-1 ring-white/10 hidden sm:block">
+                    <img
+                      src={pb.coverUrl || `/covers/${pb.id}.jpg`}
+                      alt=""
+                      loading="lazy"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
+                <div className="space-y-1 min-w-0">
+                  <div className="flex items-center gap-2 text-teal-800 dark:text-teal-300 font-semibold text-base">
+                    <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                    <span className="truncate">Đang phân tích và viết bài học: {pb.title}</span>
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    Đã bóc tách {pb.stats.completeChapters}/{pb.stats.totalChapters} chương. Bạn có thể mở đọc Chương 1 ngay lập tức trong khi hệ thống xử lý các chương tiếp theo!
+                  </p>
                 </div>
-                <p className="text-sm text-slate-600 dark:text-slate-400">
-                  Đã bóc tách {pb.stats.completeChapters}/{pb.stats.totalChapters} chương. Bạn có thể mở đọc Chương 1 ngay lập tức trong khi hệ thống xử lý các chương tiếp theo!
-                </p>
               </div>
               <Link
                 href={`/books/${pb.id}/ch/1`}
@@ -430,6 +442,63 @@ export default function LibraryPage() {
   );
 }
 
+function BookCardCover({ book, readHref }) {
+  const [imgError, setImgError] = useState(false);
+  const coverUrl = book.coverUrl || `/covers/${book.id}.jpg`;
+  const showImage = !imgError;
+
+  return (
+    <Link
+      href={readHref}
+      className="relative overflow-hidden min-h-[190px] flex flex-col justify-end p-6 group cursor-pointer select-none"
+    >
+      {showImage ? (
+        <>
+          {/* 1. Atmospheric ambient background image with blur & scale */}
+          <div
+            className="absolute inset-0 bg-cover bg-center filter blur-md scale-110 opacity-35 transition-transform duration-500 group-hover:scale-125"
+            style={{ backgroundImage: `url("${coverUrl}")` }}
+            aria-hidden="true"
+          />
+          {/* 2. Deep vignette gradient scrim for contrast */}
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-slate-950/30" />
+
+          {/* 3. Floating 3D Book Cover thumbnail on top-right */}
+          <div className="absolute top-4 right-4 w-[76px] h-[106px] rounded-lg overflow-hidden shadow-2xl shadow-black/90 ring-1 ring-white/20 transition-all duration-300 group-hover:-translate-y-1 group-hover:rotate-1 group-hover:shadow-teal-500/20">
+            <img
+              src={coverUrl}
+              alt={book.title}
+              loading="lazy"
+              decoding="async"
+              onError={() => setImgError(true)}
+              className="w-full h-full object-cover object-top"
+            />
+          </div>
+        </>
+      ) : (
+        <div className={`absolute inset-0 bg-gradient-to-br ${coverFor(book.id)} opacity-95`} />
+      )}
+
+      {/* Book Metadata on Card */}
+      <div className={`relative z-10 ${showImage ? "pr-22" : ""} text-white`}>
+        <span className="text-xl font-bold leading-snug line-clamp-2 group-hover:underline drop-shadow-md">
+          {book.title}
+        </span>
+        {book.subtitle && (
+          <span className="mt-1 text-sm text-slate-200 line-clamp-2 drop-shadow">
+            {book.subtitle}
+          </span>
+        )}
+        {book.author && !book.subtitle?.includes(book.author) && (
+          <span className="mt-2.5 inline-block text-xs font-semibold text-teal-300 tracking-wider uppercase drop-shadow">
+            {book.author}
+          </span>
+        )}
+      </div>
+    </Link>
+  );
+}
+
 function BookCard({ book, local, busy, onProcess }) {
   const total = book.stats.totalChapters;
   const done = book.stats.completeChapters;
@@ -462,15 +531,8 @@ function BookCard({ book, local, busy, onProcess }) {
   }
 
   return (
-    <article className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#10161D] overflow-hidden flex flex-col">
-      <Link
-        href={readHref}
-        className={`bg-gradient-to-br ${coverFor(book.id)} text-white px-6 pt-8 pb-6 min-h-[168px] flex flex-col justify-end group cursor-pointer`}
-      >
-        <span className="text-xl font-bold leading-snug line-clamp-3 group-hover:underline">{book.title}</span>
-        {book.subtitle && <span className="mt-1 text-sm text-white/85 line-clamp-2">{book.subtitle}</span>}
-        {book.author && !book.subtitle?.includes(book.author) && <span className="mt-3 text-sm text-white/75">{book.author}</span>}
-      </Link>
+    <article className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#10161D] overflow-hidden flex flex-col hover:border-slate-300 dark:hover:border-white/20 transition-colors">
+      <BookCardCover book={book} readHref={readHref} />
 
       <div className="p-5 flex-1 flex flex-col gap-4">
         <div className="text-sm font-medium">{status}</div>
@@ -515,7 +577,7 @@ function BookCard({ book, local, busy, onProcess }) {
           >
             {lastCh ? (
               <>
-                <span>Đọc tiếp · Chương ${lastCh}</span>
+                <span>Đọc tiếp · Chương {lastCh}</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             ) : p.active ? (
