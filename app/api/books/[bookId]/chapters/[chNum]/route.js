@@ -87,6 +87,14 @@ export async function GET(request, { params }) {
           try {
             prioritizeChapter(bookId, num);
           } catch {}
+          let rawSource = dbChapter.rawText || '';
+          if (!rawSource || rawSource.trim().length === 0) {
+            const diskTxt = join(ROOT, bookId, 'text', `ch${num}.txt`);
+            if (existsSync(diskTxt)) {
+              try { rawSource = readFileSync(diskTxt, 'utf8'); } catch {}
+            }
+          }
+
           return NextResponse.json({
             ok: true,
             source: 'db-pending',
@@ -99,7 +107,7 @@ export async function GET(request, { params }) {
               vi: dbChapter.title,
               status: 'pending',
             },
-            sourceText: dbChapter.rawText || '',
+            sourceText: rawSource,
             html: '',
             js: '',
           });
@@ -154,13 +162,21 @@ export async function GET(request, { params }) {
 
   const prompt = buildChapterPrompt(payload.book, payload.ch, mode);
   let sourceText = '';
-  if ((includeText || !payload.html) && payload.ch.textPath) {
-    try {
-      const txtPath = join(ROOT, bookId, payload.ch.textPath);
-      if (existsSync(txtPath)) {
-        sourceText = readFileSync(txtPath, 'utf8').slice(0, 60000);
-      }
-    } catch { /* ignore */ }
+  const candidateTxtPaths = [
+    payload.ch.textPath,
+    join('text', `ch${num}.txt`),
+    join('text', `ch${payload.ch.n}.txt`),
+    join('text', `ch0${num}.txt`),
+  ].filter(Boolean);
+
+  for (const rel of candidateTxtPaths) {
+    const full = join(ROOT, bookId, rel);
+    if (existsSync(full)) {
+      try {
+        sourceText = readFileSync(full, 'utf8');
+        if (sourceText && sourceText.trim().length > 0) break;
+      } catch { /* ignore */ }
+    }
   }
 
   // 3. Build rich JSONB structure from HTML/JS

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Navbar from "@/components/Navbar";
 import {
   BookOpen,
   Upload,
@@ -152,75 +153,111 @@ export default function UserLibraryPage() {
   function startUpload(file) {
     if (!file) return;
     if (!file.name.toLowerCase().endsWith(".pdf")) {
-      alert("Chỉ hỗ trợ file PDF.");
+      alert("Chỉ hỗ trợ file định dạng PDF.");
       return;
     }
-    const state = {
-      step: 0,
-      pct: 0,
+    const fileSizeMb = (file.size / (1024 * 1024)).toFixed(1);
+    setUpload({
+      step: 1,
+      phase: "uploading",
+      pct: 5,
       fileName: file.name,
-      pdfPath: null,
+      fileSizeMb,
+      statusText: "Đang tải file PDF lên máy chủ...",
       bookId: null,
       title: null,
-      author: null,
+      chaptersCount: 0,
       error: null,
-      warning: null,
-    };
-    setUpload({ ...state });
+    });
 
     const xhr = new XMLHttpRequest();
     xhr.open("POST", "/api/books/upload-pdf");
     xhr.upload.onprogress = (evt) => {
       if (evt.lengthComputable) {
-        const pct = Math.round((evt.loaded / evt.total) * 100);
-        setUpload((prev) => (prev ? { ...prev, pct } : prev));
+        // Map 0 -> 100% of upload to 5% -> 45% overall
+        const uploadPct = Math.round((evt.loaded / evt.total) * 45);
+        setUpload((prev) => (prev ? {
+          ...prev,
+          pct: Math.max(5, uploadPct),
+          statusText: `Đang truyền file lên máy chủ (${(evt.loaded / (1024 * 1024)).toFixed(1)} / ${fileSizeMb} MB)...`,
+        } : prev));
       }
     };
+
     xhr.onload = async () => {
       if (xhr.status >= 200 && xhr.status < 300) {
         try {
           const res = JSON.parse(xhr.responseText);
           if (!res.ok) throw new Error(res.error || "Tải file thất bại");
           const pdfPath = res.file;
-          setUpload((prev) => (prev ? { ...prev, step: 1, pct: 100, pdfPath } : prev));
+
+          setUpload((prev) => (prev ? {
+            ...prev,
+            step: 2,
+            phase: "parsing",
+            pct: 55,
+            statusText: "Đã tải xong file! Đang trích xuất văn bản & phân tích mục lục...",
+          } : prev));
+
+          // Animate progress slightly while server parses
+          const parseTimer = setInterval(() => {
+            setUpload((prev) => {
+              if (!prev || prev.step !== 2) return prev;
+              const nextPct = Math.min(88, prev.pct + 4);
+              return { ...prev, pct: nextPct };
+            });
+          }, 600);
 
           const cRes = await fetch("/api/books/create", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ pdfPath }),
           });
+          clearInterval(parseTimer);
+
           const cData = await cRes.json();
           if (!cData.ok) throw new Error(cData.error || "Khởi tạo sách thất bại");
 
-          setUpload((prev) =>
-            prev
-              ? {
-                  ...prev,
-                  step: 2,
-                  bookId: cData.bookId,
-                  title: cData.book?.title,
-                  author: cData.book?.author,
-                }
-              : prev
-          );
+          setUpload((prev) => (prev ? {
+            ...prev,
+            step: 3,
+            phase: "completed",
+            pct: 100,
+            bookId: cData.bookId,
+            title: cData.book?.title || prev.fileName,
+            author: cData.book?.author || "",
+            chaptersCount: cData.book?.chapters?.length || 1,
+            statusText: "Hoàn tất! Sách đã được thêm vào thư viện.",
+          } : prev));
 
-          await fetch(`/api/library/process?bookId=${encodeURIComponent(cData.bookId)}`, {
+          // Fire background AI processing without blocking the client UI!
+          fetch(`/api/library/process?bookId=${encodeURIComponent(cData.bookId)}`, {
             method: "POST",
-          });
+          }).catch(() => {});
 
-          setUpload((prev) => (prev ? { ...prev, step: 3 } : prev));
           fetchOverview();
         } catch (err) {
-          setUpload((prev) => (prev ? { ...prev, error: err.message } : prev));
+          setUpload((prev) => (prev ? {
+            ...prev,
+            phase: "error",
+            error: err.message || "Xảy ra lỗi trong quá trình xử lý sách.",
+          } : prev));
         }
       } else {
-        setUpload((prev) =>
-          prev ? { ...prev, error: `Lỗi máy chủ (${xhr.status}): ${xhr.statusText}` } : prev
-        );
+        setUpload((prev) => (prev ? {
+          ...prev,
+          phase: "error",
+          error: `Lỗi máy chủ (${xhr.status}): ${xhr.statusText || "Không thể xử lý file"}`,
+        } : prev));
       }
     };
+
     xhr.onerror = () => {
-      setUpload((prev) => (prev ? { ...prev, error: "Lỗi kết nối mạng khi tải file." } : prev));
+      setUpload((prev) => (prev ? {
+        ...prev,
+        phase: "error",
+        error: "Lỗi kết nối mạng khi truyền file. Vui lòng thử lại.",
+      } : prev));
     };
 
     const fd = new FormData();
@@ -240,74 +277,7 @@ export default function UserLibraryPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F15] text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300">
       {/* Top Header */}
-      <header className="sticky top-0 z-30 backdrop-blur-md bg-white/80 dark:bg-[#0F1623]/80 border-b border-slate-200/80 dark:border-white/10 px-4 sm:px-8 py-3.5 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
-              <BookOpen className="w-5 h-5" />
-            </div>
-            <div>
-              <span className="text-base font-extrabold tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
-                Breaking Books
-              </span>
-              <span className="hidden sm:inline-block ml-2 text-[10px] font-mono px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-700 dark:text-orange-400 font-semibold border border-orange-500/20">
-                Thư viện cá nhân
-              </span>
-            </div>
-          </Link>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {authLoading ? (
-            <div className="w-6 h-6 rounded-full border-2 border-orange-500 border-t-transparent animate-spin" />
-          ) : currentUser ? (
-            <div className="flex items-center gap-2.5">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-white/5 border border-slate-200/80 dark:border-white/10">
-                <div className="w-6 h-6 rounded-lg bg-orange-600 flex items-center justify-center text-white text-xs font-bold uppercase">
-                  {currentUser.name ? currentUser.name.charAt(0) : "U"}
-                </div>
-                <div className="hidden sm:block text-left">
-                  <p className="text-xs font-bold leading-none">{currentUser.name}</p>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
-                    {currentUser.email}
-                  </p>
-                </div>
-              </div>
-
-              <button
-                onClick={handleLogout}
-                className="p-2 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-rose-500/10 border border-slate-200/80 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-rose-500 transition-colors cursor-pointer"
-                title="Đăng xuất"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Link
-                href="/login?redirect=/library"
-                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 hover:text-orange-600 transition-colors"
-              >
-                Đăng nhập
-              </Link>
-              <Link
-                href="/register?redirect=/library"
-                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-sm shadow-orange-600/20 transition-all"
-              >
-                Đăng ký
-              </Link>
-            </div>
-          )}
-
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-600 dark:text-slate-400 transition-colors cursor-pointer"
-            title="Đổi giao diện Sáng / Tối"
-          >
-            {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
-          </button>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Main Container */}
       <main className="max-w-6xl mx-auto px-4 sm:px-8 py-8 space-y-10">
@@ -368,56 +338,151 @@ export default function UserLibraryPage() {
               </span>
             </button>
           ) : (
-            <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#10161D] p-6 shadow-sm">
+            <div className="rounded-2xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#10161D] p-6 shadow-md transition-all">
+              {/* Header of Upload Card */}
               <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs text-slate-500">Đang xử lý tải sách lên</p>
-                  <p className="text-base font-bold">{upload.title || upload.fileName}</p>
+                <div className="flex items-center gap-3">
+                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${
+                    upload.phase === "completed"
+                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                      : upload.phase === "error"
+                      ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20"
+                      : "bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20"
+                  }`}>
+                    {upload.phase === "completed" ? (
+                      <CheckCircle2 className="w-6 h-6" />
+                    ) : upload.phase === "error" ? (
+                      <AlertCircle className="w-6 h-6" />
+                    ) : (
+                      <Loader2 className="w-6 h-6 animate-spin" />
+                    )}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400">
+                        {upload.fileSizeMb ? `${upload.fileSizeMb} MB` : "PDF"}
+                      </span>
+                      <span className="text-xs text-slate-500">
+                        {upload.phase === "completed"
+                          ? "Đã sẵn sàng"
+                          : upload.phase === "error"
+                          ? "Gặp sự cố"
+                          : "Đang xử lý"}
+                      </span>
+                    </div>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white mt-0.5 line-clamp-1">
+                      {upload.title || upload.fileName}
+                    </h3>
+                  </div>
                 </div>
+
                 {!uploading && (
                   <button
                     onClick={() => setUpload(null)}
-                    className="p-1.5 rounded-lg border border-slate-200 dark:border-white/10 text-xs text-slate-500 hover:text-slate-900"
+                    className="p-1.5 rounded-xl border border-slate-200 dark:border-white/10 text-xs text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
+                    title="Đóng / Huỷ"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 )}
               </div>
 
-              {upload.error && (
-                <div className="mt-3 p-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>{upload.error}</span>
-                </div>
-              )}
-
-              {uploading && (
-                <div className="mt-4 space-y-2">
-                  <div className="h-2 rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden">
+              {/* 3-Step Progress Indicator */}
+              <div className="grid grid-cols-3 gap-2 mt-5">
+                {[
+                  { step: 1, label: "1. Tải lên" },
+                  { step: 2, label: "2. Xử lý PDF" },
+                  { step: 3, label: "3. Sẵn sàng" },
+                ].map((s) => {
+                  const isDone = upload.step > s.step || upload.phase === "completed";
+                  const isCurrent = upload.step === s.step && upload.phase !== "completed" && upload.phase !== "error";
+                  return (
                     <div
-                      className="h-full bg-orange-600 transition-all duration-300"
-                      style={{ width: `${upload.pct || 30}%` }}
+                      key={s.step}
+                      className={`px-3 py-2 rounded-xl text-center text-xs font-semibold border transition-all ${
+                        isDone
+                          ? "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400"
+                          : isCurrent
+                          ? "bg-orange-50 dark:bg-orange-500/10 border-orange-500 text-orange-700 dark:text-orange-400 shadow-sm"
+                          : "bg-slate-50 dark:bg-white/[0.02] border-slate-200 dark:border-white/5 text-slate-400"
+                      }`}
+                    >
+                      <div className="flex items-center justify-center gap-1.5">
+                        {isDone && <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />}
+                        {isCurrent && <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0 text-orange-600" />}
+                        <span>{s.label}</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Progress Bar & Status Text */}
+              {upload.phase !== "error" && (
+                <div className="mt-4 space-y-2">
+                  <div className="h-2.5 rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden p-0.5">
+                    <div
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        upload.phase === "completed"
+                          ? "bg-emerald-500"
+                          : "bg-gradient-to-r from-orange-500 to-amber-500"
+                      }`}
+                      style={{ width: `${Math.min(100, upload.pct || 10)}%` }}
                     />
                   </div>
-                  <p className="text-xs text-slate-500 font-mono">Đang xử lý: {upload.pct}%...</p>
+                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                    <span className="font-medium text-slate-700 dark:text-slate-300">
+                      {upload.statusText || "Đang xử lý..."}
+                    </span>
+                    <span className="font-mono font-bold text-orange-600 dark:text-orange-400">
+                      {upload.pct || 10}%
+                    </span>
+                  </div>
                 </div>
               )}
 
-              {upload.step === 3 && (
-                <div className="mt-4 flex items-center justify-between pt-3 border-t border-slate-100 dark:border-white/5">
-                  <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4" />
-                    Đã tạo sách thành công! Đang tiến hành soạn các chương...
-                  </span>
-                  {upload.bookId && (
-                    <Link
-                      href={`/books/${upload.bookId}`}
-                      className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-orange-600 text-white hover:bg-orange-500 inline-flex items-center gap-1.5"
+              {/* Error Message */}
+              {upload.error && (
+                <div className="mt-4 p-4 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-300 text-xs flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="w-5 h-5 shrink-0 text-rose-500" />
+                    <span>{upload.error}</span>
+                  </div>
+                  <button
+                    onClick={() => setUpload(null)}
+                    className="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-semibold transition-colors shrink-0"
+                  >
+                    Thử lại
+                  </button>
+                </div>
+              )}
+
+              {/* Completed Success Actions */}
+              {upload.step === 3 && upload.phase === "completed" && (
+                <div className="mt-5 pt-4 border-t border-slate-100 dark:border-white/5 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+                    <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20">
+                      {upload.chaptersCount || 1} chương được tạo
+                    </span>
+                    <span className="hidden sm:inline">AI đang tiếp tục hoàn thiện các bản tóm tắt nâng cao ở nền.</span>
+                  </div>
+                  <div className="flex items-center gap-2.5">
+                    <button
+                      onClick={() => setUpload(null)}
+                      className="px-3.5 py-2 rounded-xl text-xs font-semibold border border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/5 text-slate-700 dark:text-slate-300 transition-colors"
                     >
-                      <span>Mở sách ngay</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-                  )}
+                      Tải thêm sách
+                    </button>
+                    {upload.bookId && (
+                      <Link
+                        href={`/books/${upload.bookId}`}
+                        className="px-4 py-2 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-md shadow-orange-600/25 inline-flex items-center gap-2 transition-all hover:scale-[1.02]"
+                      >
+                        <span>Mở sách đọc ngay</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </Link>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
