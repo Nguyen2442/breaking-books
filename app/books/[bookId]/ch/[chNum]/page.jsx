@@ -227,13 +227,13 @@ export default function SingleChapterReaderPage() {
 
       {/* Reading View Mode Switcher: All | Theory Only | Visual Labs Only */}
       {!loading && chapterData?.html && (
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2.5 rounded-2xl bg-white dark:bg-[#10161D] border border-slate-200 dark:border-white/10 shadow-xs">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-2xl bg-white dark:bg-[#10161D] border border-slate-200/80 dark:border-white/10 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.03)]">
           <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-white/[0.05]">
             <button
               onClick={() => setViewMode("all")}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 viewMode === "all"
-                  ? "bg-white dark:bg-[#151E2E] text-teal-700 dark:text-teal-400 shadow-xs"
+                  ? "bg-white dark:bg-[#151E2E] text-teal-700 dark:text-teal-400 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.06)]"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
@@ -243,7 +243,7 @@ export default function SingleChapterReaderPage() {
               onClick={() => setViewMode("theory")}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 viewMode === "theory"
-                  ? "bg-white dark:bg-[#151E2E] text-teal-700 dark:text-teal-400 shadow-xs"
+                  ? "bg-white dark:bg-[#151E2E] text-teal-700 dark:text-teal-400 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.06)]"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
@@ -253,7 +253,7 @@ export default function SingleChapterReaderPage() {
               onClick={() => setViewMode("lab")}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                 viewMode === "lab"
-                  ? "bg-white dark:bg-[#151E2E] text-teal-700 dark:text-teal-400 shadow-xs"
+                  ? "bg-white dark:bg-[#151E2E] text-teal-700 dark:text-teal-400 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.06)]"
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
@@ -286,10 +286,10 @@ export default function SingleChapterReaderPage() {
 
       {/* Bottom Chapter Completion Banner & Mintlify-Style Prev / Next Chapter Navigation */}
       {!loading && (
-        <div className="mt-16 pt-8 border-t border-slate-200/80 dark:border-white/[0.08] space-y-6">
-          <div className="p-6 rounded-2xl bg-teal-500/[0.06] border border-teal-500/20 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-teal-700 text-white flex items-center justify-center font-bold text-lg shrink-0">
+        <div className="mt-16 pt-8 border-t border-slate-100 dark:border-white/[0.08] space-y-6">
+          <div className="p-6 rounded-3xl bg-white dark:bg-[#10161D] border border-teal-500/30 shadow-[0_4px_24px_-2px_rgba(13,148,136,0.06)] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-teal-700 text-white flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
                 ✓
               </div>
               <div>
@@ -305,7 +305,7 @@ export default function SingleChapterReaderPage() {
             {nextCh && (
               <Link
                 href={`/books/${bookId}/ch/${nextCh.n}`}
-                className="inline-flex items-center gap-2 h-11 px-6 rounded-xl bg-teal-700 hover:bg-teal-600 text-white font-semibold text-sm shadow-sm transition-all shrink-0 cursor-pointer"
+                className="inline-flex items-center gap-2 h-11 px-6 rounded-2xl bg-teal-700 hover:bg-teal-600 text-white font-semibold text-sm shadow-[0_2px_8px_-1px_rgba(13,148,136,0.25)] hover:shadow-[0_4px_14px_-2px_rgba(13,148,136,0.35)] transition-all shrink-0 cursor-pointer"
               >
                 <span>Đọc tiếp Chương {nextCh.n}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -317,9 +317,9 @@ export default function SingleChapterReaderPage() {
             {prevCh ? (
               <Link
                 href={`/books/${bookId}/ch/${prevCh.n}`}
-                className="group p-5 rounded-2xl bg-slate-50/70 dark:bg-[#0F1623] border border-slate-200/90 dark:border-white/[0.08] hover:border-teal-500/60 transition-all flex items-center gap-4 cursor-pointer"
+                className="group p-5 rounded-2xl bg-white dark:bg-[#0F1623] border border-slate-200/80 dark:border-white/[0.08] shadow-[0_4px_20px_-2px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_-4px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 hover:border-teal-500/50 transition-all flex items-center gap-4 cursor-pointer"
               >
-                <div className="w-9 h-9 rounded-xl bg-white dark:bg-[#151E2E] border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-[#151E2E] border border-slate-200/80 dark:border-white/10 flex items-center justify-center text-slate-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 group-hover:border-teal-500/40 transition-all shrink-0">
                   <ArrowLeft className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
@@ -338,7 +338,7 @@ export default function SingleChapterReaderPage() {
             {nextCh && (
               <Link
                 href={`/books/${bookId}/ch/${nextCh.n}`}
-                className="group p-5 rounded-2xl bg-slate-50/70 dark:bg-[#0F1623] border border-slate-200/90 dark:border-white/[0.08] hover:border-teal-500/60 transition-all flex items-center justify-between gap-4 text-right sm:col-start-2 cursor-pointer"
+                className="group p-5 rounded-2xl bg-white dark:bg-[#0F1623] border border-slate-200/80 dark:border-white/[0.08] shadow-[0_4px_20px_-2px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_-4px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 hover:border-teal-500/50 transition-all flex items-center justify-between gap-4 text-right sm:col-start-2 cursor-pointer"
               >
                 <div className="min-w-0 ml-auto">
                   <div className="text-[11px] font-mono uppercase text-slate-400">
@@ -348,7 +348,7 @@ export default function SingleChapterReaderPage() {
                     {nextCh.title}
                   </div>
                 </div>
-                <div className="w-9 h-9 rounded-xl bg-white dark:bg-[#151E2E] border border-slate-200 dark:border-white/10 flex items-center justify-center text-slate-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-[#151E2E] border border-slate-200/80 dark:border-white/10 flex items-center justify-center text-slate-400 group-hover:text-teal-600 dark:group-hover:text-teal-400 group-hover:border-teal-500/40 transition-all shrink-0">
                   <ArrowRight className="w-4 h-4" />
                 </div>
               </Link>

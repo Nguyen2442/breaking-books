@@ -15,6 +15,7 @@ import {
   ArrowRight,
   RotateCw,
   X,
+  Sparkles,
 } from "lucide-react";
 
 // Cover colours for generated book covers (picked by hashing the book id)
@@ -157,41 +158,62 @@ export default function LibraryPage() {
   const uploading = upload && !upload.error && upload.step < 3;
 
   return (
-    <div className="min-h-screen bg-[#F7F8F7] dark:bg-[#0B0F14] text-slate-900 dark:text-slate-100">
-      <header className="border-b border-slate-200 dark:border-white/10 bg-white dark:bg-[#10161D]">
+    <div className="min-h-screen bg-white dark:bg-[#090D16] text-slate-900 dark:text-slate-100 selection:bg-teal-500/20">
+      <header className="sticky top-0 z-30 border-b border-slate-100/90 dark:border-white/10 bg-white/90 dark:bg-[#090D16]/90 backdrop-blur-md shadow-[0_1px_10px_-2px_rgba(0,0,0,0.03)]">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between gap-3">
-          <Link href="/" className="flex items-center gap-3 min-w-0">
-            <span className="w-9 h-9 shrink-0 rounded-xl bg-teal-700 text-white flex items-center justify-center">
+          <Link href="/" className="flex items-center gap-3 min-w-0 group">
+            <span className="w-9 h-9 shrink-0 rounded-xl bg-teal-700 group-hover:bg-teal-600 text-white flex items-center justify-center shadow-sm transition-colors">
               <BookOpen className="w-5 h-5" />
             </span>
-            <span className="text-lg font-bold tracking-tight whitespace-nowrap">Breaking Books</span>
+            <span className="text-lg font-bold tracking-tight whitespace-nowrap text-slate-900 dark:text-white">Breaking Books</span>
           </Link>
           <div className="flex items-center gap-2">
             <button
               onClick={toggleTheme}
-              className="inline-flex items-center gap-2 h-10 px-3 rounded-xl border border-slate-200 dark:border-white/10 text-sm font-medium hover:border-teal-600 cursor-pointer"
+              className="inline-flex items-center gap-2 h-10 px-3.5 rounded-xl border border-slate-200/80 dark:border-white/10 text-sm font-medium hover:border-teal-500/60 hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-all cursor-pointer"
             >
-              {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-slate-600" />}
               <span className="hidden sm:inline">{isDark ? "Nền sáng" : "Nền tối"}</span>
             </button>
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
-              className="inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-teal-700 hover:bg-teal-600 text-white text-sm font-semibold disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-teal-700 hover:bg-teal-600 text-white text-sm font-semibold shadow-[0_2px_8px_-1px_rgba(13,148,136,0.25)] hover:shadow-[0_4px_14px_-2px_rgba(13,148,136,0.35)] disabled:opacity-50 transition-all cursor-pointer"
             >
               <Upload className="w-4 h-4" />
-              <span className="whitespace-nowrap">Thêm sách</span>
+              <span className="whitespace-nowrap">Thêm sách PDF</span>
             </button>
           </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-8 py-10 space-y-12">
-        <section>
-          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">Thư viện của bạn</h1>
-          <p className="mt-2 text-base text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
-            Bấm vào một cuốn sách để đọc. Muốn thêm sách mới, chỉ cần chọn file PDF. Máy sẽ tự chia chương, rồi viết phần tóm tắt, giải thích và ví dụ cho từng chương.
+        <section className="pt-2 sm:pt-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-50 dark:bg-teal-950/40 border border-teal-200/70 dark:border-teal-500/30 text-xs font-semibold text-teal-800 dark:text-teal-300 shadow-sm mb-4">
+            <Sparkles className="w-3.5 h-3.5 text-teal-600 animate-pulse" />
+            <span>Nền tảng Sách Kỹ thuật Tương tác</span>
+          </div>
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.18]">
+            Đọc, Trải nghiệm & Thử nghiệm <br className="hidden sm:inline" />
+            <span className="bg-gradient-to-r from-teal-600 via-teal-500 to-indigo-600 bg-clip-text text-transparent">
+              Kiến trúc Hệ thống Thực tế
+            </span>
+          </h1>
+          <p className="mt-3.5 text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
+            Bóc tách từng chương sách kinh điển thành lý thuyết cô đọng và phòng thử nghiệm trực quan riêng biệt. Bạn có thể kéo slider, quan sát luồng gói tin, phân tích đồ thị và tương tác trực tiếp ngay trong trình duyệt.
           </p>
+
+          <div className="mt-6 flex flex-wrap items-center gap-2.5 sm:gap-4 text-xs font-medium text-slate-600 dark:text-slate-300">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200/70 dark:border-white/10 shadow-[0_2px_6px_-1px_rgba(0,0,0,0.02)]">
+              📚 <strong className="text-slate-800 dark:text-slate-200">{books.length} Bộ sách kinh điển</strong>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200/70 dark:border-white/10 shadow-[0_2px_6px_-1px_rgba(0,0,0,0.02)]">
+              🧪 <strong className="text-slate-800 dark:text-slate-200">100% Visual Lab tương tác</strong>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-white/[0.04] border border-slate-200/70 dark:border-white/10 shadow-[0_2px_6px_-1px_rgba(0,0,0,0.02)]">
+              ⚡ <strong className="text-slate-800 dark:text-slate-200">Đọc từng chương độc lập</strong>
+            </span>
+          </div>
         </section>
 
         {/* Upload: one drop zone that turns into a step-by-step progress panel */}
@@ -221,22 +243,22 @@ export default function LibraryPage() {
                 setDragOver(false);
                 startUpload(e.dataTransfer.files?.[0]);
               }}
-              className={`w-full rounded-2xl border-2 border-dashed px-6 py-10 flex flex-col items-center gap-3 text-center transition-colors cursor-pointer ${
+              className={`w-full rounded-3xl border-2 border-dashed px-6 py-10 flex flex-col items-center gap-3 text-center transition-all duration-300 cursor-pointer shadow-[0_4px_24px_-4px_rgba(0,0,0,0.03)] hover:shadow-[0_16px_36px_-6px_rgba(13,148,136,0.09)] ${
                 dragOver
-                  ? "border-teal-600 bg-teal-50 dark:bg-teal-500/10"
-                  : "border-slate-300 dark:border-white/15 bg-white dark:bg-[#10161D] hover:border-teal-600"
+                  ? "border-teal-600 bg-teal-50/60 dark:bg-teal-500/10 scale-[1.005]"
+                  : "border-slate-200/90 dark:border-white/15 bg-white dark:bg-[#10161D] hover:border-teal-500"
               }`}
             >
-              <span className="w-14 h-14 rounded-full bg-teal-50 dark:bg-teal-500/10 text-teal-700 dark:text-teal-300 flex items-center justify-center">
+              <span className="w-14 h-14 rounded-2xl bg-teal-50 dark:bg-teal-500/10 text-teal-700 dark:text-teal-300 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
                 <Upload className="w-6 h-6" />
               </span>
-              <span className="text-lg font-semibold">Kéo file PDF vào đây, hoặc bấm để chọn file</span>
-              <span className="text-sm text-slate-500 dark:text-slate-400">
-                Tải lên xong, máy tự chia chương và bắt đầu viết bài học. Mỗi chương mất vài phút.
+              <span className="text-lg font-bold text-slate-900 dark:text-white">Kéo file PDF sách vào đây, hoặc bấm để chọn file</span>
+              <span className="text-sm text-slate-500 dark:text-slate-400 max-w-md">
+                Hệ thống tự động tìm bìa gốc chuẩn xác, chia chương thông minh và khởi tạo phòng thí nghiệm trực quan cho từng bài học.
               </span>
             </button>
           ) : (
-            <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#10161D] p-6 sm:p-8">
+            <div className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#10161D] p-6 sm:p-8 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.04)]">
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                   <p className="text-sm text-slate-500 dark:text-slate-400">Đang thêm sách</p>
@@ -450,53 +472,35 @@ function BookCardCover({ book, readHref }) {
   return (
     <Link
       href={readHref}
-      className="relative overflow-hidden min-h-[230px] sm:min-h-[245px] flex flex-col justify-end p-6 group cursor-pointer select-none"
+      className="relative w-full pt-8 pb-7 px-6 bg-gradient-to-b from-slate-50/70 via-white to-white dark:from-white/[0.03] dark:via-transparent dark:to-transparent flex flex-col items-center justify-center border-b border-slate-100/90 dark:border-white/10 group cursor-pointer select-none overflow-hidden"
     >
+      {/* Subtle ambient spotlight glow */}
+      <div className="absolute w-48 h-48 rounded-full bg-teal-500/5 dark:bg-teal-400/5 blur-2xl pointer-events-none group-hover:scale-130 group-hover:bg-teal-500/10 transition-all duration-500" />
+
       {showImage ? (
-        <>
-          {/* 1. Atmospheric ambient background image with blur & scale */}
-          <div
-            className="absolute inset-0 bg-cover bg-center filter blur-md scale-110 opacity-30 transition-transform duration-700 group-hover:scale-120"
-            style={{ backgroundImage: `url("${coverUrl}")` }}
-            aria-hidden="true"
+        /* 3D Realistic Floating Book Cover — Enlarged for maximum visual elegance */
+        <div className="relative z-10 w-[142px] h-[196px] sm:w-[155px] sm:h-[215px] rounded-lg overflow-hidden shadow-[0_16px_36px_-6px_rgba(15,23,42,0.18),0_4px_12px_-2px_rgba(15,23,42,0.08)] ring-1 ring-black/5 dark:ring-white/15 transition-all duration-300 ease-out group-hover:scale-[1.04] group-hover:-translate-y-2 group-hover:rotate-[0.8deg] group-hover:shadow-[0_24px_48px_-8px_rgba(13,148,136,0.22),0_8px_16px_-4px_rgba(15,23,42,0.12)]">
+          {/* Left Spine 3D Highlight & Shadow */}
+          <div className="absolute inset-y-0 left-0 w-2 bg-gradient-to-r from-white/40 via-white/10 to-transparent z-10 pointer-events-none" />
+          <div className="absolute inset-y-0 left-0 w-1 bg-black/20 z-10 pointer-events-none" />
+          {/* Right Pages Thickness Edge */}
+          <div className="absolute inset-y-0 right-0 w-1 bg-gradient-to-l from-white/30 to-transparent z-10 pointer-events-none" />
+
+          <img
+            src={coverUrl}
+            alt={book.title}
+            loading="lazy"
+            decoding="async"
+            onError={() => setImgError(true)}
+            className="w-full h-full object-cover object-top"
           />
-          {/* 2. Deep vignette gradient scrim for contrast */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-slate-950/25" />
-
-          {/* 3. Prominent 3D Floating Book Cover on top-right */}
-          <div className="absolute top-4 right-4 w-[106px] h-[150px] sm:w-[116px] sm:h-[164px] rounded-md overflow-hidden shadow-[0_16px_30px_-6px_rgba(0,0,0,0.85)] ring-1 ring-white/25 transition-all duration-300 group-hover:-translate-y-2 group-hover:rotate-1 group-hover:shadow-[0_24px_38px_-8px_rgba(0,0,0,0.95)]">
-            {/* Book spine highlight */}
-            <div className="absolute inset-y-0 left-0 w-1.5 bg-gradient-to-r from-white/35 to-transparent z-10 pointer-events-none" />
-            <img
-              src={coverUrl}
-              alt={book.title}
-              loading="lazy"
-              decoding="async"
-              onError={() => setImgError(true)}
-              className="w-full h-full object-cover object-top"
-            />
-          </div>
-        </>
+        </div>
       ) : (
-        <div className={`absolute inset-0 bg-gradient-to-br ${coverFor(book.id)} opacity-95`} />
+        <div className={`w-[142px] h-[196px] sm:w-[155px] sm:h-[215px] rounded-lg shadow-lg bg-gradient-to-br ${coverFor(book.id)} p-5 flex flex-col justify-end text-white transition-all duration-300 group-hover:scale-105 group-hover:-translate-y-1.5`}>
+          <BookOpen className="w-8 h-8 opacity-75 mb-auto" />
+          <span className="text-sm font-bold line-clamp-3 leading-snug">{book.title}</span>
+        </div>
       )}
-
-      {/* Book Metadata on Card */}
-      <div className={`relative z-10 ${showImage ? "pr-30 sm:pr-34" : ""} text-white`}>
-        <span className="text-xl font-bold leading-snug line-clamp-2 group-hover:underline drop-shadow-md">
-          {book.title}
-        </span>
-        {book.subtitle && (
-          <span className="mt-1 text-sm text-slate-200 line-clamp-2 drop-shadow">
-            {book.subtitle}
-          </span>
-        )}
-        {book.author && !book.subtitle?.includes(book.author) && (
-          <span className="mt-2.5 inline-block text-xs font-semibold text-teal-300 tracking-wider uppercase drop-shadow">
-            {book.author}
-          </span>
-        )}
-      </div>
     </Link>
   );
 }
@@ -511,104 +515,118 @@ function BookCard({ book, local, busy, onProcess }) {
   const readHref = `/books/${book.id}/ch/${lastCh || firstReady || 1}`;
   const readPct = book.stats.totalTopics ? Math.min(100, Math.round(((local.read || 0) / book.stats.totalTopics) * 100)) : 0;
 
-  let status;
-  if (ready) {
-    status = (
-      <span className="inline-flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
-        <CheckCircle2 className="w-4 h-4" /> Sẵn sàng · {total} chương
-      </span>
-    );
-  } else if (p.active) {
-    status = (
-      <span className="inline-flex items-center gap-1.5 text-teal-700 dark:text-teal-300">
-        <Loader2 className="w-4 h-4 animate-spin" /> Đang viết bài học · {done}/{total} chương xong
-      </span>
-    );
-  } else {
-    status = (
-      <span className="inline-flex items-center gap-1.5 text-amber-700 dark:text-amber-400">
-        <AlertCircle className="w-4 h-4" /> {done}/{total} chương đã sẵn sàng
-      </span>
-    );
-  }
-
   return (
-    <article className="rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#10161D] overflow-hidden flex flex-col hover:border-slate-300 dark:hover:border-white/20 transition-colors">
+    <article className="rounded-3xl border border-slate-200/80 dark:border-white/10 bg-white dark:bg-[#10161D] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.04)] hover:shadow-[0_20px_48px_-6px_rgba(0,0,0,0.08)] hover:-translate-y-1.5 transition-all duration-300 overflow-hidden flex flex-col group">
       <BookCardCover book={book} readHref={readHref} />
 
-      <div className="p-5 flex-1 flex flex-col gap-4">
-        <div className="text-sm font-medium">{status}</div>
+      <div className="p-6 flex-1 flex flex-col gap-4">
+        {/* Book Title & Subtitle */}
+        <div>
+          <Link href={readHref} className="block group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-snug line-clamp-2">
+              {book.title}
+            </h3>
+          </Link>
+          {book.subtitle && (
+            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 line-clamp-1 leading-normal">
+              {book.subtitle}
+            </p>
+          )}
+          {book.author && !book.subtitle?.includes(book.author) && (
+            <p className="mt-1 text-[11px] font-semibold text-teal-700 dark:text-teal-400 uppercase tracking-wider">
+              {book.author}
+            </p>
+          )}
+        </div>
 
-        {!ready && (
+        {/* Status & Progress */}
+        <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-white/5">
+          <div className="flex items-center justify-between text-xs">
+            {ready ? (
+              <span className="inline-flex items-center gap-1.5 font-medium text-emerald-700 dark:text-emerald-400">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Sẵn sàng · {total} chương</span>
+              </span>
+            ) : p.active ? (
+              <span className="inline-flex items-center gap-1.5 font-medium text-teal-700 dark:text-teal-300">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Đang bóc tách · {done}/{total}</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 font-medium text-amber-700 dark:text-amber-400">
+                <AlertCircle className="w-3.5 h-3.5" />
+                <span>{done}/{total} chương sẵn sàng</span>
+              </span>
+            )}
+
+            {ready && local.read > 0 && (
+              <span className="font-mono text-slate-500 dark:text-slate-400">
+                Đã đọc {readPct}%
+              </span>
+            )}
+          </div>
+
+          {/* Progress Bar */}
           <div className="h-2 rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden" aria-hidden="true">
-            <div className="h-full bg-teal-600 transition-all" style={{ width: `${total ? (done / total) * 100 : 0}%` }} />
+            <div
+              className={`h-full transition-all duration-500 rounded-full ${
+                ready ? "bg-gradient-to-r from-emerald-500 to-teal-500" : "bg-gradient-to-r from-teal-500 to-indigo-500"
+              }`}
+              style={{
+                width: ready && local.read > 0 ? `${readPct}%` : `${total ? (done / total) * 100 : 0}%`,
+              }}
+            />
           </div>
-        )}
-
-        {ready && local.read > 0 && (
-          <div>
-            <div className="flex justify-between text-sm text-slate-500 dark:text-slate-400 mb-1">
-              <span>Bạn đã đọc</span>
-              <span>{readPct}%</span>
-            </div>
-            <div className="h-2 rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden" aria-hidden="true">
-              <div className="h-full bg-emerald-600" style={{ width: `${readPct}%` }} />
-            </div>
-          </div>
-        )}
+        </div>
 
         {p.active && (
-          <p className="text-sm text-slate-500 dark:text-slate-400">
-            Chương xong sẽ đọc được ngay. Trang tự cập nhật.
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Chương hoàn thành sẽ đọc được ngay. Hệ thống tự cập nhật.
           </p>
         )}
         {!p.active && p.failed?.length > 0 && (
-          <p className="text-sm text-rose-700 dark:text-rose-400">
-            {p.failed.length} chương chưa viết được. Bấm “Viết tiếp” để thử lại.
+          <p className="text-xs text-rose-700 dark:text-rose-400">
+            {p.failed.length} chương chưa xử lý xong. Bấm nút thử lại.
           </p>
         )}
 
-        <div className="mt-auto flex flex-wrap gap-2">
+        {/* Action Button */}
+        <div className="mt-auto pt-2 flex items-center gap-2">
           <Link
             href={readHref}
-            className={`inline-flex items-center gap-2 h-11 px-5 rounded-xl text-base font-semibold transition-all ${
-              p.active
-                ? "bg-teal-700 hover:bg-teal-600 text-white shadow-sm"
-                : "bg-teal-700 hover:bg-teal-600 text-white"
-            }`}
+            className="flex-1 inline-flex items-center justify-between h-11 px-5 rounded-2xl bg-teal-700 hover:bg-teal-600 text-white font-semibold text-sm shadow-[0_2px_8px_-1px_rgba(13,148,136,0.25)] hover:shadow-[0_6px_18px_-2px_rgba(13,148,136,0.35)] transition-all group/btn cursor-pointer"
           >
             {lastCh ? (
               <>
                 <span>Đọc tiếp · Chương {lastCh}</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
               </>
             ) : p.active ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Đang xử lý · Vào xem Chương 1</span>
-                <ArrowRight className="w-4 h-4" />
+                <span className="truncate">Vào xem Chương 1</span>
+                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
               </>
             ) : firstReady ? (
               <>
                 <span>Bắt đầu đọc</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
               </>
             ) : (
               <>
-                <BookOpen className="w-4 h-4" />
                 <span>Mở xem Chương 1</span>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
               </>
             )}
           </Link>
+
           {!ready && !p.active && (
             <button
               onClick={onProcess}
               disabled={busy}
-              className="inline-flex items-center gap-2 h-11 px-4 rounded-xl border border-slate-300 dark:border-white/15 text-base font-medium hover:border-teal-600 disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center justify-center w-11 h-11 rounded-2xl border border-slate-200 dark:border-white/15 text-slate-700 dark:text-slate-300 hover:border-teal-600 hover:text-teal-700 disabled:opacity-50 transition-all cursor-pointer"
+              title="Tiếp tục bóc tách các chương còn lại"
             >
               {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCw className="w-4 h-4" />}
-              Viết tiếp
             </button>
           )}
         </div>

@@ -429,7 +429,7 @@ export default function BookReaderLayout({ children }) {
             </nav>
 
             {/* Reading Progress Footer */}
-            <div className="p-3.5 border-t border-slate-200/80 dark:border-white/[0.07] bg-slate-50/70 dark:bg-[#0D131F]">
+            <div className="p-3.5 border-t border-slate-100 dark:border-white/[0.07] bg-white dark:bg-[#090D16]">
               <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mb-1.5">
                 <span className="font-medium">Tiến độ Chương {activeChNum}</span>
                 <span className="font-mono font-semibold text-teal-600 dark:text-teal-400">
