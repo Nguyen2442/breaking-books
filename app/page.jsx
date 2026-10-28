@@ -185,7 +185,7 @@ export default function LandingPage() {
           </div>
           <div className="flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-            <span>Bóc tách bằng Gemini 3.5 Flash</span>
+            <span>Bóc tách bằng AI thông minh</span>
           </div>
           <div className="flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
@@ -312,10 +312,10 @@ export default function LandingPage() {
               <Zap className="w-5 h-5" />
             </div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white">
-              Bóc tách tự động bằng AI Gemini 3.5 Flash
+              Bóc tách tự động bằng Trí tuệ Nhân tạo (AI)
             </h3>
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Bạn tải lên file PDF sách kỹ thuật bất kỳ. AI tự động chia chương, cấu trúc thành các Topic cô đọng 5-10 phút, giữ nguyên thuật ngữ tiếng Anh gốc và giải nghĩa tiếng Việt chuẩn xác.
+              Bạn tải lên file PDF sách bất kỳ. AI tự động chia chương, cấu trúc thành các Topic cô đọng 5-10 phút, giữ nguyên thuật ngữ tiếng Anh gốc và giải nghĩa tiếng Việt chuẩn xác.
             </p>
           </div>
 

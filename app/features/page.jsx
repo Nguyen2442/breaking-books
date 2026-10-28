@@ -130,7 +130,7 @@ export default function FeaturesPage() {
                 <Zap className="w-6 h-6" />
               </div>
               <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                1. Bóc tách sách thông minh bằng AI Gemini 3.5 Flash
+                1. Bóc tách sách thông minh bằng Trí tuệ Nhân tạo (AI)
               </h2>
               <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                 Khi bạn tải file PDF lên, hệ thống tự động bóc tách từng chương thành các <b>chủ đề nguyên tử (Atomic Topics)</b> dài 5–10 phút đọc. Mỗi bài đều có:

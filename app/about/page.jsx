@@ -138,7 +138,7 @@ export default function AboutPage() {
               Bộ não con người ghi nhớ hình ảnh nhanh hơn chữ viết gấp <b>60.000 lần</b>, và chúng ta học tốt nhất khi được <b>thao tác, thử nghiệm và quan sát kết quả ngay lập tức</b>.
             </p>
             <p>
-              Breaking Books kết hợp sức mạnh của trí tuệ nhân tạo (AI Gemini) với triết lý thiết kế tương tác hiện đại. Mỗi cuốn sách được "bóc tách" thành những chủ đề nguyên tử (atomic topics) 5 phút, minh họa bằng các phòng thí nghiệm mô phỏng và câu hỏi ôn tập thông minh, giúp bạn hiểu sâu và áp dụng được ngay.
+              Breaking Books kết hợp sức mạnh của trí tuệ nhân tạo (AI) với triết lý thiết kế tương tác hiện đại. Mỗi cuốn sách được "bóc tách" thành những chủ đề nguyên tử (atomic topics) 5 phút, minh họa bằng các phòng thí nghiệm mô phỏng và câu hỏi ôn tập thông minh, giúp bạn hiểu sâu và áp dụng được ngay.
             </p>
           </div>
         </div>

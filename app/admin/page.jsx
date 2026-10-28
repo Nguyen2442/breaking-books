@@ -705,7 +705,7 @@ export default function AdminPage() {
         {activeTab === "api" && (
           <div className="space-y-6">
             <div>
-              <h3 className="text-base font-bold text-white">Kiểm tra Khóa API Gemini & Đo tốc độ</h3>
+              <h3 className="text-base font-bold text-white">Kiểm tra Khóa API AI & Đo tốc độ</h3>
               <p className="text-xs text-slate-400">
                 Kiểm tra trạng thái hạn mức, đo độ trễ mạng thực tế của từng Key trong Pool
               </p>
@@ -787,7 +787,7 @@ export default function AdminPage() {
                 <span className="text-xs font-mono font-bold text-slate-400 uppercase">
                   Thử nghiệm Prompt Trực tiếp (Live Playground)
                 </span>
-                <span className="text-xs text-slate-400 font-mono">Model: gemini-3.5-flash</span>
+                <span className="text-xs text-slate-400 font-mono">Hệ thống AI Engine</span>
               </div>
 
               <div className="space-y-3">

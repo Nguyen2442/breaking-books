@@ -174,7 +174,7 @@ export default function SingleChapterReaderPage() {
             <div class="mx-6 sm:mx-8 mt-6 p-4 rounded-2xl bg-orange-50/70 dark:bg-orange-500/[0.04] border border-orange-200/60 dark:border-orange-500/20 flex items-start gap-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
               <span class="text-base shrink-0 mt-0.5">💡</span>
               <p class="leading-relaxed">
-                Đây là văn bản gốc trích xuất từ sách để bạn đọc ngay trong lúc chờ Gemini AI hoàn thiện bài học tương tác (sơ đồ SVG, tóm tắt và câu hỏi trắc nghiệm). Mọi thao tác <strong>bôi đen highlight, ghi chú và đánh dấu</strong> đều hoạt động bình thường trên văn bản này.
+                Đây là văn bản gốc trích xuất từ sách để bạn đọc ngay trong lúc chờ AI hoàn thiện bài học tương tác (sơ đồ SVG, tóm tắt và câu hỏi trắc nghiệm). Mọi thao tác <strong>bôi đen highlight, ghi chú và đánh dấu</strong> đều hoạt động bình thường trên văn bản này.
               </p>
             </div>
 
@@ -247,7 +247,7 @@ export default function SingleChapterReaderPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Không bắt đầu được.");
-      setJobMessage("Đã bắt đầu. Gemini AI đang soạn bài học...");
+      setJobMessage("Đã bắt đầu. AI đang soạn bài học...");
       loadChapter(false);
     } catch (e) {
       setJobMessage(`Lỗi: ${e.message}`);
@@ -281,13 +281,13 @@ export default function SingleChapterReaderPage() {
             <div className="flex items-center gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-orange-600 animate-ping"></span>
               <p className="text-base font-semibold text-orange-900">
-                {beingWritten ? "Gemini 3.5 AI đang bóc tách bài học cho chương này..." : "Chương này đang sẵn sàng để soạn bài học"}
+                {beingWritten ? "Hệ thống AI đang bóc tách bài học cho chương này..." : "Chương này đang sẵn sàng để soạn bài học"}
               </p>
             </div>
             <p className="text-sm text-slate-600">
               {beingWritten
                 ? "Chỉ mất khoảng 15 giây. Bạn có thể đọc trước phần văn bản gốc bên dưới, bài học tương tác sẽ tự nạp ngay khi sẵn sàng!"
-                : "Bấm “Bắt đầu bóc tách” để Gemini AI soạn tóm tắt, giải nghĩa và dựng phòng thí nghiệm SVG tương tác."}
+                : "Bấm “Bắt đầu bóc tách” để AI soạn tóm tắt, giải nghĩa và dựng phòng thí nghiệm SVG tương tác."}
             </p>
             {jobMessage && <p className="text-sm text-orange-800 font-medium pt-1">{jobMessage}</p>}
           </div>

@@ -375,7 +375,7 @@ export default function StudioPage() {
             >
               <Terminal className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span className="hidden xl:inline">
-                {overview?.ai?.provider === "gemini" ? "Gemini 3.5 AI" : "AI Runner"}
+                {overview?.ai?.provider === "gemini" ? "AI Engine" : "AI Runner"}
               </span>
               {runningJobsCount > 0 && (
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -726,8 +726,8 @@ export default function StudioPage() {
                         onClick={() => startAiJob(ch.num, "complete")}
                         title={
                           isComplete
-                            ? "Chạy Break lại / Nâng cấp chương này bằng Gemini 3.5 AI"
-                            : "Chạy Break chương này ngay bằng Gemini 3.5 AI"
+                            ? "Chạy Break lại / Nâng cấp chương này bằng AI"
+                            : "Chạy Break chương này ngay bằng AI"
                         }
                         className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer ${
                           isComplete
@@ -783,7 +783,7 @@ export default function StudioPage() {
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div>
                   <span className="text-xs font-mono uppercase text-orange-600 dark:text-orange-400">
-                    Google Gemini 3.5 AI Pipeline
+                    AI Pipeline
                   </span>
                   <h3 className="text-lg font-bold mt-0.5">
                     Prompt Chương {promptModalCh.num}: {promptModalCh.title}
@@ -811,7 +811,7 @@ export default function StudioPage() {
                   className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors cursor-pointer"
                 >
                   <Play className="w-3.5 h-3.5" />
-                  <span>Chạy thẳng bằng Gemini 3.5 AI</span>
+                  <span>Chạy thẳng bằng AI</span>
                 </button>
 
                 <button
@@ -966,7 +966,7 @@ export default function StudioPage() {
         )}
       </AnimatePresence>
 
-      {/* Drawer: Gemini 3.5 AI Runner */}
+      {/* Drawer: AI Runner */}
       <AnimatePresence>
         {cliDrawerOpen && (
           <motion.div
@@ -989,10 +989,10 @@ export default function StudioPage() {
                   <Terminal className="w-4 h-4 text-emerald-500" />
                   <div>
                     <h3 className="text-sm font-bold">
-                      {overview?.ai?.name || "Gemini 3.5 AI Background Runner"}
+                      {overview?.ai?.name || "AI Background Runner"}
                     </h3>
                     <p className="text-[11px] text-slate-500 font-mono">
-                      {overview?.ai?.version || "Gemini 3.5 Flash Ready"}
+                      {overview?.ai?.version || "AI Engine Ready"}
                     </p>
                   </div>
                 </div>
@@ -1048,7 +1048,7 @@ export default function StudioPage() {
                         </div>
                         <div className="max-h-96 overflow-y-auto whitespace-pre-wrap leading-relaxed text-[11px] text-slate-300">
                           {(activeJob.logs || []).join("") ||
-                            "Đang khởi tạo tiến trình Gemini 3.5 AI..."}
+                            "Đang khởi tạo tiến trình AI..."}
                           <div ref={logEndRef} />
                         </div>
                       </div>

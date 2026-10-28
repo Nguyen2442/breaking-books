@@ -29,7 +29,7 @@
 
 ## 1. TỔNG QUAN HỆ THỐNG
 
-**Breaking Books** là nền tảng đọc và học sách chuyên ngành kỹ thuật thế hệ mới. Thay vì đọc các file PDF hàng trăm trang khô khan và thụ động, hệ thống sử dụng **Trí tuệ nhân tạo (Google Gemini 3.5)** để bóc tách từng chương sách thành:
+**Breaking Books** là nền tảng đọc và học sách chuyên ngành kỹ thuật thế hệ mới. Thay vì đọc các file PDF hàng trăm trang khô khan và thụ động, hệ thống sử dụng **Trí tuệ nhân tạo (AI)** để bóc tách từng chương sách thành:
 * **Lý thuyết cô đọng (Prose):** Đoạn văn ngắn 2-3 câu, thuật ngữ có tooltip tra cứu (`<dfn>`), danh sách gạch đầu dòng trực quan.
 * **Phòng thử nghiệm tương tác (SVG Mini-Labs):** Mô phỏng trực quan các thuật toán phân tán, luồng gói tin, sự cố sập node, phân vùng dữ liệu với thanh trượt và nút tương tác thực tế.
 * **Ghi nhớ chủ động (Active Recall):** Bộ flashcard và câu hỏi trắc nghiệm kiểm tra hiểu bài ngay tại chỗ.
@@ -79,7 +79,7 @@ graph TD
 | **Cơ sở dữ liệu** | **PostgreSQL** | 16.x | Lưu trữ toàn vẹn dữ liệu sách, chương, JSONB cấu trúc, và vector ngữ nghĩa. |
 | **ORM** | **Prisma** | 5.22.x | Type-safe database client, quản lý migration và schema nhất quán. |
 | **Vector DB** | **pgvector** | Extension | Lưu trữ vector 768 chiều phục vụ tìm kiếm ngữ nghĩa (Semantic Search). |
-| **AI Engine** | **Google Gemini 3.5 / 2.5** | REST API | Bóc tách lý thuyết, sinh mã HTML, SVG tương tác và câu hỏi trắc nghiệm. |
+| **AI Engine** | **Hệ thống AI Engine** | REST API | Bóc tách lý thuyết, sinh mã HTML, SVG tương tác và câu hỏi trắc nghiệm. |
 | **Xử lý PDF** | **pdf-parse** | 1.1.x | Trích xuất text từ PDF không cần phần mềm ngoài, khử lỗi null byte `0x00`. |
 | **Môi trường chạy** | **Node.js** | 20.x LTS | Đảm bảo tương thích cao nhất trên macOS, Linux và Render.com. |
 
