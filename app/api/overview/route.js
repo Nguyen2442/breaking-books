@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import { detectAiEngine, detectClaudeCli, listPdfFiles, listAllBooks, listUnprocessedPdfs, getJobsList } from '@/lib/books';
+import { detectAiEngine, detectClaudeCli, listPdfFiles, listAllBooksAsync, listUnprocessedPdfs, getJobsList } from '@/lib/books';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const books = listAllBooks();
+  const books = await listAllBooksAsync();
   const ai = detectAiEngine();
   return NextResponse.json({
     ok: true,

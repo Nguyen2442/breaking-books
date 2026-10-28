@@ -334,7 +334,42 @@ export default function LibraryPage() {
 
         {/* Books */}
         <section aria-label="Sách đang có">
-          <h2 className="text-xl font-bold mb-5">Sách đang có</h2>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-xl font-bold">Sách trong thư viện</h2>
+            {anyActive && (
+              <span className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-full bg-teal-50 dark:bg-teal-500/10 text-teal-700 dark:text-teal-300 border border-teal-500/20">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>AI đang bóc tách ngầm</span>
+              </span>
+            )}
+          </div>
+
+          {/* Ongoing processing banner for newly added books */}
+          {books.filter((b) => b.processing?.active).map((pb) => (
+            <div
+              key={pb.id}
+              className="mb-6 rounded-2xl bg-teal-50 dark:bg-teal-950/40 border border-teal-500/30 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+            >
+              <div className="space-y-1 min-w-0">
+                <div className="flex items-center gap-2 text-teal-800 dark:text-teal-300 font-semibold text-base">
+                  <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+                  <span className="truncate">Đang phân tích và viết bài học: {pb.title}</span>
+                </div>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  Đã bóc tách {pb.stats.completeChapters}/{pb.stats.totalChapters} chương. Bạn có thể mở đọc Chương 1 ngay lập tức trong khi hệ thống xử lý các chương tiếp theo!
+                </p>
+              </div>
+              <Link
+                href={`/books/${pb.id}/ch/1`}
+                className="inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-teal-700 hover:bg-teal-600 text-white font-semibold text-sm shrink-0 shadow-sm transition-all"
+              >
+                <BookOpen className="w-4 h-4" />
+                <span>Vào đọc Chương 1 ngay</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          ))}
+
           {!overview ? (
             <p className="text-base text-slate-500">Đang tải thư viện…</p>
           ) : books.length === 0 ? (
