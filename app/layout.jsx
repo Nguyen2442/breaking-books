@@ -23,7 +23,7 @@ export default function RootLayout({ children }) {
         />
         <Script src="/ddia-runtime.js" strategy="beforeInteractive" />
       </head>
-      <body className="min-h-screen antialiased selection:bg-teal-500/15 selection:text-teal-700 dark:selection:text-teal-300">
+      <body className="min-h-screen antialiased selection:bg-orange-500/15 selection:text-orange-700 dark:selection:text-orange-300">
         <script
           dangerouslySetInnerHTML={{
             __html: `

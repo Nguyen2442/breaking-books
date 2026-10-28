@@ -13,6 +13,7 @@ import {
   Brain,
 } from "lucide-react";
 import { FloatingTextHighlighter } from "@/components/ReaderToolSuite";
+import { formatRawSourceTextHtml } from "@/lib/formatRawText";
 
 // In-Memory Client Cache for 0ms chapter navigation
 const CLIENT_CACHE = new Map();
@@ -141,25 +142,56 @@ export default function SingleChapterReaderPage() {
       root.innerHTML = chapterData.html;
     } else {
       const title = chapterData.ch?.title || `Chương ${chNum}`;
-      const subtitle = chapterData.ch?.subtitle || "Đang được Gemini 3.5 AI xử lý...";
-      const rawPreview = chapterData.sourceText
-        ? `<div class="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.03)] space-y-4">
-            <div class="flex items-center gap-2 text-xs font-mono uppercase text-teal-700">
-              <span class="w-2 h-2 rounded-full bg-teal-600 animate-pulse"></span>
-              <span>Văn bản gốc đang bóc tách (Đọc trước)</span>
+      const rawSubtitle = chapterData.ch?.subtitle || "";
+      const hasDistinctSubtitle = rawSubtitle && rawSubtitle.trim().toLowerCase() !== title.trim().toLowerCase();
+      
+      const subtitleHtml = hasDistinctSubtitle
+        ? `<p class="chapter-lead text-slate-600 dark:text-slate-300">${rawSubtitle}</p>`
+        : `<p class="chapter-lead text-slate-500 dark:text-slate-400 font-normal">Bản xem trước văn bản gốc · Bạn có thể đọc trước ngay bây giờ trong khi AI đang bóc tách bài học tương tác.</p>`;
+
+      const rawText = chapterData.sourceText || "";
+      const wordCount = rawText ? rawText.trim().split(/\s+/).length : 0;
+      const estMinutes = Math.max(1, Math.round(wordCount / 220));
+      const formattedHtml = rawText ? formatRawSourceTextHtml(rawText) : "";
+
+      const rawPreview = rawText
+        ? `
+          <div class="rounded-3xl bg-white dark:bg-[#0D131F] border border-slate-200/90 dark:border-white/10 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.04)] overflow-hidden">
+            <!-- Reader Card Header -->
+            <div class="px-6 py-4 bg-slate-50/80 dark:bg-white/[0.02] border-b border-slate-200/80 dark:border-white/10 flex flex-wrap items-center justify-between gap-3">
+              <div class="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-700 dark:text-orange-400 text-xs font-semibold">
+                <span class="w-2 h-2 rounded-full bg-orange-500 animate-pulse"></span>
+                <span>Văn bản gốc đang bóc tách · Đọc trước</span>
+              </div>
+              <div class="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 font-mono">
+                <span>📖 ~${estMinutes} phút đọc</span>
+                <span>•</span>
+                <span>${wordCount.toLocaleString()} từ</span>
+              </div>
             </div>
-            <div class="prose max-w-none text-slate-800 leading-relaxed whitespace-pre-wrap font-sans text-base">
-              ${chapterData.sourceText.slice(0, 20000)}
+
+            <!-- Helpful Guidance Banner -->
+            <div class="mx-6 sm:mx-8 mt-6 p-4 rounded-2xl bg-orange-50/70 dark:bg-orange-500/[0.04] border border-orange-200/60 dark:border-orange-500/20 flex items-start gap-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+              <span class="text-base shrink-0 mt-0.5">💡</span>
+              <p class="leading-relaxed">
+                Đây là văn bản gốc trích xuất từ sách để bạn đọc ngay trong lúc chờ Gemini AI hoàn thiện bài học tương tác (sơ đồ SVG, tóm tắt và câu hỏi trắc nghiệm). Mọi thao tác <strong>bôi đen highlight, ghi chú và đánh dấu</strong> đều hoạt động bình thường trên văn bản này.
+              </p>
             </div>
-          </div>`
-        : `<p class="text-slate-500">Đang chuẩn bị nội dung chương...</p>`;
+
+            <!-- Beautifully Formatted Text Content -->
+            <div class="px-6 sm:px-10 py-8 prose max-w-none text-slate-800 dark:text-slate-200">
+              ${formattedHtml}
+            </div>
+          </div>
+        `
+        : `<div class="p-8 text-center text-slate-400">Đang chuẩn bị nội dung chương...</div>`;
 
       root.innerHTML = `
         <div class="chapter">
-          <div class="chapter-head">
-            <span class="eyebrow">CHƯƠNG ${chNum}</span>
-            <h1>${title}</h1>
-            <p class="chapter-lead">${subtitle}</p>
+          <div class="chapter-head mb-8">
+            <span class="eyebrow text-orange-600 dark:text-orange-400 font-semibold tracking-wide">CHƯƠNG ${chNum}</span>
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white mt-1 mb-3">${title}</h1>
+            ${subtitleHtml}
           </div>
           <div class="topic">
             ${rawPreview}
@@ -244,11 +276,11 @@ export default function SingleChapterReaderPage() {
     >
       {/* Real-time status banner when chapter is pending */}
       {!loading && !isComplete && (
-        <div className="mb-8 rounded-2xl bg-teal-500/[0.07] border border-teal-500/25 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_2px_12px_-2px_rgba(13,148,136,0.06)]">
+        <div className="mb-8 rounded-2xl bg-orange-500/[0.07] border border-orange-500/25 p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-[0_2px_12px_-2px_rgba(234,88,12,0.06)]">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-teal-600 animate-ping"></span>
-              <p className="text-base font-semibold text-teal-900">
+              <span className="w-2.5 h-2.5 rounded-full bg-orange-600 animate-ping"></span>
+              <p className="text-base font-semibold text-orange-900">
                 {beingWritten ? "Gemini 3.5 AI đang bóc tách bài học cho chương này..." : "Chương này đang sẵn sàng để soạn bài học"}
               </p>
             </div>
@@ -257,7 +289,7 @@ export default function SingleChapterReaderPage() {
                 ? "Chỉ mất khoảng 15 giây. Bạn có thể đọc trước phần văn bản gốc bên dưới, bài học tương tác sẽ tự nạp ngay khi sẵn sàng!"
                 : "Bấm “Bắt đầu bóc tách” để Gemini AI soạn tóm tắt, giải nghĩa và dựng phòng thí nghiệm SVG tương tác."}
             </p>
-            {jobMessage && <p className="text-sm text-teal-800 font-medium pt-1">{jobMessage}</p>}
+            {jobMessage && <p className="text-sm text-orange-800 font-medium pt-1">{jobMessage}</p>}
           </div>
 
           <div className="flex flex-wrap items-center gap-2 shrink-0">
@@ -265,7 +297,7 @@ export default function SingleChapterReaderPage() {
               <button
                 onClick={writeThisChapter}
                 disabled={startingJob}
-                className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-600 text-white disabled:opacity-50 cursor-pointer shadow-sm transition-all"
+                className="inline-flex items-center gap-2 h-10 px-4 rounded-xl text-sm font-semibold bg-orange-600 hover:bg-orange-500 text-white disabled:opacity-50 cursor-pointer shadow-sm transition-all"
               >
                 {startingJob ? "Đang bắt đầu…" : "Bắt đầu bóc tách"}
               </button>
@@ -308,11 +340,11 @@ export default function SingleChapterReaderPage() {
                 }}
                 className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   readingStep === "lesson"
-                    ? "bg-white text-teal-800 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.08)]"
+                    ? "bg-white text-orange-800 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.08)]"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                <BookOpen className="w-3.5 h-3.5 text-teal-700" />
+                <BookOpen className="w-3.5 h-3.5 text-orange-600" />
                 <span>1. Lý thuyết & Thử nghiệm</span>
               </button>
 
@@ -323,14 +355,14 @@ export default function SingleChapterReaderPage() {
                 }}
                 className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                   readingStep === "quiz"
-                    ? "bg-white text-teal-800 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.08)]"
+                    ? "bg-white text-orange-800 shadow-[0_2px_8px_-1px_rgba(0,0,0,0.08)]"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                <Brain className="w-3.5 h-3.5 text-teal-700" />
+                <Brain className="w-3.5 h-3.5 text-orange-600" />
                 <span>2. Thực hành & Trắc nghiệm</span>
                 {quizCount > 0 && (
-                  <span className="px-1.5 py-0.5 rounded-full bg-teal-100 text-teal-800 text-[10px] font-mono font-bold">
+                  <span className="px-1.5 py-0.5 rounded-full bg-orange-100 text-orange-800 text-[10px] font-mono font-bold">
                     {quizCount}
                   </span>
                 )}
@@ -343,7 +375,7 @@ export default function SingleChapterReaderPage() {
                 <button
                   onClick={() => setViewMode("all")}
                   className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
-                    viewMode === "all" ? "bg-teal-50 text-teal-800 font-bold" : "text-slate-500 hover:text-slate-800"
+                    viewMode === "all" ? "bg-orange-50 text-orange-800 font-bold" : "text-slate-500 hover:text-slate-800"
                   }`}
                 >
                   Tất cả
@@ -351,7 +383,7 @@ export default function SingleChapterReaderPage() {
                 <button
                   onClick={() => setViewMode("theory")}
                   className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
-                    viewMode === "theory" ? "bg-teal-50 text-teal-800 font-bold" : "text-slate-500 hover:text-slate-800"
+                    viewMode === "theory" ? "bg-orange-50 text-orange-800 font-bold" : "text-slate-500 hover:text-slate-800"
                   }`}
                 >
                   Chỉ Lý thuyết
@@ -359,7 +391,7 @@ export default function SingleChapterReaderPage() {
                 <button
                   onClick={() => setViewMode("lab")}
                   className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
-                    viewMode === "lab" ? "bg-teal-50 text-teal-800 font-bold" : "text-slate-500 hover:text-slate-800"
+                    viewMode === "lab" ? "bg-orange-50 text-orange-800 font-bold" : "text-slate-500 hover:text-slate-800"
                   }`}
                 >
                   Chỉ Thử nghiệm
@@ -369,7 +401,7 @@ export default function SingleChapterReaderPage() {
 
             {readingStep === "quiz" && (
               <div className="text-xs text-slate-500 px-3 py-1 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-teal-600"></span>
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-600"></span>
                 <span>Ôn tập Active Recall & Kiểm tra phản xạ</span>
               </div>
             )}
@@ -387,10 +419,10 @@ export default function SingleChapterReaderPage() {
 
       {/* In Step 1 (Lesson): Prominent Stepped Transition CTA Card to Quiz */}
       {!loading && chapterData?.html && readingStep === "lesson" && (
-        <div className="my-10 p-7 rounded-3xl bg-gradient-to-r from-teal-500/[0.08] via-emerald-500/[0.04] to-transparent border border-teal-500/25 shadow-[0_6px_24px_-2px_rgba(13,148,136,0.06)] flex flex-col sm:flex-row items-center justify-between gap-5">
+        <div className="my-10 p-7 rounded-3xl bg-gradient-to-r from-orange-500/[0.08] via-amber-500/[0.04] to-transparent border border-orange-500/25 shadow-[0_6px_24px_-2px_rgba(234,88,12,0.06)] flex flex-col sm:flex-row items-center justify-between gap-5">
           <div className="space-y-1 text-center sm:text-left">
-            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-teal-800">
-              <Sparkles className="w-4 h-4 text-teal-600" />
+            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-orange-800">
+              <Sparkles className="w-4 h-4 text-orange-600" />
               <span>Bạn đã hoàn thành phần Lý thuyết & Thử nghiệm!</span>
             </div>
             <h3 className="text-lg font-bold text-slate-900">
@@ -405,7 +437,7 @@ export default function SingleChapterReaderPage() {
               setReadingStep("quiz");
               window.scrollTo({ top: 80, behavior: "smooth" });
             }}
-            className="inline-flex items-center gap-2.5 h-12 px-7 rounded-2xl bg-teal-700 hover:bg-teal-600 text-white font-bold text-sm shadow-[0_4px_14px_-2px_rgba(13,148,136,0.3)] transition-all shrink-0 cursor-pointer hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2.5 h-12 px-7 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-sm shadow-[0_4px_14px_-2px_rgba(234,88,12,0.3)] transition-all shrink-0 cursor-pointer hover:-translate-y-0.5"
           >
             <span>Làm câu hỏi thực hành</span>
             <ArrowRight className="w-4 h-4" />
@@ -421,7 +453,7 @@ export default function SingleChapterReaderPage() {
               setReadingStep("lesson");
               window.scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-200/90 text-slate-700 hover:text-teal-700 cursor-pointer transition-colors shadow-sm"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-200/90 text-slate-700 hover:text-orange-600 cursor-pointer transition-colors shadow-sm"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>← Quay lại đọc Lý thuyết</span>
@@ -444,9 +476,9 @@ export default function SingleChapterReaderPage() {
       {/* Bottom Chapter Completion Banner & Prev / Next Chapter Navigation */}
       {!loading && (
         <div className="mt-12 pt-8 border-t border-slate-200/80 space-y-6">
-          <div className="p-6 rounded-3xl bg-white border border-teal-500/25 shadow-[0_4px_24px_-2px_rgba(13,148,136,0.06)] flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="p-6 rounded-3xl bg-white border border-orange-500/25 shadow-[0_4px_24px_-2px_rgba(234,88,12,0.06)] flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3.5">
-              <div className="w-11 h-11 rounded-2xl bg-teal-700 text-white flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
+              <div className="w-11 h-11 rounded-2xl bg-orange-600 text-white flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
                 ✓
               </div>
               <div>
@@ -463,7 +495,7 @@ export default function SingleChapterReaderPage() {
               <Link
                 href={`/books/${bookId}/ch/${nextCh.n}`}
                 onMouseEnter={() => prefetchChapter(bookId, nextCh.n)}
-                className="inline-flex items-center gap-2 h-11 px-6 rounded-2xl bg-teal-700 hover:bg-teal-600 text-white font-semibold text-sm shadow-[0_2px_8px_-1px_rgba(13,148,136,0.25)] hover:shadow-[0_4px_14px_-2px_rgba(13,148,136,0.35)] transition-all shrink-0 cursor-pointer"
+                className="inline-flex items-center gap-2 h-11 px-6 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-semibold text-sm shadow-[0_2px_8px_-1px_rgba(234,88,12,0.25)] hover:shadow-[0_4px_14px_-2px_rgba(234,88,12,0.35)] transition-all shrink-0 cursor-pointer"
               >
                 <span>Đọc tiếp Chương {nextCh.n}</span>
                 <ArrowRight className="w-4 h-4" />
@@ -476,16 +508,16 @@ export default function SingleChapterReaderPage() {
               <Link
                 href={`/books/${bookId}/ch/${prevCh.n}`}
                 onMouseEnter={() => prefetchChapter(bookId, prevCh.n)}
-                className="group p-5 rounded-2xl bg-white border border-slate-200/90 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_-4px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 hover:border-teal-500/40 transition-all flex items-center gap-4 cursor-pointer"
+                className="group p-5 rounded-2xl bg-white border border-slate-200/90 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_-4px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 hover:border-orange-500/40 transition-all flex items-center gap-4 cursor-pointer"
               >
-                <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200/90 flex items-center justify-center text-slate-400 group-hover:text-teal-700 group-hover:border-teal-500/30 transition-all shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200/90 flex items-center justify-center text-slate-400 group-hover:text-orange-600 group-hover:border-orange-500/30 transition-all shrink-0">
                   <ArrowLeft className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
                   <div className="text-[11px] font-mono uppercase text-slate-400">
                     Chương trước · {String(prevCh.n).padStart(2, "0")}
                   </div>
-                  <div className="text-sm font-bold mt-0.5 truncate group-hover:text-teal-700 transition-colors">
+                  <div className="text-sm font-bold mt-0.5 truncate group-hover:text-orange-600 transition-colors">
                     {prevCh.title}
                   </div>
                 </div>
@@ -498,17 +530,17 @@ export default function SingleChapterReaderPage() {
               <Link
                 href={`/books/${bookId}/ch/${nextCh.n}`}
                 onMouseEnter={() => prefetchChapter(bookId, nextCh.n)}
-                className="group p-5 rounded-2xl bg-white border border-slate-200/90 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_-4px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 hover:border-teal-500/40 transition-all flex items-center justify-between gap-4 text-right sm:col-start-2 cursor-pointer"
+                className="group p-5 rounded-2xl bg-white border border-slate-200/90 shadow-[0_4px_20px_-2px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_32px_-4px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 hover:border-orange-500/40 transition-all flex items-center justify-between gap-4 text-right sm:col-start-2 cursor-pointer"
               >
                 <div className="min-w-0 ml-auto">
                   <div className="text-[11px] font-mono uppercase text-slate-400">
                     Chương tiếp theo · {String(nextCh.n).padStart(2, "0")}
                   </div>
-                  <div className="text-sm font-bold mt-0.5 truncate group-hover:text-teal-700 transition-colors">
+                  <div className="text-sm font-bold mt-0.5 truncate group-hover:text-orange-600 transition-colors">
                     {nextCh.title}
                   </div>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200/90 flex items-center justify-center text-slate-400 group-hover:text-teal-700 group-hover:border-teal-500/30 transition-all shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-200/90 flex items-center justify-center text-slate-400 group-hover:text-orange-600 group-hover:border-orange-500/30 transition-all shrink-0">
                   <ArrowRight className="w-4 h-4" />
                 </div>
               </Link>

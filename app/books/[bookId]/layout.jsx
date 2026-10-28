@@ -287,7 +287,7 @@ export default function BookReaderLayout({ children }) {
                 {book?.subtitle || book?.shortTitle || ""}
               </span>
               <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <span className="font-semibold text-teal-700 dark:text-teal-400 shrink-0">
+              <span className="font-semibold text-orange-700 dark:text-orange-400 shrink-0">
                 Chương {activeChNum}
               </span>
             </div>
@@ -297,7 +297,7 @@ export default function BookReaderLayout({ children }) {
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               onClick={() => setCmdSearchOpen(true)}
-              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 dark:border-white/10 text-sm text-slate-700 dark:text-slate-200 hover:border-teal-500/60 cursor-pointer"
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 dark:border-white/10 text-sm text-slate-700 dark:text-slate-200 hover:border-orange-500/60 cursor-pointer"
               title="Tìm trong cả cuốn sách (⌘K)"
             >
               <Search className="w-4 h-4" />
@@ -307,13 +307,13 @@ export default function BookReaderLayout({ children }) {
             {/* Highlights & Notes Drawer Button */}
             <button
               onClick={() => setNotesDrawerOpen(true)}
-              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 dark:border-white/10 text-sm text-slate-700 dark:text-slate-200 hover:border-teal-500/60 cursor-pointer"
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 dark:border-white/10 text-sm text-slate-700 dark:text-slate-200 hover:border-orange-500/60 cursor-pointer"
               title="Xem toàn bộ Highlight, Ghi chú & Đánh dấu bài học"
             >
-              <Highlighter className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+              <Highlighter className="w-4 h-4 text-orange-600 dark:text-orange-400" />
               <span className="hidden md:inline">Ghi chú & Highlight</span>
               {highlightsCount + notesCount + bookmarksList.length > 0 && (
-                <span className="text-[11px] font-mono px-1.5 py-0.2 rounded-full bg-teal-500/15 text-teal-700 dark:text-teal-300 font-bold">
+                <span className="text-[11px] font-mono px-1.5 py-0.2 rounded-full bg-orange-500/15 text-orange-700 dark:text-orange-300 font-bold">
                   {highlightsCount + notesCount + bookmarksList.length}
                 </span>
               )}
@@ -322,7 +322,7 @@ export default function BookReaderLayout({ children }) {
             {/* Reader Preferences (Font Size, Spacing, Zen mode) */}
             <button
               onClick={() => setPrefsModalOpen(true)}
-              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 dark:border-white/10 text-sm text-slate-700 dark:text-slate-200 hover:border-teal-500/60 cursor-pointer"
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 dark:border-white/10 text-sm text-slate-700 dark:text-slate-200 hover:border-orange-500/60 cursor-pointer"
               title="Tùy biến cỡ chữ, độ dãn dòng, phông chữ & chế độ tập trung"
             >
               <Sliders className="w-4 h-4 text-slate-500" />
@@ -338,7 +338,7 @@ export default function BookReaderLayout({ children }) {
 
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-lg border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-teal-500/60 cursor-pointer"
+              className="p-2 rounded-lg border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-orange-500/60 cursor-pointer"
               title="Đổi giao diện Sáng / Tối"
             >
               {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
@@ -394,18 +394,18 @@ export default function BookReaderLayout({ children }) {
                           href={`/books/${bookId}/ch/${ch.num}`}
                           className={`group relative flex items-start justify-between gap-2.5 px-3 py-2.5 rounded-xl text-[13px] transition-all ${
                             isCurrent
-                              ? "bg-teal-500/10 dark:bg-teal-400/10 text-teal-700 dark:text-teal-300 font-semibold"
+                              ? "bg-orange-500/10 dark:bg-orange-400/10 text-orange-700 dark:text-orange-300 font-semibold"
                               : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/70 dark:hover:bg-white/[0.04]"
                           }`}
                         >
                           {isCurrent && (
-                            <span className="absolute -left-[11px] top-2 bottom-2 w-[2.5px] rounded-full bg-teal-600 dark:bg-teal-400" />
+                            <span className="absolute -left-[11px] top-2 bottom-2 w-[2.5px] rounded-full bg-orange-600 dark:bg-orange-400" />
                           )}
                           <div className="flex items-start gap-2.5 min-w-0">
                             <span
                               className={`font-mono text-[11px] mt-0.5 shrink-0 ${
                                 isCurrent
-                                  ? "text-teal-600 dark:text-teal-400 font-bold"
+                                  ? "text-orange-600 dark:text-orange-400 font-bold"
                                   : "text-slate-400 dark:text-slate-500"
                               }`}
                             >
@@ -432,13 +432,13 @@ export default function BookReaderLayout({ children }) {
             <div className="p-3.5 border-t border-slate-100 dark:border-white/[0.07] bg-white dark:bg-[#090D16]">
               <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mb-1.5">
                 <span className="font-medium">Tiến độ Chương {activeChNum}</span>
-                <span className="font-mono font-semibold text-teal-600 dark:text-teal-400">
+                <span className="font-mono font-semibold text-orange-600 dark:text-orange-400">
                   {readProgress.done}/{readProgress.total} ({pct}%)
                 </span>
               </div>
               <div className="w-full h-1.5 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-teal-500 to-indigo-500 transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-orange-500 to-amber-500 transition-all duration-300"
                   style={{ width: `${pct}%` }}
                 />
               </div>
@@ -458,13 +458,13 @@ export default function BookReaderLayout({ children }) {
               <div>
                 <div className="flex items-center justify-between text-xs font-semibold text-slate-900 dark:text-slate-200 mb-3.5">
                   <div className="flex items-center gap-2">
-                    <AlignLeft className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                    <AlignLeft className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
                     <span>Trong chương này</span>
                   </div>
                   {bookmarksList.length > 0 && (
                     <button
                       onClick={() => setNotesDrawerOpen(true)}
-                      className="text-[10px] font-mono text-teal-600 dark:text-teal-400 hover:underline cursor-pointer"
+                      className="text-[10px] font-mono text-orange-600 dark:text-orange-400 hover:underline cursor-pointer"
                     >
                       {bookmarksList.length} ghim
                     </button>
@@ -486,12 +486,12 @@ export default function BookReaderLayout({ children }) {
                           onClick={() => setActiveTopicId(t.id)}
                           className={`group relative flex items-start justify-between gap-2.5 pl-4 pr-2 py-2 text-[13px] transition-colors ${
                             isActive
-                              ? "text-teal-600 dark:text-teal-400 font-semibold"
+                              ? "text-orange-600 dark:text-orange-400 font-semibold"
                               : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200"
                           }`}
                         >
                           {isActive && (
-                            <span className="absolute -left-[1.5px] top-1.5 bottom-1.5 w-[2.5px] bg-teal-600 dark:bg-teal-400 rounded-full" />
+                            <span className="absolute -left-[1.5px] top-1.5 bottom-1.5 w-[2.5px] bg-orange-600 dark:bg-orange-400 rounded-full" />
                           )}
                           <div className="flex items-start gap-2 min-w-0 leading-relaxed">
                             <span className="font-mono text-[11px] opacity-75 shrink-0 mt-0.5">
@@ -599,7 +599,7 @@ function MenuButton({ icon: Icon, label, children }) {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 dark:border-white/10 text-sm text-slate-700 dark:text-slate-200 hover:border-teal-500/60 cursor-pointer"
+        className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-slate-200 dark:border-white/10 text-sm text-slate-700 dark:text-slate-200 hover:border-orange-500/60 cursor-pointer"
       >
         <Icon className="w-4 h-4" />
         <span className="hidden sm:inline">{label}</span>

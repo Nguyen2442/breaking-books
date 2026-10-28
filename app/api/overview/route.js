@@ -6,13 +6,20 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   const books = await listAllBooksAsync();
   const ai = detectAiEngine();
-  return NextResponse.json({
-    ok: true,
-    ai,
-    claude: ai, // backwards compatibility
-    pdfs: listPdfFiles(),
-    unprocessedPdfs: listUnprocessedPdfs(books),
-    books,
-    jobs: getJobsList(),
-  });
+  return NextResponse.json(
+    {
+      ok: true,
+      ai,
+      claude: ai, // backwards compatibility
+      pdfs: listPdfFiles(),
+      unprocessedPdfs: listUnprocessedPdfs(books),
+      books,
+      jobs: getJobsList(),
+    },
+    {
+      headers: {
+        'Cache-Control': 'public, s-maxage=3, stale-while-revalidate=15',
+      },
+    }
+  );
 }

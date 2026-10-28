@@ -76,7 +76,16 @@
       <li>Phân vùng gần như luôn đi kèm sao chép: mỗi partition có nhiều bản sao trên nhiều node. Một node thường là leader của vài partition và follower của vài partition khác.</li>
     </ul></div>
     <div class="prose">
-      <p>Cùng một khái niệm nhưng mỗi hệ thống gọi một tên: <em class="en">shard</em> trong MongoDB, Elasticsearch, SolrCloud; <em class="en">region</em> trong HBase; <em class="en">tablet</em> trong Bigtable; <em class="en">vnode</em> trong Cassandra và Riak; <em class="en">vBucket</em> trong Couchbase. Sách dùng chữ <em class="en">partition</em> vì đây là thuật ngữ lâu đời nhất. Cũng đừng nhầm với <em>network partition</em> (mạng bị chia cắt), một loại lỗi mạng sẽ gặp ở <a href="#ch9">Chương 9</a>. Ở đây, partition là việc <strong>cố ý</strong> chia một database lớn thành nhiều database nhỏ.</p>
+      <p>Cùng một khái niệm phân mảnh dữ liệu, nhưng mỗi hệ thống có một cách đặt tên riêng:</p>
+      <ul>
+        <li><strong>Shard:</strong> MongoDB, Elasticsearch, SolrCloud</li>
+        <li><strong>Region:</strong> Apache HBase</li>
+        <li><strong>Tablet:</strong> Google Bigtable</li>
+        <li><strong>vNode:</strong> Apache Cassandra, Riak</li>
+        <li><strong>vBucket:</strong> Couchbase</li>
+      </ul>
+      <p>Sách chọn dùng từ <em class="en">partition</em> vì đây là thuật ngữ lâu đời nhất trong ngành.</p>
+      <p><em>Lưu ý quan trọng:</em> Đừng nhầm với <em>network partition</em> (mạng bị chia cắt — một sự cố mạng phân tán sẽ gặp ở <a href="#ch9">Chương 9</a>). Ở đây, partition là việc <strong>chủ động</strong> chia một database lớn thành nhiều database nhỏ độc lập.</p>
       <p>Với truy vấn chỉ chạm một partition, mỗi node tự xử lý phần của mình, nên thông lượng tăng gần tuyến tính khi thêm node. Truy vấn lớn chạm nhiều partition có thể chạy song song, nhưng khó hơn nhiều. Ý tưởng này không mới: Teradata và Tandem NonStop SQL đã làm từ thập niên 1980, rồi được NoSQL và các kho dữ liệu trên Hadoop “phát hiện lại”.</p>
       <h3>Kết hợp với sao chép</h3>
       <p>Mỗi bản ghi thuộc đúng một partition, nhưng partition đó có thể được lưu trên vài node để chịu lỗi. Với mô hình leader–follower (xem <a href="#ch6">Chương 6</a>), leader của mỗi partition nằm trên một node, các follower nằm trên node khác (Hình 6-1 trong sách). Mọi thứ về sao chép áp dụng nguyên vẹn cho từng partition, và cách chọn sơ đồ phân vùng gần như độc lập với cách chọn sơ đồ sao chép, nên phần còn lại của chương tạm bỏ qua sao chép.</p>

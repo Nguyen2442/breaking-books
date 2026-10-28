@@ -26,15 +26,15 @@ import {
 } from "lucide-react";
 
 export const HIGHLIGHT_COLORS = [
+  { id: "orange", name: "Cam", bg: "bg-orange-500", border: "border-orange-500", markClass: "bb-highlight-orange" },
   { id: "yellow", name: "Vàng", bg: "bg-amber-400", border: "border-amber-500", markClass: "bb-highlight-yellow" },
   { id: "green", name: "Xanh lá", bg: "bg-emerald-400", border: "border-emerald-500", markClass: "bb-highlight-green" },
   { id: "blue", name: "Xanh dương", bg: "bg-sky-400", border: "border-sky-500", markClass: "bb-highlight-blue" },
   { id: "purple", name: "Tím", bg: "bg-purple-400", border: "border-purple-500", markClass: "bb-highlight-purple" },
-  { id: "coral", name: "Cam / Đỏ", bg: "bg-rose-400", border: "border-rose-500", markClass: "bb-highlight-coral" },
 ];
 
 /* ==========================================================================
-   1. FLOATING TEXT HIGHLIGHTER & ANNOTATION TOOLBAR
+   1. FLOATING TEXT HIGHLIGHTER & ANNOTATION TOOLBAR (Rock-solid Viewport Positioning)
    ========================================================================== */
 export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
   const [floatingPos, setFloatingPos] = useState(null);
@@ -46,6 +46,14 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
   const [editingNote, setEditingNote] = useState(false);
   const [noteText, setNoteText] = useState("");
   const [copied, setCopied] = useState(false);
+  const noteInputRef = useRef(null);
+
+  // Focus textarea when editing note
+  useEffect(() => {
+    if (editingNote && noteInputRef.current) {
+      setTimeout(() => noteInputRef.current?.focus(), 50);
+    }
+  }, [editingNote]);
 
   // Load existing highlights onto DOM whenever chapter reloads
   const restoreHighlights = useCallback(() => {
@@ -97,9 +105,9 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
                 range.setEnd(node, idx + h.text.length);
 
                 const mark = document.createElement("mark");
-                mark.className = `bb-highlight bb-highlight-${h.color || "yellow"}`;
+                mark.className = `bb-highlight bb-highlight-${h.color || "orange"}`;
                 mark.dataset.highlightId = h.id;
-                mark.dataset.color = h.color;
+                mark.dataset.color = h.color || "orange";
                 if (h.note) mark.dataset.hasNote = "true";
 
                 range.surroundContents(mark);
@@ -112,9 +120,9 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
                   range.setStart(node, idx);
                   range.setEnd(node, idx + h.text.length);
                   const mark = document.createElement("mark");
-                  mark.className = `bb-highlight bb-highlight-${h.color || "yellow"}`;
+                  mark.className = `bb-highlight bb-highlight-${h.color || "orange"}`;
                   mark.dataset.highlightId = h.id;
-                  mark.dataset.color = h.color;
+                  mark.dataset.color = h.color || "orange";
                   if (h.note) mark.dataset.hasNote = "true";
                   const frag = range.extractContents();
                   mark.appendChild(frag);
@@ -138,15 +146,141 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
     return () => clearTimeout(timer);
   }, [restoreHighlights]);
 
-  // Listen for selection changes inside container
+  // Compute fixed viewport coordinates for selection toolbar
+  const computeToolbarPos = useCallback((range) => {
+    if (!range) return null;
+    const rect = range.getBoundingClientRect();
+    if (!rect || (rect.width === 0 && rect.height === 0)) return null;
+
+    const width = 330;
+    const height = 48;
+
+    // Default place above selection; if too close to viewport top (header nav ~64px), place below
+    let top = rect.top - height - 8;
+    if (top < 64) {
+      top = rect.bottom + 8;
+    }
+    let left = rect.left + rect.width / 2 - width / 2;
+    left = Math.max(12, Math.min(left, window.innerWidth - width - 12));
+
+    return { top, left };
+  }, []);
+
+  // Compute fixed viewport coordinates for popover on existing mark
+  const computePopoverPos = useCallback((markEl) => {
+    if (!markEl) return null;
+    const rect = markEl.getBoundingClientRect();
+    if (!rect) return null;
+
+    const width = 320;
+    const height = 240;
+
+    let top = rect.bottom + 8;
+    // If popover would overflow bottom of viewport, flip above
+    if (top + height > window.innerHeight - 16) {
+      top = Math.max(64, rect.top - height - 8);
+    }
+    let left = rect.left + rect.width / 2 - width / 2;
+    left = Math.max(12, Math.min(left, window.innerWidth - width - 12));
+
+    return { top, left };
+  }, []);
+
+  // Keep popover & toolbar pinned to their anchors on scroll and window resize
   useEffect(() => {
-    function handleMouseUp(e) {
-      // If clicking inside floating toolbar or popover, don't clear
+    const handleScrollOrResize = () => {
+      if (activeMarkEl) {
+        const rect = activeMarkEl.getBoundingClientRect();
+        // If mark scrolled out of viewport, dismiss
+        if (rect.bottom < 60 || rect.top > window.innerHeight) {
+          setActiveHighlight(null);
+          setActiveMarkEl(null);
+          setPopoverPos(null);
+        } else {
+          setPopoverPos(computePopoverPos(activeMarkEl));
+        }
+      }
+
+      if (selectedRange) {
+        const sel = window.getSelection();
+        if (!sel || sel.isCollapsed) {
+          setFloatingPos(null);
+        } else {
+          const rect = selectedRange.getBoundingClientRect();
+          if (rect.bottom < 60 || rect.top > window.innerHeight) {
+            setFloatingPos(null);
+          } else {
+            setFloatingPos(computeToolbarPos(selectedRange));
+          }
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScrollOrResize, { passive: true });
+    window.addEventListener("resize", handleScrollOrResize, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScrollOrResize);
+      window.removeEventListener("resize", handleScrollOrResize);
+    };
+  }, [activeMarkEl, selectedRange, computePopoverPos, computeToolbarPos]);
+
+  // Handle selection detection on pointerup, touchend, and keyup
+  useEffect(() => {
+    let debounceTimer = null;
+
+    const evaluateSelection = () => {
+      // If typing in any input/textarea, do not interrupt
+      const activeEl = document.activeElement;
+      if (activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA")) {
+        return;
+      }
+
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed) {
+        // Selection is gone or collapsed
+        if (!editingNote) {
+          setFloatingPos(null);
+          setSelectedText("");
+          setSelectedRange(null);
+        }
+        return;
+      }
+
+      const text = sel.toString().trim();
+      if (text.length < 2) {
+        if (!editingNote) setFloatingPos(null);
+        return;
+      }
+
+      if (!containerRef.current) return;
+      const range = sel.getRangeAt(0);
+
+      // Verify the selection is inside the reader container
+      const commonNode = range.commonAncestorContainer;
+      if (!containerRef.current.contains(commonNode) && !commonNode.contains(containerRef.current)) {
+        return;
+      }
+
+      // Compute pure viewport position (position: fixed)
+      const pos = computeToolbarPos(range);
+      if (pos) {
+        setSelectedText(text);
+        setSelectedRange(range.cloneRange());
+        setFloatingPos(pos);
+        // Clear active mark popover when starting a new selection
+        setActiveHighlight(null);
+        setActiveMarkEl(null);
+        setPopoverPos(null);
+      }
+    };
+
+    const handlePointerUp = (e) => {
+      // If clicking inside toolbar or popover, let the controls handle it
       if (e.target.closest(".bb-floating-toolbar") || e.target.closest(".bb-highlight-popover")) {
         return;
       }
 
-      // Check if clicked on an existing mark
+      // Check if user clicked an existing mark
       const clickedMark = e.target.closest("mark.bb-highlight");
       if (clickedMark) {
         const id = clickedMark.dataset.highlightId;
@@ -154,11 +288,8 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
         const list = raw ? JSON.parse(raw) : [];
         const item = list.find((x) => x.id === id);
         if (item) {
-          const rect = clickedMark.getBoundingClientRect();
-          setPopoverPos({
-            top: rect.bottom + window.scrollY + 8,
-            left: Math.max(16, Math.min(rect.left + window.scrollX, window.innerWidth - 320)),
-          });
+          const pos = computePopoverPos(clickedMark);
+          setPopoverPos(pos);
           setActiveHighlight(item);
           setActiveMarkEl(clickedMark);
           setNoteText(item.note || "");
@@ -166,45 +297,51 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
           setFloatingPos(null);
           return;
         }
-      } else {
-        setActiveHighlight(null);
-        setActiveMarkEl(null);
       }
 
-      const sel = window.getSelection();
-      if (!sel || sel.isCollapsed) {
+      // Small delay allows double-clicks and drag completion to stabilize
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(evaluateSelection, 30);
+    };
+
+    const handleKeyDown = (e) => {
+      // Escape closes toolbar & popover
+      if (e.key === "Escape") {
         setFloatingPos(null);
         setSelectedText("");
         setSelectedRange(null);
-        return;
+        setActiveHighlight(null);
+        setActiveMarkEl(null);
+        setPopoverPos(null);
+        setEditingNote(false);
+        window.getSelection()?.removeAllRanges();
       }
+    };
 
-      const text = sel.toString().trim();
-      if (text.length < 2) {
-        setFloatingPos(null);
-        return;
+    const handlePointerDown = (e) => {
+      // If clicking outside toolbar, outside popover, and outside mark: clear popover
+      if (
+        !e.target.closest(".bb-floating-toolbar") &&
+        !e.target.closest(".bb-highlight-popover") &&
+        !e.target.closest("mark.bb-highlight")
+      ) {
+        setActiveHighlight(null);
+        setActiveMarkEl(null);
+        setPopoverPos(null);
       }
+    };
 
-      // Ensure selection is inside the reader container
-      if (!containerRef.current || !containerRef.current.contains(sel.anchorNode)) {
-        setFloatingPos(null);
-        return;
-      }
+    document.addEventListener("pointerup", handlePointerUp);
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
 
-      const range = sel.getRangeAt(0);
-      const rect = range.getBoundingClientRect();
-
-      setSelectedText(text);
-      setSelectedRange(range.cloneRange());
-      setFloatingPos({
-        top: Math.max(10, rect.top + window.scrollY - 54),
-        left: Math.max(16, Math.min(rect.left + rect.width / 2 + window.scrollX - 140, window.innerWidth - 300)),
-      });
-    }
-
-    document.addEventListener("mouseup", handleMouseUp);
-    return () => document.removeEventListener("mouseup", handleMouseUp);
-  }, [bookId, containerRef]);
+    return () => {
+      clearTimeout(debounceTimer);
+      document.removeEventListener("pointerup", handlePointerUp);
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [bookId, containerRef, editingNote, computeToolbarPos, computePopoverPos]);
 
   // Expand range to full word boundaries if user selected partial word accidentally
   function expandToFullWord() {
@@ -232,6 +369,7 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
         const sel = window.getSelection();
         sel?.removeAllRanges();
         sel?.addRange(range);
+        setFloatingPos(computeToolbarPos(range));
       }
     } catch (e) {
       console.warn("expandToFullWord failed", e);
@@ -243,14 +381,18 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
     try {
       range.surroundContents(mark);
     } catch {
-      const frag = range.extractContents();
-      mark.appendChild(frag);
-      range.insertNode(mark);
+      try {
+        const frag = range.extractContents();
+        mark.appendChild(frag);
+        range.insertNode(mark);
+      } catch (err) {
+        console.warn("wrapRange error", err);
+      }
     }
   }
 
   // Apply highlight with selected color
-  function applyHighlight(colorId) {
+  function applyHighlight(colorId = "orange") {
     if (!selectedRange || !selectedText) return;
 
     const id = `hl_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
@@ -375,10 +517,10 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
       <AnimatePresence>
         {floatingPos && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 6 }}
+            initial={{ opacity: 0, scale: 0.95, y: 4 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 6 }}
-            transition={{ duration: 0.15 }}
+            exit={{ opacity: 0, scale: 0.95, y: 4 }}
+            transition={{ duration: 0.12 }}
             style={{ top: floatingPos.top, left: floatingPos.left }}
             className="bb-floating-toolbar fixed z-50 rounded-2xl bg-slate-900/95 dark:bg-[#0F1623]/95 backdrop-blur-md border border-white/15 shadow-2xl p-2 flex flex-col gap-2 min-w-[290px] max-w-[360px]"
           >
@@ -389,7 +531,7 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
               </span>
               <button
                 onClick={expandToFullWord}
-                className="text-[10px] font-semibold text-teal-400 hover:text-teal-300 hover:underline cursor-pointer flex items-center gap-0.5 shrink-0 bg-teal-500/10 px-1.5 py-0.5 rounded border border-teal-500/20"
+                className="text-[10px] font-semibold text-orange-400 hover:text-orange-300 hover:underline cursor-pointer flex items-center gap-0.5 shrink-0 bg-orange-500/10 px-1.5 py-0.5 rounded border border-orange-500/20"
                 title="Mở rộng để lấy trọn vẹn cả từ (ví dụ lỡ chọn thiếu chữ)"
               >
                 <span>⚡ Mở rộng cả từ</span>
@@ -413,7 +555,7 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
               <button
                 onClick={() => setEditingNote((v) => !v)}
                 className={`p-1.5 rounded-lg text-xs font-medium flex items-center gap-1 transition-colors cursor-pointer ${
-                  editingNote ? "bg-teal-500 text-white" : "text-slate-300 hover:text-white hover:bg-white/10"
+                  editingNote ? "bg-orange-500 text-white" : "text-slate-300 hover:text-white hover:bg-white/10"
                 }`}
                 title="Gắn ghi chú vào đoạn này"
               >
@@ -436,10 +578,11 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
                   setFloatingPos(null);
                   setSelectedText("");
                   setSelectedRange(null);
+                  setEditingNote(false);
                   window.getSelection()?.removeAllRanges();
                 }}
                 className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer ml-auto"
-                title="Bỏ chọn (✕)"
+                title="Bỏ chọn (Esc)"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -449,17 +592,25 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
             {editingNote && (
               <div className="pt-1.5 border-t border-white/10 px-1 space-y-2">
                 <textarea
+                  ref={noteInputRef}
                   value={noteText}
                   onChange={(e) => setNoteText(e.target.value)}
-                  placeholder="Nhập ghi chú hoặc suy nghĩ của bạn..."
+                  onKeyDown={(e) => {
+                    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+                      e.preventDefault();
+                      applyHighlight("orange");
+                    }
+                  }}
+                  placeholder="Nhập ghi chú cá nhân (nhấn ⌘+Enter để lưu)..."
                   rows={2}
-                  className="w-full text-xs text-slate-100 bg-white/10 rounded-xl p-2 border border-white/15 focus:outline-none focus:border-teal-400 placeholder-slate-400"
+                  className="w-full text-xs text-slate-100 bg-white/10 rounded-xl p-2 border border-white/15 focus:outline-none focus:border-orange-400 placeholder-slate-400"
                   autoFocus
                 />
-                <div className="flex justify-end gap-1.5 pb-1">
+                <div className="flex items-center justify-between pb-1">
+                  <span className="text-[10px] text-slate-400 font-mono">⌘+Enter để lưu nhanh</span>
                   <button
-                    onClick={() => applyHighlight("yellow")}
-                    className="px-3 py-1 rounded-lg text-xs font-semibold bg-teal-500 hover:bg-teal-400 text-white cursor-pointer"
+                    onClick={() => applyHighlight("orange")}
+                    className="px-3 py-1 rounded-lg text-xs font-semibold bg-orange-600 hover:bg-orange-500 text-white cursor-pointer shadow-sm transition-colors"
                   >
                     Lưu highlight & ghi chú
                   </button>
@@ -477,7 +628,7 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
             initial={{ opacity: 0, scale: 0.96, y: 4 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 4 }}
-            transition={{ duration: 0.15 }}
+            transition={{ duration: 0.12 }}
             style={{ top: popoverPos.top, left: popoverPos.left }}
             className="bb-highlight-popover fixed z-50 w-80 rounded-2xl bg-white dark:bg-[#0F1623] border border-slate-200 dark:border-white/10 shadow-2xl p-4 text-slate-900 dark:text-slate-100 space-y-3"
           >
@@ -491,7 +642,7 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
                     key={c.id}
                     onClick={() => updateHighlight({ color: c.id })}
                     className={`w-4 h-4 rounded-full ${c.bg} cursor-pointer border ${
-                      activeHighlight.color === c.id ? "ring-2 ring-teal-500 ring-offset-1" : "opacity-60 hover:opacity-100"
+                      activeHighlight.color === c.id ? "ring-2 ring-orange-500 ring-offset-1" : "opacity-60 hover:opacity-100"
                     }`}
                   />
                 ))}
@@ -503,7 +654,11 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
                 <button
-                  onClick={() => setActiveHighlight(null)}
+                  onClick={() => {
+                    setActiveHighlight(null);
+                    setActiveMarkEl(null);
+                    setPopoverPos(null);
+                  }}
                   className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -519,7 +674,7 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
               <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 flex items-center justify-between">
                 <span>Ghi chú của bạn:</span>
                 {activeHighlight.note && (
-                  <span className="text-[10px] text-teal-600 dark:text-teal-400">✓ Đã lưu</span>
+                  <span className="text-[10px] text-orange-600 dark:text-orange-400">✓ Đã lưu</span>
                 )}
               </label>
               <textarea
@@ -527,7 +682,7 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
                 onChange={(e) => setNoteText(e.target.value)}
                 placeholder="Thêm ghi chú cá nhân cho đoạn trích này..."
                 rows={2}
-                className="w-full text-xs bg-slate-50 dark:bg-[#090D16] rounded-xl p-2.5 border border-slate-200 dark:border-white/10 focus:outline-none focus:border-teal-500"
+                className="w-full text-xs bg-slate-50 dark:bg-[#090D16] rounded-xl p-2.5 border border-slate-200 dark:border-white/10 focus:outline-none focus:border-orange-500"
               />
               <div className="flex justify-between items-center pt-1">
                 <button
@@ -541,8 +696,10 @@ export function FloatingTextHighlighter({ bookId, chNum, containerRef }) {
                   onClick={() => {
                     updateHighlight({ note: noteText.trim() });
                     setActiveHighlight(null);
+                    setActiveMarkEl(null);
+                    setPopoverPos(null);
                   }}
-                  className="px-3 py-1 rounded-lg text-xs font-semibold bg-teal-600 hover:bg-teal-500 text-white cursor-pointer"
+                  className="px-3 py-1 rounded-lg text-xs font-semibold bg-orange-600 hover:bg-orange-500 text-white cursor-pointer"
                 >
                   Lưu
                 </button>
@@ -600,12 +757,12 @@ export function TopicBookmarkButton({ bookId, chNum, topicId, topicTitle }) {
       type="button"
       onClick={toggleBookmark}
       aria-pressed={isBookmarked}
-      className={`topic-bookmark-btn ${isBookmarked ? "text-teal-600 border-teal-500 font-semibold" : ""}`}
+      className={`topic-bookmark-btn ${isBookmarked ? "text-orange-600 border-orange-500 font-semibold" : ""}`}
       title={isBookmarked ? "Bỏ đánh dấu bài học này" : "Đánh dấu vị trí / bài học quan trọng này"}
     >
       {isBookmarked ? (
         <>
-          <BookmarkCheck className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+          <BookmarkCheck className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
           <span>Đã đánh dấu</span>
         </>
       ) : (
@@ -674,7 +831,7 @@ export function ReaderPreferencesModal({ open, onClose }) {
       >
         <div className="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-4">
           <div className="flex items-center gap-2">
-            <Sliders className="w-4 h-4 text-teal-600 dark:text-teal-400" />
+            <Sliders className="w-4 h-4 text-orange-600 dark:text-orange-400" />
             <h3 className="text-base font-bold text-slate-900 dark:text-white">Tùy biến hiển thị văn bản</h3>
           </div>
           <button onClick={onClose} className="p-1 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer">
@@ -697,8 +854,8 @@ export function ReaderPreferencesModal({ open, onClose }) {
                 onClick={() => applySettings(opt.id, lineHeight, fontFamily, focusMode)}
                 className={`py-2 px-1 text-xs rounded-xl font-medium border transition-colors cursor-pointer text-center ${
                   fontSize === opt.id
-                    ? "bg-teal-500/15 border-teal-500 text-teal-700 dark:text-teal-300 font-bold"
-                    : "border-slate-200 dark:border-white/10 hover:border-teal-500/40 text-slate-600 dark:text-slate-400"
+                    ? "bg-orange-500/15 border-orange-500 text-orange-700 dark:text-orange-300 font-bold"
+                    : "border-slate-200 dark:border-white/10 hover:border-orange-500/40 text-slate-600 dark:text-slate-400"
                 }`}
               >
                 {opt.label}
@@ -721,8 +878,8 @@ export function ReaderPreferencesModal({ open, onClose }) {
                 onClick={() => applySettings(fontSize, opt.id, fontFamily, focusMode)}
                 className={`py-2 px-2 text-xs rounded-xl font-medium border transition-colors cursor-pointer text-center ${
                   lineHeight === opt.id
-                    ? "bg-teal-500/15 border-teal-500 text-teal-700 dark:text-teal-300 font-bold"
-                    : "border-slate-200 dark:border-white/10 hover:border-teal-500/40 text-slate-600 dark:text-slate-400"
+                    ? "bg-orange-500/15 border-orange-500 text-orange-700 dark:text-orange-300 font-bold"
+                    : "border-slate-200 dark:border-white/10 hover:border-orange-500/40 text-slate-600 dark:text-slate-400"
                 }`}
               >
                 {opt.label}
@@ -745,8 +902,8 @@ export function ReaderPreferencesModal({ open, onClose }) {
                 onClick={() => applySettings(fontSize, lineHeight, opt.id, focusMode)}
                 className={`py-2.5 px-2 text-xs rounded-xl border transition-colors cursor-pointer text-center ${opt.font} ${
                   fontFamily === opt.id
-                    ? "bg-teal-500/15 border-teal-500 text-teal-700 dark:text-teal-300 font-bold"
-                    : "border-slate-200 dark:border-white/10 hover:border-teal-500/40 text-slate-600 dark:text-slate-400"
+                    ? "bg-orange-500/15 border-orange-500 text-orange-700 dark:text-orange-300 font-bold"
+                    : "border-slate-200 dark:border-white/10 hover:border-orange-500/40 text-slate-600 dark:text-slate-400"
                 }`}
               >
                 {opt.label}
@@ -765,8 +922,8 @@ export function ReaderPreferencesModal({ open, onClose }) {
             onClick={() => applySettings(fontSize, lineHeight, fontFamily, !focusMode)}
             className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-colors cursor-pointer ${
               focusMode
-                ? "bg-teal-600 text-white border-teal-600"
-                : "border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-teal-500/50"
+                ? "bg-orange-600 text-white border-orange-600"
+                : "border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:border-orange-500/50"
             }`}
           >
             {focusMode ? "Đang BẬT" : "Đang TẮT"}
@@ -776,7 +933,7 @@ export function ReaderPreferencesModal({ open, onClose }) {
         <div className="pt-2 flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-semibold bg-teal-600 hover:bg-teal-500 text-white transition-colors cursor-pointer"
+            className="px-4 py-2 rounded-xl text-xs font-semibold bg-orange-600 hover:bg-orange-500 text-white transition-colors cursor-pointer"
           >
             Xong
           </button>
@@ -908,7 +1065,7 @@ export function HighlightsAndNotesDrawer({ bookId, open, onClose }) {
             <div>
               <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-white/10 pb-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center font-bold">
+                  <div className="w-8 h-8 rounded-xl bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold">
                     <Highlighter className="w-4 h-4" />
                   </div>
                   <div>
@@ -931,7 +1088,7 @@ export function HighlightsAndNotesDrawer({ bookId, open, onClose }) {
                   onClick={() => setActiveTab("highlights")}
                   className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
                     activeTab === "highlights"
-                      ? "bg-white dark:bg-[#1E293B] text-teal-600 dark:text-teal-400 shadow-xs"
+                      ? "bg-white dark:bg-[#1E293B] text-orange-600 dark:text-orange-400 shadow-xs"
                       : "text-slate-600 dark:text-slate-400"
                   }`}
                 >
@@ -941,7 +1098,7 @@ export function HighlightsAndNotesDrawer({ bookId, open, onClose }) {
                   onClick={() => setActiveTab("notes")}
                   className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
                     activeTab === "notes"
-                      ? "bg-white dark:bg-[#1E293B] text-teal-600 dark:text-teal-400 shadow-xs"
+                      ? "bg-white dark:bg-[#1E293B] text-orange-600 dark:text-orange-400 shadow-xs"
                       : "text-slate-600 dark:text-slate-400"
                   }`}
                 >
@@ -951,7 +1108,7 @@ export function HighlightsAndNotesDrawer({ bookId, open, onClose }) {
                   onClick={() => setActiveTab("bookmarks")}
                   className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
                     activeTab === "bookmarks"
-                      ? "bg-white dark:bg-[#1E293B] text-teal-600 dark:text-teal-400 shadow-xs"
+                      ? "bg-white dark:bg-[#1E293B] text-orange-600 dark:text-orange-400 shadow-xs"
                       : "text-slate-600 dark:text-slate-400"
                   }`}
                 >
@@ -968,7 +1125,7 @@ export function HighlightsAndNotesDrawer({ bookId, open, onClose }) {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Tìm trong trích dẫn & ghi chú..."
-                    className="w-full pl-8 pr-3 py-1.5 rounded-xl text-xs bg-slate-50 dark:bg-[#090D16] border border-slate-200 dark:border-white/10 focus:outline-none focus:border-teal-500"
+                    className="w-full pl-8 pr-3 py-1.5 rounded-xl text-xs bg-slate-50 dark:bg-[#090D16] border border-slate-200 dark:border-white/10 focus:outline-none focus:border-orange-500"
                   />
                 </div>
 
@@ -978,7 +1135,7 @@ export function HighlightsAndNotesDrawer({ bookId, open, onClose }) {
                       onClick={() => setFilterColor("all")}
                       className={`text-[10px] font-semibold px-2 py-1.5 rounded-lg border cursor-pointer ${
                         filterColor === "all"
-                          ? "bg-teal-500/15 border-teal-500 text-teal-600 dark:text-teal-400"
+                          ? "bg-orange-500/15 border-orange-500 text-orange-600 dark:text-orange-400"
                           : "border-slate-200 dark:border-white/10 text-slate-500"
                       }`}
                     >
@@ -989,7 +1146,7 @@ export function HighlightsAndNotesDrawer({ bookId, open, onClose }) {
                         key={c.id}
                         onClick={() => setFilterColor(c.id)}
                         className={`w-5 h-5 rounded-full ${c.bg} border cursor-pointer ${
-                          filterColor === c.id ? "ring-2 ring-teal-500" : "opacity-60 hover:opacity-100"
+                          filterColor === c.id ? "ring-2 ring-orange-500" : "opacity-60 hover:opacity-100"
                         }`}
                         title={c.name}
                       />
@@ -1014,14 +1171,14 @@ export function HighlightsAndNotesDrawer({ bookId, open, onClose }) {
                     filteredHighlights.map((h) => (
                       <div
                         key={h.id}
-                        className="rounded-xl p-3.5 bg-slate-50 dark:bg-[#090D16] border border-slate-200/80 dark:border-white/10 space-y-2 hover:border-teal-500/40 transition-colors"
+                        className="rounded-xl p-3.5 bg-slate-50 dark:bg-[#090D16] border border-slate-200/80 dark:border-white/10 space-y-2 hover:border-orange-500/40 transition-colors"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-[11px] font-mono font-semibold text-teal-600 dark:text-teal-400 truncate">
+                          <span className="text-[11px] font-mono font-semibold text-orange-600 dark:text-orange-400 truncate">
                             Chương {h.chNum} · {h.topicTitle || h.topicId}
                           </span>
                           <div className="flex items-center gap-1.5 shrink-0">
-                            <span className={`w-3 h-3 rounded-full ${HIGHLIGHT_COLORS.find((c) => c.id === h.color)?.bg || "bg-amber-400"}`} />
+                            <span className={`w-3 h-3 rounded-full ${HIGHLIGHT_COLORS.find((c) => c.id === h.color)?.bg || "bg-orange-500"}`} />
                             <button
                               onClick={() => deleteHl(h.id)}
                               className="p-1 rounded text-slate-400 hover:text-rose-500 cursor-pointer"
@@ -1032,7 +1189,7 @@ export function HighlightsAndNotesDrawer({ bookId, open, onClose }) {
                           </div>
                         </div>
 
-                        <p className="text-xs text-slate-700 dark:text-slate-300 italic pl-2.5 border-l-2 border-teal-500/50 leading-relaxed">
+                        <p className="text-xs text-slate-700 dark:text-slate-300 italic pl-2.5 border-l-2 border-orange-500/50 leading-relaxed">
                           "{h.text}"
                         </p>
 
@@ -1050,7 +1207,7 @@ export function HighlightsAndNotesDrawer({ bookId, open, onClose }) {
                           <a
                             href={`/books/${bookId}/ch/${h.chNum}#${h.topicId}`}
                             onClick={onClose}
-                            className="inline-flex items-center gap-1 text-teal-600 dark:text-teal-400 hover:underline"
+                            className="inline-flex items-center gap-1 text-orange-600 dark:text-orange-400 hover:underline"
                           >
                             <span>Mở đoạn này</span>
                             <ChevronRight className="w-3 h-3" />
@@ -1075,10 +1232,10 @@ export function HighlightsAndNotesDrawer({ bookId, open, onClose }) {
                     notesList.map((n) => (
                       <div
                         key={n.id}
-                        className="rounded-xl p-3.5 bg-slate-50 dark:bg-[#090D16] border border-slate-200/80 dark:border-white/10 space-y-2 hover:border-teal-500/40 transition-colors"
+                        className="rounded-xl p-3.5 bg-slate-50 dark:bg-[#090D16] border border-slate-200/80 dark:border-white/10 space-y-2 hover:border-orange-500/40 transition-colors"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-[11px] font-mono font-semibold text-teal-600 dark:text-teal-400">
+                          <span className="text-[11px] font-mono font-semibold text-orange-600 dark:text-orange-400">
                             Chương {n.chNum} · {n.num} {n.title}
                           </span>
                         </div>
@@ -1090,7 +1247,7 @@ export function HighlightsAndNotesDrawer({ bookId, open, onClose }) {
                           <a
                             href={`/books/${bookId}/ch/${n.chNum}#${n.id}`}
                             onClick={onClose}
-                            className="inline-flex items-center gap-1 text-teal-600 dark:text-teal-400 hover:underline"
+                            className="inline-flex items-center gap-1 text-orange-600 dark:text-orange-400 hover:underline"
                           >
                             <span>Tới bài học</span>
                             <ChevronRight className="w-3 h-3" />
@@ -1115,11 +1272,11 @@ export function HighlightsAndNotesDrawer({ bookId, open, onClose }) {
                     bookmarks.map((b) => (
                       <div
                         key={b.topicId}
-                        className="rounded-xl p-3.5 bg-slate-50 dark:bg-[#090D16] border border-slate-200/80 dark:border-white/10 flex items-center justify-between gap-3 hover:border-teal-500/40 transition-colors"
+                        className="rounded-xl p-3.5 bg-slate-50 dark:bg-[#090D16] border border-slate-200/80 dark:border-white/10 flex items-center justify-between gap-3 hover:border-orange-500/40 transition-colors"
                       >
                         <div className="space-y-0.5 min-w-0">
                           <div className="flex items-center gap-2">
-                            <BookmarkCheck className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                            <BookmarkCheck className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400 shrink-0" />
                             <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
                               {b.topicTitle}
                             </span>
@@ -1133,7 +1290,7 @@ export function HighlightsAndNotesDrawer({ bookId, open, onClose }) {
                           <a
                             href={`/books/${bookId}/ch/${b.chNum}#${b.topicId}`}
                             onClick={onClose}
-                            className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-teal-600 text-white hover:bg-teal-500"
+                            className="px-2.5 py-1 rounded-lg text-xs font-semibold bg-orange-600 text-white hover:bg-orange-500"
                           >
                             Đọc tiếp
                           </a>
@@ -1159,7 +1316,7 @@ export function HighlightsAndNotesDrawer({ bookId, open, onClose }) {
               </span>
               <button
                 onClick={exportMarkdown}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-teal-600 hover:bg-teal-500 text-white transition-colors cursor-pointer shadow-sm"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-orange-600 hover:bg-orange-500 text-white transition-colors cursor-pointer shadow-sm"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Xuất file Markdown (.md)</span>

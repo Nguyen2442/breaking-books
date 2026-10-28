@@ -26,8 +26,13 @@ const scripts = metaScript + ['core.js', ...CHAPTERS.map((c) => `${c}.js`)]
   })
   .join('\n');
 
-const top = read('shell-top.html').replace('/*__STYLES__*/', () => read('styles.css'));
-const bottom = read('shell-bottom.html').replace('/*__SCRIPTS__*/', () => scripts);
+const top = existsSync(src('shell-top.html'))
+  ? read('shell-top.html').replace('/*__STYLES__*/', () => (existsSync(src('styles.css')) ? read('styles.css') : ''))
+  : '<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Breaking Books</title></head><body><div class="shell"><main><div class="page">';
+
+const bottom = existsSync(src('shell-bottom.html'))
+  ? read('shell-bottom.html').replace('/*__SCRIPTS__*/', () => scripts)
+  : `</div></main></div>\n${scripts}</body></html>`;
 const chapters = CHAPTERS.filter((c) => existsSync(src(`${c}.html`))).map((c) => read(`${c}.html`)).join('\n');
 const fragment = `${top}\n${chapters}\n${bottom}`;
 

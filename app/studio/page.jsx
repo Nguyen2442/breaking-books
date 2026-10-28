@@ -294,7 +294,7 @@ export default function StudioPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-8 h-full flex items-center justify-between gap-4">
           {/* Left Brand (back to the library) */}
           <Link href="/" title="Về thư viện" className="flex items-center gap-3.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-sm">
               BB
             </div>
             <div>
@@ -302,7 +302,7 @@ export default function StudioPage() {
                 <span className="font-bold tracking-tight text-base text-slate-900 dark:text-white">
                   Breaking Books
                 </span>
-                <span className="text-[10px] font-mono font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
+                <span className="text-[10px] font-mono font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
                   Mintlify Docs UI
                 </span>
               </div>
@@ -315,10 +315,10 @@ export default function StudioPage() {
           {/* Center Command Search Bar */}
           <button
             onClick={() => setCmdSearchOpen(true)}
-            className="hidden md:flex items-center justify-between gap-3 w-full max-w-md px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#111827] border border-slate-200/90 dark:border-white/[0.08] hover:border-teal-500/50 text-xs text-slate-400 transition-all cursor-pointer"
+            className="hidden md:flex items-center justify-between gap-3 w-full max-w-md px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#111827] border border-slate-200/90 dark:border-white/[0.08] hover:border-orange-500/50 text-xs text-slate-400 transition-all cursor-pointer"
           >
             <span className="flex items-center gap-2 truncate">
-              <Search className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+              <Search className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400 shrink-0" />
               <span className="truncate">
                 Tìm kiếm bài học, mô phỏng SVG, thuật ngữ...
               </span>
@@ -335,7 +335,7 @@ export default function StudioPage() {
                 value={selectedBookId}
                 onChange={(e) => selectBook(e.target.value)}
                 aria-label="Chọn sách"
-                className="text-xs font-medium rounded-xl px-3 py-2 bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-white/10 focus:outline-none focus:border-teal-500 cursor-pointer"
+                className="text-xs font-medium rounded-xl px-3 py-2 bg-slate-50 dark:bg-[#111827] border border-slate-200 dark:border-white/10 focus:outline-none focus:border-orange-500 cursor-pointer"
               >
                 {overview.books.map((b) => (
                   <option key={b.id} value={b.id}>
@@ -347,15 +347,15 @@ export default function StudioPage() {
 
             <button
               onClick={() => setFlashcardsOpen(true)}
-              className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-white/[0.08] hover:border-teal-500/50 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-white/[0.08] hover:border-orange-500/50 transition-colors cursor-pointer"
             >
-              <Layers className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+              <Layers className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
               <span className="hidden sm:inline">Flashcards</span>
             </button>
 
             <button
               onClick={() => setNotesExportOpen(true)}
-              className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-white/[0.08] hover:border-teal-500/50 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-white/[0.08] hover:border-orange-500/50 transition-colors cursor-pointer"
             >
               <Download className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
               <span className="hidden lg:inline">Ghi chú & Xuất bản</span>
@@ -363,15 +363,15 @@ export default function StudioPage() {
 
             <button
               onClick={() => setNewBookModalOpen(true)}
-              className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-white/[0.08] hover:border-teal-500/50 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-white/[0.08] hover:border-orange-500/50 transition-colors cursor-pointer"
             >
-              <Plus className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+              <Plus className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
               <span className="hidden xl:inline">Thêm PDF</span>
             </button>
 
             <button
               onClick={() => setCliDrawerOpen(true)}
-              className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-white/[0.08] hover:border-teal-500/50 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-2 rounded-xl bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-white/[0.08] hover:border-orange-500/50 transition-colors cursor-pointer"
             >
               <Terminal className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span className="hidden xl:inline">
@@ -385,7 +385,7 @@ export default function StudioPage() {
             <button
               onClick={toggleTheme}
               aria-label="Đổi giao diện Sáng / Tối"
-              className="p-2 rounded-xl bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-white/[0.08] hover:border-teal-500/50 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
+              className="p-2 rounded-xl bg-slate-50 dark:bg-[#111827] border border-slate-200/80 dark:border-white/[0.08] hover:border-orange-500/50 text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
             >
               {isDark ? (
                 <Sun className="w-4 h-4 text-amber-400" />
@@ -405,7 +405,7 @@ export default function StudioPage() {
           className="pointer-events-none absolute inset-x-0 top-0 h-64 opacity-70 dark:opacity-40"
           style={{
             background:
-              "radial-gradient(ellipse 70% 55% at 50% -15%, rgba(13, 148, 136, 0.14), rgba(79, 70, 229, 0.08), transparent)",
+              "radial-gradient(ellipse 70% 55% at 50% -15%, rgba(234, 88, 12, 0.14), rgba(79, 70, 229, 0.08), transparent)",
           }}
         />
 
@@ -424,8 +424,8 @@ export default function StudioPage() {
                     onClick={() => selectBook(b.id)}
                     className={`inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
                       active
-                        ? "bg-teal-600 text-white border-teal-600 shadow-sm"
-                        : "bg-white/90 dark:bg-[#111827] text-slate-700 dark:text-slate-300 border-slate-200/90 dark:border-white/10 hover:border-teal-500/50"
+                        ? "bg-orange-600 text-white border-orange-600 shadow-sm"
+                        : "bg-white/90 dark:bg-[#111827] text-slate-700 dark:text-slate-300 border-slate-200/90 dark:border-white/10 hover:border-orange-500/50"
                     }`}
                   >
                     <BookOpen className="w-3.5 h-3.5 shrink-0" />
@@ -455,8 +455,8 @@ export default function StudioPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               {/* Left 7 Cols: Editorial & CTAs */}
               <div className="lg:col-span-7 space-y-5">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-300 text-xs font-mono font-semibold">
-                  <span className="w-2 h-2 rounded-full bg-teal-500" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-700 dark:text-orange-300 text-xs font-mono font-semibold">
+                  <span className="w-2 h-2 rounded-full bg-orange-500" />
                   <span>
                     {currentBook.stats.completeChapters}/
                     {currentBook.stats.totalChapters} CHƯƠNG HOÀN TẤT •{" "}
@@ -487,7 +487,7 @@ export default function StudioPage() {
                 <div className="pt-2 flex flex-wrap items-center gap-3">
                   <Link
                     href={`/books/${currentBook.id}/ch/1`}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold shadow-sm transition-colors"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-sm font-semibold shadow-sm transition-colors"
                   >
                     <BookOpen className="w-4 h-4" />
                     <span>Bắt đầu đọc Chương 01</span>
@@ -512,9 +512,9 @@ export default function StudioPage() {
 
                   <button
                     onClick={() => setCmdSearchOpen(true)}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-white/10 hover:border-teal-500/50 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-white/10 hover:border-orange-500/50 text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors cursor-pointer"
                   >
-                    <Search className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+                    <Search className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
                     <span>Tìm nhanh toàn sách (⌘K)</span>
                   </button>
 
@@ -533,7 +533,7 @@ export default function StudioPage() {
                 <div className="p-5 rounded-2xl bg-white/90 dark:bg-[#0F1623]/90 border border-slate-200/90 dark:border-white/[0.08] shadow-xs">
                   <div className="flex items-center justify-between text-xs font-mono text-slate-400">
                     <span>CHƯƠNG HOÀN TẤT</span>
-                    <CheckCircle2 className="w-4 h-4 text-teal-500" />
+                    <CheckCircle2 className="w-4 h-4 text-orange-500" />
                   </div>
                   <div className="text-3xl font-extrabold mt-2 text-slate-900 dark:text-white">
                     {currentBook.stats.completeChapters}
@@ -541,7 +541,7 @@ export default function StudioPage() {
                       /{currentBook.stats.totalChapters}
                     </span>
                   </div>
-                  <div className="text-xs text-teal-600 dark:text-teal-400 font-medium mt-1">
+                  <div className="text-xs text-orange-600 dark:text-orange-400 font-medium mt-1">
                     100% chương sẵn sàng
                   </div>
                 </div>
@@ -562,9 +562,9 @@ export default function StudioPage() {
                 <div className="p-5 rounded-2xl bg-white/90 dark:bg-[#0F1623]/90 border border-slate-200/90 dark:border-white/[0.08] shadow-xs">
                   <div className="flex items-center justify-between text-xs font-mono text-slate-400">
                     <span>PLAYGROUND LABS</span>
-                    <Cpu className="w-4 h-4 text-teal-500" />
+                    <Cpu className="w-4 h-4 text-orange-500" />
                   </div>
-                  <div className="text-3xl font-extrabold mt-2 text-teal-600 dark:text-teal-400">
+                  <div className="text-3xl font-extrabold mt-2 text-orange-600 dark:text-orange-400">
                     {currentBook.stats.totalSvgs}
                   </div>
                   <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
@@ -612,7 +612,7 @@ export default function StudioPage() {
                 onClick={() => setSelectedPart("all")}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                   selectedPart === "all"
-                    ? "bg-white dark:bg-[#1E293B] text-teal-600 dark:text-teal-400 shadow-2xs"
+                    ? "bg-white dark:bg-[#1E293B] text-orange-600 dark:text-orange-400 shadow-2xs"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
               >
@@ -624,7 +624,7 @@ export default function StudioPage() {
                   onClick={() => setSelectedPart(part)}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
                     selectedPart === part
-                      ? "bg-white dark:bg-[#1E293B] text-teal-600 dark:text-teal-400 shadow-2xs"
+                      ? "bg-white dark:bg-[#1E293B] text-orange-600 dark:text-orange-400 shadow-2xs"
                       : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                   }`}
                 >
@@ -647,16 +647,16 @@ export default function StudioPage() {
                     duration: 0.22,
                     delay: Math.min(idx * 0.025, 0.2),
                   }}
-                  className="group relative rounded-2xl bg-white dark:bg-[#0F1623] border border-slate-200/90 dark:border-white/[0.08] hover:border-teal-500/60 dark:hover:border-teal-400/50 p-6 flex flex-col justify-between transition-all duration-200 hover:shadow-lg hover:shadow-teal-500/[0.04]"
+                  className="group relative rounded-2xl bg-white dark:bg-[#0F1623] border border-slate-200/90 dark:border-white/[0.08] hover:border-orange-500/60 dark:hover:border-orange-400/50 p-6 flex flex-col justify-between transition-all duration-200 hover:shadow-lg hover:shadow-orange-500/[0.04]"
                 >
                   {/* Top subtle gradient accent bar on hover */}
-                  <div className="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-teal-500 via-indigo-500 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute inset-x-0 top-0 h-1 rounded-t-2xl bg-gradient-to-r from-orange-500 via-indigo-500 to-violet-500 opacity-0 group-hover:opacity-100 transition-opacity" />
 
                   <div>
                     {/* Card Header: Number Badge + Part + Status */}
                     <div className="flex items-center justify-between gap-2 mb-4">
                       <div className="flex items-center gap-2">
-                        <span className="w-7 h-7 rounded-lg bg-teal-500/10 dark:bg-teal-400/10 border border-teal-500/20 text-teal-700 dark:text-teal-300 font-mono text-xs font-bold flex items-center justify-center">
+                        <span className="w-7 h-7 rounded-lg bg-orange-500/10 dark:bg-orange-400/10 border border-orange-500/20 text-orange-700 dark:text-orange-300 font-mono text-xs font-bold flex items-center justify-center">
                           {String(ch.num).padStart(2, "0")}
                         </span>
                         <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 truncate max-w-[160px]">
@@ -679,9 +679,9 @@ export default function StudioPage() {
                     {/* Clickable Title & English Subtitle */}
                     <Link
                       href={`/books/${currentBook.id}/ch/${ch.num}`}
-                      className="block group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors"
+                      className="block group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors"
                     >
-                      <h3 className="text-base font-bold tracking-tight text-slate-900 dark:text-white group-hover:text-teal-600 dark:group-hover:text-teal-400 leading-snug">
+                      <h3 className="text-base font-bold tracking-tight text-slate-900 dark:text-white group-hover:text-orange-600 dark:group-hover:text-orange-400 leading-snug">
                         {ch.title}
                       </h3>
                       <p className="text-xs font-mono text-slate-400 dark:text-slate-500 mt-1 truncate">
@@ -696,7 +696,7 @@ export default function StudioPage() {
                           <Link
                             key={t.id}
                             href={`/books/${currentBook.id}/ch/${ch.num}#${t.id}`}
-                            className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 hover:text-teal-600 dark:hover:text-teal-400 truncate py-0.5 transition-colors"
+                            className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 hover:text-orange-600 dark:hover:text-orange-400 truncate py-0.5 transition-colors"
                           >
                             <span className="font-mono text-[10px] px-1.5 py-0.2 rounded bg-slate-100 dark:bg-white/[0.06] text-slate-500 dark:text-slate-400 shrink-0">
                               {t.num}
@@ -731,7 +731,7 @@ export default function StudioPage() {
                         }
                         className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer ${
                           isComplete
-                            ? "text-slate-400 hover:text-teal-600 hover:bg-teal-500/10"
+                            ? "text-slate-400 hover:text-orange-600 hover:bg-orange-500/10"
                             : "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 hover:bg-amber-500 hover:text-slate-950"
                         }`}
                       >
@@ -742,14 +742,14 @@ export default function StudioPage() {
                       <button
                         onClick={() => setPromptModalCh(ch)}
                         title="Copy Prompt bóc tách chương"
-                        className="p-1.5 rounded-lg text-slate-400 hover:text-teal-600 hover:bg-teal-500/10 transition-colors cursor-pointer"
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-orange-600 hover:bg-orange-500/10 transition-colors cursor-pointer"
                       >
                         <Copy className="w-3.5 h-3.5" />
                       </button>
 
                       <Link
                         href={`/books/${currentBook.id}/ch/${ch.num}`}
-                        className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-[#151E2E] text-slate-700 dark:text-slate-200 group-hover:bg-teal-600 group-hover:text-white transition-colors"
+                        className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-[#151E2E] text-slate-700 dark:text-slate-200 group-hover:bg-orange-600 group-hover:text-white transition-colors"
                       >
                         <span>Đọc chương</span>
                         <ArrowUpRight className="w-3.5 h-3.5" />
@@ -782,7 +782,7 @@ export default function StudioPage() {
             >
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div>
-                  <span className="text-xs font-mono uppercase text-teal-600 dark:text-teal-400">
+                  <span className="text-xs font-mono uppercase text-orange-600 dark:text-orange-400">
                     Google Gemini 3.5 AI Pipeline
                   </span>
                   <h3 className="text-lg font-bold mt-0.5">
@@ -822,7 +822,7 @@ export default function StudioPage() {
                     setCopiedPrompt(true);
                     setTimeout(() => setCopiedPrompt(false), 2000);
                   }}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-orange-600 hover:bg-orange-500 text-white text-xs font-semibold transition-colors cursor-pointer"
                 >
                   {copiedPrompt ? (
                     <>
@@ -861,7 +861,7 @@ export default function StudioPage() {
             >
               <div className="flex items-start justify-between gap-4 mb-5">
                 <div>
-                  <span className="text-xs font-mono uppercase text-teal-600 dark:text-teal-400">
+                  <span className="text-xs font-mono uppercase text-orange-600 dark:text-orange-400">
                     PyMuPDF Extractor
                   </span>
                   <h3 className="text-lg font-bold mt-0.5">
@@ -885,10 +885,10 @@ export default function StudioPage() {
                     type="file"
                     accept=".pdf"
                     onChange={handlePdfFileSelect}
-                    className="w-full text-xs file:mr-3 file:py-2 file:px-3.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-500/10 file:text-teal-600 hover:file:bg-teal-500/20"
+                    className="w-full text-xs file:mr-3 file:py-2 file:px-3.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-orange-500/10 file:text-orange-600 hover:file:bg-orange-500/20"
                   />
                   {uploadingPdf && (
-                    <p className="text-xs text-teal-600 mt-1">
+                    <p className="text-xs text-orange-600 mt-1">
                       Đang tải file PDF lên...
                     </p>
                   )}
@@ -955,7 +955,7 @@ export default function StudioPage() {
                   <button
                     type="submit"
                     disabled={creatingBook || uploadingPdf}
-                    className="px-5 py-2 rounded-xl text-xs font-semibold bg-teal-600 hover:bg-teal-500 text-white disabled:opacity-50 cursor-pointer"
+                    className="px-5 py-2 rounded-xl text-xs font-semibold bg-orange-600 hover:bg-orange-500 text-white disabled:opacity-50 cursor-pointer"
                   >
                     {creatingBook ? "Đang tách chương..." : "Tạo & Tách chương"}
                   </button>
@@ -1020,7 +1020,7 @@ export default function StudioPage() {
                           onClick={() => setActiveJobId(j.id)}
                           className={`px-3 py-1.5 rounded-lg text-xs font-mono border cursor-pointer ${
                             activeJob?.id === j.id
-                              ? "border-teal-500 bg-teal-500/10 text-teal-600 dark:text-teal-400"
+                              ? "border-orange-500 bg-orange-500/10 text-orange-600 dark:text-orange-400"
                               : "border-slate-200 dark:border-white/10"
                           }`}
                         >
@@ -1061,7 +1061,7 @@ export default function StudioPage() {
                 <span>Tự động lưu trực tiếp vào src/chN.html & src/chN.js</span>
                 <button
                   onClick={fetchOverview}
-                  className="inline-flex items-center gap-1 text-teal-600 dark:text-teal-400 hover:underline cursor-pointer"
+                  className="inline-flex items-center gap-1 text-orange-600 dark:text-orange-400 hover:underline cursor-pointer"
                 >
                   <RefreshCw className="w-3 h-3" />
                   <span>Làm mới số liệu</span>
