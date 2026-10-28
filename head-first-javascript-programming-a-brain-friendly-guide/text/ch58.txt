@@ -1,0 +1,581 @@
+implementing  349–357
+passing input to  360
+processing player’s guess  350–354
+testing  357
+creating  177–179, 183, 185, 188–191, 220–222
+creating with object literals  522, 532, 539–542, 559
+Date  214, 548
+diagramming  565, 570
+document
+about  214, 240
+getElementById method as  238. See also getEle-
+mentById method
+in DOM  235, 626
+write function, communicating with users using  
+25–26, 42
+duplicating code in  208
+element  231
+equality of   288–290, 314
+Error  551
+Event
+event handlers and  399–402, 423
+for properties  401
+setting up in IE8 and older browsers  399, 631
+finding errors in code (exercise)  203
+functions as  612–613
+inheriting  569–572
+iterating through properties of   209
+JavaScript provided  214
+JSON  214
+Math  214, 551
+methods  198
+methods vs. functions  206
+model (advanced Battleship game). See model object, 
+advanced Battleship game
+models, building  3
+No Dumb Questions  185
+number of  levels deep in arrays to nest  348
+numbers as  296
+passing to functions  192, 192–194, 198
+properties in
+about  175
+accessing  181
+adding new  182
+adding or deleting at any time  184
+changing  182
+computing with  182
+iterating through  209
+undeined values and  268
+values of   176, 219
+putting methods into, by convention  523
+RegExp  214, 551, 632–633
+rules of  road for creating  179
+state and behavior in  210–212, 226
+strings as primitives and  294–296
+
+656        Index
+the index
+this
+in constructors  528–529, 532
+prototypes and  580
+using  202
+using with objects  204–206, 219
+undefined values and  268
+understanding object instances  543–545, 560
+using null  270–271, 274
+using this  202, 204–206, 219
+variable declaration for  177
+in variables  186
+vs. primitives  187
+window
+about  214
+creating onload event handler for  249, 402
+history method  627
+innerHeight property  627
+innerWidth property  627
+location method  627
+methods and properties available for  627
+onload property. See onload property
+onresize property  415, 427
+print method  627
+setInterval method  627
+setTimeout method  407–413, 627
+support of  BOM in  627
+onclick property  390–391, 393–398, 504–507, 630
+onload event handler  249, 359, 402
+onload handler function  249–250, 359, 389–390
+onload property
+assigning handler to  385–386, 389–390, 410, 630
+in anonymous functions  476–477
+setting to function  249, 359, 392, 394–395, 406–407, 
+422
+support of  BOM using  627
+onmousemove property  405–406, 414, 424, 426
+onmouseout property  414, 426
+onresize property  415, 427
+OR (||) operator  54, 55, 62–63, 74
+P
+parameters, function
+about  84, 88
+assigning argument values to  85
+identifying  91, 105, 119, 120
+names in constructors  532
+naming  97
+none used in function  94
+passing arguments to  89
+vs. arguments  90
+parentheses ()
+in calling functions  68, 430, 439
+in parameters  97
+parseGuess function  351–354
+parse method, in JSON  636
+parsing function declaration  432
+pass-by-values  92–93
+passing arguments  88–89
+passing by reference  192
+passing by value  192
+pause event  419
+Phrase-o-Matic application (example)  131–133
+playlists
+in jQuery  625
+populating with song titles using JavaScript array  253, 
+262
+using document objects in  626
+plus sign (+)
+as arithmetic operator  286–287, 312
+in concatenating strings  15, 133, 142, 354
+position: absolute  324–325, 328
+positioning, CSS  324–326, 328
+position: relative  324, 328
+post-decrement operator (--)  146–147
+post-increment operator (++)  146–147
+<p> (paragraph) elements
+changing using JavaScript  247
+innerHTML property changing  242
+
+you are here 4        657
+the index
+primitive types
+about  23, 266
+identifying undefined values  267–268, 308
+strings as objects and  294–296
+vs. objects  187
+print method  627
+procedural design  329
+processGuess method  349–350, 357
+programming languages, learning  9
+prompt function  46, 53, 55
+properties
+about  175
+accessing  181
+adding new  182
+adding or deleting at any time  184
+available in JavaScript  296
+changing  182
+changing in prototypes  582, 585
+computing with  182
+determining if  in instance or in prototype  586–587, 
+592, 618
+finding errors in code (exercise)  203
+in chain of  prototypes  592–593, 619
+independent constructor  546–547
+inheriting  571
+iterating through object  209
+methods vs. functions  206
+naming  179
+No Dumb Questions  185
+objects as collections of   174
+tour of  string  297–300
+undefined values and  268
+using this object  202, 204–206, 219
+values and  176, 219
+prototypal inheritance  569–572
+prototype model, object
+about  , xxii–xxiii
+chain of  prototypes
+inheritance in  592–593, 619
+setting up  591
+determining if  properties are in instance or in proto-
+type  586–587, 592, 618
+duplicating methods and  568
+extending String prototype with method  610–611, 
+621
+implementing code  579, 583, 616–617
+inheritance
+extending built-in object  610
+in chain of  prototypes  592–593, 619
+in objects  569–572
+of  prototype from another prototype  594–599, 
+606, 620
+overriding built-in behavior  608–609
+Object
+about  607
+as prototype  607
+overriding built-in behavior  608–609
+object diagram exercise  574, 615
+prototypes in
+about  569
+adding methods to  581–582, 584
+changing properties in  582, 585
+dynamic  582
+getting  575
+overriding  573, 578
+setting up  575
+updating constructor
+chain of  prototypes in  591–593, 606, 619
+cleaning up code  600–605
+creating prototype that inherits from another pro-
+totype  594–599, 620
+design for  588–590
+pseudocode
+determining hits and misses in simplified Battleship 
+game  59–60, 76
+determining variables using  50
+implementing loop using  51
+translating into JavaScript code  52, 164–165, 171
+working through  47–48, 73
+push method  152
+Q
+quality assurance (QA)
+about  61
+doing  61, 69–70
+in advanced Battleship game  370–371
+querySelectorAll method  626
+querySelector method  626
+
+658        Index
+the index
+queues, events and  404
+quotation marks, double (“ “)
+surrounding character strings in JavaScript  13
+using around property name  179
+R
+random locations for ships, generating in advanced Battle-
+ship game  362–368, 380
+random numbers, generating  67–68
+reader as learner  xxviii
+recursion  634–635
+refactoring code  156, 159
+reference, function
+about  430, 476
+action in function  491, 494
+assigning  477
+in calling function  491
+in passing function argument to another function  486
+passing  479
+substituting function expressions and  481
+references, object  192
+RegExp object  214, 551, 632
+removeEventListener  630
+replace, method  300
+reportError method  587, 618
+reserved words  12
+resize event  419
+return statement, function  95–97
+rules of  road, for creating objects  179
+S
+sample files  xxxiv
+scope, variables  101
+<script> element
+about  4
+anatomy of   35
+src attribute of   34–35
+scripting languages  5
+<script> tags
+in <head> or <body> element of  HTML page  32
+opening and closing  35
+semicolon (;), ending statements in JavaScript  11, 13
+server-side JavaScript  637
+setAttribute method  255, 333, 391
+setInterval function  410, 413, 425
+setInterval method  627
+setTimeout function  410, 480, 501
+setTimeout method  407–413, 627
+shadowing variables  104
+showAnswer handler  413
+slashes (//), beginning JavaScript comments  13
+slash (/) operator, as division arithmetic operator  15, 286
+slice, method  300
+sort method, array  457–463, 472
+sparse Array  152
+split method  299
+square brackets ([ ])
+accessing properties using  209
+in arrays  127, 129, 550
+src attribute, of  <script> element  34–35
+src property  390, 391
+state and behavior, in objects  210–212, 226
+statements
+ending with semicolon  11, 13
+variables in  11–13
+writing  10
+strict equality (===) operator
+as comparison operator  55, 280–285, 311
+vs. == operator  289
+String prototype, extending with method  610–611, 621
+strings
+in arrays  132
+as primitives and objects  294–296
+as primitive types  266
+comparing to numbers  275–277, 281
+concatenating  15, 133, 142, 286–287, 312, 354
+conditional as  23
+falsey value are empty  292
+operators to sort  459
+prompt function returning for numbers  55
+properties available in JavaScript  296
+
+you are here 4        659
+the index
+secret life of   294–296
+tour of  methods and properties  297
+substring method  299–300, 302, 304
+Sun Microsystems  6
+support material  xxxiv
+syntax, JavaScript
+about  13
+finding errors in  14, 39
+T
+<table> element
+creating HTML page  322
+using CSS to position  325
+target  398–399, 401
+<td> element  322, 325, 327–328, 333
+TextEdit (Mac), as text editor  31
+text editors  31
+this object
+in constructors  528–529, 532
+prototypes and  580
+using  202, 204–206, 219
+timer events  407–409
+timerHandler function  407–409
+toLowerCase, method  300
+toString method  531, 548, 557, 607–608
+touchend event  419
+touchstart event  419
+toUpperCase, method  300
+tracing flow of  execution (tracing)  96
+treasure map game  405–406, 424
+tree, DOM structure as  235
+trim, method  300
+true and false (boolean values)  13, 15–16, 291–293, 313
+truthy and falsey values  291–293, 313
+try/catch, handling exceptions using  629
+typeof  operator  269, 305, 309, 315, 542
+types
+about  , xvi–xvii
+conversion  277–280
+equality of  object  288–290, 314
+instanceof   305, 315, 543, 547
+knowing  301–304
+typeof  exercise and  269
+using == and === operators on different  275–285, 
+311
+using arithmetic operators for conversion of   286–287, 
+312
+using null  55, 270–271, 274, 310
+values and  272–274, 281, 292
+U
+undefined, as default value of  variables  50
+undefined values
+about  267–268, 308
+as falsey  292
+comparing to null  278
+returned by functions without return statement  97
+vs. null  270, 310
+underscore (_), beginning variable names  13
+Unicode values  281
+unload event  419
+users
+communicating with
+using alert function  25–26, 46
+using console.log function  25–27
+using document object model  25
+using prompt function  46, 53
+V
+values
+equality and  276
+functions as  439–440, 467
+functions as first class
+about  442–443
+extreme JavaScript challenge  487, 508, 517
+passing functions to functions  443–448, 468, 482, 
+486, 514
+returning functions from  450–456, 470, 472
+substituting function expressions  481
+using array sort method  457–463, 472–473
+identifying undefined  267–268, 308
+NaN (Not a Number)  272–274, 281, 292
+null  270
+
+660        Index
+the index
+object properties and  176, 219
+objects  266
+operators and  286
+operators to sort  459
+passing values to functions  92–93, 192
+primitive  266
+strict equality  280
+strings  291–297
+truthy and falsey  291–293
+type conversion and  276–281
+types in arrays  134
+undefined  268
+variables and  11
+variable declaration, object  177
+variables
+about  11
+assigning functions to  439, 449, 469
+conditional as  23
+declaring in arrays  152
+declaring inside and outside of  functions  98
+declaring local  103, 108
+default value of   50
+finding errors in  39
+free  495–496, 501, 516
+global
+guide to code hygiene  111
+identifying  105, 120
+lexical scope of   488–490, 494
+nesting affecting  486, 488–490, 494
+overuse of   391
+scope of   101
+vs. local variables  99, 106–107
+guide to code hygiene  111
+identifying  91, 119
+in arrays  127, 129
+lexical scope of   488–490, 494
+local
+declaring  103, 108
+guide to code hygiene  111
+identifying  105, 120
+in methods  206
+lexical scope of   488–490, 494
+nesting affecting  486, 488–490, 494
+scope of   101
+vs. global variables  99, 106–107
+naming  12–13, 100, 103, 108
+objects assigned to  192
+objects in  186
+passing into arguments  89
+referring to functions to invoke functions  436
+reloading page and  108
+scope of   101
+setting to null  270
+shadowing  104
+short life of   102
+undefined values and  268
+using pseudocode in determining  50
+var keyword in declaring  97, 99
+var keyword
+about  11
+in declaring variables  97, 99
+view object, advanced Battleship game
+about  329
+implementing  331–334
+interacting with model  336
+notifying of  hits or misses  347
+testing  335
+W
+W3C documentation website  627
+web browsers
+conditional statements handled by  434
+events  404
+executing code  433
+function declarations handled by  431–433, 436, 465, 
+483
+function expressions handled by  434–436, 465
+handling events  383, 403. See also handling events
+loading and executing JavaScript in  3
+loading code into  31
+objects provided by  214
+opening console  28
+parsing HTML and building DOM from it  261
+recommended  xxvi
+running JavaScript in  xxxii
+setting up Event Object in IE8 and older  399
+setting up event objects in IE8 and older  631
+tailoring size of  window to web page  627
+web browser wars  6
+web pages
+adding code to HTML page  32
+as applications  9
+
+you are here 4        661
+the index
+creating dynamic  5–6
+creating interactive  319
+JavaScript in  2–3
+JavaScript interacting with  233
+tailoring size of  browser window to  627
+using <script> element in  4
+while loop
+about  17
+executing code using  18–21
+vs. for loop  144–145
+white space in JavaScript code  13
+wickedlysmart.com  640
+window object
+about  214
+addEventListener method  630
+confirm method  627
+creating onload event handler for  249, 359, 402
+history method  627
+innerHeight property  627
+innerWidth property  627
+location method  627
+methods and properties available for  627
+onload property
+assigning handler to  385–386, 389–390, 410, 630
+in anonymous functions  476–477
+setting to function  249, 359, 392, 394–395, 
+406–407, 422
+support of  BOM using  627
+onresize property  415, 427
+print method  627
+setInterval method  627
+setTimeout function  407–413
+setTimeout method  627
+support of  BOM in  627
+write function  25–26, 42
+writing JavaScript. See also Battleship game, advanced; 
+Battleship game, simplified; code
+about  3, 7–8
+analyzing code  80–81, 116
+being verbose in specifying conditionals  65, 74
+chaining  345, 348
+comparing to numbers to strings  275–277, 281
+doing quality assurance  61, 69–70
+duplicating code in objects  208
+else if  statements, making decisions using  22–23
+expressions in  15–16, 40
+finding errors in code
+exercise  14, 39, 203, 224
+using console  68
+flowchart for designing program  45
+functions and reusing code  83–88
+generating random numbers  67–68
+guide to code hygiene  111
+null in  256, 270–271, 274, 278
+prompt function in  46, 53
+pseudocode
+determining hits and misses in simpliied Battleship 
+game  59–60, 76
+determining variables using  50
+implementing loop using  51
+translating into JavaScript code  52, 164–165, 171
+working through  47–48, 73
+refactoring code  156, 159
+reusing code  , 71, 79, xii
+statements  10
+undefined as default value of  variables  50
+using = operator, assigning values to variables using  
+11, 16, 275
+using == operator
+as comparison operator  16, 55, 275–285, 311, 459
+vs. === operator  289
+using === operator
+as comparison operator  55, 280–285, 311
+vs. == operator  289
+using variables  11–13
+values in  272–274, 281
+while statement, executing code using  18–21
+Z
+zero (0), as falsey value  292
+
+I can’t believe the book is almost over. 
+Before you go, you really should read the 
+index. It’s great stuff. And after that you’ve 
+always got the website. So I’m sure we’ll see 
+you again soon...
+Don’t worry, this 
+isn’t goodbye. 
+Nor is it the end. Now that you’ve got an 
+amazingly solid foundation in JavaScript, it’s 
+time to become a master. Point your browser to 
+http://wickedlysmart.com/hfjs to 
+explore what’s next!
+What’s next? So much more! Join us 
+at http://wickedlysmart.com/hfjs 
+to continue your journey.

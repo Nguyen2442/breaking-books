@@ -1,0 +1,584 @@
+<form> with a text <input> for the player to submit guesses, and a <div> to create an 
+area where we can message the player:
+<div id="board">
+  <div id="messageArea"></div>
+  <table>
+    ...
+  </table>
+  <form>
+    <input type="text" id="guessInput" placeholder="A0">
+    <input type="button" id="fireButton" value="Fire!">
+  </form>
+</div>
+We'll notify players 
+when they’ve sunk 
+battleships with a 
+message up in the top 
+left corner.
+And here’s where 
+players can enter 
+their guesses. 
+The messageArea <div> will be used to 
+display messages from code.
+The <form> has two inputs: one 
+for the guess (a text input) and 
+one for the button. Note the 
+ids on these elements. We’ll need 
+them later when we write the 
+code to get the player’s guess.
+Notice that the message area <div>, the <table>, and 
+the <form> are all nested within the “board” <div>. 
+This is important for the CSS on the next page.
+
+324        Chapter    8
+adding CSS to the game
+Adding some more style
+If  you load the page now (go ahead, give it a try), most of  the 
+elements are going to be in the wrong places and the wrong 
+size. So we need to provide some CSS to put everything in the 
+right place, and make sure all the elements, like the table cells, 
+have the right size to match up with the game board image. 
+To get the elements into the right places, we’re going to use 
+CSS positioning to lay everything out. We’ve positioned the 
+“board” <div> element using position relative, so we can now 
+position the message area, table, and form at specific places 
+within the “board” <div> to get them to display exactly where 
+we want them.
+Let’s start with the “messageArea” <div>. It’s nested inside the 
+“board” <div>, and we want to position it at the very top left 
+corner of  the game board:
+body {
+    background-color: black;
+}
+div#board {
+    position: relative;
+    width: 1024px;
+    height: 863px;
+    margin: auto;
+    background: url("board.jpg") no-repeat;
+}
+div#messageArea {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    color: rgb(83, 175, 19);
+}
+We're positioning 
+the message area 
+at the top left of 
+the board.
+The “board” <div> is positioned 
+relative, so everything nested 
+within this <div> can be 
+positioned relative to it.
+We want the message area to 
+be positioned at the top left 
+corner of the game board.
+ “position: relative” positions an 
+element at its normal location in the 
+low of the page.
+ “position: absolute” positions an 
+element based on the position of its 
+most closely positioned parent.
+ The top and left properties can 
+be used to specify the number 
+of pixels to offset a positioned 
+element from its default position.
+The messageArea <div> is nested inside the board 
+<div>, so its position is specified relative to the 
+board <div>. So it will be positioned 0px from 
+the top and 0px from the left of the top left 
+corner of the board <div>.
+
+you are here 4        325
+bringing it all together
+body {
+    background-color: black;
+}
+div#board {
+    position: relative;
+    width: 1024px;
+    height: 863px;
+    margin: auto;
+    background: url("board.jpg") no-repeat;
+}
+div#messageArea {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    color: rgb(83, 175, 19);
+}
+table {
+    position: absolute;
+    left: 173px;
+    top: 98px;
+    border-spacing: 0px;
+}
+td {
+    width: 94px;
+    height: 94px;
+}
+form {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    padding: 15px;
+    background-color: rgb(83, 175, 19);
+}
+form input {
+    background-color: rgb(152, 207, 113);
+    border-color: rgb(83, 175, 19);
+    font-size: 1em;
+}
+We can also position the table and the form within the “board” <div> , again 
+using absolute positions to get these elements precisely where we want them. 
+Here’s the rest of  the CSS:
+We position the <table> 173 pixels from 
+the left of the board and 98 pixels 
+from the top, so it aligns with the grid 
+in the background image.
+Each <td> gets a specific width and 
+height so that the cells of the <table> 
+match up with the cells of the grid.
+We’re placing the <form> at the bottom 
+right of the board. It obscures the 
+bottom right numbers a bit, but that’s 
+okay (you know what they are). We’re also 
+giving the <form> a nice green color to 
+match the background image.
+And finally, a bit of styling on the two 
+<input> elements so they fit in with the 
+game theme, and we’re done!
+
+326        Chapter    8
+using CSS for hits and misses
+A Test Drive
+It’s time for another game checkpoint.  Get all the HTML and CSS entered into your 
+HTML file and then reload the page in your browser. Here’s what you should see:
+Step 4: Placing the hits and misses
+The game board is looking great don’t you think? However, we still need to figure 
+out how to visually add hits and misses to the board—that is, how to add either 
+a “ship.png” image or a “miss.png” image to the appropriate spot on the board 
+for each guess. Right now we’re only going to worry about how to craft the right 
+markup or style to do this, and then later we’ll use the same technique in code.
+So how do we get a “ship.png” image or a “miss.png” image on the board? A 
+straightforward way is to add the appropriate image to the background of  a <td> 
+element using CSS. Let’s try that by creating two classes, one named “hit” and 
+the other “miss”. We’ll use the background CSS property with these images so 
+an element styled with the “hit” class will have the “ship.png” in its background, 
+and an element styled with the “miss” class will have the “miss.png” image in its 
+background. Like this:
+.hit {
+    background: url("ship.png") no-repeat center center;
+}
+.miss {
+    background: url("miss.png") no-repeat center center;
+}
+Even though you can’t see 
+it (because it’s invisible), the 
+table is sitting right on top 
+of the grid. 
+The form input is ready to 
+take your guesses, although 
+nothing will happen until we 
+write some code.
+ship.png
+miss.png
+Each CSS rule 
+places a single, 
+centered image 
+in the selected 
+element.
+If an element is in the hit class it gets the ship.png image. If the 
+element is in the miss class, it gets the miss.png image in its background.
+
+you are here 4        327
+bringing it all together
+Practice Drills
+ 
+    Ship 1: A6, B6, C6
+    Ship 2: C4, D4, E4
+    Ship 3: B0, B1, B2 
+and here are the player’s guesses:
+    A0, D4, F5, B2, C5, C6 
+ 
+Check your answer at the end of the chapter before you go on.
+Before we write the code that’s going to place hits and misses on the game board, get a little more 
+practice to see how the CSS works. Manually play the game by adding the “hit” and “miss” classes into 
+your markup, as dictated by the player’s moves below. Be sure to check your answers!
+Using the hit and miss classes
+<tr>
+<td id="10"></td> <td id="11"></td> <td id="12"></td> <td id="13" class="hit"></td> 
+<td id="14"></td> <td id="15"></td> <td id="16"></td>
+</tr>
+Make sure you’ve added the hit and miss class definitions to your CSS. 
+You may be wondering how we’re going to use these classes. Let’s do 
+a little experiment right now to demonstrate: imagine you have a ship 
+hidden at “B3”, “B4” and “B5”, and the user guesses “B3”—a hit! So, 
+you need to place a “ship.png” image at B3. Here’s how you can do 
+that: first convert the “B” into a number, 1 (since A is 0, B is 1, and so 
+on), and find the <td> with the id “13” in your table.  Now, add the 
+class “hit” to that <td>, like this:
+Now when you reload the page, you’ll see a battleship at location 
+“B3” in the game board. 
+What we see when we add the 
+class “hit” to element with id “13”.
+Make sure you’ve added the 
+hit and miss classes from the 
+previous page to your CSS.
+When you’re done, 
+remove any classes 
+that you’ve added to 
+your <td> elements so 
+you’ll have an empty 
+board to use when we 
+start coding.
+Remember, you’ll 
+need to convert the 
+letters to numbers, 
+with A = 0, ... G = 6.
+Here we’ve added the “hit” class to the <td>.
+
+328        Chapter    8
+questions about the game
+Q:
+ I didn’t know it was okay to use a 
+string of numbers for the id attributes in 
+our table?
+A: Yes. As of HTML5, you are allowed 
+to use all numbers as an element id. As 
+long as there are no spaces in the id value, 
+it’s fine. And for the Battleship application, 
+using numbers for each id works perfectly 
+as a way to keep track of each table 
+position, so we can access the element at 
+that position quickly and easily.
+Q:
+ So just to make sure I understand, 
+we’re using each td element as a cell 
+in the gameboard, and we’ll mark a cell 
+as being a hit or a miss with the class 
+attribute?
+A: Right, there are a few pieces here: 
+we have a background image grid that is 
+just for eye candy, we have a transparent 
+HTML table overlaying that, and we use 
+the classes “hit” and “miss” to put an image 
+in the background of each table cell when 
+needed.  This last part will all be done from 
+code, when we’re going to dynamically add 
+the class to an element.
+Q:
+ It sounds like we’re going to 
+need to convert letters, as in “A6”, to 
+numbers so we get “06”. Will JavaScript 
+do this automatically for us?
+A: No, we’re going to have to do that 
+ourselves, but we have an easy way to 
+do it—we’re going to use what you know 
+about arrays to do a quick conversion... 
+stay tuned.
+Q:
+ I’m not sure I completely 
+remember how CSS positioning works. 
+A: Positioning allows you to specify an 
+exact position for an element. If an element 
+is positioned “relative”, then the element 
+is positioned based on its normal location 
+in the flow of the page. If an element is 
+positioned “absolute”, then that element is 
+positioned at a specific location, relative 
+to its most closely positioned parent. 
+Sometimes that’s the entire page, in which 
+case the position you specify could be its 
+top left position based on the corner of the 
+web browser. In our case, we’re positioning 
+the table and message area elements 
+absolutely, but in relation to the game board 
+(because the board is the most closely 
+positioned parent of the table and the 
+message area).  
+ 
+If you need a more in-depth refresher on 
+CSS positioning, check out Chapter 11 of 
+Head First HTML and CSS. 
+Q:
+ When I learned about the HTML 
+form element, I was taught there is an 
+action attribute that submits the form. 
+Why don’t we have one?
+A: We don’t need the action attribute in 
+the <form> because we’re not submitting 
+the form to a server-side application. For 
+this game, we’re going to be handling 
+everything in the browser, using code. 
+So, instead of submitting the form, we’re 
+going to implement an event handler to be 
+notified when the form button is clicked, 
+and when that happens, we’ll handle 
+everything in our code, including getting 
+the user’s input from the form. Notice that 
+the type of the form button is “button”, not 
+“submit”, like you might be used to seeing 
+if you’ve implemented forms that submit 
+data to a PHP program or another kind of 
+program that runs on the server. It’s a good 
+question; more on this later in the chapter.
+
+you are here 4        329
+bringing it all together
+How to design the game
+With the HTML and CSS out of  the way, let’s get to the real game design. Back in Chapter 2, we 
+hadn’t covered functions or objects or encapsulation or learned about object-oriented design, so 
+when we built the first version of  the Battleship game, we used a procedural design—that is, we 
+designed the game as a series of  steps, with some decision logic and iteration mixed in. You also 
+hadn’t learned about the DOM, so the game wasn’t very interactive. This time around, we’re 
+going to organize the game into a set of  objects, each with its own responsibilities, and we’re 
+going to use the DOM to interact with the user. You’ll see how this design makes approaching the 
+problem a lot more straightforward.
+Let’s first get introduced to the objects we’re going to design and implement. There are three: 
+the model, which will hold the state of  the game, like where each ship is located and where it’s 
+been hit; the view, which is responsible for updating the display; and the controller, which glues 
+everything together by handling the user input, making sure the game logic gets played and 
+determining when the game is over.
+Model
+View
+Controller
+My job is to keep 
+the display updated with 
+hits, misses and messages 
+for the user.
+My job is to keep 
+track of the ships: where 
+they are, if they’ve been hit, 
+and if they’ve been sunk.
+I glue everything 
+together including getting 
+the player’s input and 
+executing the game logic.
+
+330        Chapter    8
+exercise to build the view
+Here’s a message.  
+Messages will be things like 
+“HIT!”, “You missed.” and 
+“You sank my battleship!”
+Here the display has 
+a MISS placed on 
+the grid.
+And here the display has a 
+ship placed on the grid.
+It’s time for some object design. We’re going to start with the view object. Now, 
+remember, the view object is responsible for updating the view. Take a look at the 
+view below and see if you can determine the methods we want the view object to 
+implement. Write the declarations for these methods below (just the declarations; 
+we’ll code the bodies of the methods in a bit) along with a comment or two about 
+what each does. We’ve done one for you. Check your answers before moving on:
+var view = {
+   // this method takes a string message and displays it  
+   // in the message display area
+   displayMessage: function(msg) {
+          // code to be supplied in a bit!
+   }
+};
+Your methods go here!
+Notice we’re defining an object and 
+assigning it to the variable view.
+
+you are here 4        331
+bringing it all together
+var view = {
+   displayMessage: function(msg) {
+   },
+   displayHit: function(location) {
+   },
+   displayMiss: function(location) {
+   }
+};
+Implementing the View
+If  you checked the answer to the previous exercise, you’ve 
+seen that we’ve broken the view into three separate methods: 
+displayMessage, displayHit and displayMiss. Now, 
+there is no one right answer. For instance, you might have just 
+two methods, displayMessage and displayPlayerGuess, 
+and pass an argument into displayPlayerGuess that 
+indicates if  the player’s guess was a hit or a miss. That is a 
+perfectly reasonable design.  But we’re sticking with our design 
+for now... so let’s think through how to implement the first 
+method, displayMessage:
+Here’s our view object.
+We’re going to start here.
+How displayMessage works
+To implement the displayMessage method you need to 
+review the HTML and see that we have a <div> with the id 
+“messageArea” ready for messages:
+<div id="board">
+  <div id="messageArea"></div>
+    ...
+</div>
+We’ll use the DOM to get access to this <div>, and then 
+set its text using innerHTML. And remember, whenever you 
+change the DOM, you’ll see the changes immediately in the 
+browser. Here’s what we’re going to do...
+If not, shame on you. Do it now!
+
+332        Chapter    8
+thinking about object design
+Hey wait just a 
+minute... how can we implement 
+the view object without first 
+getting the player’s input and all 
+that?
+That’s one great thing about objects. 
+We can make sure objects fulfill their responsibility 
+without worrying about every other detail of  the 
+program. In this case the view just needs to know 
+how to update the message area and place hit and 
+miss markers on the grid. Once we’ve correctly 
+implemented that behavior, we’re done with the view 
+object and we can move on to other parts of  the code.
+The other advantage of  this approach is we can test 
+the view in isolation and make sure it works. When we 
+test many aspects of  the program at once, we increase 
+the odds something is going to go wrong and at the 
+same time make the job of  finding the problem more 
+difficult (because you have to examine more areas of  
+the code to find the problem).
+To test an isolated object (without having finished the 
+rest of  the program yet), we’ll need to write a little 
+testing code that we’ll throw away later, but that’s 
+okay.  
+So let’s finish the view, test it, and then move on!
+ Use the DOM to get the element with the id “messageArea”.
+ Set that element’s innerHTML to the message passed to the 
+displayMessage method.
+Implementing displayMessage
+Let’s get back to writing the code for displayMessage. Remember it needs to:
+
+you are here 4        333
+bringing it all together
+var view = {
+    displayMessage: function(msg) {
+        var messageArea = document.getElementById("messageArea");
+        messageArea.innerHTML = msg;
+    },
+    displayHit: function(location) {
+    },
+    displayMiss: function(location) {
+    }
+};
+So open up your blank “battleship.js” file, and add the view object:
+The displayMessage method 
+takes one argument, a msg.
+We get the messageArea 
+element from the page...
+...and update the text of the messageArea 
+element by setting its innerHTML to msg.
+Now before we test this code, let’s go ahead and write the other two 
+methods. They won’t be incredibly complicated methods, and this 
+way we can test the entire object at once.
+How displayHit and displayMiss work
+So we just talked about this, but remember, to have an image appear on 
+the game board, we need to take a <td> element and add either the “hit” 
+or the “miss” class to the element. The former results in a “ship.png” 
+appearing in the cell and the latter results in “miss.png” being displayed.
+<tr>
+<td id="10"></td> <td class="hit" id="11"></td> <td id="12"></td> ...
+</tr>
+Now in code, we’re going to use the DOM to get access to a 
+<td>, and then set its class attribute to “hit” or “miss” using the 
+setAttribute element method. As soon as we set the class 
+attribute, you’ll see the appropriate image appear in the browser. 
+Here’s what we’re going to do:
+ Get a string id that consists of  two numbers for the 
+location of  the hit or miss. 
+ Use the DOM to get the element with that id.
+ Set that element’s class attribute to “hit” if  we’re in 
+displayHit, and “miss” if  we’re in displayMiss. 
+We can affect the display by 
+adding the “hit” or “miss” class to 
+the <td> elements. Now we just 
+need to do this from code.
+
+334        Chapter    8
+implementing the view
+We’re using the id we created from 
+the player's guess to get the correct 
+element to update.
+var view = {
+    displayMessage: function(msg) {
+        var messageArea = document.getElementById("messageArea");
+        messageArea.innerHTML = msg;
+    },
+    displayHit: function(location) {
+        var cell = document.getElementById(location);
+        cell.setAttribute("class", "hit");
+    },
+    displayMiss: function(location) {
+        var cell = document.getElementById(location);
+        cell.setAttribute("class", "miss");
+    }
+};
+And then setting the class of 
+that element to “hit”. 
+We do the same thing in displayMiss, 
+only we set the class to “miss” which 
+adds a miss image to the element.
+Remember the location is created 
+from the row and column and 
+matches an id of a <td> element.
+Make sure you add the code for displayHit and displayMiss to your “battleship.js” file.
+Implementing displayHit and displayMiss
+Both displayHit and displayMiss are methods that take the location of  a hit or 
+miss as an argument. That location should match the id of  a cell (or <td> element) in 
+the table representing the game board in the HTML. So the first thing we need to do is 
+get a reference to that element with the getElementById method. Let’s try this in the 
+displayHit method:
+Now let’s add this code to the view object, and write displayMiss as well:
+We then set the class of that element 
+to “hit”. This will immediately add a 
+ship image to the <td> element.
+displayHit: function(location) {
+    var cell = document.getElementById(location);
+},
+The next step is to add the class “hit” to the cell, which we can do with the 
+setAttribute method like this:
+displayHit: function(location) {
+    var cell = document.getElementById(location);
+    cell.setAttribute("class", "hit");
+},
+
+you are here 4        335
+bringing it all together
+Another Test Drive...
+Let’s put the code through its paces before moving on...in fact, 
+let’s take the guesses from the previous Practice Drills exercise and 
+implement them in code. Here’s the sequence we want to implement:
+To represent that sequence in code, add this to the bottom of  
+your “battleship.js” JavaScript file:
+HIT
+    A0, D4, F5, B2, C5, C6 
+MISS
+MISS
+HIT
+MISS
+HIT
+view.displayMiss("00");
+view.displayHit("34");
+view.displayMiss("55");
+view.displayHit("12");
+view.displayMiss("25");
+view.displayHit("26");
+Remember, displayHit and displayMiss take 
+a location in the board that's already been 
+converted from a letter and a number to 
+a string with two numbers that corresponds 
+to an id of one of the table cells.
+“A0”
+“D4”
+“F5”
+“B2”
+“C5”
+“C6”
+And, let’s not forget to test displayMessage:
+view.displayMessage("Tap tap, is this thing on?");

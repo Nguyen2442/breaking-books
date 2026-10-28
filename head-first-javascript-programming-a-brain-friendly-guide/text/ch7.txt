@@ -1,0 +1,601 @@
+display messages to the Console. 
+ Console messages should be used 
+primarily for troubleshooting as users 
+will most likely never see console 
+messages.
+ JavaScript is most commonly found 
+adding behavior to web pages, but is 
+also used to script applications like 
+Adobe Photoshop, OpenOfice and 
+Google Apps, and is even used as a 
+server-side programming language.
+
+38        Chapter    1
+javascript crossword
+JavaScript cross
+Time to stretch your dendrites with a puzzle to 
+help it all sink in.
+ACROSS
+2. To link to an external JavaScript file from HTML, you 
+need the _______ attribute for your <script> element. 
+6. To avoid embarrassing naming mistakes, use 
+__________ case. 
+7. JavaScript adds _______________ to your web pages. 
+10. There are 99 _____________ of beer on the wall. 
+13. Each line of JavaScript code is called a 
+_______________. 
+14. 3 + 4 is an example of an _____________. 
+15. All JavaScript statements end with a ___________. 
+16. Use _____________ to troubleshoot your code.  
+ 
+ 
+ 
+ 
+DOWN
+1. Do things more than once in a JavaScript program with 
+the _________ loop. 
+3. JavaScript variable names are _________ sensitive. 
+4. To declare a variable, use this keyword. 
+5. Variables are used to store these. 
+6. Each time through a loop, we evaluate a
+______________ expression.
+8. Today's JavaScript runs a lot
+________________ than it used to.
+9. The if/else statement is used to make a
+____________. 
+11. You can concatenate _______________
+together with the + operator. 
+12. You put your JavaScript inside a ______________ 
+element. 
+
+you are here 4        39
+a quick dip into javascript
+\\ Movie Night
+var zip code = 98104;
+var joe'sFavoriteMovie = Forbidden Planet;
+var movieTicket$    =    9;
+if (movieTicket$ >= 9) { 
+    alert("Too much!"); 
+} else {
+    alert("We're going to see " + joe'sFavoriteMovie);
+}
+// Test for jokes
+var joke = "JavaScript walked into a bar....';
+var toldJoke = "false";
+var $punchline = 
+  "Better watch out for those semi-colons."
+var %entage = 20;
+var result
+if (toldJoke == true) {
+    Alert($punchline);
+} else 
+    alert(joke);
+}
+It’s okay, but not recommended, to begin a variable with a $. 
+Can’t use % in variable names.
+Comments should begin with // not \\.
+No spaces allowed in variable names.
+No quotes allowed 
+in variable names.
+This if/else doesn’t work 
+because of the invalid variable 
+name here.
+Below, you’ll find JavaScript code 
+with some mistakes in it. Your job 
+is to play like you’re the browser 
+and find the errors in the code. 
+After you’ve done the 
+exercise look at the 
+end of the chapter to 
+see if you found them 
+all. Here's our solution.
+A
+B
+BE the Browser Solution
+Don't forget to end 
+statements with a semi-colon!
+Another missing semi-colon.
+Should be alert, not Alert. 
+JavaScript is case-sensitive.
+Don’t put quotes around boolean 
+values unless you really want a string.
+Delimit your strings with two double quotes 
+(“) or two single quotes (‘). Don’t mix! 
+But we do need quotes 
+around the string 
+“Forbidden Planet”.
+We’re missing an 
+opening brace here.
+
+40        Chapter    1
+exercise solutions
+(9 / 5) * temp + 32
+color == "orange"
+name + ", " + "you've won!"
+yourLevel > 5
+(level * points) + bonus
+color != "orange"
+1000 + "108"
+What is the result when temp is 10?  __________
+Is this expression true or false when color has the value 
+“pink”?   __________  
+Or, has the value “orange”?   __________
+What value does this compute to when name is “Martha”?   
+_____________________________________
+When yourLevel is 2, what does this evaluate to?   ________
+When yourLevel is 5, what does this evaluate to?   ________
+When yourLevel is 7, what does this evaluate to?   ________
+Okay, level is 5, points is 30,000 and bonus is 3300. What 
+does this evaluate to?   ________
+Is this expression true or false when color has the value 
+“pink”?   __________
+Get out your pencil and let’s put some expressions through their paces. For each expression below, compute 
+its value and write in your answer. Yes, WRITE IN... forget what your Mom told you about writing in books and 
+scribble your answer right in this book!  Here’s our solution.
+Serious Coding
+Did you notice that the = 
+operator is used in assignments, 
+while the == operator tests for equality?  
+That is, we use one equal sign to assign 
+values to variables.  We use two equal 
+signs to test if two values are equal to 
+each other. Substituting one for the other 
+is a common coding mistake.
+Can you say “Celsius to Fahrenheit calculator”?
+This tests if the first 
+value is greater than the 
+second.  You can also use 
+>= to test if the first 
+value is greater than or 
+equal to the second.
+The != operator tests if two values 
+are NOT equal to each other.
+Extra CREDIT!
+Are there a few possible answers? 
+Only one is correct. Which would you 
+choose?  ______________________
+false
+true
+50
+false
+false
+true
+153300
+true
+“1000108”
+This is a boolean expression. The 
+== operator tests if two values 
+are equal to each other.
+“Martha, you’ve won!”
+
+you are here 4        41
+a quick dip into javascript
+Code Magnets Solution
+A JavaScript program is all scrambled up on the fridge. Can you put the magnets back in the 
+right places to make a working JavaScript program to produce the output shown below?. 
+Here’s our solution.
+var name = "Joe";
+Your unscrambled program 
+should produce this output.
+Here are the unscrambled magnets!
+var i = 0;
+while (i < 2) {
+    document.write("Happy Birthday to you.<br>");
+    i = i + 1;
+}
+document.write("Happy Birthday to you.<br>");
+document.write("Happy Birthday dear " + name + ",<br>");
+
+42        Chapter    1
+exercise solutions
+JavaScript 
+Cross 
+Solution
+All our methods of communication have come to the party with masks on. Can you help us unmask 
+each one? Match the descriptions on the right to the names on the left. Here’s our solution:
+document.write
+console.log
+alert
+document object model
+I’ll stop your user in his tracks and deliver a short 
+message. The user has to click “ok” to go further.
+I can insert a little HTML and text into a document. 
+I’m not the most elegant way to get a message to 
+your users, but I work on every browser.
+Using me you can totally control a web page: get 
+values that a user typed in, alter the HTML or the style, 
+or update the content of your page.
+I’m just here for simple debugging purposes. Use 
+me and I can write out information to a special 
+developer’s console.
+SOlUTion
+
+this is a new chapter     43
+2  writing real code
+Going further
+You already know about variables, types, expressions... 
+we could go on.  The point is, you already know a few things about 
+JavaScript. In fact, you know enough to write some real code. Some code that 
+does something interesting, some code that someone would want to use. What 
+you’re lacking is the real experience of writing code, and we’re going to remedy 
+that right here and now. How? By jumping in head first and coding up a casual 
+game, all written in JavaScript. Our goal is ambitious but we’re going to take it one 
+step at a time. Come on, let’s get this started, and if you want to launch the next 
+casual startup, we won’t stand in your way; the code is yours.
+Pffft... To get any further 
+with me you’re going to have 
+to get some real experience 
+writing code.
+Yeah, I’ve done a little 
+JavaScript coding.
+
+44        Chapter    2
+building a battleship game
+Our first attempt...
+For our first attempt we’re going to start simpler than 
+the full-blown 7x7 graphical version with three ships. 
+Instead we’re going to start with a nice 1-D grid with 
+seven locations and one ship to find.  It will be crude, 
+but our focus is on designing the basic code for the 
+game, not the look and feel (at least for now).
+Don’t worry; by starting with a simplified version of  
+the game, you get a big head start on building the full 
+game later. This also gives us a nice chunk to bite off  
+for your first real JavaScript program (not counting 
+the Serious Business Application from Chapter 1, 
+of  course). So, we’ll build the simple version of  the 
+game in this chapter, and get to the deluxe version 
+later in the book after you’ve learned a bit more 
+about JavaScript.
+... a simplified Battleship
+It’s you against the browser: the browser hides ships 
+and your job is to seek them out and destroy them. 
+Of  course, unlike the real Battleship game, in this 
+one you don’t place any ships of  your own. Instead, 
+your job is to sink the computer’s ships in the fewest 
+number of  guesses. 
+Goal: Sink the browser’s ships in the fewest number 
+of  guesses. You’re given a rating, based on how well 
+you perform.
+Setup: When the game program is launched, the 
+computer places ships on a virtual grid. When that’s 
+done, the game asks for your first guess.
+How you play: The browser will prompt you to 
+enter a guess and you’ll type in a grid location. In 
+response to your guess, you’ll see a result of  “Hit”, 
+“Miss”, or “You sank my battleship!”  When you sink 
+all the ships, the game ends by displaying your rating.
+Let’s build a Battleship game
+Here’s what we’re shooting for: a nice 7x7 
+grid with three ships to hunt down. Right now 
+we’re going to start a little simpler, but once 
+you know a bit more JavaScript we’ll complete 
+the implementation so it looks just like this, 
+complete with graphics and everything...we’ll 
+leave the sound to you as extra credit.
+Instead of a 7x7 grid, like the one above, 
+we’re going to start with just a 1x7 grid. 
+And, we’ll worry about just one ship for now.
+Notice that each ship 
+takes up three grid 
+locations (similar to the 
+real board game).
+
+you are here 4        45
+writing real code
+First, a high-level design
+We   know we’ll need variables,  and some numbers and 
+strings, and if  statements, and conditional tests, and 
+loops... but where and how many? And how do we put 
+it all together? To answer these questions, we need more 
+information about what the game should do.
+First, we need to figure out the general flow of  the game. 
+Here’s the basic idea:
+1
+User starts the game
+2
+Game play begins
+Repeat the following until the 
+battleship is sunk:
+A
+A
+Game places a battleship at a 
+random location on the grid.
+Prompt user for a guess 
+(“2”, “0”, etc.)
+B
+Check the user’s guess against 
+the battleship to look for a 
+hit, miss or sink. 
+3
+Game inishes
+Give the user a rating based on 
+the number of guesses.
+Start
+Game set-up
+Get user 
+guess
+Check 
+guess
+hit
+miss
+Mark ship as 
+hit
+sunk
+Mark ship 
+as sunk
+Display user 
+score/rating
+Game 
+over
+Whoa. A real lowchart.
+Now we have a high-level idea of  the kinds of  
+things the program needs to do. Next we’ll figure 
+out a few more details for the steps. 
+1
+A
+2
+A
+B
+3
+A circle means 
+start or finish
+A rectangle is 
+used to represent 
+an action
+A diamond 
+represents a 
+decision point.
+
+46        Chapter    2
+designing the game
+Sample game interaction
+1
+Game starts, and creates one battleship 
+and gives it a location on three cells in the 
+single row of seven cells. 
+The locations are just integers; for 
+example, 1,2,3 are the cell locations in this 
+picture: 
+2
+Game play begins. Prompt user for a guess:
+3
+Game inishes when all three cells have 
+been  hit and our number of hits variable 
+value is 3. We tell the user how many 
+guesses it took to sink the ship.
+Check to see if user’s input hit any of the 
+ship’s three cells. Keep track of how many 
+hits there are in a variable.
+0 1 2 3 4 5 6
+We have a pretty good idea about how this 
+game is going to work from the high-level 
+design and professional looking flowchart, but 
+let’s nail down just a few more of  the details 
+before we begin writing the code.
+Representing the ships
+For one thing, we can start by figuring out 
+how to represent a ship in our grid.  Keep 
+in mind that the virtual grid is... well, virtual. 
+In other words, it doesn’t exist anywhere in 
+the program. As long as both the game and 
+the user know that the battleship is hidden 
+in three consecutive cells out of  a possible 
+seven (starting at zero), the row itself  doesn’t 
+have to be represented in code. You might 
+be tempted to build something that holds all 
+seven locations and then to try to place the 
+ship in those locations. But, we don’t need to.  
+We just need to know the cells where the ship 
+is located, say, at cells 1, 2 and 3.
+Getting user input
+What about getting user input? We can do 
+that with the prompt function. Whenever we 
+need to get a new location from the user, we’ll 
+use prompt to display a message and get the 
+input, which is just a number between 0 and 6, 
+from the user.
+Displaying the results
+What about output? For now, we’ll continue 
+to use alert to show the output of  the game. 
+It’s a bit clunky, but it’ll work. (For the real 
+game, later in the book, we’ll be updating the 
+web page instead, but we’ve got a way to go 
+before we get there.)
+A few more details...
+A
+B
+
+you are here 4        47
+writing real code
+Working through the Pseudocode
+We need an approach to planning and writing our code. We’re going to start by 
+writing pseudocode. Pseudocode is halfway between real JavaScript code and a plain 
+English description of  the program, and as you’ll see, it will help us think through how 
+the program is going to work without fully having to develop the real code.
+In this pseudocode for Simple Battleship, we’ve included a section that describes the 
+variables we’ll need, and a section describing the logic of  the program. The variables 
+will tell us what we need to keep track of  in our code, and the logic describes what the 
+code has to faithfully implement to create the game.
+DECLARE three variables to hold the location of each cell of the ship. Let’s call them 
+location1,  location2 and location3.
+DECLARE a variable to hold the user’s current guess. Let’s call it guess.
+DECLARE a variable to hold the number of hits. We’ll call it hits and set it to 0.
+DECLARE a variable to hold the number of guesses. We’ll call it guesses and set it to 0.
+DECLARE a variable to keep track of whether the ship is sunk or not. Let’s call it isSunk 
+and set it to false.
+LOOP: while the ship is not sunk
+        GET the user’s guess
+        COMPARE the user’s input to valid input values
+        IF the user’s guess is invalid, 
+               TELL user to enter a valid number
+       ELSE
+               ADD one to guesses
+                    IF the user’s guess matches a location
+                      ADD one to the number of hits
+                       IF number of hits is 3 
+                              SET isSunk to true 
+                            TELL user “You sank my battleship!”
+                                END IF
+                END IF
+       END ELSE
+END LOOP
+TELL user stats
+The variables we need.
+And here’s the logic.
+It’s not JavaScript, but you 
+can probably already see how 
+to begin implementing this 
+logic in code.
+Notice that we’re using indentation to 
+help make the pseudocode easier to read. 
+We’ll be doing that in the real code too.
+
+48        Chapter    2
+battleship exercise
+Let’s say our virtual grid looks like this:
+And we’ve represented the ship locations using our location variables, like this:
+location1 = 3;
+location2 = 4;
+location3 = 5;
+Use the following sequence as your test user input:
+1, 4, 2, 3, 5
+Now, using the pseudocode on the previous page, walk through each step of code and 
+see how this works given the user input. Put your notes below. We’ve begun the exercise 
+for you below. If this is your first time walking through pseudocode, take your time and 
+see how it all works.
+location1       location2        location3          guess          guesses           hits             isSunk
+3                4                5                                 0              0            false
+3                4                5                 1                1               0            false
+0 1 2 3 4 5 6
+The first row shows the initial 
+values of the variables, before 
+the user enters their first guess. 
+We’re not initializing the variable 
+guess, so its value is undefined.
+If you need a hint, take 
+a quick peek at our 
+answer at the end of 
+the chapter.
+
+you are here 4        49
+writing real code
+Flex those dendrites.
+This is thinking ahead a bit, but what kind of code do you think it would take to generate 
+a random location for the ship each time you load the page? What factors would you 
+have to take into account in the code to correctly place a ship? Feel free to scribble 
+some ideas here.
+Here’s what you’ll see when you load 
+the page. We need to write some 
+code to get the game going!
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Battleship</title>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <h1>Play battleship!</h1>
+    <script src="battleship.js"></script>
+  </body>
+</html>
+Oh, before we go any further, 
+don’t forget the HTML!
+You’re not going to get very far without some HTML to link to your 
+code. Go ahead and type the markup below into a new file named 
+“battleship.html”. After you’ve done that we’ll get back to writing code.
+The HTML for the Battleship game is super simple; 
+we just need a page that links to the JavaScript 
+code, and that’s where all the action happens.
+We’re linking to the JavaScript at the 
+bottom of the <body> of the page, so the 
+page is loaded by the time the browser 
+starts executing the code in “battleship.js”.
+
+50        Chapter    2
+coding the game
+Writing the Simple Battleship code
+We’re going to use the pseudocode as a blueprint for our 
+real JavaScript code. First, let’s tackle all the variables we 
+need. Take another look at our pseudocode to check out 
+the variables we need:
+DECLARE three variables to hold the location of each cell 
+of the ship. Let’s call them location1,  location2 and 
+location3.
+DECLARE a variable to hold the user’s current guess. Let’s 
+call it guess.
+DECLARE a variable to hold the number of hits. We’ll call it 
+hits and set it to 0.
+DECLARE a variable to hold the number of guesses. We’ll 
+call it guesses and set it to 0.
+DECLARE a variable to keep track of whether the ship is 
+sunk or not. Let’s call it isSunk and set it to false.
+var location1 = 3;
+var location2 = 4;
+var location3 = 5;
+var guess; 
+var hits = 0;
+var guesses = 0;
+var isSunk = false;
+Let’s get these variables into a JavaScript file. Create a 
+new file named “battleship.js” and type in your variable 
+declarations like this:
+We need three variables to 
+hold the ship’s location.
+And three more (guess, hits 
+and guesses) to deal with 
+the user’s guess.
+And another to track whether or 
+not the ship is sunk.
+Here are our three location variables.  We’ll go ahead 
+and set up a ship at locations 3, 4 and 5, just for now. 
+The variable guess won’t have a value until 
+the user makes a guess. Until then it will 
+have the value undefined.
+We’ll assign initial 
+values of 0 to both 
+hits and guesses.
+Finally, the isSunk variable gets 
+a value of false. We’ll set this to 
+true when we’ve sunk the ship.
+We’ll come back later and write some 
+code to generate a random location for 
+the ship to make it harder for the user.
+Serious Coding
+If you don’t provide an initial 
+value for a variable, then 
+JavaScript gives it a default value of 
+undeined
+. Think of the value 
+undeined
+ 
+as JavaScript’s way of saying “this variable 
+hasn’t been given a value yet.”  We’ll be 
+talking more about undeined and some 
+other strange values a little later.
+
+you are here 4        51
+writing real code
+LOOP: while the ship is not sunk
+        GET the user’s guess
+        COMPARE the user’s input to valid input values
+        IF the user’s guess is invalid, 
+               TELL user to enter a valid number
+       ELSE
+               ADD one to guesses
+                    IF the user’s guess matches a location
+                      ADD one to the number of hits
+                       IF number of hits is 3 
+                              SET isSunk to true 
+                            TELL user “You sank my battleship!”
+                                END IF
+                END IF
+       END ELSE
+END LOOP
+TELL user stats
+Now let’s write the game logic
+We’ve got the variables out of  the way, so let’s dig into the actual 
+pseudocode that implements the game. We’ll break this into a few 
+pieces. The first thing you’re going to want to do is implement the 
+loop: it needs to keep looping while the ship isn’t sunk. From there 
+we’ll take care of  getting the guess from the user and validating

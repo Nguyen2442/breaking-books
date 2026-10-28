@@ -1,0 +1,639 @@
+Chapter 4, except that the 
+words are car properties, 
+and we're generating a new 
+car object instead of a 
+marketing phrase!
+Check out what it 
+does and how it works.
+
+196        Chapter    5
+how auto-o-matic works
+The Auto-O-Matic
+Brought to you by the same guy who brought you the Phrase-O-Matic, 
+the Auto-O-matic creates knock-off  cars all day long. That is, instead of  
+generating marketing messages, this code generates makes, models, years 
+and all the properties of  a car object. It’s your very own car factory in code. Let’s 
+take a closer look at how it works.
+var makes = ["Chevy", "GM", "Fiat", "Webville Motors", "Tucker"];
+var models = ["Cadillac", "500", "Bel-Air", "Taxi", "Torpedo"];
+var years = [1955, 1957, 1948, 1954, 1961];
+var colors = ["red", "blue", "tan", "yellow", "white"];
+var convertible = [true, false];
+    
+var rand1 = Math.floor(Math.random() * makes.length);
+var rand2 = Math.floor(Math.random() * models.length);
+var rand3 = Math.floor(Math.random() * years.length);
+var rand4 = Math.floor(Math.random() * colors.length);
+var rand5 = Math.floor(Math.random() * 5) + 1;
+var rand6 = Math.floor(Math.random() * 2);
+1
+First, we have a makeCar function that we can call whenever we want to make 
+a new car.  We’ve got four arrays with the makes, models, years and colors of  
+cars, and an array with true and false options for whether a car is a convertible. 
+We generate five random numbers so we can pick a make, a model, a year, a 
+color, and whether a car is a convertible randomly from these five arrays. And we 
+generate one more random number we’re using for the number of  passengers.
+We have several makes, models, years and 
+colors to choose from in these four arrays...
+We’re going to combine 
+values from the arrays 
+randomly using these 
+four random numbers.
+2
+Instead of  creating a string by mixing and matching the various car properties, like 
+we did with Phrase-O-Matic, this time we’re creating a new object, car. This car has 
+all the properties you’d expect. We pick values for the make, model, year and color 
+properties from the arrays using the random numbers we created in step 1, and also add 
+the passengers, convertible and mileage properties:
+We’ll use this random number for the 
+number of passengers. We’re adding 1 
+to the random number so we can have 
+at least one passenger in the car.
+... and we’ll use this array to choose a convertible 
+property value, either true or false.
+... and we’ll use this random number to choose 
+whether a car is convertible or not.
+
+you are here 4        197
+understanding objects
+var car = {
+    make: makes[rand1],
+    model: models[rand2],
+    year: years[rand3],
+    color: colors[rand4],
+    passengers: rand5,
+    convertible: convertible[rand6],
+    mileage: 0
+};
+3
+The last statement in makeCar returns the new car object:
+Returning an object from a function is just like returning any other value. Let’s 
+now look at the code that calls makeCar:
+var carToSell = makeCar();
+Car object
+Don’t forget; what you’re 
+returning (and assigning to 
+the carToSell variable) is a 
+reference to a car object. 
+return car;
+We’re creating a new car object, with property 
+values made from the values in the arrays.
+We're also setting the number of passengers to 
+the random number we created, and setting the 
+convertible property to true or false using the 
+convertible array.
+Finally, we're just setting the mileage property 
+to 0 (it is a new car, after all).
+function displayCar(car) {
+  console.log("Your new car is a " + car.year + " " +  
+               car.make + " " + car.model);
+}
+var carToSell = makeCar();
+displayCar(carToSell);
+First we call the makeCar function and assign the value it returns to 
+carToSell.  We then pass the car object returned from makeCar 
+to the function displayCar, which simply displays a few of  its 
+properties in the console.
+JavaScript console
+Your new car is a 1957 Fiat Taxi
+Your new car is a 1961 Tucker 500
+Your new car is a 1948 GM Torpedo
+Here’s your new car! We think a ‘57 
+Fiat Taxi would be a cool car to have.
+4
+Go ahead and load up the Auto-O-Matic in your browser (“autoomatic.html”) and 
+give it a whirl. You’ll find no shortage of  new cars to generate, and remember there’s 
+a sucker born every minute.
+Reload the page a 
+few times like we did!
+
+198        Chapter    5
+adding behavior
+Oh Behave! Or, how to add behavior to your objects
+var fiat = { 
+    make: "Fiat",
+    model: "500",
+    year: 1957, 
+    color: "Medium Blue",
+    passengers: 2,
+    convertible: false,
+    mileage: 88000,
+    drive: function() {
+       alert.log("Zoom zoom!");
+    }
+};
+fiat.drive();
+You didn’t think objects were just for storing numbers and strings did you? Objects are active. 
+Objects can do things. Dogs don’t just sit there... they bark, run, and play catch, and a dog 
+object should too! Likewise, we drive cars, park them, put them in reverse and make them 
+brake. Given everything you’ve learned in this chapter, you’re all set to add behavior to your 
+objects. Here’s how we do that:
+To call the drive function—excuse us—to call the drive method, you use dot notation again, 
+this time with the object name fiat and the property name drive, only we follow the 
+property name with parentheses (just like you would when you call any other function). 
+We use the dot notation to access 
+the function in fiat, just like we 
+would any other property. We say 
+we're “calling the drive method in 
+the fiat object”.
+You can add a function directly 
+to an object like this.
+And a bit of nomenclature: we typically refer 
+to functions inside an object as methods. 
+That is a common object-oriented term for 
+a function in an object.
+Notice we don’t supply a name in the 
+function definition, we just use the function 
+keyword followed by the body. The name of 
+the function is the name of the property.
+All you do is assign a function definition to a 
+property. Yup, properties can be functions too!
+The result of calling the 
+fiat’s drive method.
+
+you are here 4        199
+understanding objects
+Improving the drive method
+var fiat = { 
+    make: "Fiat",
+    model: "500",
+    year: 1957, 
+    color: "Medium Blue",
+    passengers: 2,
+    convertible: false,
+    mileage: 88000,
+    started: false,
+    start: function() {
+       started = true;
+    },
+    stop: function() {
+        started = false;
+    },
+    drive: function() {
+        if (started) {
+            alert("Zoom zoom!");
+        } else {
+            alert("You need to start the engine first.");
+        }
+    }
+};
+Let’s make the fiat a little more car-like in behavior. Most cars can’t be driven 
+until the engine is started, right? How about we model that behavior? We’ll 
+need the following:
+	❏    	A boolean property to hold the state of  the car 
+(the engine is either on or off).
+ ❏A couple of  methods to start and stop the car.
+ ❏A conditional check in the drive method to make 
+sure the car is started before we drive it.
+We’ll begin by adding a boolean started property along with methods to start 
+and stop the car, then we’ll update the drive method to use the started property.
+Here's the property to hold the current 
+state of the engine (true if it is started 
+and false if it is off).
+And here's a method to start the car. 
+All it does (for now) is set the started 
+property to true.
+And here's a method to stop the 
+car. All it does is set the started 
+property to false.
+And here's where the interesting behavior happens: when you try to 
+drive the car, if it is started we get a “Zoom zoom!" and if not, we 
+get a warning that we should start the car first.
+
+200        Chapter    5
+encapsulating behavior
+I  thought it was 
+interesting that rather than just 
+changing the started property directly, 
+you wrote a method to do it. Why? Wouldn’t 
+it be less code to just change the property?
+Good catch. You’re right; to start the car we could have 
+replaced the code:
+with:
+That would have saved us from writing a method to start the 
+car.
+So why did we create and call the start method instead 
+of  just changing the started property directly? Using 
+a method to change a property is another example 
+of  encapsulation whereby we can often improve the 
+maintainability and extensibility of  code by letting an object 
+worry about how it gets things done. It’s better to have a 
+start method that knows how to start the car than for 
+you to have to know “to start the car we need to take the 
+started variable and set it to true.” 
+Now you may still be saying “What’s the big deal? Why 
+not just set the property to true to start the car?!” Consider 
+a more complex start method that checks the seatbelts, 
+ensures there is enough fuel, checks the battery, checks the 
+engine temperature and so on, all before setting started to 
+true. You certainly don’t want to think about all that every 
+time you start the car. You just want a handy method to 
+call that gets the job done. By putting all those details into a 
+method, we’ve created a simple way for you to get an object 
+to do some work while letting the object worry about how it 
+gets that work done. 
+fiat.start();
+fiat.started = true;
+
+you are here 4        201
+understanding objects
+Take the fiat for a test drive
+fiat.drive();
+fiat.start();
+fiat.drive();
+fiat.stop();
+First, we’ll try to drive the car, which should 
+give us a message to start the car. Then we’ll 
+start it for real, and we’ll drive it. Finally, 
+when we're done we'll stop the car.
+Go ahead and load the page in your browser and let the road trip begin!
+JavaScript console
+ReferenceError: started is not defined
+Uh oh, not so fast...
+If  you can’t drive your fiat, you’re not alone. In fact, find 
+your way to your JavaScript console and you’re likely to 
+see an error message similar to the one we got saying that 
+started is not defined.
+So, what’s going on? Let’s listen in on the drive method 
+and see what’s happening as we try to drive the car with 
+fiat.drive():
+drive: function() {
+        if (started) {
+         ...
+        }
+    }
+Ahh, I’ve been 
+invoked! Time to 
+get to work.
+Let’s see now... I see what 
+looks like a variable started. 
+I need to figure out where 
+that is defined...
+I always look 
+first for variables that 
+are local to my function. 
+Nope, not there.
+Perhaps started 
+is a parameter of this 
+function. Nope, not there 
+either.
+Hmm, a 
+global variable maybe? 
+Nope. Okay, I give up, there 
+must be a mistake.
+Let’s take our new and improved fiat object for a test drive. Let’s give it a good 
+testing—we’ll try to drive it before it’s started, and then start, drive and stop it. To 
+do that make sure you have the code for the fiat object typed into a simple HTML 
+page (“carWithDrive.html”), including the new methods start, stop and drive, 
+and then add this code below the object:
+
+202        Chapter    5
+the this keyword
+Here’s the conundrum: we’ve got references to the property started in the 
+fiat object’s methods, and normally when we’re trying to resolve a variable 
+in a function, that variable turns out to be a local variable, a parameter of  the 
+function or a global variable. But in the drive method, started is none of  
+those things; instead, it’s a property of  the fiat object. 
+Shouldn’t this code just work, though? In other words, we wrote started in 
+the fiat object; shouldn’t JavaScript be smart enough to figure out we mean 
+the started property? 
+Nope. As you can see it isn’t. How can that be? 
+Okay, here’s the deal: what looks like a variable in the method is really a 
+property of  the object, but we aren’t telling JavaScript which object. You 
+might say to yourself, “Well, obviously we mean THIS object, this one right 
+here! How could there be any confusion about that?” And, yes, we want the 
+property of  this very object. In fact, there’s a keyword in JavaScript named 
+this, and that is exactly how you tell JavaScript you mean this object we’re in.
+So, let’s add the this keyword and get this code working:
+Why doesn’t the drive method know 
+about the started property?
+Really, if you want 
+me to know which object 
+started belongs to, you’re 
+going to have to tell me.
+var fiat = { 
+    make: "Fiat",
+    // other properties are here, we're just saving space
+    started: false,
+    start: function() {
+        this.started = true;
+    },
+    stop: function() {
+        this.started = false;
+    },
+    drive: function() {
+        if (this.started) {
+            alert("Zoom zoom!");
+        } else {
+            alert("You need to start the engine first.");
+        }
+    }
+};
+Use 
+this
+ along with dot notation 
+before each occurrence of the 
+started property to tell the 
+JavaScript interpreter you mean 
+the property of THIS very object, 
+rather than having JavaScript 
+think you're referring to a variable.
+drive: function() {
+        if (started) {
+         ...
+        }
+    }
+
+you are here 4        203
+understanding objects
+Go ahead and update your code, and 
+take it for a spin! Here’s what we got:
+A test drive with “this”
+Below, you’ll find JavaScript code with some mistakes in it. Your job is to 
+play like you’re the browser and find the errors in the code. After you’ve 
+done the exercise look at the end of the chapter to see if you 
+found them all.
+BE the Browser
+var song = {
+    name: "Walk This Way",
+    artist: "Run-D.M.C.",
+    minutes: 4,
+    seconds: 3,
+    genre: "80s",
+    playing: false,
+    play: function() {
+        if (!playing) {
+            this = true;
+            console.log("Playing " 
+                + name + " by " + artist);
+        } 
+    },
+    pause: function() {
+        if (playing) {
+            this.playing = false;
+        }
+    }
+};
+this.play();
+this.pause();
+Go ahead and mark up the code 
+right here...
+
+204        Chapter    5
+understanding this
+How this works
+make: "Fiat"
+model: "500"
+... more properties here...
+started: false
+start: function() { 
+    this.started = true; 
+}
+stop: function() { ... }
+drive: function() { 
+  ... }
+You can think of  this like a variable that is assigned to the object 
+whose method was just called. In other words, if  you call the fiat 
+object’s start method, with fiat.start(), and use this in the 
+body of  the start method, then this will refer to the fiat object.  
+Let’s look more closely at what happens when we call the start 
+method of  the fiat object.
+start: function() {
+         this.started = true;
+}
+Here’s the fiat object with all 
+its property names and values, 
+including the start method.
+Whenever we call a method in an object, 
+this
+ will refer to 
+that object. So here, 
+this
+ refers to the fiat object.
+fiat
+fiat.start();
+First, we have an object representing the Fiat car, which is assigned to 
+the fiat variable:
+Then, when we call the start method, JavaScript takes care of  
+assigning this to the fiat object.
+The real key to understanding this is that whenever a method is called, 
+in the body of  that method you can count on this to be assigned to 
+the object whose method was called. Just to drive the point home, let’s try it 
+on a few other objects...
+In this case, 
+this
+ refers to the 
+fiat object, because we called 
+the fiat object's start method.
+this
+
+you are here 4        205
+understanding objects
+var eightBall = { index: 0,  
+                  advice: ["yes", "no", "maybe", "not a chance"],
+                  shake: function() { 
+                             this.index = ________.index + 1;
+                            if (_________.index  >= _________.advice.length) {
+                               _________.index = 0;
+                            }
+                 },
+                 look: function() {
+                            return _________.advice[_________.index];
+                 }     
+};   
+eightBall.shake(); 
+console.log(eightBall.look());
+make: "Chevy"
+model: "Bel Air"
+... more properties here...
+started: false
+start: function() { 
+ this.started = true; 
+}
+stop: function() { ... }
+drive: function() { 
+  ... }
+start: function() {
+         this.started = true;
+}
+chevy.start();
+If  you call the chevy object’s start method, then this will refer to 
+the chevy object in the body of  the method.
+And, in the start method of  the taxi object, this refers to the taxi.
+taxi.start();
+start: function() {
+         this.started = true;
+}
+    make: "Webville..."
+  model: "Taxi"
+ ... more properties here ...
+started: false
+start: function() {
+  this.started = true;
+}
+  stop: function() { ... }
+    drive: function() {...}
+Use your new this skills to help us finish this code. Check your answer at the 
+end of the chapter.
+JavaScript console
+no
+maybe
+not a chance
+Repeat this sequence several times to 
+test your code.
+
+206        Chapter    5
+questions about functions
+If you copy the start, stop, and drive methods into the chevy and cadi objects we 
+created earlier, what do you have to change to make the methods work correctly?
+Answer: Nothing! this refers to “this object,” the one whose method we’re calling.
+Q:
+ What’s the difference between a 
+method and a function?
+A: A method is just a function that’s been 
+assigned to a property name in an object. 
+You call functions using the function name, 
+while you call methods using the object dot 
+notation and the name of the property. You 
+can also use the keyword this in a method to 
+refer to the object whose method was called.
+Q:
+ I noticed that when using the 
+function keyword within an object we 
+don’t give the function an explicit name. 
+What happened to the function name?
+A: Right. To call methods, we use the 
+property name in the object rather than 
+explicitly naming the function, and using 
+that name. For now, just take this as the 
+convention we use, but later in the book we’ll 
+dive into the topic of anonymous functions 
+(which is what you call functions that don’t 
+explicitly have names).
+Q:
+ Can methods have local variables, 
+like functions can?
+A: Yes. A method is a function. We just 
+call it a method because it lives inside an 
+object. So, a method can do anything a 
+function can do precisely because a method 
+is a function.
+Q:
+ So, you can return values from 
+methods too?
+A: Yes. What we said in the last answer!
+Q:
+ What about passing arguments to 
+methods? Can we do that too?
+A: Err, maybe you didn’t read the answer 
+two questions back? Yes!
+Q:
+ Can I add a method to an object 
+after it’s created like I can with a 
+property?
+A: Yes. Think of a method as a function 
+assigned to a property, so you can add a 
+new one at any time: 
+// add a turbo method 
+car.engageTurbo =  
+       function() { ... };
+Q:
+ If I add a method like engageTurbo 
+above, will the this keyword still work?
+A: Yes. Remember this is assigned to 
+the object whose method is called at the 
+time it is called.
+Q:
+ When is the value of this set to 
+the object? When we define the object, or 
+when we call the method?
+A: The value of this is set to the object 
+when you call the method. So when you call 
+fiat.start(), this is set to fiat, and when you 
+call chevy.start(), this is set to chevy. It 
+looks like this is set when you define the 
+object, because in fiat.start, this is always 
+set to fiat, and in chevy.start, this is always 
+set to chevy. But as you’ll see later, there is 
+a good reason the value of this is set when 
+you call the method and not when you define 
+the object. This is an important point we’ll be 
+coming back to a few different times.
+
+you are here 4        207
+understanding objects
+It’s time to get the whole fleet up and running. Add the drive method to each car object. When 
+you’ve done that, add the code to start, drive and stop each of them. Check your answer at the 
+end of the chapter.
+var chevy = { 
+    make: "Chevy",
+    model: "Bel Air",
+    year: 1957, 
+    color: "red",
+    passengers: 2,
+    convertible: false,
+    mileage: 1021
+};
+var cadi = { 
+    make: "GM",
+    model: "Cadillac",
+    year: 1955,
+    color: "tan",
+    passengers: 5,
+    convertible: false,
+    mileage: 12892
+};
+var taxi = { 
+    make: "Webville Motors",
+    model: "Taxi",
+    year: 1955,
+    color: "yellow",
+    passengers: 4,
+    convertible: false,
+    mileage: 281341
+};
+started: false,
+start: function() {
+   this.started = true;
+},
+stop: function() {
+   this.started = false;
+},
+drive: function() {
+   if (this.started) {
+     alert(this.make + " " + 
+           this.model + " goes zoom zoom!");
+   } else {
+     alert("You need to start the engine first.");
+   }
+}
+cadi.start();
+cadi.drive();
+cadi.stop();
+chevy.start();
+chevy.drive();
+chevy.stop();
+taxi.start();
+taxi.drive();
+taxi.stop();
+Add the started property and the 
+methods to each car. Then use the 
+code below to give them a test drive.
+Throw this code 
+after the car object 
+definitions to give 
+them all a test drive.
+Don’t forget to add a 
+comma after mileage when 
+you add the new properties!
+We improved the drive 
+method just a bit so make 
+sure you get this new code.
+
+208        Chapter    5
+avoiding code duplication
+Ah, good eye.
+Ye s , when we copy start, stop and drive into each 
+car object we’re definitely duplicating code. Unlike the 
+other properties, which have values that depend on 
+which car object they’re in, the methods are the same for

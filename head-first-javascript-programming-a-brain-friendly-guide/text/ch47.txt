@@ -1,0 +1,626 @@
+To create a dog, we use the new 
+operator with the constructor.
+Followed by 
+a call to the 
+constructor.
+So, to create a new dog object with a name of  “Fido”, a breed of  “Mixed” and a 
+weight of  38, we start with the new keyword and follow it by a call to the constructor 
+function with the appropriate arguments. After this statement is evaluated, the 
+variable fido will hold a reference to our new dog object. 
+Now that we have a constructor for dogs, we can keep making them: 
+var fluffy = new Dog("Fluffy", "Poodle", 30);
+var spot = new Dog("Spot", "Chihuahua", 10);
+That’s a bit easier than using object literals isn’t it? And by creating dog objects this way, 
+we know each dog has the same set of  properties: name, breed, and weight.
+Let’s get some quick hands-on 
+experience to help this all sink 
+in. Go ahead and put this code 
+in a page and give it a test drive. 
+Write your output here.
+function Dog(name, breed, weight) {
+    this.name = name;
+    this.breed = breed;
+    this.weight = weight;
+}
+var fido = new Dog("Fido", "Mixed", 38);
+var fluffy = new Dog("Fluffy", "Poodle", 30);
+var spot = new Dog("Spot", "Chihuahua", 10);
+var dogs = [fido, fluffy, spot];
+for (var i = 0; i < dogs.length; i++) {
+    var size = "small";
+    if (dogs[i].weight > 10) {
+        size = "large";
+    }
+    console.log("Dog: " + dogs[i].name
+                 + " is a " + size
+                 + " " + dogs[i].breed);
+}
+Try saying it out loud: 
+“to create fido, I create 
+a new dog object with 
+the name Fido that is a 
+mixed breed and weighs 
+38 pounds.”
+And the 
+arguments.
+
+528        Chapter    12
+how a constructor really works
+Behind the 
+Scenes
+How constructors work
+We’ve seen how to declare a constructor and also how to use it to create 
+objects, but we should also take a look behind the scenes to see how a 
+constructor actually works. Here’s the key: to understand constructors we 
+need to know what the new operator is doing. 
+We’ll start with the statement we used to create ido:
+1
+The first thing new does is create a new, empty object:
+var fido = new Dog("Fido", "Mixed", 38);
+Take a look at the right-hand side of  the assignment, where all the action is. 
+Let’s follow its execution:
+2
+Next, new sets this to point to the new object.
+Remember from 
+Chapter 5 that 
+this
+ 
+holds a reference to 
+the current object 
+our code is dealing 
+with.
+3
+With this set up, we now call the function Dog, 
+passing "Fido", "Mixed" and 38 as arguments. 
+this
+function Dog(name, breed, weight) {
+    this.name = name;
+    this.breed = breed;
+    this.weight = weight;
+} 
+"Fido"    "Mixed"    38
+this
+name: "Fido"
+this
+name: "Fido"
+breed: "Mixed"
+this
+name: "Fido"
+breed: "Mixed"
+weight:  38
+4
+Next the body of the function is invoked. 
+Like most constructors, Dog assigns values to 
+properties in the newly created this object.
+Executing the body of the Dog 
+function customizes the new object 
+with three properties, assigning them 
+the values of the respective parameters.
+
+you are here 4        529
+advanced object construction
+Behind the 
+Scenes
+5
+Finally, once the Dog function has completed its execution 
+the new operator returns this, which is a reference to the 
+newly created object. Notice this is returned for you; you 
+don’t have to explicitly return it in your code. And after the 
+new object has been returned, we assign that reference to 
+the variable fido.
+name: "Fido"
+breed: "Mixed"
+weight:  38
+fido
+Below, you’ll find JavaScript code with some mistakes in it. Your job is to 
+play like you’re the browser and find the errors in the code. After 
+you’ve done the exercise look at the end of the chapter to see if you 
+found them all. And, hey by the way, this is Chapter 12. Feel free to 
+make style comments too. You’ve earned the right.
+BE the Browser
+function widget(partNo, size) {
+    var this.no = partNo;
+    var this.breed = size;
+} 
+function FormFactor(material, widget) {
+    this.material = material,
+    this.widget = widget,
+    return this;
+} 
+var widgetA = widget(100, "large");
+var widgetB = new widget(101, "small");
+var formFactorA = newFormFactor("plastic", widgetA);
+var formFactorB = new ForumFactor("metal", widgetB);
+
+530        Chapter    12
+adding methods to a constructor
+You can put methods into constructors as well
+The dog objects that the Dog constructor creates are just like the dogs from earlier in the book... 
+except that our newly constructed dogs can’t bark (because they don’t have a bark method). 
+This is easily fixed because in addition to assigning values to properties in the constructor, we 
+can set up methods too. Let’s extend the code to include a bark method:
+ function Dog(name, breed, weight) {
+    this.name = name;
+    this.breed = breed;
+    this.weight = weight;
+    this.bark = function() {
+        if (this.weight > 25) {
+            alert(this.name + " says Woof!");
+        } else {
+            alert(this.name + " says Yip!");
+        }
+    };
+}
+To add a bark method we simply 
+assign a function, in this case 
+an anonymous function, to the 
+property this.bark.
+Now every dog object will 
+also have a bark method 
+that you can invoke.
+Notice that, just like all the other objects we’ve 
+created in the past, we use 
+this
+ to refer to the 
+object we’re calling the method on.
+var fido = new Dog("Fido", "Mixed", 38);
+var fluffy = new Dog("Fluffy", "Poodle", 30);
+var spot = new Dog("Spot", "Chihuahua", 10);
+var dogs = [fido, fluffy, spot];
+for (var i = 0; i < dogs.length; i++) {
+    dogs[i].bark();
+}
+Take the bark method for a quick test drive
+Enough talking about constructors, let’s add the code above 
+to an HTML page, and then add the code below to test it:
+Make sure your dog objects 
+bark like they’re supposed to.
+By the way, as 
+you know, methods 
+in objects are 
+properties too. 
+They just happen 
+to have a function 
+assigned to them.
+
+you are here 4        531
+advanced object construction
+We’ve got a constructor to create coffee drinks, but it’s missing its 
+methods.
+We need a method, getSize, that returns a string depending on the 
+number of ounces of coffee: 
+ 8oz is a small
+ 12oz is a medium
+ 16oz is a large
+We also need a method, toString, that returns a string that represents your order, 
+like “You’ve ordered a small House Blend coffee.”
+Write your code below, and then test it in the browser. Try creating a few different 
+sizes of coffee. Check your answer before you go on.
+function Coffee(roast, ounces) {
+    this.roast = roast;
+    this.ounces = ounces;
+    
+}
+var houseBlend = new Coffee("House Blend", 12);
+console.log(houseBlend.toString());
+var darkRoast = new Coffee("Dark Roast", 16);
+console.log(darkRoast.toString());
+Write the two methods for 
+this constructor here.
+JavaScript console
+You've ordered a medium House 
+Blend coffee.
+You've ordered a large Dark 
+Roast coffee.
+Here's our output; yours 
+should look similar.
+
+532        Chapter    12
+questions about constructors
+ Q:
+ Why do constructor 
+names start with a capital letter?
+A:
+ This is a convention that 
+JavaScript developers use so 
+they can easily identify which 
+functions are constructors, and 
+which functions are just regular 
+old functions. Why? Because with 
+constructor functions, you need to 
+use the new operator. In general, 
+using a capital letter for constructors 
+makes them easier to pick out when 
+you’re reading code. 
+Q:
+ So, other than setting up 
+the properties of the this object, 
+a constructor’s just like a regular 
+function?
+A:
+ If you mean computationally, 
+yes. You can do anything in a 
+constructor you can do in a regular 
+function, like declare and use 
+variables, use for loops, call other 
+functions, and so on. The only thing 
+you don’t want to do is return a value 
+(other than this) from a constructor 
+because that will cause the 
+constructor to not return the object 
+it’s supposed to be constructing. 
+Q:
+ Do the parameter names 
+of a constructor function have to 
+match the property names?
+ 
+ 
+A:
+ No. You can use whatever 
+names you want for the parameters. 
+The parameters are just used to hold 
+values that we want to assign to the 
+object’s properties to customize the 
+object. What matters is the name of 
+the properties you use for the object. 
+That said, we often do use the same 
+names for clarity, so we know which 
+properties we’re assigning by looking 
+at the constructor function definition.  
+Q:
+ Is an object created by a 
+constructor just like an object 
+created with a literal?
+A: Yes, until you get into more 
+advanced object design, which we’ll 
+do in the next chapter.
+Q:
+ Why do we need new to 
+create objects? Couldn’t we create 
+an object in a regular function and 
+return it (kind of like we did with 
+makeCar in chapter 5)?
+A: Yes, you could create objects 
+that way, but like we said in the 
+previous answer, there are some 
+extra things that happen when you 
+use new.  We’ll get more into these 
+issues later in this chapter, and 
+again in Chapter 13. 
+ 
+ 
+ 
+ 
+ 
+ 
+Q:
+ I’m still a bit confused by 
+this in the constructor. We’re 
+using this to assign properties 
+to the object, and we’re also using 
+this in the methods of the object. 
+Are these the same thing?
+A: When you call a constructor 
+(to create an object) the value of 
+this is set to the new object that’s 
+being created so all the code that is 
+evaluated in the constructor applies 
+to that new object.  
+ 
+Later, when you call a method on 
+an object, this is set to the object 
+whose method you called. So the 
+this in your methods will always 
+refer to the object whose method 
+was called. 
+Q:
+ Is it better to create objects 
+with a constructor than with 
+object literals?
+A: Both are useful. A constructor 
+is useful when you want to create 
+lots of objects with the same 
+property names and methods. Using 
+them is convenient, reuses code, 
+and provides consistency across 
+your objects. 
+ 
+But sometimes we just need a quick 
+object, perhaps a one-time-use only 
+object, and literals are concise and 
+expressive to use for this. 
+ 
+So it really depends what your needs 
+are. Both are great ways to create 
+an object.
+We’ll see 
+a good 
+example of 
+this a bit 
+later.
+
+you are here 4        533
+advanced object construction
+DANGER ZONE
+There’s one aspect of constructors you need to be very careful about: don’t forget to use the new 
+keyword. It’s easy to do because a constructor is, after all, a function, and you can call it without 
+new. But if you forget new on a constructor it can lead to buggy code that is hard to troubleshoot. 
+Let’s take a look at what can happen when you forget the new keyword...
+function Album(title, artist, year) {
+    this.title = title;
+    this.artist = artist;
+    this.year = year;
+    this.play = function() {
+        // code here
+    };
+}
+var darkside = Album("Dark Side of the Cheese","Pink Mouse", 1971);
+darkside.play();
+Uncaught TypeError: Cannot call method 'play' of undefined
+ ❏Remember that new irst creates a new object before assigning it to this (and 
+then calling your constructor function). If you don’t use new, a new object will 
+never be created.
+ ❏That means any references to this in your constructor won’t refer to a new album 
+object, but rather, will refer to the global object of your application.
+ ❏If you don’t use new there’s no object to return from the constructor, which 
+means there is no object assigned to the darkside variable, so darkside is 
+undeined. That’s why when we try to call the play method, we get an error 
+saying the object we’re trying to call it on is undeined. 
+SAFETY CHECKLIST
+This looks like a well-
+constructed constructor.
+Oops we forgot to use 
+new
+!
+But maybe that’s okay 
+because Album is a function.
+Let’s try to call the play method 
+anyway. Oh, this isn’t good...
+Okay, let’s read the checklist to see why this might have happened:
+The global object is 
+the top-level object, 
+which is where global 
+variables get stored. 
+In browsers, this 
+object is the window 
+object.
+
+534        Chapter    12
+If you’re using a constructor to 
+create objects and those objects 
+keep coming up undeined when you 
+reference them, double check your 
+code and make sure you’re using a new 
+operator with your constructor.
+And if you’re holding an open test 
+tube with liquid in it, tilted, above 
+an expensive laptop, you should 
+probably double-check that too!
+
+you are here 4        535
+advanced object construction
+Head First: new, where have you been hiding? How did 
+we get to Chapter 12 before seeing you? 
+new: There are still a lot of  scripts out there that don’t 
+use me, or use me without understanding me.
+Head First: Why is that?
+new: Because many scripters just use object literals or 
+copy & paste code that uses me, without understanding 
+how I work. 
+Head First: That’s a good point... object literals are 
+convenient, and I myself  am not quite clear on when or 
+how to use you just yet.
+new: Well it’s true, I am kind of  an advanced feature. 
+After all, to know how to use me, you first have to know 
+how objects work, and how functions work, and how this 
+works... it’s a lot to wrap your head around before you 
+even learn about me at all!
+Head First: Can you give us the elevator pitch about 
+yourself ? Now that our readers know about objects, 
+functions, and this, it would be great for them to get 
+motivated for learning about you.
+new: Let me think for a second... Okay here you go: 
+I’m the operator that operates on constructor functions to 
+create new objects.
+Head First: Umm, I hate to break it to you but that isn’t 
+the best elevator pitch.
+new: Gimme a break, I’m an operator, not a PR lackey.
+Head First: Well, you do raise several questions with 
+that pitch. First of  all, you’re an operator?
+new: Yup! I’m an operator. Put me in front of  a function 
+call and I change everything. An operator operates on its 
+operands. In my case, I have only one operand and that 
+operand is a function call. 
+Head First: Right, so explain exactly how you operate.
+new: Well, first, I make a new object. Everyone thinks 
+that the constructor function is what does it, but it’s 
+actually me. It’s a thankless job.
+Head First: Go on...
+new: Okay, so then I call the constructor function and 
+make sure that the new object I’ve created is referenced by 
+the this keyword in the body of  the function.
+Head First: Why do you do that?
+new: So that the statements in the body of  the function 
+have a way to refer to the object. After all, the whole 
+point of  a constructor function is to extend that object 
+using new properties and methods. If  you’re using the 
+constructor to create objects like dogs and cars, you’re 
+going to want those objects to have some properties, right?
+Head First: Right. And then?
+new: Then I make sure that the new object that was 
+created is returned from the constructor. It’s a nice 
+convenience so that developers don’t have to remember to 
+return it themselves.
+Head First: It does sound very convenient. Now why 
+would anyone use an object literal after learning you?
+new: Oh, object literal and I go way back. He’s a great 
+guy, and I’d use him in a second if  I had to create a quick 
+object. But, you want me when you’ve got to create a 
+lot of  similar objects, when you want to make sure your 
+objects are taking advantage of  code reuse, when you 
+want to ensure some consistency, and after you’ve learned 
+a little more, to support some even more advanced uses.
+Head First: More advanced? Oh do tell!
+new: Now now, let’s keep these readers focused. We’ll talk 
+more in the next chapter.
+Head First: I think I need to re-read this interview first! 
+Until then...
+The Constructor Exposed
+This week’s interview:
+Getting to know new
+
+536        Chapter    12
+creating a car constructor
+It’s Production Time!
+You’ve learned your object 
+construction skills just in time 
+because we’ve just received a 
+big order for cars and we can’t be 
+creating them all by hand. We need 
+to use a constructor so we can get the job 
+done on time. We’re going to do that by taking the 
+car object literals we’ve used so far in the book, and using 
+them as a guide for creating a constructor to make cars. 
+Check out the various kinds of  cars we need to build below. Notice 
+we’ve already taken the liberty of  making their properties and methods uniform, 
+so they all match across each car. For now, we won’t worry about special options, or toy cars and rocket 
+cars (we’ll come back to that later). Go ahead and take a look, and then let’s build a constructor that can 
+create car objects for any kind of  car that has these property names and methods:
+var chevy = { 
+    make: "Chevy",
+    model: "Bel Air",
+    year: 1957, 
+    color: "red",
+    passengers: 2,
+    convertible: false,
+    mileage: 1021,
+    started: false,
+    start: function() {
+      this.started = true;
+    },
+    stop: function() {
+      this.started = false;
+    },
+    drive: function() {
+      if (this.started) {
+        console.log(this.make + " " + 
+              this.model + " goes zoom zoom!");
+      } else {
+        console.log("Start the engine first.");
+      }
+    }
+};
+var cadi = { 
+    make: "GM",
+    model: "Cadillac",
+    year: 1955,
+    color: "tan",
+    passengers: 5,
+    convertible: false,
+    mileage: 12892,
+    started: false,
+    start: function() {...},
+    stop: function() {...},
+    drive: function() {...}
+};
+var fiat = { 
+    make: "Fiat",
+    model: "500",
+    year: 1957, 
+    color: "Medium Blue",
+    passengers: 2,
+    convertible: false,
+    mileage: 88000,
+    started: false,
+    start: function() {...},
+    stop: function() {...},
+    drive: function() {...}
+};
+var taxi = { 
+    make: "Webville Motors",
+    model: "Taxi",
+    year: 1955,
+    color: "yellow",
+    passengers: 4,
+    convertible: false,
+    mileage: 281341,
+    started: false,
+    start: function() {...},
+    stop: function() {...},
+    drive: function() {...}
+};
+
+you are here 4        537
+advanced object construction
+Use everything you’ve learned to create a Car constructor. We suggest the following order:
+function ________(______________________________________________) {
+}
+All your work 
+goes here.
+1
+2
+3
+Start by providing the function keyword (actually we did that for you) followed by the 
+constructor name. Next supply the parameters; you’ll need one for each property that 
+you want to supply an initial value for.
+Next, assign each property in the object its initial value (make sure you use this 
+along with the property name). 
+Finally, add in the three car methods: start, drive and stop.
+Make sure you check all your work with the answer at 
+the end of the chapter before proceeding!
+
+538        Chapter    12
+testing the car constructor
+Let’s test drive some new cars
+Now that we have a way to mass-produce car objects, let’s make 
+some, and put them through their paces. Start by putting the 
+Car constructor in an HTML page, then add some test code.
+Here’s the code we used; feel free to alter and extend it:
+var chevy = new Car("Chevy", "Bel Air", 1957, "red", 2, false, 1021);
+var cadi = new Car("GM", "Cadillac", 1955, "tan", 5, false, 12892);
+var taxi = new Car("Webville Motors", "Taxi", 1955, "yellow", 4, false, 281341);
+var fiat = new Car("Fiat", "500", 1957, "Medium Blue", 2, false, 88000);
+First we're using the constructor to 
+create all the cars from Chapter 5.
+var testCar = new Car("Webville Motors", "Test Car", 2014, "marine", 2, true, 21);
+But why stop there?
+Let's create the book's test drive car!
+Are you starting to see how easy creating new objects can be 
+with constructors? Now let’s take these cars for a test drive:
+var cars = [chevy, cadi, taxi, fiat, testCar];
+for(var i = 0; i < cars.length; i++) {
+    cars[i].start();
+    cars[i].drive();
+    cars[i].drive();
+    cars[i].stop();
+}
+JavaScript console
+Chevy Bel Air goes zoom zoom!
+Chevy Bel Air goes zoom zoom!
+GM Cadillac goes zoom zoom!
+GM Cadillac goes zoom zoom!
+Webville Motors Taxi goes zoom zoom!
+Webville Motors Taxi goes zoom zoom!
+Fiat 500 goes zoom zoom!
+Fiat 500 goes zoom zoom!
+Webville Motors Test Car goes zoom zoom!
+Webville Motors Test Car goes zoom zoom!
+Here's the output we got. Did you add your 
+own car to the  mix? Try changing what the 
+cars do (like driving before the car is started). 
+Or, maybe you can make the number of times 
+we call the drive method random?
+Note: you won’t be able to 
+do this unless you did the 
+exercise on the previous page! 
+Feel free to add your own 
+favorite or fictional car too.
+
+you are here 4        539
+advanced object construction
+Don’t count out object literals just yet
+We’ve had some discussion of  object constructors versus object literals, and 
+mentioned that object literals are still quite useful, but you really haven’t 
+seen a good example of  that. Well, let’s do a little reworking of  the Car 
+constructor code, so you can see where using some object literals actually 
+cleans up the code and makes it more readable and maintainable.

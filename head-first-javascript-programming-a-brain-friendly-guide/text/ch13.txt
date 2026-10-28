@@ -1,0 +1,727 @@
+4. A parameter acts like a _________ in the body of a 
+function. 
+6. JavaScript uses __________ when passing arguments 
+to functions. 
+10. You can declare your functions __________
+in your JavaScript file. 
+11. What gets returned from a function without
+a return statement. 
+13. Local variables disappear when the
+_________ returns. 
+16. If you forget to declare your locals, they’ll
+be treated like ________. 
+17. A local variable can __________ a global
+variable. 
+ 
+ 
+ 
+DOWN
+1. A variable with global ________ is visible everywhere. 
+2. Use functions so you can _______ code over and over 
+again. 
+3. The variables that arguments land in when they get 
+passed to functions.
+5. To get a value back from a function, use the ________ 
+statement. 
+7. What gets passed to functions.
+8. When you reload your page, all your __________ get 
+re-initialized.
+9. ________ through your code means following the 
+execution line by line.
+12. Watson looked at the bank heist code in Sherlock’s 
+______ on his phone.
+14. It’s better to use ________ variables whenever you 
+can.
+15. Extra arguments to a function are __________.
+
+116        Chapter    3
+exercise solutions
+var dogName = "rover";
+var dogWeight = 23;
+if (dogWeight > 20) {
+   console.log(dogName + " says WOOF WOOF");
+} else {
+   console.log(dogName + " says woof woof");
+}
+dogName = "spot";
+dogWeight = 13;
+if (dogWeight > 20) {
+   console.log(dogName + " says WOOF WOOF");
+} else {
+   console.log(dogName + " says woof woof");
+}
+dogName = "spike";
+dogWeight = 53;
+if (dogWeight > 20) {
+   console.log(dogName + " says WOOF WOOF");
+} else {
+   console.log(dogName + " says woof woof");
+}
+dogName = "lady";
+dogWeight = 17;
+if (dogWeight > 20) {
+   console.log(dogName + " says WOOF WOOF");
+} else {
+   console.log(dogName + " says woof woof");
+}
+We chose all of them!
+Do a little analysis of the code below. How does it look? 
+Choose as many of the options below as you like, or 
+write in your own analysis. Here’s our solution.
+A. The code seems very 
+redundant.
+B. If we wanted to change how 
+this outputs, or if we wanted to 
+add another weight for dogs, 
+this is going to require a lot of 
+reworking.
+C. Looks tedious to type in! 
+D. Not the most readable code I've 
+ever seen. 
+ 
+E.
+ ___________________________  
+    ___________________________ 
+     
+Looks like the developer thought 
+the weights might change over time.
+
+you are here 4        117
+introducing functions
+bark("juno", 20);
+bark("scottie", -1);
+bark("dino", 0, 0);
+We’ve got some more calls to bark below. Next to each call, write what you think the 
+output should be, or if you think the code will cause an error. Here’s our solution.
+Our bark function doesn’t check to make 
+sure dog weights are greater than 0. So 
+this  works because -1 is less than 20.
+bark("fido", "20");
+bark("lady", 10);
+bark("bruno", 21);
+juno says woof woof
+scottie says woof woof
+dino says woof woof
+fido says woof woof
+lady says woof woof
+bruno says WOOF WOOF
+The bark function just ignores the extra 
+argument, 0. And using 0 as the weight 
+doesn’t make sense, but it still works.
+We compare the string “20” to the number 20. “20” isn’t 
+greater than 20, so fido says “woof woof”. (You’ll find 
+out later how JavaScript compares “20” and 20.)
+
+118        Chapter    3
+exercise solutions
+JavaScript console
+Wear a jacket
+Wear a t-shirt
+Wear a sweater
+Code Magnets Solution
+This working JavaScript code is all scrambled up on 
+the fridge. Can you reconstruct the code snippets to 
+make a working program that produces the output 
+listed below? Notice, there may be some extra code 
+on the fridge, so you may not use all the magnets. 
+Here’s our solution.
+function
+,
+,
+,
+}
+}
+}
+whatShallIWear
+whatShallIWear(50);
+whatShallIWear(80);
+whatShallIWear(60);
+if (temp < 60) {
+    console.log("Wear a jacket");
+}
+temp
+temperature
+(
+)
+{
+else if (temp < 70) {
+    console.log("Wear a sweater");
+}
+else {
+    console.log("Wear t-shirt");
+}
+Leftover magnets.
+
+you are here 4        119
+introducing functions
+Below you’ll find some JavaScript code, including variables, function definitions and 
+function calls. Your job is to identify all the variables, functions, arguments and parameters. 
+Write the names of each in the appropriate boxes on the right. Here’s our solution.
+Variables
+Functions
+Parameters
+Arguments
+myDog, guests, pet,  
+years, defaultSound
+dogYears, makeTea, 
+secret, speak, 
+dogName, age, 
+cups, tea, kind
+myDog, 4, guests, 
+“Earl Grey”, pet, 
+plus all the string 
+arguments to alert 
+and console.log
+Built-in functions
+alert, console.log, 
+prompt
+function dogYears(dogName, age) {
+    var years = age * 7;
+    console.log(dogName + " is " + years + " years old");
+}
+var myDog = "Fido";
+dogYears(myDog, 4);
+function makeTea(cups, tea) {
+    console.log("Brewing " + cups + " cups of " + tea);
+}
+var guests = 3;
+makeTea(guests, "Earl Grey");
+function secret() {
+    console.log("The secret of life is 42");
+}
+secret();
+function speak(kind) {
+    var defaultSound = "";
+    if (kind == "dog") {
+        alert("Woof");
+    } else if (kind == "cat") {
+        alert("Meow");
+    } else {
+        alert(defaultSound);
+    }
+}
+var pet = prompt("Enter a type of pet: ");
+speak(pet);
+
+120        Chapter    3
+exercise solutions
+Below you’ll find some JavaScript code, including variables, function definitions and function 
+calls. Your job is to identify the variables used in all the arguments, parameters, local 
+variables and global variables. Write the variable names in the appropriate boxes on the right. 
+Then circle any variables that are shadowed. Here’s our solution.
+var x = 32;
+var y = 44;
+var radius = 5;
+var centerX = 0;
+var centerY = 0;
+var width = 600;
+var height = 400;
+function setup(width, height) {
+    centerX = width/2;
+    centerY = height/2;
+}
+function computeDistance(x1, y1, x2, y2) {
+    var dx = x1 - x2;
+    var dy = y1 - y2;
+    var d2 = (dx * dx) + (dy * dy);
+    var d = Math.sqrt(d2);
+    return d;
+}
+function circleArea(r) {
+    var area = Math.PI * r * r;
+    return area;
+}
+setup(width, height);
+var area = circleArea(radius);
+var distance = computeDistance(x, y, centerX, centerY);
+alert("Area: " + area);
+alert("Distance: " + distance);
+Arguments
+Parameters
+Globals
+Locals
+x, y, radius, 
+centerX, centerY, 
+width, height, area, 
+distance
+dx, dy, d2, d, 
+area
+width, height, 
+x1, y1, x2, y2, r
+width, height, radius, 
+x, y, centerX, 
+centerY,  
+“Area: ” + area, 
+“Distance: ”+ distance
+Don’t forget the 
+arguments to the 
+alert function.
+The local variable 
+area shadows the 
+global variable area
+Don’t forget area 
+and distance. These 
+are globals too.
+
+you are here 4        121
+introducing functions
+The Thing-A-Ma-Jig
+The Thing-A-Ma-Jig
+JavaScript console
+(120) clunk
+120
+Here’s our solution:
+If you pass 5 to thingamajig, you’ll 
+see “clunk” in the console 120 times 
+(or you might see your console 
+abbreviate 120 clunks, like above), 
+and then the number 120 at the end.
+JavaScript console
+clank
+1
+JavaScript console
+thunk
+1
+JavaScript console
+(2) clunk
+2
+JavaScript console
+(6) clunk
+6
+JavaScript console
+(24) clunk
+24
+JavaScript console
+(120) clunk
+120
+Thing-A-Ma-Jig of 0
+Thing-A-Ma-Jig of 1
+Thing-A-Ma-Jig of 2
+Thing-A-Ma-Jig of 3
+Thing-A-Ma-Jig of 4
+Thing-A-Ma-Jig of 5
+What about the 
+other values?
+What does it all mean?  We hear the Thing-A-Ma-Jig was invented by a curious chap 
+who was fascinated by rearranging words. You know like DOG rearranged is GOD, OGD, 
+DGO, GDO and ODG. So if a word has three letters the Thing-A-Ma-Jig says you 
+can make six total combinations from those letters. If you use the word “mixes” you 
+can make 120 combinations of letters, wow! Anyway, that’s what we heard. And here 
+we just thought it computed mathematical factorials! Who knew!?
+Check out ‘factorial’ in wikipedia for more info!
+The Thing-A-Ma-Jig is quite a contraption—it clanks and clunks and even thunks, 
+but what it really does, well, you’ve got us stumped. Coders claim they know how it 
+works. Can you uncrack the code and find its quirks?
+
+122        Chapter    3
+exercise solutions
+Five Minute 
+Mystery 
+Solution
+Why did Sherlock decide not to investigate the case? How 
+could he know that the criminal would never be able to 
+steal the money just by looking at the code? Is there one 
+problem with the code?  Or more? Here’s our solution.
+var balance = 10500;
+var cameraOn = true;
+function steal(balance, amount) {
+    cameraOn = false;
+    if (amount < balance) {
+        balance = balance - amount;
+    }
+    return amount;
+    cameraOn = true;
+}
+var amount = steal(balance, 1250);
+alert("Criminal: you stole " + amount + "!");
+balance is a global variable...
+... but it’s shadowed 
+by this parameter.
+So when you change the 
+balance in the function steal, 
+you’re not changing the actual 
+bank balance!
+We’re returning the 
+amount stolen...
+... but we’re not using it to 
+update the real balance in 
+the account. So the balance 
+of the bank account is the 
+same as it was originally.
+The criminal thinks he stole 
+the money, but he didn’t!
+And, in addition to not actually stealing any money, 
+the criminal forgets to turn the camera back 
+on, which is a dead giveaway to the police that 
+something nefarious is going on. Remember, when you 
+return from a function, the function stops executing, 
+so any lines of code after the return are ignored!
+
+you are here 4        123
+introducing functions
+Who am I?
+I get passed into a function.
+I send values back to the calling code.
+I’m the all important keyword.
+I’m what receives arguments.
+It really means ‘make a copy’.
+I’m everywhere.
+Another phrase for invoking a function.
+Example of  a function attached to an object.
+alert and prompt are examples.
+What functions are great for.
+Where I can be seen.
+I’m around when my function is.
+argument
+return
+function
+parameter
+pass-by-value
+global variable
+function call
+Math.random
+built-in functions
+code reuse
+scope
+local variable
+A bunch of JavaScript attendees, in full costume, are playing a 
+party game, “Who am I?”  They give you a clue, and you try to 
+guess who they are, based on what they say. Assume they always 
+tell the truth about themselves.  Fill in the blank next to each 
+sentence with the name of one attendee.  Here’s our solution.
+Tonight’s attendees:
+function, argument, return, scope, local variable, global 
+variable, pass-by-value, parameter, function call,  
+Math.random, built-in functions, code reuse.
+Solution
+
+124        Chapter    3
+exercise solutions
+JavaScript cross Solution
+S
+1
+R
+2
+P
+3
+CE
+V
+4
+AR
+5
+IABLEOU
+ERP
+6
+A
+7
+SSBY
+V
+8
+ALUE
+T
+9
+TA
+10
+NY
+WH
+EREA
+RUMGR
+AREU
+11
+NDE
+12
+FINED
+CF
+13
+UNCTIONMMA
+IEEABL
+14
+I
+15
+NRNILOG
+G
+16
+LOBALSTLECN
+SS
+17
+H
+ADO
+W
+LR
+E
+D
+
+this is a new chapter     125
+Arrays
+4  putting some order in your data
+There’s more to JavaScript than numbers, strings and 
+booleans.   So far you’ve been writing JavaScript code with primitives—
+simple strings, numbers and booleans, like “Fido”, 23, and true. And you can do a 
+lot with primitive types, but at some point you’ve got to deal with more data. Say, 
+all the items in a shopping cart, or all the songs in a playlist, or a set of stars and 
+their apparent magnitude, or an entire product catalog. For that we need a little 
+more ummph. The type of choice for this kind of ordered data is a JavaScript array, 
+and in this chapter we’re going to walk through how to put your data into an array, 
+how to pass it around and how to operate on it. We’ll be looking at a few other 
+ways to structure your data in later chapters but let’s get started with arrays.
+You come here often?
+Only when pushed.
+
+126        Chapter    4
+introducing bubbles-r-us
+Can you help Bubbles-R-Us?
+Meet the Bubbles-R-Us company. Their tireless research makes sure 
+bubble wands & machines everywhere blow the best bubbles. Today 
+they’re testing the “bubble factor” of  several variants of  their new 
+bubble solution; that is, they’re testing how many bubbles a given 
+solution can make. Here’s their data:
+Each bubble solution was tested for the number of 
+bubbles it can create.
+Each test tube 
+is labelled 0 to 
+9 and contains a 
+slightly different 
+bubble solution.
+And here’s the 
+bubble factor 
+score for each 
+solution.
+60    50    60    58    54     54     58    50    52     54
+0123456789
+Of  course you want to get all this data into JavaScript so you can 
+write code to help analyze it. But that’s a lot of  values. How are you 
+going to construct your code to handle all these values?
+
+you are here 4        127
+putting some order in your data
+My 
+bubble solution #2 
+is definitely going to be 
+the best.
+How to represent multiple values in JavaScript
+You know how to represent single values like strings, numbers and booleans with JavaScript, 
+but how do you represent multiple values, like all the bubble factor scores from the ten 
+bubble solutions? To do that we use JavaScript arrays. An array is a JavaScript type that can 
+hold many values. Here’s a JavaScript array that holds all the bubble factor scores:
+var scores = [60, 50, 60, 58, 54, 54, 58, 50, 52, 54];
+Here’s all ten values, grouped together into 
+an array, and assigned to the scores variable.
+You can treat all the values as a whole, or you can access the individual scores when 
+you need to. Check this out:
+var solution2 = scores[2];
+alert("Solution 2 produced " + solution2 + " bubbles.");
+Notice that arrays are zero-based. So the first 
+bubble solution is solution #0 and has the score in 
+scores[0], and likewise, the third bubble solution is 
+solution #2 and has the score in scores[2].
+To access an item of the array we use 
+this syntax: the variable name of the 
+array followed by the index of the item, 
+surrounded by square brackets.
+One of the 
+Bubbles-R-Us 
+bubbleologists.
+
+128        Chapter    4
+intro to arrays
+0123
+4
+"vanilla""butterscotch""lavender""chocolate""cookie dough"
+How arrays work
+lavors
+Before we get on to helping Bubbles-R-Us, let’s make sure we’ve got 
+arrays down. As we said, you can use arrays to store multiple values 
+(unlike variables that hold just one value, like a number or a string). Most 
+often you’ll use arrays when you want to group together similar things, 
+like bubble factor scores, ice cream flavors, daytime temperatures or 
+even the answers to a set of  true/false questions. Once you have a bunch 
+of  values you want to group together, you can create an array that holds 
+them, and then access those values in the array whenever you need them.
+var flavors = ["vanilla", "butterscotch", "lavender", "chocolate", "cookie dough"];
+Each value has 
+an index number, 
+starting at 0.
+The array 
+collects all these 
+values together.
+Every index in the 
+array holds a value.
+The array is assigned 
+to a variable.
+How to create an array
+Let’s say you wanted to create an array that holds ice cream flavors.  
+Here’s how you’d do that:
+Notice that each 
+item in the array is 
+separated by a comma.
+Let’s assign the 
+array to a variable 
+named flavors.
+To begin the array, 
+use the [ character...
+... and end the array 
+with the ] character. 
+When you create an array, each item is placed at a location, or index, in 
+the array. With the flavors array, the first item, “vanilla”, is at index 0, the 
+second, “butterscotch”, is at  index 1, and so on. Here’s a way to think 
+about an array:
+and then list each 
+item of the array...
+
+you are here 4        129
+putting some order in your data
+How to access an array item
+Each item in the array has its own index, and that’s your key to both accessing and 
+changing the values in an array. To access an item just follow the array variable 
+name with an index, surrounded  by square brackets. You can use that notation 
+anywhere you’d use a variable:
+var flavorOfTheDay = flavors[2];
+This evaluates to the value of the flavors array at 
+index 2 (which is “lavender”), which is then assigned 
+to the variable flavorOfTheDay.
+Updating a value in the array
+You can also use the array index to change a value in an array:
+flavors[3] = "vanilla chocolate chip";
+This sets the value of the item at index 
+3 (previously “chocolate”) to a new value, 
+“vanilla chocolate chip”.
+So, after this line of  code, your array will look like this:
+0123
+ 
+"vanilla""butterscotch""lavender"
+"vanilla chocolate chip"
+"cookie dough"
+lavors
+The value of the item at 
+index 3 has been changed.
+To get an element from an array, you 
+need both the name of the array,  
+and the index of the value you want. 
+0123
+
+"vanilla""butterscotch""lavender"
+"chocolate"
+"cookie dough"
+lavors
+lavorOfTheDay
+"lavender"
+flavorOfTheDay is assigned the value in flavors[2].
+And remember, because the index starts at 0, 
+flavors[2] is the third item in the array.
+
+130        Chapter    4
+getting the length of an array
+0123
+
+"vanilla""butterscotch""lavender"
+"vanilla 
+chocolate chip"
+"cookie dough"
+lavors
+How big is that array anyway?
+Say someone hands you a nice big array with important data in it. You know 
+what’s in it, but you probably won’t know exactly how big it is. Luckily, every 
+array comes with its own property, length. We’ll talk more about properties 
+and how they work in the next chapter, but for now, a property is just a value 
+associated with an array.  Here’s how you use the length property:
+var numFlavors = flavors.length;
+Every array has a property, length, 
+that contains the number of items 
+currently in the array.
+To get the length of an 
+array, you use the name 
+of the array, then a “.”, 
+and then length.
+Now numFlavors holds the number of 
+items in the array, in this case 5.
+Notice that because we start numbering the 
+indices of the array at 0, the length of the 
+array will always be one more than the last index.
+The length is 5 because there are 5 items.
+var products = ["Choo Choo Chocolate", "Icy Mint", "Cake Batter", "Bubblegum"];
+var last = ________________;
+var recent = products[last];
+The products array below holds the Jenn and Berry’s ice cream 
+flavors.  The ice cream flavors were added to this array in the 
+order of their creation. Finish the code to determine the most 
+recent ice cream flavor they created.
+
+you are here 4        131
+putting some order in your data
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Phrase-o-matic</title>
+  <meta charset="utf-8">
+  <script>
+    function makePhrases() {
+      var words1 = ["24/7", "multi-tier", "30,000 foot", "B-to-B", "win-win"];
+      var words2 = ["empowered", "value-added", "oriented", "focused", "aligned"];
+      var words3 = ["process", "solution", "tipping-point", "strategy", "vision"];
+      var rand1 = Math.floor(Math.random() * words1.length);
+      var rand2 = Math.floor(Math.random() * words2.length);
+      var rand3 = Math.floor(Math.random() * words3.length);
+      var phrase = words1[rand1] + " " + words2[rand2] + " " + words3[rand3];
+      alert(phrase);
+    }
+    makePhrases();
+  </script>
+</head>
+<body></body>
+</html>
+Try my new 
+Phrase-o-Matic and 
+you’ll be a slick talker 
+just like the boss or those 
+guys in marketing.
+You didn’t think our serious business 
+application from Chapter 1 was serious 
+enough? Fine. Try this one, if you need 
+something to show the boss.
+Check out this code for the 
+hot new Phrase-o-Matic app 
+and see if you can figure out 
+what it does before you go on...
+
+132        Chapter    4
+phrase-o-matic code walk-through
+function makePhrases() {
+}
+makePhrases();
+The Phrase-O-Matic
+We hope you figured out this code is the perfect tool for creating 
+your next start-up marketing slogan. It has created winners like 
+“Win-win value-added solution” and “24/7 empowered process” 
+in the past and we have high hopes for more winners in the 
+future. Let’s see how this thing really works:
+First, we define the makePhrases function, which we can call as many times as 
+we want to generate the phrases we want:
+We call makePhrases once here, but we could call it 
+multiple times if we want more than one phrase.
+With that out of  the way we can write the code for the makePhrases function. Let’s start by 
+setting up three arrays. Each will hold words that we’ll use to create the phrases. In the next 
+step, we’ll pick one word at random from each array to make a three word phrase.
+var words1 = ["24/7", "multi-tier", "30,000 foot", "B-to-B", "win-win"];
+var words2 = ["empowered", "value-added", "oriented", "focused", "aligned"];
+var words3 = ["process", "solution", "tipping-point", "strategy", "vision"];
+We create a variable named words1, that we 
+can use for the first array.
+1
+2
+All the code for makePhrases goes here, we’ll get to it in a sec...
+We’re defining a function named 
+makePhrases, that we can call later.
+We’re putting five strings in the array. Feel free to 
+change these to the latest buzzwords out there.
+And here are two more arrays of words, assigned 
+to two new variables, words2 and words3.
+
+you are here 4        133
+putting some order in your data
+We’re almost done; we have the phrase, now we just have to display it. We’re going 
+to use alert as usual.
+alert(phrase);
+6
+3
+Now we generate three random numbers, one for each of  the three random words 
+we want to pick to make a phrase. Remember from Chapter 2 that Math.random

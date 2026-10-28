@@ -1,0 +1,664 @@
+a specific set of  items, the sort code needs to know how those items 
+compare. Think about sorting a set of  numbers versus sorting a list 
+of  names versus sorting a set of  objects. The way we compare values 
+depends on the type of  the items: for numbers we use <, > and == , 
+for strings we compare them alphabetically (in JavaScript, you can do 
+that with <, > and ==) and for objects we’d have some custom way of  
+comparing them based on their properties. 
+Let’s look at a simple example before we move on to Webville Cola’s 
+products array. We’ll use a simple array of  numbers and use the sort 
+method to put them in ascending order. Here’s the array:
+How the array sort method works
+function compareNumbers(num1, num2) {
+    if (num1 > num2) {
+        return 1;
+    } else if (num1 === num2) {
+        return 0;
+    } else {
+        return -1;
+    }
+}
+This array is made of numbers, so we’re going 
+to be comparing two numbers at a time.
+We first check 
+to see if num1 is 
+greater than num2. 
+If it is, we return 1. 
+And finally, if num1 is less 
+than num2, we return -1.
+var numbersArray = [60, 50, 62, 58, 54, 54];
+Next we need to write our own function that knows how to compare two 
+values in the array. Now, this is an array of  numbers, so our function 
+will need to compare two numbers at a time. Assume we’re going to sort 
+the numbers in ascending order; for that the sort method expects us to 
+return something greater than 0 if  the first number is greater than the 
+second, 0 if  they are equal, and something less than 0 if  the first number 
+is less than the second. Like this:
+If they are equal then 
+we return 0.
+Serious Tip
+JavaScript arrays have 
+many useful methods 
+you can use to manipulate 
+arrays in various ways. A great 
+reference on all these methods 
+and how to use them is 
+JavaScript: The Deinitive Guide
+ 
+by David Flanagan (O’Reilly).
+You know that the comparison 
+function we pass to sort needs 
+to return a number greater 
+than 0, equal to 0, or less than 
+0 depending on the two items 
+we’re comparing: if the first 
+item is greater than second, we 
+return a value greater than 0; if 
+first item is equal to the second, 
+we return 0; and if the first item 
+is less than the second, we 
+return a value less than 0. 
+Can you use this knowledge 
+with the fact that we’re 
+comparing two numbers in 
+compareNumbers to rewrite 
+compareNumbers using much 
+less code?
+Check your answer at the end 
+of the chapter before you go on.
+
+460        Chapter    10
+sorting an array of numbers
+var numbersArray = [60, 50, 62, 58, 54, 54];
+numbersArray.sort(compareNumbers);
+console.log(numbersArray);
+JavaScript console
+[50, 54, 54, 58, 60, 62] 
+Now that we’ve written a compare function, all we need to do is call the sort 
+method on numbersArray, and pass it the function. Here’s how we do that:
+Putting it all together
+We call the sort method on 
+the array, passing it the 
+compareNumbers function.
+And when sort is complete the array is 
+sorted in ascending order, and we display 
+that in the console as a sanity check.
+Here’s the array sorted 
+in ascending order.
+The sort method has sorted numbersArray in ascending order because when we return 
+the values 1, 0 and -1, we’re telling the sort method:
+   1: place the first item after the second item
+    0: the items are equivalent, you can leave them in place
+   -1: place the first item before the second item.
+Changing your code to sort in descending order is a matter of inverting this logic 
+so that 1 means place the second item after the first item, and -1 means place the 
+second item before the first item (0 stays the same). Write a new compare function for 
+descending order:
+function compareNumbersDesc(num1, num2) {
+    if (_____ > _____) {
+        return 1;
+    } else if (num1 === num2) {
+        return 0;
+    } else {
+        return -1;
+    }
+}
+Note that the sort method is destructive, in that it changes 
+the array, rather than returning a new array that is sorted.
+
+you are here 4        461
+first class functions
+Meanwhile back at Webville Cola
+It’s time to help out Webville Cola with your new knowledge of  array sorting. 
+Of  course all we really need to do is write a comparison function for them, 
+but before we do that let’s quickly review the products array again:
+products.sort(compareSold);
+function compareSold(colaA, colaB) {
+    if (colaA.sold > colaB.sold) {
+        return 1;
+    } else if (colaA.sold === colaB.sold) {
+        return 0;
+    } else {
+        return -1;
+    }
+}
+var products = [ { name: "Grapefruit", calories: 170, color: "red", sold: 8200 },
+                 { name: "Orange", calories: 160, color: "orange", sold: 12101 },
+                 { name: "Cola", calories: 210, color: "caramel", sold: 25412 },
+                 { name: "Diet Cola", calories: 0, color: "caramel", sold: 43922 },
+                 { name: "Lemon", calories: 200, color: "clear", sold: 14983 },
+                 { name: "Raspberry", calories: 180, color: "pink", sold: 9427 },
+                 { name: "Root Beer", calories: 200, color: "caramel", sold: 9909 },
+                 { name: "Water", calories: 0, color: "clear", sold: 62123 }
+               ];
+So what are we going to sort first? Let’s start with sorting by the number of  bottles sold, 
+in ascending order. To do this we’ll need to compare the sold property of  each object. 
+Now one thing you should take note of  is, because this is an array of  product objects, 
+the compare function is going to be passed two objects, not two numbers:
+Remember, each item in the products array is an object. We don’t 
+want to compare the objects to one another, we want to compare 
+specific properties, like sold, in the objects.
+compareSold takes two cola product 
+objects, and compares the sold 
+property of colaA to the sold 
+property of colaB.
+This function will make the sort 
+method sort the colas by number of 
+bottles sold in ascending order.
+And of  course, to use the compareSold function to sort the products array, we 
+simply call the products array’s sort method:
+ Remember that the sort method can be used for any kind 
+of array (numbers, strings, objects), and for any kind of sort 
+(ascending or descending). By passing in a compare function, we 
+get flexibility and code reuse!
+But we don’t have 
+to tell them that.
+Feel free to simplify this code like you 
+did in the earlier exercise if you want!
+
+462        Chapter    10
+testing webville cola’s product sorting
+JavaScript console
+Name: Grapefruit, Calories: 170, Color: red, Sold: 8200 
+Name: Raspberry, Calories: 180, Color: pink, Sold: 9427
+Name: Root Beer, Calories: 200, Color: caramel, Sold: 9909
+Name: Orange, Calories: 160, Color: orange, Sold: 12101
+Name: Lemon, Calories: 200, Color: clear, Sold: 14983
+Name: Cola, Calories: 210, Color: caramel, Sold: 25412 
+Name: Diet Cola, Calories: 0, Color: caramel, Sold: 43922
+Name: Water, Calories: 0, Color: clear, Sold: 62123  
+Here's our output running the code using the 
+compareSold sort function. Notice the products 
+are in order by the number of bottles sold.
+Take sorting for a test drive
+Time to test the first Webville Cola code. You’ll find all the code from the last few 
+pages consolidated below along with some extras to test this out properly. So, just 
+create a simple HTML page with this code (“cola.html”) and give it some QA:
+var products = [ { name: "Grapefruit", calories: 170, color: "red", sold: 8200 },
+                 { name: "Orange", calories: 160, color: "orange", sold: 12101 },
+                 { name: "Cola", calories: 210, color: "caramel", sold: 25412 },
+                 { name: "Diet Cola", calories: 0, color: "caramel", sold: 43922 },
+                 { name: "Lemon", calories: 200, color: "clear", sold: 14983 },
+                 { name: "Raspberry", calories: 180, color: "pink", sold: 9427 },
+                 { name: "Root Beer", calories: 200, color: "caramel", sold: 9909 },
+                 { name: "Water", calories: 0, color: "clear", sold: 62123 }
+               ];
+function compareSold(colaA, colaB) {
+    if (colaA.sold > colaB.sold) {
+        return 1;
+    } else if (colaA.sold === colaB.sold) {
+        return 0;
+    } else {
+        return -1;
+    }
+}
+function printProducts(products) {
+    for (var i = 0; i < products.length; i++) {
+        console.log("Name: " + products[i].name +
+                    ", Calories: " + products[i].calories +
+                    ", Color: " + products[i].color +
+                    ", Sold: " + products[i].sold);
+    }
+}
+products.sort(compareSold);
+printProducts(products);
+Here’s the compare function 
+we’ll pass to sort...
+... and here’s a new function 
+we wrote to print the 
+products so they look nice in 
+the console. (If you just write 
+console.log(products), you can 
+see the output, but it doesn’t 
+look very good).
+So first we sort the products, 
+using compareSold...
+... and then print the results.
+
+you are here 4        463
+first class functions
+You guys nailed it!
+Now that we have a way to sort colas by the sold property, it’s time to write compare 
+functions for each of the other properties in the product object: name, calories, and color. 
+Check the output you see in the console carefully; make sure for each kind of sort, the 
+products are sorted correctly. Check the answer at the end of the chapter.
+function compareName(colaA, colaB) {
+}
+function compareCalories(colaA, colaB) {
+}
+function compareColor(colaA, colaB) {
+}
+products.sort(compareName);
+console.log("Products sorted by name:");
+printProducts(products);
+products.sort(compareCalories);
+console.log("Products sorted by calories:");
+printProducts(products);
+products.sort(compareColor);
+console.log("Products sorted by color:");
+printProducts(products);
+Write your solutions for the remaining 
+three sort functions below.
+Hint: you can use <,  > and == 
+to sort alphabetically too!
+For each new 
+compare function, 
+we call sort, and 
+display the results 
+in the console.
+
+464        Chapter    10
+chapter summary
+ There are two ways to deine 
+a function: with a function 
+declaration and with a function 
+expression.
+ A function reference is a value that 
+refers to a function.
+ Function declarations are handled 
+before your code is evaluated.
+ Function expressions are evaluated 
+at runtime with the rest of your 
+code.
+ When the browser evaluates a 
+function declaration, it creates a 
+function as well as a variable with 
+the same name as the function, and 
+stores the function reference in the 
+variable.
+ When the browser evaluates a 
+function expression, it creates a 
+function, and it’s up to you what to 
+do with the function reference.
+ First class values can be assigned 
+to variables, included in data 
+structures, passed to functions, or 
+returned from functions.
+ A function reference is a irst class 
+value.
+ The array sort method takes a 
+function that knows how to compare 
+two values in an array.
+ The function you pass to the sort 
+method should return one of these 
+values: a number greater than 0, 0, 
+or a number less than 0.
+
+you are here 4        465
+first class functions
+What deductions can you make about function declarations and 
+function expressions given how the browser treats the quack and fly 
+code? Check each statement that applies. Check your answer at the end 
+of the chapter before you go on.
+ ❏Function declarations are evaluated 
+before the rest of the code is evaluated.
+ ❏Function expressions get evaluated  
+later, with the rest of the code.
+ ❏A function declaration doesn’t return a 
+reference to a function; rather it creates 
+a variable with the name of the function 
+and assigns the new function to it.
+ ❏A function expression returns a 
+reference to the new function created 
+by the expression. 
+ 
+ 
+ ❏The process of invoking a function 
+created by a declaration is exactly the 
+same for one created with an expression.
+ ❏You can hold function references in 
+variables.
+ ❏Function declarations are statements; 
+function expressions are used in 
+statements.
+ ❏Function declarations are the tried and 
+true way to create functions.
+ ❏You always want to use function 
+declarations because they get evaluated 
+earlier.
+Not necessarily!
+Exercise Solutions
+
+466        Chapter    10
+exercise solutions
+Below, you’ll find JavaScript code. Your job is to play like you’re the 
+browser evaluating the code. In the space to the right, record each 
+function as it gets created. Remember to make two passes over 
+the code: the pass that processes declarations, and the second 
+pass that handles expressions.
+BE the Browser Solution
+var midi = true;
+var type = "piano";
+var midiInterface;
+function play(sequence) {
+    // code here
+} 
+var pause = function() {
+    stop();
+}
+function stop() {
+    // code here
+} 
+function createMidi() {
+   // code here
+}
+if (midi) {
+    midiInterface = function(type) {
+        // code here
+    };
+}
+Write, in order, the names of the functions 
+as they are created. If a function is created 
+with a function expression put the name of 
+the variable it is assigned to. We've done the 
+first one for you.
+play
+stop
+createMidi
+pause
+midiInterface
+
+you are here 4        467
+first class functions
+To get the idea of functions as values into your brain, let’s play 
+a  little game of chance.  Try the shell game. Did you win or lose? 
+Give it a try and find out. Here’s our solution.
+var winner = function() { alert("WINNER!") };
+var loser = function() { alert("LOSER!") };
+// let's test as a warm up
+winner();
+// let's assign to other variables for practice
+var a = winner;
+var b = loser;
+var c = loser;
+a();
+b();
+// now let's try your luck with a shell game
+c = a;
+a = b;
+b = c;
+c = a;
+a = c;
+a = b;
+b = c;
+a();
+c is winner 
+a is loser 
+b is winner 
+c is loser 
+a is loser 
+a is winner
+ 
+b is loser 
+invoking a... 
+winner!!!
+Remember, these variables hold 
+references to the winner and loser 
+functions. We can assign and reassign 
+these references to other variables, 
+just like with any value.
+Remember, at any time, we can 
+invoke a reference to a function.
+
+468        Chapter    10
+exercise solutions
+Your turn again: write a function that prints a passenger’s name and whether or not they 
+have paid to console.log. Pass your function to processPassengers to test it. We’ve started 
+the code for you below; you just need to finish it up. Here’s our solution.
+function printPassenger(passenger) {
+    var message = passenger.name;
+    if (passenger.paid === true) {
+        message = message + " has paid";
+    } else {
+        message = message + " has not paid";
+    }
+    console.log(message);
+    return false;
+}
+processPassengers(passengers, printPassenger);
+JavaScript console
+Jane Doloop has paid
+Dr. Evel has paid
+Sue Property has not paid
+John Funcall has paid  
+This return value doesn’t matter that 
+much because we’re ignoring the result 
+from processPassengers in this case.
+Let’s get your brain warmed up for passing your first function to another 
+function. Evalute the code below (in your head) and see what you come 
+up with. Here’s our solution:
+function sayIt(translator) {
+    var phrase = translator("Hello");
+    alert(phrase);
+}
+function hawaiianTranslator(word) {
+    if (word == "Hello") return "Aloha";
+    if (word == "Goodbye") return "Aloha";
+}
+sayIt(hawaiianTranslator);
+We’re defining a function that 
+takes a function as an argument, 
+and then calls that function.
+We’re passing the function 
+hawaiianTranslator to the 
+function sayIt. 
+
+you are here 4        469
+first class functions
+function fun(echo) {
+  console.log(echo);
+}
+function fun(echo) { 
+    console.log(echo);
+};
+Below we’ve created a function and assigned it to the variable fun. 
+Work your way through this code and write the resulting output on this page. 
+Do this with your brain before you attempt it with your computer.
+fun("hello");
+function boo(aFunction) {
+    aFunction("boo");
+}
+boo(fun);
+console.log(fun);
+fun(boo);
+var moreFun = fun;
+moreFun("hello again");
+function echoMaker() {
+    return fun;
+}
+var bigFun = echoMaker();
+bigFun("Is there an echo?");
+Super important: check and understand the answers before moving on!
+Extra credit! (A 
+preview of what’s 
+coming up...)
+fun
+hello
+boo
+function fun(echo) { console.log(echo); } 
+function boo(aFunction) { aFunction(“boo”); }
+hello again
+Is there an echo?
+Warning note: your browser may 
+display different values in the 
+console for the fun and boo 
+functions. Try this exercise in a 
+couple of different browsers.
+
+470        Chapter    10
+exercise solutions
+Your job is to add a third class of service to our code. Add “premium economy” class 
+(“premium” for short). Premium economy gets wine in addition to cola or water. Also, 
+implement getDinnerOrderFunction with the following menu:
+First class: chicken or pasta
+Premium economy: snack box or cheese plate
+Coach: peanuts or pretzels
+Here’s our solution.
+var passengers = [  { name: "Jane Doloop", paid: true, ticket: "coach" },
+                    { name: "Dr. Evel", paid: true, ticket: "firstclass" },
+                    { name: "Sue Property", paid: false, ticket: "firstclass" },
+                    { name: "John Funcall", paid: true, ticket: "premium" } ]; 
+function createDrinkOrder(passenger) {
+    var orderFunction;
+    if (passenger.ticket === "firstclass") {
+        orderFunction = function() {
+            alert("Would you like a cocktail or wine?");
+        };
+    } else if (passenger.ticket === "premium") {
+        orderFunction = function() {
+            alert("Would you like wine, cola or water?");
+        };
+    } else {
+        orderFunction = function() {
+            alert("Your choice is cola or water.");
+        };
+    }
+    return orderFunction;
+}
+We’ve upgraded John Funcall 
+to premium economy for this 
+flight (so we can test our 
+new code).
+Here’s the new code to handle the 
+premium economy class. Now we’re 
+returning one of three different 
+order functions depending on the 
+ticket type of the passenger.
+Notice how handy it is to have all this 
+logic encapsulated in one function that 
+knows how to create the right kind of 
+order function for a customer. 
+And when we make an order, we don’t 
+have to do this logic; we have an order 
+function that is customized for the 
+passenger already!
+
+you are here 4        471
+first class functions
+function createDinnerOrder(passenger) {
+    var orderFunction;
+    if (passenger.ticket === "firstclass") {
+        orderFunction = function() {
+            alert("Would you like chicken or pasta?");
+        };
+    } else if (passenger.ticket === "premium") {
+        orderFunction = function() {
+            alert("Would you like a snack box or cheese plate?");
+        };
+    } else {
+        orderFunction = function() {
+            alert("Would you like peanuts or pretzels?");
+        };
+    }
+    return orderFunction;
+}
+function serveCustomer(passenger) {
+    var getDrinkOrderFunction = createDrinkOrder(passenger);
+    var getDinnerOrderFunction = createDinnerOrder(passenger);
+    getDrinkOrderFunction();
+    // get dinner order
+    getDinnerOrderFunction();
+    getDrinkOrderFunction();
+    getDrinkOrderFunction();
+    // show movie
+    getDrinkOrderFunction();
+    // pick up trash
+}
+function servePassengers(passengers) {
+    for (var i = 0; i < passengers.length; i++) {
+        serveCustomer(passengers[i]);
+    }
+}
+servePassengers(passengers);
+We’ve added 
+a completely 
+new function, 
+createDinnerOrder, 
+to create a dinner 
+ordering function for 
+a passenger.
+It works in the 
+same way that 
+createDrinkOrder 
+does: by looking at the 
+passenger ticket type 
+and returning an order 
+function customized for 
+that passenger.
+We create the right 
+kind of dinner order 
+function for the 
+passenger...
+...and then call it whenever we want 
+to take a passenger’s dinner order.
+
+472        Chapter    10
+exercise solutions
+The sort method has sorted 
+numbersArray in ascending order 
+because when we return the 
+values 1, 0 and -1, we’re telling 
+the sort method:
+1: place the first item after the second item
+0: the items are equivalent, you can leave them in place
+ -1: place the first item before the second item.
+Changing your code to sort in descending order is a 
+matter of inverting this logic so that 1 means place the 
+second item after the first item, and -1 means place 
+the second item before the first item (0 stays the same).  
+Write a new compare function for descending order:
+function compareNumbersDesc(num1, num2) {
+    if (_____ > _____) {
+        return 1;
+    } else if (num1 == num2) {
+        return 0;
+    } else {
+        return -1;
+    }
+}
+num2num1
+What do you think this code does? Can you come up with some 
+examples of how to use it? Here’s our solution.
+function addN(n) {
+    var adder = function(x) {
+                   return n + x;
+                };
+    return adder;
+}
+This function takes one argument n. It 
+then creates a function that also takes one 
+argument, x, and adds n and x together. 
+That function is returned. 
+var add2 = addN(2);
+console.log(add2(10));
+console.log(add2(100));
+So we used it to create a function that 
+always adds 2 to a number. Like this:
+function compareNumbers(num1, num2) {
+    return num1 - num2;
+}
+You know that the comparison function we pass 
+to sort needs to return a number greater than 0, 
+equal to 0, or less than 0 depending on the two 
+items we’re comparing: if the first item is greater 
+than second, we return a value greater than 0; if 
+first item is equal to the second, we return 0; and 
+if the first item is less than the second, we return a 
+value less than 0. 
+Can you use this knowledge with the fact we’re 
+comparing two numbers in compareNumbers to 
+rewrite compareNumbers using much less code?
+Here’s our solution:
+We can make this function a single line 
+of code by simply returning the result of 
+substracting num2 from num1. Run through 
+a couple of examples to see how this works.  
+And remember sort is expecting a number 
+greater than, equal to, or less than 0, not 
+specifically 1, 0, -1 (although you’ll see a lot 
+of code return those values for sort).
+
+you are here 4        473
+first class functions
+You guys nailed it!
+Now that we have a way to sort colas by the sold property, it’s time to write compare

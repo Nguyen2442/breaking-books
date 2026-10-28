@@ -1,0 +1,646 @@
+5. Functions that handle events are known as event 
+________. 
+7. Dr. Evel’s passcode clue was in the element with the 
+id _____. 
+9. Assign a ________ to the window.onload property to 
+handle the load event. 
+12. Use the element object’s property, ________, to 
+change the HTML inside an element. 
+14. The setAttribute method is a method of an ________ 
+object. 
+15. The DOM is shaped like a _____.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+DOWN
+1. Which planet gets hit by phaser fire?
+2. Use the _______ to see if you have errors in your 
+code. 
+3. It’s important to make sure the ____ is completely 
+loaded before using code to get or change elements in 
+the page. 
+4. The getElementById method gets an element by its 
+___. 
+6. Change the class of an element using the _________ 
+method. 
+8. The ______ object is always at the top of the DOM 
+tree. 
+10. It’s a good idea to check for ____ when using 
+getElementById. 
+11. When you load a page into the browser, the browser 
+creates a ____ representing all the elements and content 
+in the page.
+13. getElementById is a ________ of the document 
+object. 
+
+you are here 4        261
+interacting with your web page 
+Your job is to act like 
+you’re the browser. You 
+need to parse the HTML 
+and build your very own 
+DOM from it. Go ahead 
+and parse the HTML to 
+the right, and draw your 
+DOM below. We’ve already 
+started it for you.
+Here’s our DOM
+document
+html
+head
+title
+body
+h1h2 id=”movie1”h2 id=”movie2”pp
+span
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Movies</title>
+  </head>
+  <body>
+    <h1>Movie Showtimes</h1>
+    <h2 id="movie1" >Plan 9 from Outer Space</h2>
+    <p>Playing at 3:00pm, 7:00pm. 
+      <span>
+        Special showing tonight at <em>midnight</em>!
+      </span>
+    </p>
+    <h2 id="movie2">Forbidden Planet</h2>
+    <p>Playing at 5:00pm, 9:00pm.</p>
+  </body>
+</html>
+BE the Browser 
+Solution
+em
+meta
+
+262        Chapter    6
+exercise solutions
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>My Playlist</title>
+  <script>
+  ____________ addSongs() {
+    var song1 = document.______________("________");
+    var _____ = _______________________("________");
+    var _____ = ________.getElementById("________");
+    ________.innerHTML = "Blue Suede Strings, by Elvis Pagely";
+    __________________ = "Great Objects on Fire, by Jerry JSON Lewis";
+    song3.____________ = "I Code the Line, by Johnny JavaScript";
+  }
+  window.___________ = ____________;
+  </script>
+</head>
+<body>
+  <h1>My awesome playlist</h1>
+  <ul id="playlist">
+    <li id="song1"></li>
+    <li id="song2"></li>
+    <li id="song3"></li>
+  </ul>
+</body>
+</html>
+Here’s some HTML for a playlist of songs, except that the list is 
+empty. It’s your job to complete the JavaScript below to add the 
+songs to the list. Fill in the blank with the JavaScript that will do 
+the job. Here’s our solution.
+This is what the web 
+page looks like after 
+you load the page.
+Fill in the blanks with the missing 
+code to get the playlist filled out.
+Here’s the HTML 
+for the page. 
+Here’s our script. This code should fill in 
+the list of songs below, in the <ul>.
+Here’s the empty list of songs. The 
+code above should add content to 
+each <li> in the playlist.
+function
+getElementById
+song1
+song2
+song3
+song1
+song2.innerHTML
+innerHTML
+onload
+addSongs
+song2
+song3
+document.getElementById
+document
+
+you are here 4        263
+interacting with your web page 
+JavaScript cross Solution
+Load the DOM into your brain with this puzzle.
+How about getting another part of your brain working? We’re going to need the 
+CSS style for the class “redtext” that sets the color to “red” for the text in the planet 
+paragraph. If it’s been a while since you wrote CSS, don’t worry; give it a shot anyway. If 
+you can do it in your sleep, awesome. Here’s our solution.
+.redtext { color: red; }
+G
+1
+C
+2
+P
+3
+I
+4
+ROA
+
+5
+ANDLERS
+6
+NG
+EESC
+7
+OD
+8
+E9
+F
+9
+UNCTIONO
+PALC
+LTEN
+10
+U
+ATUD
+11
+M
+I
+12
+NNER
+
+TM
+13
+LOE
+EIE
+14
+LEMENT
+TBTT
+U
+
+TO
+T
+15
+REED
+
+this is a new chapter     265
+Serious types
+7  types, equality, conversion and all that jazz
+It’s time to get serious about our types.  One of the great 
+things about JavaScript is you can get a long way without knowing a lot of 
+details of the language. But to truly master the language, get that promotion 
+and get on to the things you really want to do in life, you have to rock at types. 
+Remember what we said way back about JavaScript? That it didn’t have the 
+luxury of a silver-spoon, academic, peer-reviewed language definition? Well 
+that’s true, but the academic life didn’t stop Steve Jobs and Bill Gates, and it 
+didn’t stop JavaScript either. It does mean that JavaScript doesn’t have the... 
+well, the most thought-out type system, and we’ll find a few idiosyncrasies 
+along the way. But, don’t worry, in this chapter we’re going to nail all that down, 
+and soon you’ll be able to avoid all those embarrassing moments with types.
+
+266        Chapter    7
+thinking about types
+Numbers
+Booleans
+Strings
+Primitive Types
+Objects
+Car
+Dog
+Song
+Element
+Math
+Document
+Now that you’ve had a lot of  experience working with JavaScript 
+types—there’s your primitives with numbers, strings, and booleans, 
+and there’s all the objects, some supplied by JavaScript (like the 
+Math object), some supplied by the browser (like the document 
+object), and some you’ve written yourself—aren’t you just basking 
+in the glow of  JavaScript’s simple, powerful and consistent type 
+system?
+JavaScript also supplies a lot of useful objects, 
+but you can also create your own or use 
+objects other developers have written.
+These are all supplied by JavaScript.
+The truth is out there...
+Low-level basic types for 
+numbers, strings, booleans.
+High-level objects used to represent 
+the things in your problem space.
+After all what else would you expect from the official language of  
+Webville? In fact, if  you were a mere scripter, you might think about 
+sitting back, sipping on that Webville Martini, and taking a much 
+needed break...
+But you’re not a mere scripter, and something is amiss. You have that 
+sinking feeling that behind Webville’s picket fences something bizarre 
+is at work. You’ve heard the reports of  sightings of  strings that 
+are acting like objects, you’ve read in the blogs about a (probably 
+radioactive) null type, you’ve heard the rumors that the JavaScript 
+interpreter as of  late has been doing some weird type conversion. 
+What does it all mean? We don’t know, but the truth is out there and 
+we’re going to uncover it in this chapter, and when we do, we might 
+just turn what you think of  true and false upside down.
+
+you are here 4        267
+types, equality, conversion and all that jazz
+Who am I?
+I get returned from a function when there 
+is no return statement.
+I’m the value of  a variable when I haven’t 
+been assigned a value.
+I’m the value of  an array item that doesn’t 
+exist in a sparse array.
+I’m the value of  a property that doesn’t 
+exist.
+I’m the value of  a property that’s been 
+deleted.
+I’m the value that can’t be assigned to a 
+property when you create an object.
+zero
+empty object
+null
+undefined
+NaN
+infinity
+area 51
+...---...
+{}
+[]
+A bunch of JavaScript values and party crashers, in full costume, are 
+playing a party game, “Who am I?”  They give you a clue, and you try to 
+guess who they are, based on what they say. Assume they always tell 
+the truth about themselves. Draw an arrow from each sentence to the 
+name of one attendee.  We’ve already guessed one of them for you. 
+Check your answers at the end of the chapter before you go on.
+If you ind this exercise diicult, it’s okay to cheat and look at the answers.
+Tonight’s 
+attendees:
+
+268        Chapter    7
+undefined
+Watch out, you might bump into undefined 
+when you aren’t expecting it...
+As you can see, whenever things get shaky—you need a variable that’s not been 
+initialized yet, you want a property that doesn’t exist (or has been deleted), you 
+go after an array item that isn’t there—you’re going to encounter undefined.
+But what the heck is it? It’s not really that complicated. Think of  undefined as the 
+value assigned to things that don’t yet have a value (in other words they haven’t been 
+initialized). 
+So what good is it? Well, undefined gives you a way to test to see if  a variable (or 
+property, or array item) has been given a value. Let’s look at a couple of  examples, 
+starting with an unassigned variable:
+You can check to see if a variable 
+like x is undefined. Just compare 
+it to the value undefined.
+var x;
+if (x == undefined) {
+    // x isn’t defined! just deal with it!
+}
+var customer = {
+    name: "Jenny"
+};
+if (customer.phoneNumber == undefined) {
+    // get the customer's phone number
+}
+Or, how about an object property:
+You can check to see if 
+a property is undefined, 
+again by comparing it to 
+the value undefined.
+Note that we’re using the value 
+undefined here, not to be confused 
+with the string “undefined”.
+Q:
+ When do I need to check if a variable (or property or array 
+item) is undefined?
+A: Your code design will dictate this. If you’ve written code so that 
+a property or variable may not have a value when a certain block of 
+code is executed, then checking for undefined gives you a way to 
+handle that situation rather than computing with undefined values.
+Q:
+ If undefined is a value, does it have a type?
+A: Yes, it does. The type of undefined is undefined. Why? Well 
+our logic (work with us here) is this: it isn’t an object, or a number or 
+a string or a boolean, or really anything that is defined. So why not 
+make the type undefined, too? This is one of those weird twilight 
+zones of JavaScript you just have to accept.
+
+you are here 4        269
+types, equality, conversion and all that jazz
+IN THE LABORATORY
+In the laboratory we like to take things apart, look under the hood, 
+poke and prod, hook up our diagnostic tools and check out what 
+is really going on. Today, we’re investigating JavaScript’s type 
+system and we’ve found a little diagnostic tool called typeof to 
+examine variables. Put your lab coat and safety goggles on, and 
+come on in and join us.
+The typeof operator is built into JavaScript. You can use it to 
+probe the type of its operand (the thing you use it to operate on). 
+Here’s an example:
+var subject = "Just a string";
+var probe = typeof subject;
+console.log(probe);
+JavaScript console
+string
+The typeof operator takes an 
+operand, and evaluates to the 
+type of the operand. 
+The type here is “string". Note 
+that typeof uses strings to 
+represent types, like “string",  
+“boolean", “number", “object", 
+“undefined", and so on.
+Now it’s your turn. Collect the data for the 
+following experiments:
+var test1 = "abcdef";
+var test2 = 123;
+var test3 = true;
+var test4 = {};
+var test5 = [];
+var test6;
+var test7 = {"abcdef": 123};
+var test8 = ["abcdef", 123];
+function test9(){return "abcdef"};
+console.log(typeof test1);
+console.log(typeof test2);
+console.log(typeof test3);
+console.log(typeof test4);
+console.log(typeof test5);
+console.log(typeof test6);
+console.log(typeof test7);
+console.log(typeof test8);
+console.log(typeof test9);
+JavaScript console
+Here's the test data, 
+and the tests.
+Put your results here. Are 
+there any surprises?
+
+270        Chapter    7
+thinking about null
+I remember from the DOM chapter that 
+getElementById returns null, not undefined, 
+if the id doesn’t exist. What exactly is 
+null, and why doesn’t getElementById return 
+undefined instead?
+Ah yes, this causes a lot of confusion. There are many 
+languages that have the concept of  a value that means “no object.” 
+And, it’s not a bad idea—take the document.getElementById 
+method. It’s supposed to return an object right? So, what happens 
+if  it can’t?  Then we want to return something that says “I would 
+have been an object if  there was one, but we don’t have one.” And 
+that’s what null is.
+You can also set a variable to null directly:
+    var killerObjectSomeday = null;
+What does it mean to assign the value null to a variable? How about 
+“We intend to assign an object to this variable at some point, but we 
+haven’t yet.”
+Now, if  you’re scratching your head and saying “Hmm, why didn’t 
+they just use undefined for that?” then you’re in good company. 
+The answer comes from the very beginnings of  JavaScript. The idea 
+was to have one value for variables that haven’t been initialized to 
+anything yet, and another that means the lack of  an object. It isn’t 
+pretty, and it’s a little redundant, but it is what it is at this point. Just 
+remember the intent of  each (undefined and null), and know that 
+it is most common to use null in places where an object should be 
+but one can’t be created or found, and it is most common to find 
+undefined when you have a variable that hasn’t been initialized, or 
+an object with a missing property, or an array with a missing value.
+BACK IN THE LABORATORY
+Oops, we forgot null in our test data. Here’s the missing test case:
+var test10 = null;
+console.log(typeof test10);
+JavaScript console
+Put your results here. 
+
+you are here 4        271
+types, equality, conversion and all that jazz
+There are many functions and methods out there in the world that return 
+objects, and you’ll often want to make sure what you’re getting back is a full-
+fledged object, and not null, just in case the function wasn’t able to find one 
+or make one to return to you. You’ve already seen examples from the DOM 
+where a test is needed:
+var weather = document.getElementById("weatherDiv");
+if (weather != null) {
+     // create content for the weather div
+}
+How to use null
+Keep in mind that getting null doesn’t necessarily mean something is wrong. 
+It may just mean something doesn’t exist yet and needs to be created, or 
+something doesn’t exist and you can skip it.  Let’s say users have the ability 
+to open or close a weather widget on your site. If  a user has it open there’s 
+a <div> with the id of  “weatherDiv”, and if  not, there isn’t. All of  a sudden 
+null becomes quite useful:
+var header = document.getElementById("header");
+if (header == null) {
+     // okay, something is seriously wrong if we have no header
+}
+Blaine, Missouri
+It is always 67 
+degrees with a 40% 
+chance of  rain.
+Let’s look for the all-
+important header element.
+Uh oh, it doesn’t exist. Abandon ship!
+Let’s see if the element 
+with id “weatherDiv” exists.
+If the result of getElementById isn’t null, then 
+there is such an element in the page. Let’s create a 
+nice weather widget for it (presumably getting the 
+weather for the local area).
+Remember, null is intended to represent 
+an object that isn’t there.
+We can use null to check 
+to see if an object exists 
+yet or not.
+
+272        Chapter    7
+NaN is weird
+NaN != NaN
+NaN != NaN
+Believe It or Not!!
+T
+h
+e
+ 
+N
+u
+m
+b
+e
+r
+t
+h
+a
+t
+ 
+i
+s
+n
+'
+t
+ 
+a
+ 
+N
+u
+m
+b
+e
+r
+Believe it or not, there are numeric 
+values that are impossible to represent 
+in JavaScript! JavaScript can’t express 
+these values, so it has a stand-in value 
+that it uses:
+It’s easy to write JavaScript 
+statements that result in numeric 
+values that are not well defined.
+Here are a few examples:
+var a = 0/0;
+ 
+var b = "food" * 1000;
+var c = Math.sqrt(-9);
+In mathematics this has no 
+direct answer, so we can't 
+expect JavaScript to know 
+the answer either!
+We don't know what this 
+evaluates to, but it is 
+certainly not a number!
+If you remember high school 
+math, the square root of 
+a negative number is an 
+imaginary number, which 
+you can’t represent in 
+JavaScript.
+NaN
+NaN
+JavaScript uses the value NaN, more 
+commonly known as “Not a Number”,  to 
+represent numeric results that, well, 
+can’t be represented. Take 0/0 for 
+instance. 0/0 evaluates to something 
+that just can’t be represented in a 
+computer, so it is represented by NaN 
+in JavaScript. 
+NaN MAY BE THE 
+WEIRDEST VALUE 
+IN THE WORLD. Not 
+only does it represent 
+all the numeric 
+values that can’t be 
+represented, it is the only value in 
+JavaScript that isn’t equal to itself!
+You heard that right. If you compare 
+NaN to NaN, they aren’t equal!
+
+you are here 4        273
+types, equality, conversion and all that jazz
+Dealing with NaN
+Now you might think that dealing with NaN is a rare event, but if  you’re working 
+with any kind of  code that uses numbers, you’d be surprised how often it 
+shows up. The most common thing you’ll need to do is test for NaN, and given 
+everything you’ve learned about JavaScript, how to do this might seem obvious:
+if (myNum == NaN) {
+    myNum = 0;
+}
+WRONG!
+Any sensible person would assume that’s how you test to see if  a variable holds a 
+NaN value, but it doesn’t work. Why? Well, NaN isn’t equal to anything, not even 
+itself, so, any kind of  test for equality with NaN is off  the table. Instead you need 
+to use a special function: isNaN. Like this:
+if (isNaN(myNum)) {
+    myNum = 0;
+}
+RIGHT!
+You'd think this would work, 
+but it doesn't.
+Use the isNaN function, which 
+returns true if the value 
+passed to it is not a number.
+It gets even weirder
+So, let’s think through this a bit more. If  NaN stands for “Not a Number”, what 
+is it? Wouldn’t it be easier if  it were named for what it is rather than what it isn’t? 
+What do you think it is? We can check its type for a hint:
+var test11 = 0 / 0;
+console.log(typeof test11);
+JavaScript console
+number
+If your mind isn’t blown, 
+you should probably just 
+use this book for some 
+good kindling.
+Here’s what we got.
+What on earth? NaN is of  type number? How can something that’s not a number 
+have the type number? Okay, deep breath. Think of  NaN as just a poorly named 
+value. Someone should have called it something more like “Number that can’t 
+be represented” (okay, we agree the acronym isn’t quite as nice) instead of  “Not 
+a Number”. If  you think about it like that,  then you can think of  NaN as being a 
+value that is a number but can’t be represented (at least, not by a computer).
+Go ahead and add this one to your JavaScript twilight zone list.
+
+274        Chapter    7
+questions about NaN and null
+Q:
+ If I pass isNaN a string, which isn’t a number, will it return 
+true?
+A: It sure will, just as you’d expect. You can expect a variable 
+holding the value NaN, or any other value that isn’t an actual 
+number to result in isNaN returning true (and false otherwise). There 
+are a few caveats to this that you’ll see when we talk about type 
+conversion.
+Q:
+ But why isn’t NaN equal to itself?
+A: If you’re deeply interested in this topic you’ll want to seek out 
+the IEEE floating point specification. However, the layman’s insight 
+into this is that just because NaN represents an unrepresentable 
+numeric value, does not mean that those unrepresentable numbers 
+are equal. For instance, take the sqrt(-1) and sqrt(-2). They are 
+definitely not the same, but they both produce NaN.
+Q:
+ When we divide 0/0 we get NaN, but I tried dividing 10/0 
+and got Infinity. Is that different from NaN?
+A: Good find. The Infinity (or -Infinity) value in JavaScript 
+represents all numbers (to get a little technical) that exceed the upper 
+limit on computer floating point numbers, which is  
+ 
+1.7976931348623157E+10308 (or -1.7976931348623157E+10308  
+for -Infinity). The type of Infinity is number and you can test for it if 
+you suspect one of your values is getting a little large: 
+    if (tamale == Infinity) { 
+      alert("That's a big tamale!"); 
+  }
+Q:
+ You did blow my mind with that “NaN is a number” thing. 
+Any other mind blowing details?
+A:
+ Funny you should ask. How about Infinity minus Infinity 
+equals.... wait for it........ NaN. We’ll refer you to a good 
+mathematician to understand that one.
+Q:
+ Just to cover every detail, did we say what the type of null 
+is?
+A: A quick way to find out is by using the typeof operator on null. If 
+you do that you’ll get back the result “object”.  And this makes sense 
+from the perspective that null is used to represent an object that isn’t 
+there. However, this point has been heavily debated, and the most 
+recent spec defines the type of null as null. You’ll find this an area 
+where your browser’s JavaScript implementation may not match the 
+spec, but, in practice, you’ll rarely need to use the type of null in code.
+We’ve been looking at some rather, um, interesting, values so far in this chapter. 
+Now, let’s take a look at some interesting behavior. Try adding the code below 
+to the <script> element in a basic web page and see what you get in the console

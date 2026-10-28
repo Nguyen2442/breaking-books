@@ -1,0 +1,897 @@
+179
+comma (,), separating object properties  177, 179
+comments in JavaScript  13
+comparison operators  55, 71
+compiling code  5
+concatenating strings  15, 133, 142, 286–287, 312, 354
+concat, method  300
+conditionals
+as variable or string  23
+being verbose in specifying  65, 74
+combining using boolean operators  62–63, 74
+handled by browsers  434
+test in arrays  140
+using boolean expressions to make decisions with  22
+using in while statement  17–21
+confirm method  627
+console
+about  214
+cheating at advanced Battleship game using  370
+finding errors using  68
+opening browser  28
+console.log function
+communicating with users using  25–27, 42
+displaying object in console using  185, 608
+constructor object, array  549–551
+constructors, object
+about  , 521, 525, xxi
+creating  525–526, 536–538, 555, 558, 566–567
+creating objects
+by convention  523
+with object literals  522
+finding errors in code exercise  529, 556
+independent properties of   546–547
+naming  532
+parameters names in  532
+putting methods into  530–532, 557
+real world  548
+understanding object instances  543–545, 560
+updating constructor
+chain of  prototypes in  591–593, 606, 619
+cleaning up code  600–605
+creating prototype that inherits from another pro-
+totype  594–599, 620
+design for  588–590
+using  527, 555
+using new keyword with  528, 532–535, 543, 548
+vs. literals  532, 539–542, 559
+workings of   528
+controller object, advanced Battleship game
+about  329
+counting guesses and firing shot  355–356
+determining end of  game  356
+developing parseGuess function  351–354
+implementing  349–357
+passing input to  360
+processing player’s guess  350–354
+testing  357
+counter, initializing, in array  140
+
+646        Index
+the index
+CSS (Cascading Style Sheets)
+about  2
+background property  326
+creating interactive web page using  319
+marking up text with  10
+positioning  324–326, 328
+writing  254, 263
+curly braces ({ })
+enclosing object properties  177, 179
+in body of  function  97
+in code block  17
+matching in code  59
+using with object literals  177, 522
+D
+Date object  214, 548, 551
+declarations, function
+assigning to variables  439
+evaluating code  438, 466
+handled by browser  431–433, 436, 465, 483
+in anonymous functions  483–485
+parsing  431
+vs. function expressions  431, 437
+defining functions, with parameters  90
+delete keyword  184
+designing
+simplified Battleship game game  45–46
+designing, advanced Battleship game game  329–330, 376
+diagrams, object  565, 570
+displayHit method  331–334
+displayMessage method  331–334
+displayMiss method  331–334
+<div> elements
+giving unique id  243
+positioning using CSS  324–325
+document object
+about  214, 240
+getElementById method
+accessing images using  388–392
+as case sensitive  230
+as document object  237
+getting element with  231, 240, 247–248
+getting reference to ire button in advanced Battle-
+ship game  359
+passing id that does not exist  245
+returning null  256, 270–271
+using to locate element and change its content  
+238–239
+getElementsByClassName method  245, 626
+getElementsByName method  626
+getElementsByTagName method  245, 397
+in DOM  235, 626
+write function, communicating with users using  
+25–26, 42
+dollar sign ($)
+beginning JavaScript variable names  13
+function in jQuery  624
+DOM (Document Object Model)
+about  , xv
+accessing images in  389–390
+changing  244
+communicating with users using  25–26, 42
+creating  234–235
+creating, adding, or removing elements getting  258
+document object in  235, 626
+DOM structure as tree  235
+elements grabbed from  241
+Event object in  399–402, 423
+events  413
+getting element by id from  245
+getting elements from, using jQuery  624
+interaction of  JavaScript with  233
+NodeList in  397
+parsing HTML and building  236, 261
+setting attributes
+with code  254
+with setAttribute method  255, 333
+updating  247–248
+with secret message  246
+“Don’t Repeat Yourself ” (DRY)  603
+dot notation (.)
+accessing object properties  181, 209, 230
+using with reference variables  186
+using with this object  202
+do while loop  364, 373
+dragstart event  419
+Dreamweaver, as HTML editor  31
+
+you are here 4        647
+the index
+drop event  419
+DRY ( “Don’t Repeat Yourself ”)  603
+E
+ECMAScript 5  6
+element objects
+about  231, 245
+returning list of   397
+elements. See also getElementById method
+accessing with getElementById  238, 240
+attribute does not exist in  256
+classes used to label set of   243
+getting by id from DOM  245
+getting, creating, adding, or removing  258
+grabbed from DOM  241
+identifying elements  243
+labeling with classes set of   243
+target set to  398–399, 401
+using CSS to position  324–326
+else if  statements
+making decisions using  22–23
+writing  56
+else statements, using as catch-all with if/else statements  
+23
+empty arrays  134, 153–154, 365, 367, 549–550
+encapsulation  200
+equal sign (=) operator, assigning values to variables using  
+11, 16, 275
+equality (==) operator
+as comparison operator  16, 55, 275–285, 311, 459
+vs. === operator  289
+strict equality (===) operator
+as comparison operator  55, 280–285, 311
+vs. == operator  289
+Error object  551, 629
+errors in code, finding
+exercise  14, 39, 203, 224
+finding errors using console  68
+handling exceptions  629
+using console.log function  25, 27
+event handlers
+about  384
+adding using addEventListener  630
+assigning to properties  407
+asynchronous coding
+assigning to properties  407
+callbacks and  250
+creating  385–386
+in advanced Battleship game  358–359, 361
+kinds of   252
+onload  249
+timerHandler  407
+using setInterval function  410, 425
+using setTimeout function  407–413
+callbacks and  250
+creating  385–386
+creating closure with  503–507
+event objects  399–402, 423
+in advanced Battleship game  358–359, 361
+kinds of   252
+onload  249
+timerHandler  407
+using setInterval function  410, 425
+using setTimeout function  407–413
+Event object
+event handlers and  399–402, 423
+for properties  401
+setting up in IE8 and older browsers  399, 631
+event objects
+setting up in IE8 and older browsers  631
+events
+about  383, 419
+API-specific  413
+click  407, 419, 624
+creating game that reacts to  388–392
+DOM  413
+dragstart  419
+drop  419
+exercise on notification of   382, 421
+exercise on reacting to events  415, 427
+image game and
+adding images to  393–397
+assigning click handlers  396–397
+assigning handler to onclick property  390–391, 
+393–398
+creating  411–414, 422, 426
+interview with browser about events  403
+I/O  413
+keypress  419
+
+648        Index
+the index
+list of   419
+load  419. See also load events
+mousemove  405–406, 419, 424
+mouseout  419
+mouseover  419
+onclick property  390–391, 393–398
+pause  419
+queues and  404
+reacting to  387
+resize  419
+timer  407–409
+touchend  419
+touchstart  419
+types of   407
+unload  419
+using setInterval function  410, 425
+example files, downloading  xxxiii
+exceptions, handling  629
+exercises, about doing  xxxiii
+expressions  15–16, 40
+expressions, function
+assigning to variables  439
+evaluating code  438, 466
+handled by browser  434–436, 465
+substituting  481
+vs. declarations, function  431, 437
+F
+false (boolean value)  13
+falsey and truthy values  291–293, 313
+fire method, advanced Battleship game  342, 346
+first class values, functions as
+about  442–443
+extreme JavaScript challenge  486, 508, 517
+passing functions to functions  443–448, 468, 482, 
+486, 514
+returning functions from  450–456, 470, 472
+substituting function expressions  481
+using array sort method  457–463, 472–473
+Flash, creating dynamic web pages using  5
+flowchart, for designing program  45
+for/in iterator  209
+for loop
+in adding new ship locations in advanced Battleship 
+game  365, 367
+in guessing location of  ships in advanced Battleship 
+game  343
+iterating arrays using  140–142, 169
+redoing  147
+vs. while loop  144
+<form> element
+action attribute in  328
+adding inputs to  323
+using CSS to position  325
+forward slashes (//), beginning JavaScript comments  13
+forward slash (/) operator, as division arithmetic operator  
+15, 286
+free variables  495–496, 501, 516
+functions
+$ (dollar sign), in jQuery  624
+about  , 79, 88, xii
+abstracting code from array for  157–162
+alert
+communicating with users using  25–26, 42, 46
+determining hits and misses in simpliied Battleship 
+game  59, 76
+anatomy of   97
+anonymous
+about  , 475–476, 482, xx–xxi
+assigning to method in constructors  530–532, 557
+brain twister involving  509, 518
+creating  477–478, 512–513
+making code tighter  479
+passing functions to functions  482, 486, 514
+readability of   480
+arguments in
+about  85
+identifying  91, 105
+mixing up order of   97
+passing  88–89, 92–94
+using pass-by-value  92–93
+vs. parameters  90
+arguments object in  628
+as first class values
+about  442–443
+extreme JavaScript challenge  487, 508, 517
+
+you are here 4        649
+the index
+passing functions to functions  443–448, 468, 482, 
+486, 514
+returning functions from  450–456, 470, 472
+substituting function expressions  481
+using array sort method  457–463, 472–473
+as objects  612–613
+assigning to variables  439, 449, 469
+as values  439–440, 467
+body of
+declaring variables within  97
+parameters in  84–85
+built-in  71, 91, 119
+calling  85–86, 117
+calling recursively  634–635
+closures and
+about  493, 495–497
+actual environment in closures  502
+creating closure with event handlers  503–507
+exercise creating  500, 514–515
+passing function expression as argument to create  
+501
+using to implement counters  498–499
+console.log
+communicating with users using  25, 42
+displaying object in console using  185
+creating  83–87
+declarations
+about  430
+assigning to variables  439
+evaluating code  438, 466
+handled by browser  431–433, 436, 465, 483
+in anonymous functions  483–485
+parsing  431
+vs. expressions  431, 437
+defining  132
+exercise identifying  91, 119
+expressions
+assigning to variables  439
+evaluating code  438, 466
+handled by browser  434–436, 465
+substituting  481
+vs. declarations  431, 437
+extreme JavaScript challenge  487, 508, 517
+guide to code hygiene  111
+init  249, 251, 359, 361, 369, 389–391
+isNaN  273, 353
+keyword  430
+life span of  variables  102
+location in JavaScript  109
+Math.floor  68, 131, 365–367
+Math.random  67–68, 88, 131, 365–367
+naming  97
+nesting  485–486, 488–490, 494
+No Dumb Questions  97, 108
+onload handler  249–250, 359, 389–390
+order in defining  389
+parameters in
+about  84, 88
+assigning argument values to  85
+identifying  91, 105
+naming  97
+none used in function  94
+passing arguments to  89
+vs. arguments  90
+parameters vs. arguments  90
+parentheses (()) in calling  68, 430, 439
+passing functions to  409, 443–448, 468, 482, 486, 514
+passing objects to  192–194, 198
+prompt  46, 53, 55
+reference
+about  430, 476
+action in function  491, 494
+assigning  477
+in calling function  491
+in passing function argument to another function  
+486
+passing  479
+substituting function expressions and  481
+returning functions from  450–456, 470, 472
+return statement in  95–97
+scope
+lexical scope of  variables  488–490, 494
+of  local and global variables  101
+setInterval  410, 413, 425, 627
+setTimeout  407–413, 410, 480, 501, 627
+standard declaration for  430
+timerHandler  407
+tracing through  96
+variables in
+declaring inside and outside of  functions  97–99
+declaring local  103, 108
+default value of   50
+
+650        Index
+the index
+lexical scope of   488–490, 494
+local vs. global  99, 106–107
+naming  12–13, 100, 103, 108
+nesting of   486, 488–490, 494
+passing into arguments  89
+reloading page and  108
+scope of  local and global  101
+shadowing  103
+var keyword in declaring  97, 99
+vs methods  206
+weird  94
+write  25–26, 42
+G
+generateShipLocations method  364, 367, 369
+generateShip method  364–365, 367
+getAttribute method  256, 391
+getDay method  548
+getElementById method
+accessing images using  388–392
+as case sensitive  230
+as document object  237
+getting element with  231, 240, 247–248
+getting reference to fire button in advanced Battleship 
+game  359
+passing id that does not exist  245
+returning null  256, 270–271
+using to locate element and change its content  
+238–239
+getElementsByClassName method  245, 626
+getElementsByName method  626
+getElementsByTagName method  245, 396, 397
+getFullYear method  548
+getSize method  531, 557
+global variables
+guide to code hygiene  111
+identifying  105, 120
+lexical scope of   488–490, 494
+life cycle of   102
+nesting affecting  486, 488–490, 494
+overuse in JavaScript  108
+overuse of   391
+reasons for sparing use of   108
+scope of   101
+shadowing  104
+vs. local variables  99, 106–107
+greater than (>) operator  16, 55, 459
+greater than or equal to (>=) operator  16, 55
+guesses property, advanced Battleship game  349
+H
+handleFireButton function  359
+handleKeyPress function  361
+handling events
+asynchronous coding
+about  383
+assigning to properties  407
+creating  385–386
+creating closure with  503–507
+in advanced Battleship game  358–359, 361
+kinds of   253
+onload  249
+timerHandler  407
+using setInterval function  410, 425
+using setTimeout function  407–413
+event handlers
+about  383
+adding using addEventListener  630
+assigning to properties  407
+callbacks and  250
+creating  385–386
+creating closure with  503–507
+in advanced Battleship game  358–359, 361
+kinds of   252
+onload  249
+timerHandler  407
+using setInterval function  410, 425
+using setTimeout function  407–413
+event objects  399–402, 423
+exercise on notification of  events  382, 383, 421
+interview with browser about events  403
+reacting to events
+about  387
+adding images to image guessing game  393–397
+assigning click handlers  396–397
+assigning handler to onclick property  390–391, 
+393–398
+
+you are here 4        651
+the index
+creating image guessing game  388–392, 411–414, 
+422, 426
+exercise on  415, 427
+using setInterval function  410, 425
+using setTimeout function  407–413
+hasOwnProperty method  586, 607
+<head> element
+about  4
+adding code on HTML page to  32
+linking code on HTML page file from  32
+Head First HTML5 Programming  413, 613, 626
+Head First HTML and CSS  320, 328
+history method  627
+hits, in advanced Battleship game
+classes for misses and  326–327, 375
+determining  344–345
+determining if  ship is sunk  346
+looking for  343
+notifying view of   347
+HTML
+about  2
+creating interactive web page using
+about  319–320
+adding CSS  324–326
+background  320–321
+placing hits and misses  326
+player interaction  322
+table  322
+using hit and miss classes  327, 375
+editors  31
+identifying elements with ids  243
+linking code in simplified Battleship game  49
+marking up text with  10
+parsing and building DOM from  236, 261
+HTML5
+standard doctype  4
+using string of  numbers for id attributes in  328
+using with JavaScript  5
+<html> element  4
+HTML page
+JavaScript interacting with  233
+loading code into  32
+with code in external file  230–232
+HTML wrapper for examples  xxxiv
+I
+id attributes
+accessing elements by  238
+identifying elements with  243
+using string of  numbers for  328
+identity equality operator  284. See also strict equality 
+(===) operator
+IE8 (Internet Explorer 8)
+setting up event objects in browsers older than  399, 
+631
+if/else statements
+making decisions using  23
+writing  56
+if  statement, making decisions using  22
+image guessing game
+adding images to
+about  393–397
+assigning click handlers  396–397
+assigning handler to onclick property  390–391, 
+393–398
+creating  388–392, 411–414, 422, 426
+indexOf  method  298, 343, 345, 352, 368, 610
+indices, in arrays  129, 134, 152, 163
+infinite loop  55
+Infinity (-infinity), JavaScript  274
+inheritance
+extending built-in object  610
+in chain of  prototypes  592–593, 619
+in objects  569–572
+of  prototype from another prototype  594–599, 606, 
+620
+overriding built-in behavior  608–609
+init function  249, 251, 359, 361, 369, 389–391, 630
+innerHeight property  627
+innerHTML property
+about  245
+changing DOM using  244
+replacing element content in <body> element with  
+245
+setting text using  331
+using to change element content  239, 241–242, 
+247–248
+
+652        Index
+the index
+innerWidth property  627
+<input> elements
+adding to <form>  323
+using CSS to style  325
+instanceof  operator  305, 315, 543, 547
+interface transformations on elements, using jQuery  625
+Internet Explorer 8 (IE8)
+setting up event objects in browsers older than  399, 
+631
+interpreted languages  5
+in variables  186–187
+invoking (calling) functions
+about  85–86, 117, 492–493
+browsers handling function declarations and expres-
+sions  431–437
+exercise for  117
+parentheses (()) in  68, 430, 439
+recursive functions  634–635
+variables referring to functions in  436
+with arguments  90, 430
+I/O events  413
+isNaN function  273, 353
+isSunk method, advanced Battleship game  346
+J
+Java
+introduction of   6
+vs. JavaScript  5
+Java, classic object-oriented programming  564
+JavaScript
+about  , 1–2, x–xi
+API-specific events  413
+arrays  127, 132–134
+case insensitivity  12
+getElementById as wormhole to  237
+getting on web page  4–5
+grand unified theory of   612
+handling exceptions  629
+history of   6
+importance of   5
+in applications  5
+Infinity in  274
+interacting with DOM  233
+interaction with web page through DOM  237
+in web pages  2–3
+jQuery  624
+learning  9
+node.js library  637
+objects provided by  214
+reserved words  12
+server-side  637
+syntax  13–14, 39
+thinking about  xxix
+values in  272–274, 281, 292
+vs. Java  5
+writing. See writing JavaScript
+JavaScript: The Definitive Guide  296
+jQuery
+about  624–625
+online documentation and tutorials  625
+JScript  6
+JSON object  214, 636
+K
+keypress event  419
+keywords  12
+L
+lastIndexOf, method  300
+learning
+JavaScript  9
+tips for  xxxi
+learning principles  xxviii
+length property  297, 301, 303
+length property, in arrays  130
+less than (<) operator  55, 459
+less than or equal to (<=) operator  55
+lexical scope of  variables  488, 494
+life cycle of  variables  102
+list
+adding songs to playlist with JavaScript (example)  
+253, 262
+NodeList  397
+returning element objects in  397
+
+you are here 4        653
+the index
+listener  384. See also event handlers
+list of  event  419
+lists
+adding songs to playlist with JavaScript (example)  
+253, 262
+finding all child <li> elements of  element with id of  
+playlist, using JQuery  625
+literals
+creating objects with  522
+vs. constructors  532, 539–542, 559
+literals, in arrays  151–152
+LiveScript  6
+load event
+about  419
+onload property
+assigning handler to  385–386, 389–390, 410
+in anonymous functions  476–477
+setting to function  249, 359, 392, 394–395, 
+406–407, 422
+local variables
+declaring  103, 108
+guide to code hygiene  111
+identifying  105, 120
+in methods  206
+lexical scope of   488–489, 494
+life cycle of   102
+nesting affecting  486, 488–490, 494
+scope of   101
+shadowing global variable  104
+vs. global variables  99, 106–107
+location method  627
+logical operators  55, 71
+loop
+do while  364, 373
+for
+in adding new ship locations in advanced Battle-
+ship game  365, 367
+in guessing location of  ships in advanced Battleship 
+game  343
+iterating arrays using  140–142, 169
+redoing  147
+vs. while loop  144–145
+implementing using pseudocode  51
+infinite  55
+translating pseudocode into JavaScript code  52
+using inner and outer  368
+while
+about  17
+executing code using  18–21
+vs. for loop  144–145
+M
+match method  300, 633
+Math.floor function  68, 131, 365–367
+Math object  214, 551
+Math.random function  67–68, 88, 131, 365–367
+metacognition  xxix
+methods
+about  198
+adding to prototypes  581–582, 584
+available in JavaScript  296
+designing advanced Battleship game  330–331, 376
+duplicating  568
+extending String prototype with  610–611, 621
+in chain of  prototypes  592–593, 619
+putting in constructors  530–532, 557
+tour of  string  297–300
+using this object in  202, 204–206, 219
+vs. functions  206
+writing  199–200, 207, 225
+Microsoft, introduction of  JScript  6
+Mighty Gumball, Inc.  135–136, 148, 150
+minus sign (-) operator
+as unary operator  287
+using as arithmetic operator with string and number  
+286–287, 312
+misses, in advanced Battleship game
+classes for hits and  326–327, 375
+notifying view of   347
+model object, advanced Battleship game
+about  329, 336
+determining hits  344–345
+determining if  ship is sunk  346
+fire method in  342–343, 346
+implementing  341–348
+interacting with view  336
+keeping track of  ships  337
+
+654        Index
+the index
+notifying view of  hits or misses  347
+parseGuess function asking about size of  board  353
+representation of  ships in  338–340, 378–379
+representing state of  ships in  337, 377
+testing  348
+mousemove event  405–406, 419, 424
+mouseout event  419
+mouseover event  419
+N
+naming
+constructors  532
+functions  97
+local and global variables with same name  104
+properties  179
+variables  12–13, 100, 103, 108
+NaN (Not a Number) values  272–274, 281, 292
+nesting functions  485–486, 488–490, 494
+Netscape  6
+new keyword, using with constructors  528, 532–535, 543, 
+548
+node.js library  637
+NodeList  397
+Notepad (Windows), as text editor  31
+not equal to (!=) operator  16, 55
+NOT (!) operator  55
+null  55, 256, 270–271, 274, 278, 292
+numbers
+as objects  296
+as primitive types  266
+comparing to strings  275–277, 281
+NaN (Not a Number) values and  273–274, 281, 292
+prompt function returning strings for  55
+using + sign with strings and  286–287
+O
+Object, as object
+about  551, 607
+as prototype  607
+overriding built-in behavior  608–609
+object constructors
+about  , 521, 525, xxi
+creating  525–526, 536–538, 555, 558, 566–567
+creating objects, by convention  523
+finding errors in code exercise  529, 556
+independent properties of   546–547
+naming  532
+parameters names in  532
+putting methods into  530–532, 557
+real world  548
+understanding object instances  543–545, 560
+updating constructor
+chain of  prototypes in  591–593, 606, 619
+cleaning up code  600–605
+creating prototype that inherits from another pro-
+totype  594–599, 620
+design for  588–590
+using  527, 555
+using new keyword with  528, 532–535, 543, 548
+vs. literals  532, 539–542, 559
+workings of   528
+object instances  543–545, 560
+object models, building  3
+object-oriented programming  180, 564
+object prototype model
+about  , xxii–xxiii
+better living through objects  612–613
+chain of  prototypes
+inheritance in  592–593, 619
+setting up  591
+determining if  properties are in instance or in proto-
+type  586–587, 592, 618
+duplicating methods and  568
+extending String prototype with method  610–611, 
+621
+implementing code  579, 583, 616–617
+inheritance
+extending built-in object  610
+in chain of  prototypes  592–593, 619
+in objects  569–572
+of  prototype from another prototype  594–599, 
+606, 620
+overriding built-in behavior  608–609
+Object
+about  607
+
+you are here 4        655
+the index
+as prototype  607
+overriding built-in behavior  608–609
+object diagram exercise  574, 615
+prototypes in
+about  569
+adding methods to  581–582, 584
+changing properties in  582, 585
+dynamic  582
+getting  575
+overriding  573, 578
+setting up  575
+updating constructor
+chain of  prototypes in  591–593, 606, 619
+cleaning up code  600–605
+creating prototype that inherits from another pro-
+totype  594–599, 620
+design for  588–590
+object references  187
+objects
+about  , 173–174, 215, xiv–xv
+adding behavior to  198–201
+arguments  628
+array  549–551
+array constructor  549–551
+Auto-O-Matic app (example)  195–197
+behavior  568
+better living through  612–613
+booleans as  296
+built-in  548–551, 608
+callback  250
+comparing  459
+console  214
+controller (advanced Battleship game)
+about  329
+counting guesses and iring shot  355–356
+determining end of  game  356
+developing parseGuess function  351–354

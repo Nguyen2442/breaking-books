@@ -1,0 +1,190 @@
+Array constructors work: they seem to 
+support zero or more arguments. Like 
+with Date, if I don’t provide an argument, 
+then I get today’s date, but I can also 
+pass arguments to get other dates. How 
+does that work? 
+A: Right, good catch. It’s possible to 
+write functions that do different things based 
+on the number of arguments. So if the 
+Array constructor has zero arguments, the 
+constructor knows it is creating an empty 
+array; if it has one argument it knows that’s 
+the size of the array, and if it has more, then 
+those arguments are all initial values.  
+ Q:
+ Can we do that with our 
+constructors?
+A: Of course. This is something we 
+haven’t covered, but every function gets 
+passed an arguments object that contains all 
+the arguments passed to the function. You 
+can use this to determine what was passed  
+ 
+and act appropriately (check the appendix 
+for more on the arguments object). There are 
+other techniques based on checking to see 
+which of your parameters is set to undefined.
+Q:
+ We used Math earlier in the book. 
+Why don’t I have to say "new Math" to 
+instantiate a math object before I use it? 
+A:
+ Great question. Actually, Math is not a 
+constructor, or even a function. It’s an object. 
+As you know, Math is a built-in object that 
+you can use to do things like get the value 
+of pi (with Math.PI) or generate a random 
+number (with Math.random). Think of 
+Math as just like an object literal that has a 
+bunch of useful properties and methods in 
+it, built-in for you to use whenever you write 
+JavaScript code. It just happens to have a 
+capital first letter to let you know that it’s 
+built-in to JavaScript.
+Q:
+ I know how to check if an object 
+is an instance of a constructor name, 
+but how do I write the code to ask if two 
+objects have the same constructor?
+A: You can check to see if two objects 
+have the same constructor like this:  
+ 
+((fido instanceof Dog) &&  
+         (spot instanceof Dog)) 
+ 
+If this expression results in true, then fido 
+and spot were indeed created by the same 
+constructor.
+Q:
+ If I create an object with an object 
+literal, what is it an instance of? Or is it 
+not an instance of anything?
+A: An object literal is an instance of 
+Object. Think of Object as the constructor for 
+the most generic kind of object in JavaScript. 
+You’ll learn much more about how Object 
+figures into JavaScript’s object system in the 
+next chapter.
+Even more fun with built-in objects
+Date and array aren’t the only built-in objects in JavaScript. There are lots of  other objects that 
+come with the language you might find handy at times. Here’s a short list (there are more, so 
+search online for “JavaScript’s standard built-in objects” if  you’re curious!).
+Object
+By using the Object constructor you can 
+create objects. Like arrays, the object 
+literal notation { } is equivalent to using 
+new Object(). More on this later.
+Math
+This object has properties and 
+methods for doing math stuff. Like 
+Math.PI and Math.random().
+RegExp
+Use this constructor to create 
+regular expression objects, which 
+allow you to search for patterns, 
+even complex ones, in text.
+Error
+ This constructor creates standard 
+error objects that are handy when 
+catching errors in your code.
+
+552        Chapter    12
+exercise for making objects
+Webville Motors is revolutionizing car production by creating all 
+their cars from a prototype car. The prototype gives you all the 
+basics you need: a way to start, drive and stop it along with a 
+couple properties like the make and year it was manufactured—
+but the rest is up to you. Want it to be red or blue? No problem, 
+just customize it. Need for it to have a fancy stereo? No problem, 
+go crazy, add it.
+So this is your opportunity to design your perfect car. Create a 
+CarPrototype object below, and make the car of your dreams. 
+Check out our design at the end of the chapter before moving on.
+function CarProtoype() { 
+    this.make = "Webville Motors";
+    this.year = 2013;
+    this.start = function() {...};
+    this.stop = function() {...};
+    this.drive = function() {...};
+}
+Draw your car here.
+And customize 
+the prototype 
+here.
+Oh, and where are we going with 
+this? You’ll find out in the next 
+chapter! By the way, you’re 
+done with this chapter... Oh, but 
+there’s still the bullet points and 
+the crossword puzzle to do!
+
+you are here 4        553
+advanced object construction
+ An object literal works well when 
+you need to create a small number 
+of objects.
+ A constructor works well when you 
+need to create many similar objects.
+ Constructors are functions that are 
+meant to be used with the new 
+operator. We capitalize the names of 
+constructors by convention.
+ Using a constructor we can create 
+objects that are consistent, having 
+the same property names and 
+methods.
+ Use the new operator with a 
+constructor function call to create an 
+object.
+ When you use new with a 
+constructor function call, it creates a 
+new, empty object, which is assigned 
+to this within the body of the 
+constructor.
+ Use this in a constructor function to 
+access the object being constructed 
+and add properties to the object.
+ A new object is returned 
+automatically by the constructor 
+function.
+ If you forget to use new with a 
+constructor, no object is created. This 
+will cause errors in your code that 
+can be dificult to debug.
+ To customize objects, we pass 
+arguments to a constructor, and 
+use those values to initialize the 
+properties of the object being 
+created.
+ If a constructor has a lot of 
+parameters, consider consolidating 
+them into one object parameter.
+ To know if an object was created 
+by a speciic constructor, use the 
+instanceof operator.
+ You can modify an object that was 
+created by a constructor just like you 
+can modify an object literal.
+ JavaScript comes with a number of 
+constructors you can use to create 
+useful objects like date objects, 
+regular expressions and arrays.
+
+554        Chapter    12
+javascript crossword
+JavaScript cross
+Construct some new connections in your brain with 
+this crossword puzzle.
+1
+23
+4
+56
+78
+9
+10
+11
+1213
+14
+15
+ACROSS

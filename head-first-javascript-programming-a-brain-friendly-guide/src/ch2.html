@@ -1,0 +1,74 @@
+<section class="chapter" id="ch2" data-ch="2" data-title="Làm chủ JavaScript Nâng cao, DOM, Sự kiện và Lập trình Hướng Đối tượng Prototype">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 2</span>
+    <h1>Mastering Advanced JavaScript: DOM, Events, Prototypes, and Closures <span class="vi">Làm chủ JavaScript Nâng cao, DOM, Sự kiện và Lập trình Hướng Đối tượng Prototype</span></h1>
+    <p class="chapter-lede">Chuyển hóa từ lập trình kịch bản thủ công sang tư duy kiến trúc ứng dụng web hiện đại thông qua DOM, Event-driven, Closures và Prototype Inheritance.</p>
+    <div class="chapter-meta">
+      <span class="pill">2 bài học</span>
+      <span class="pill">2 labs</span>
+      <span class="pill">1 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch2-t1" data-num="2.1" data-short="DOM & Events">
+    <div class="topic-theory-card">
+      <span class="eyebrow">NGUYÊN LÝ CỐT LÕI</span>
+    <h2>Kiến trúc DOM và Xử lý Sự kiện Bất đồng bộ</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Trình duyệt phân tích HTML thành cây DOM và phản ứng lại các sự kiện thông qua Event Loop.</p>
+    <div class="prose">
+      <p>Khi trình duyệt nạp trang, nó xây dựng một mô hình đối tượng tài liệu (<dfn data-term="DOM">DOM</dfn>). Mọi thao tác truy xuất qua <code>getElementById</code> hay thay đổi thuộc tính đều tác động trực tiếp lên cấu trúc này. Đừng bao giờ chạy code tương tác DOM trước khi trang được nạp hoàn toàn (<code>window.onload</code>).</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Hệ thống Tiki sử dụng event delegation để quản lý hàng nghìn sản phẩm trên danh mục mà không làm nghẽn bộ nhớ trình duyệt.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch2-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>DOM Event Lab</strong>
+        — Mô phỏng cơ chế đẩy sự kiện vào Event Queue.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch2-t2" data-num="2.2" data-short="Closures">
+    <div class="topic-theory-card">
+      <span class="eyebrow">NÂNG CAO</span>
+    <h2>Hàm Hạng Nhất và Sức mạnh của Closures</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Hàm trong JS là công dân hạng nhất (First-class citizens) có thể gán, truyền và trả về như biến thông thường.</p>
+    <div class="prose">
+      <p>Bằng cách kết hợp hàm lồng nhau và phạm vi từ vựng (<dfn data-term="Lexical Scope">Lexical Scope</dfn>), <dfn data-term="Closure">Closure</dfn> cho phép tạo ra các biến 'riêng tư' (private state) mà bên ngoài không thể truy cập trực tiếp.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Các cổng thanh toán như MoMo ứng dụng closures để đóng gói token xác thực phiên giao dịch của người dùng.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch2-w2">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Closure State Lab</strong>
+        — Kiểm tra biến private trong bộ đếm.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch2-review" data-num="2.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>Hệ thống kiến thức cốt lõi từ cơ bản đến nâng cao trong JavaScript tập trung vào ba trụ cột: Giao tiếp với DOM (Document Object Model) và xử lý sự kiện bất đồng bộ, Giải phẫu hàm hạng nhất (First-Class Functions) cùng Closures, và Mô hình kế thừa dựa trên Prototype thay vì Class truyền thống. Vấn đề lớn nhất của lập trình viên sơ cấp là quản lý trạng thái, phạm vi biến (Lexical Scope) và tối ưu hóa bộ nhớ khi tạo đối tượng. Giải pháp kỹ thuật nằm ở việc nắm vững cơ chế Event Loop, sử dụng hàm vô danh, bao đóng dữ liệu bằng closure và chia sẻ hành vi qua prototype chain để giảm thiểu chi phí bộ nhớ. Tuy nhiên, đánh đổi là độ phức tạp trong việc debug và hiện tượng 'this' binding bất ngờ. Không áp dụng mô hình này khi xây dựng các script trang tĩnh đơn giản không tương tác.</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 1:</strong> Closure giữ lại điều gì khi hàm cha đã thực thi xong?</p>
+        <ol><li>Toàn bộ RAM của trình duyệt</li><li>Môi trường từ vựng (lexical environment) và các biến tham chiếu</li><li>Chỉ các biến toàn cục</li><li>Không giữ lại gì cả</li></ol>
+        <p class="explain">Closure duy trì tham chiếu đến môi trường từ vựng nơi nó được khai báo, giúp truy cập các biến của hàm cha ngay cả khi hàm cha đã kết thúc.</p>
+      </div></div>
+  </article>
+</section>

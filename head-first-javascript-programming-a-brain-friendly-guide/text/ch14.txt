@@ -1,0 +1,612 @@
+generates a number between 0 and 1 (not including 1). If  we multiply that by the 
+length of  the array, and use Math.floor to truncate the number, we get a number 
+between 0 and one less than the length of  the array.
+5
+Okay, finish that last line of  code, have one more look over it all 
+and feel that sense of  accomplishment before you load it into your 
+browser. Give it a test drive and enjoy the phrases.
+Here’s what ours 
+looks like!
+var rand1 = Math.floor(Math.random() * words1.length);
+var rand2 = Math.floor(Math.random() * words2.length);
+var rand3 = Math.floor(Math.random() * words3.length);
+var phrase = words1[rand1] + " " + words2[rand2] + " " + words3[rand3];
+4
+Now we create the slick marketing phrase by taking each randomly chosen word and 
+concatenating them all together, with a nice space in between for readability:
+We define another variable to hold the phrase.
+We use each random number to 
+index into the word arrays...
+rand1 will be a number 
+between 0 and the last index 
+of the words1 array.
+And likewise for rand2, 
+and rand3.
+Just reload the page for endless start-up possibilities 
+(okay, not endless, but work with us here, we’re 
+trying to make this simple code exciting!).
+
+134        Chapter    4
+questions about arrays
+Q:
+ Does the order of items in an array 
+matter?
+A: Most of the time, yes, but it depends. 
+In the Bubbles-R-Us scores array, the 
+ordering matters a lot, because the index of 
+the score in the array tells us which bubble 
+solution got that score—bubble solution 
+0 got score 60, and that score is stored 
+at index 0. If we mixed up the scores in 
+the array, then we’d ruin the experiment! 
+However, in other cases, the order may 
+not matter. For instance, if you’re using an 
+array just to keep a list of randomly selected 
+words and you don’t care about the order, 
+then it doesn’t matter which order they’re in 
+the array. But, if you later decide you want 
+the words to be in alphabetical order, then 
+the order will matter. So it really depends on 
+how you’re using the array. You’ll probably 
+find that ordering matters more often than 
+not when you use an array.
+Q:
+ How many things can you put into 
+an array?
+A: Theoretically, as many as you want. 
+Practically, however, the number is limited 
+by the memory on your computer. Each 
+array item takes up a little bit of space in 
+memory. Remember that JavaScript runs in 
+a browser, and that browser is one of many 
+programs running on your computer. If you 
+keep adding items to an array, eventually 
+you’ll run out of memory space. However, 
+depending on the kind of items you’re putting 
+in your array, the maximum number of items  
+you can put into an array is probably in the 
+many thousands, if not millions, which you’re 
+unlikely to need most of the time. And keep 
+in mind that the more items you have the 
+slower your program will run, so you’ll want 
+to limit your arrays to reasonable sizes—say 
+a few hundred—most of the time.  
+  
+Q:
+ Can you have an empty array?
+A: You can, and in fact, you’ll see an 
+example of using an empty array shortly. To 
+create an empty array, just write: 
+ 
+    var emptyArray = [ ]; 
+ 
+If you start with an empty array, you can add 
+things to it later.
+Q:
+ So far we’ve seen strings and 
+numbers in an array; can you put other 
+things in arrays too?
+A: You can; in fact, you can put just about 
+any value you’ll find in JavaScript in an array, 
+including numbers, strings, booleans, other 
+arrays, and even objects (we’ll get to this 
+later). 
+Q:
+ Do all the values in an array have 
+to be the same type?
+A: No they don’t; although typically we 
+do make the values all of the same type. 
+Unlike many other languages, there is no 
+requirement in JavaScript that all the values 
+in an array be of the same type. However, 
+if you mix up the types of the values in an 
+array, you need to be extra careful when 
+using those values. Here’s why: let’s say you 
+have an array with the values [1, 2, “fido”, 4, 
+5]. If you then write code that checks to see 
+if the values in the array are greater than, 
+say, 2, what happens when you check to see 
+if “fido” is greater than 2? To make sure you 
+aren’t doing something that doesn’t make 
+sense, you’d have to check the type of each 
+of the values before you used it in the rest 
+of your code. It’s certainly possible to do this 
+(and we’ll see later in the book how), but in 
+general, it’s a lot easier and safer if you just 
+use the same type for all the values in your 
+arrays.   
+Q:
+ What happens if you try to access 
+an array with an index that is too big or 
+too small (like less than 0)?
+A: If you have an array, like: 
+ 
+    var a = [1, 2, 3]; 
+ 
+and you try to access a[10] or a[-1], in either 
+case, you’ll get the result undefined. So, 
+you’ll either want to make sure you’re using 
+only valid indices to access items in your 
+array, or you’ll need to check that the value 
+you get back is not undefined. 
+Q:
+ So, I can see how to get the first 
+item in an array using index 0. But how 
+would I get the last item in an array? Do I 
+always have to know precisely how many 
+items are in my array?
+A: You can use the length property to 
+get the last item of an array. You know that 
+length is always one greater than the last 
+index of the array, right? So, to get the last 
+item in the array, you can write: 
+ 
+  myArray[myArray.length - 1]; 
+ 
+JavaScript gets the length of the array, 
+subtracts one from it, and then gets the item 
+at that index number. So if your array has 10 
+items, it will get the item at index 9, which is 
+exactly what you want. You’ll use this trick all 
+the time to get the last item in an array when 
+you don’t know exactly how many items are 
+in it.
+
+you are here 4        135
+putting some order in your data
+Meanwhile, back at Bubbles-R-Us...
+Hey, glad you guys are 
+here. We just got a lot of new 
+bubble tests run.  Check out all the 
+new bubble scores! I really need some 
+help understanding this data. I'd 
+love for you to code up what I 
+sketched below.
+The Bubbles-R-Us CEO
+var scores = [60, 50, 60, 58, 54, 54,     
+              58, 50, 52, 54, 48, 69,
+              34, 55, 51, 52, 44, 51,
+              69, 64, 66, 55, 52, 61,
+              46, 31, 57, 52, 44, 18,
+              41, 53, 55, 61, 51, 44];
+New bubble scores.
+Hey, I really need this report to be able to make quick decisions 
+about which bubble solution to produce! Can you get this coded?
+       - Bubbles-R-Us CEO
+Bubbles-R-Us
+Bubble solution #0 score: 60
+Bubble solution #1 score: 50
+Bubble solution #2 score: 60
+Bubbles tests: 36
+Highest bubble score: 69
+Solutions with highest score: #11, #18
+ rest of scores here...
+What we need to build.
+
+136        Chapter    4
+thinking about the bubble scores report
+We need to start 
+by listing all the 
+solutions and their 
+corresponding scores.
+Take some time to sketch out your ideas of how you’d create this little bubble score report. Take 
+each item in the report separately and think of how you’d break it down and generate the right 
+output. Make your notes here.
+Then we need to print 
+the total number of 
+bubble scores.
+Let’s take a closer look at what the CEO is looking for:
+Hey, I really need this report to be able to make quick decisions 
+about which bubble solution to produce! Can you get this coded?
+       - Bubbles-R-Us CEO
+Bubbles-R-Us
+Bubble solution #0 score: 60
+Bubble solution #1 score: 50
+Bubble solution #2 score: 60
+Bubbles tests: 36
+Highest bubble score: 69
+Solutions with highest score: #11, #18
+ rest of scores here...
+Followed by the 
+highest score and 
+each solution that 
+has that score.
+
+you are here 4        137
+putting some order in your data
+Cubicle Conversation
+Judy: The first thing we need to do is display every 
+score along with its solution number.
+Joe: And the solution number is just the index of  the 
+score in the array, right?
+Judy: Oh, yeah, that’s totally right.
+Frank: Slow down a sec.  So we need to take each 
+score, print its index, which is the bubble solution 
+number, and then print the corresponding score. 
+Judy: You’ve got it, and the score is just the 
+corresponding value in the array.
+Joe: So, for bubble solution #10, its score is just scores[10].
+Judy: Right.
+Frank: Okay, but there are a lot of  scores. How do we write code to output all of  them?
+Judy: Iteration, my friend.
+Frank: Oh, you mean like a while loop?
+Judy: Right, we loop through all the values from zero to the length... oh, I mean the length 
+minus one of  course.
+Joe: This is starting to sound very doable. Let’s write some code; I think we know what we’re 
+doing.
+Judy: That works for me! Let’s do it, and then we’ll come back to the rest of  the report.
+Let’s take a look at 
+this report and see how 
+we can tackle coding it...
+Frank
+Judy
+Joe
+
+138        Chapter    4
+array iteration
+    var scores = [60, 50, 60, 58, 54, 54, 58, 50, 52, 54, 48, 69,
+                  34, 55, 51, 52, 44, 51, 69, 64, 66, 55, 52, 61,
+                  46, 31, 57, 52, 44, 18, 41, 53, 55, 61, 51, 44];
+    var output;
+    var i = 0;
+    while (i < scores.length) {
+      output = "Bubble solution #" + i + " score: " + scores[i];
+      console.log(output);
+      i = i + 1;
+    }
+Create a variable to keep track 
+of the current index.
+60    50    60    58    54     54     58    50    52     54
+0123456789
+How to iterate over an array
+Your goal is to produce some output that looks like this:
+Bubble solution #0 score: 60
+Bubble solution #1 score: 50
+Bubble solution #2 score: 60
+.
+.
+.
+Bubble solution #35 score: 44
+Scores 3 through 34 will be 
+here... we’re saving some trees 
+(or bits depending on which 
+version of the book you have).
+We’ll do that by outputting the score at index zero, and then we’ll do the 
+same for index one, two, three and so on, until we reach the last index in 
+the array. You already know how to use a while loop; let’s see how we can 
+use that to output all the scores:
+And then we’ll show you a 
+better way in a sec...
+And keep looping while our index is less 
+than the length of the array.
+Then create a string to use as 
+a line of output that includes 
+the bubble solution number 
+(which is just the array index) 
+and the score.
+Then we’ll use console.log 
+to output the string.
+And finally, increment the index 
+by one before looping again.
+We're using this variable in the loop below to create a string to output.
+
+you are here 4        139
+putting some order in your data
+while (i < hasBubbleGum.length)
+var products = ["Choo Choo Chocolate",
+ 
+                "Icy Mint", "Cake Batter",
+ 
+                "Bubblegum"];
+i = i + 1;
+var hasBubbleGum = [false, 
+                    false, 
+                    false, 
+                    true];
+var i = 0;
+i = i + 2;
+{
+{
+}
+}
+if (hasBubbleGum[i])
+{
+console.log(products[i] + 
+ 
+    " contains bubble gum");
+Code Magnets
+while (i > hasBubbleGum.length)
+Rearrange the magnets here.
+We’ve got code for testing to see which ice 
+cream flavors have bubblegum pieces in 
+them. We had all the code nicely laid out 
+on our fridge using fridge magnets, but the 
+magnets fell on the floor. It’s your job to put 
+them back together. Be careful; a few extra 
+magnets got mixed in. Check your answer at 
+the end of the chapter before you go on.
+JavaScript console
+Bubblegum contains bubble gum
+Here’s the output 
+we’re expecting.
+
+140        Chapter    4
+using a for loop for iteration
+for (var i = 0; i < scores.length; i = i + 1) {
+     output = "Bubble solution #" + i + " score: " + scores[i];
+     console.log(output);
+}
+But wait, there’s a better way to 
+iterate over an array
+We   should really apologize. We can’t believe it’s already Chapter 4 and we haven’t even 
+introduced you to the for loop. Think of  the for loop as the while loop’s cousin. The two 
+basically do the same thing, except the for loop is usually a little more convenient to use. 
+Check out the while loop we just used and we’ll see how that maps into a for loop.
+A for loop 
+starts with the 
+keyword for.
+In the parentheses, there 
+are three parts. The 
+first part is the loop 
+variable INITIALIZATION. 
+This initialization happens 
+only once, before the for 
+loop starts.
+The second part is the 
+CONDITIONAL test. Each 
+time we loop, we perform this 
+test, and if it is false, we stop.
+And the third part is 
+where we INCREMENT 
+the counter. This happens 
+once per loop, after all the 
+statements in the BODY.
+The BODY goes here. 
+Notice there are no 
+changes other than 
+moving the increment of i 
+into the for statement.
+    var i = 0;
+    while (i < scores.length) {
+      output = "Bubble solution #" + i + " score: " + scores[i];
+      console.log(output);
+      i = i + 1;
+    }
+First we INITIALIZED a counter.
+Then we tested that counter in a CONDITIONAL expression.
+We also had a BODY to execute; that is, all the 
+statements between the { and }.
+And finally, we INCREMENTED the counter.
+Now let’s look at how the for loop makes all that so much easier:
+A
+A
+C
+C
+B
+B
+
+you are here 4        141
+putting some order in your data
+Rewrite your fridge magnet code (from two pages 
+back) so that it uses a for loop instead of a while 
+loop. If you need a hint, refer to each piece of the 
+while loop on the previous page and see how it 
+maps to the corresponding location in the for loop.
+Your code goes here.
+var products = ["Choo Choo Chocolate",
+ 
+                "Icy Mint", "Cake Batter",
+ 
+                "Bubblegum"];
+var hasBubbleGum = [false, 
+                    false, 
+                    false, 
+                    true];
+var i = 0;
+while (i < hasBubbleGum.length)
+{
+if (hasBubbleGum[i])
+{
+console.log(products[i] + 
+ 
+    " contains bubble gum");
+}
+i = i + 1;
+}
+
+142        Chapter    4
+putting the code together
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Bubble Factory Test Lab</title>
+  <script> 
+    var scores = [60, 50, 60, 58, 54, 54, 
+                  58, 50, 52, 54, 48, 69, 
+                  34, 55, 51, 52, 44, 51, 
+                  69, 64, 66, 55, 52, 61, 
+                  46, 31, 57, 52, 44, 18, 
+                  41, 53, 55, 61, 51, 44];
+    var output;
+    for (var i = 0; i < scores.length; i = i + 1) {
+        output = "Bubble solution #" + i + 
+                     " score: " + scores[i];
+        console.log(output);
+    }
+  </script>
+</head>
+<body></body>
+</html>
+We’ve got the standard HTML stuff 
+here for a web page. We don’t need 
+much; just enough to create a script.
+Here’s our bubble scores array.
+Here's the for loop we're using to iterate 
+through all the bubble solution scores.
+We’ve got all the pieces for 
+the irst part of the report, 
+let’s put this all together...
+Each time through the loop, we create 
+a string with the value of i, which is the 
+bubble solution number, and scores[i], which 
+is the score that bubble solution got.
+Then we display the string in the 
+console. And that's it! Time to 
+run this report.
+(Also notice we split the string up across 
+two lines here. That's okay as long as you 
+don't create a new line in between the 
+quotes that delimit a string. Here, we did it 
+after a concatenation operator (+), so it's 
+okay. Be careful to type it in exactly as 
+you see here.)
+
+you are here 4        143
+putting some order in your data
+Test drive the bubble report
+Save this file as “bubbles.html” and load it into your 
+browser. Make sure you’ve got the console visible (you 
+might need to reload the page if  you activate the console 
+after you load the page), and check out the brilliant 
+report you just generated for the Bubbles-R-Us CEO.
+Just what the CEO ordered.
+JavaScript console
+Bubble solution #0 score: 60
+Bubble solution #1 score: 50
+Bubble solution #2 score: 60
+Bubble solution #3 score: 58
+Bubble solution #4 score: 54
+Bubble solution #5 score: 54
+Bubble solution #6 score: 58
+Bubble solution #7 score: 50
+Bubble solution #8 score: 52
+Bubble solution #9 score: 54
+Bubble solution #10 score: 48
+Bubble solution #11 score: 69
+Bubble solution #12 score: 34
+Bubble solution #13 score: 55
+Bubble solution #14 score: 51
+Bubble solution #15 score: 52
+Bubble solution #16 score: 44
+Bubble solution #17 score: 51
+Bubble solution #18 score: 69
+Bubble solution #19 score: 64
+Bubble solution #20 score: 66
+Bubble solution #21 score: 55
+Bubble solution #22 score: 52
+Bubble solution #23 score: 61
+Bubble solution #24 score: 46
+Bubble solution #25 score: 31
+Bubble solution #26 score: 57
+Bubble solution #27 score: 52
+Bubble solution #28 score: 44
+Bubble solution #29 score: 18
+Bubble solution #30 score: 41
+Bubble solution #31 score: 53
+Bubble solution #32 score: 55
+Bubble solution #33 score: 61
+Bubble solution #34 score: 51
+Bubble solution #35 score: 44
+It's nice to see all the bubble 
+scores in a report, but it's 
+still hard to find the highest 
+scores. We need to work 
+on the rest of the report 
+requirements to make it a 
+little easier to find the winner.
+
+144        Chapter    4
+fireside chat between for and while
+Tonight’s talk: The while and 
+for loop answer the question 
+“Who’s more important?”
+The WHILE loop
+What, are you kidding me? Hello? I’m the general 
+looping construct in JavaScript. I’m not married to 
+looping with a silly counter. I can be used with any 
+type of  conditional. Did anyone notice I was taught 
+first in this book?
+ 
+ 
+ 
+And that’s another thing, have you noticed that the 
+FOR loop has no sense of  humor? I mean if  we all  
+had to do skull-numbing iteration all day I guess 
+we’d all be that way.
+Oh, I don’t think that could possibly be true.
+ 
+ 
+This book just showed that FOR and WHILE loops 
+are pretty much the same thing, so how could that 
+be?
+The FOR loop 
+ 
+ 
+ 
+ 
+I don’t appreciate that tone.
+ 
+ 
+Cute. But have you noticed that nine times out of  
+ten, coders use FOR loops?
+Not to mention, doing iteration over, say, an array 
+that has a fixed number of  items with a WHILE 
+loop is just a bad, clumsy practice.
+Ah, so you admit we’re more equal than you let on 
+huh?
+I’ll tell you why...
+
+you are here 4        145
+putting some order in your data
+The WHILE loop
+ 
+ 
+Well, isn’t that nice and neat of  you. Hey, most of  
+the iteration I see doesn’t even include counters; it’s 
+stuff  like:  
+ 
+   while (answer != "forty-two") 
+try that with a FOR loop!
+Hah, I can’t believe that even works.
+ 
+ 
+Lipstick on a pig.
+Not only better, prettier.
+The FOR loop 
+ 
+When you use a WHILE loop you have to initialize 
+your counter and increment your counter in 
+separate statements.  If, after lots of  code changes, 
+you accidentally moved or deleted one of  these 
+statements, well, then things could get ugly. But with 
+a FOR loop, everything is packaged right in the 
+FOR statement for all to see and with no chance of  
+things getting changed or lost. 
+ 
+Okay:
+   for (;answer != "forty-two";) 
+Oh, it does.
+So that’s all you got? You’re better when you’ve got 
+a general conditional?
+Oh, I didn’t realize this was a beauty contest as well.
+
+146        Chapter    4
+post increment
+It's that time again....
+Can we talk about your verbosity?
+You’ve been writing lots of  code that looks like this:
+myImportantCounter = myImportantCounter + 1;
+After this statement completes, myImportantCounter is one greater than before.
+Here we're taking the variable 
+and incrementing it by one.
+In fact, this statement is so common there’s a shortcut for it in JavaScript. It’s called the post-increment 
+operator, and despite its fancy name, it is quite simple. Using the post-increment operator, we can replace 
+the above line of  code with this:
+myImportantCounter++;
+After this statement completes, myImportantCounter is one greater than before.
+Just add “++" to the variable name.
+Of  course it just wouldn’t feel right if  there wasn’t a post-decrement operator as well. You can use the post-
+decrement operator on a variable to reduce its value by one. Like this:
+myImportantCounter--;
+After this statement completes, myImportantCounter is one less than before.

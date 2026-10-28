@@ -382,20 +382,36 @@ mark.bb-highlight[data-has-note="true"]::after {
 }
 
 /* ==========================================================================
-   TOPIC SECTION CARD — GENEROUS PADDING & BREATHING ROOM
+   TOPIC SECTION CONTAINER & DEDICATED CARDS (THEORY & LAB SEPARATION)
    ========================================================================== */
 .bb-chapter-reader .topic {
-  padding: 44px 48px;
-  margin-bottom: 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  margin-bottom: 48px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  box-shadow: none;
+  scroll-margin-top: 84px;
+}
+
+/* 1. SEPARATED THEORY CARD */
+.bb-chapter-reader .topic-theory-card,
+.bb-chapter-reader .topic-standalone-card,
+.bb-chapter-reader .topic[id$="-review"] {
+  padding: 42px 48px;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 24px;
-  scroll-margin-top: 84px;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
-  transition: border-color 0.2s ease;
+  box-shadow: 0 2px 12px -2px rgba(15, 23, 42, 0.03);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.bb-chapter-reader .topic:hover {
+.bb-chapter-reader .topic-theory-card:hover,
+.bb-chapter-reader .topic-standalone-card:hover,
+.bb-chapter-reader .topic[id$="-review"]:hover {
   border-color: var(--line-strong);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
 }
 
 .bb-chapter-reader .topic-head {
@@ -416,8 +432,9 @@ mark.bb-highlight[data-has-note="true"]::after {
   margin-bottom: 10px;
 }
 
-/* Both .topic > h2 and .topic-head h2 get clear bottom margin & spacing */
+/* Both .topic > h2, .topic-theory-card > h2 and .topic-head h2 get clear bottom margin & spacing */
 .bb-chapter-reader .topic > h2,
+.bb-chapter-reader .topic-theory-card > h2,
 .bb-chapter-reader .topic-head h2 {
   margin: 4px 0 24px;
   padding-bottom: 18px;
@@ -712,15 +729,39 @@ mark.bb-highlight[data-has-note="true"]::after {
 .bb-chapter-reader pre.code .fn { color: var(--bad); }
 
 /* ==========================================================================
-   STRIPE / MINTLIFY INTERACTIVE PLAYGROUND (figure.lab)
+   STRIPE / MINTLIFY INTERACTIVE PLAYGROUND (figure.lab / .topic-lab-card)
    ========================================================================== */
-.bb-chapter-reader figure.lab {
-  margin: 34px 0;
+.bb-chapter-reader figure.lab,
+.bb-chapter-reader .topic-lab-card {
+  margin: 0;
   border: 1px solid var(--line-strong);
-  border-radius: 18px;
+  border-radius: 24px;
   background: var(--surface);
   overflow: hidden;
-  box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 8px 30px -8px rgba(15, 23, 42, 0.06);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.bb-chapter-reader figure.lab:hover,
+.bb-chapter-reader .topic-lab-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 12px 36px -8px rgba(13, 148, 136, 0.12);
+}
+
+/* View Mode Filter: [data-view="theory"] and [data-view="lab"] */
+.bb-chapter-reader[data-view="theory"] figure.lab,
+.bb-chapter-reader[data-view="theory"] .topic-lab-card {
+  display: none !important;
+}
+
+.bb-chapter-reader[data-view="lab"] .topic-theory-card .prose,
+.bb-chapter-reader[data-view="lab"] .topic-theory-card .callout,
+.bb-chapter-reader[data-view="lab"] .topic-theory-card .topic-foot,
+.bb-chapter-reader[data-view="lab"] .topic-theory-card .topic-note-box {
+  display: none !important;
+}
+.bb-chapter-reader[data-view="lab"] .topic-theory-card {
+  padding: 22px 28px;
+  background: var(--surface-2);
 }
 .bb-chapter-reader figure.lab > figcaption {
   display: flex;
@@ -1223,10 +1264,16 @@ mark.bb-highlight[data-has-note="true"]::after {
 
 @media (max-width: 640px) {
   .bb-chapter-reader .chapter-head,
-  .bb-chapter-reader .topic {
+  .bb-chapter-reader .topic-theory-card,
+  .bb-chapter-reader .topic-standalone-card,
+  .bb-chapter-reader .topic[id$="-review"] {
     padding: 24px 20px;
     border-radius: 18px;
     margin-bottom: 22px;
+  }
+  .bb-chapter-reader figure.lab,
+  .bb-chapter-reader .topic-lab-card {
+    border-radius: 18px;
   }
   .bb-chapter-reader .lab-body {
     padding: 16px;

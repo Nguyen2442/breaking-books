@@ -1,0 +1,314 @@
+first, occurrence.
+
+you are here 4        301
+types, equality, conversion and all that jazz
+Take a phone number of the form:
+and write code to accept or reject it. 
+To be accepted the number should 
+have seven digits, 0 through 9, with 
+a dash in the middle.
+“123-4567”
+function validate(phoneNumber) {
+    if (phoneNumber.length !== 8) {
+       return false;
+    }
+    for (var i = 0; i < phoneNumber.length; i++) {
+       if (i === 3) {
+           if (phoneNumber.charAt(i) !== '-') {
+              return false;
+           }
+       } else if (isNaN(phoneNumber.charAt(i))) {
+          return false;
+       }
+    }
+    return true;
+}
+Larry uses the length property of 
+the string object to see how many 
+characters it has.
+He uses the charAt method to examine 
+each character of the string.
+First, he makes sure 
+character three has a dash.
+Chair Wars
+(or How Really Knowing Types Can Change Your Life)
+Once upon a time in a software shop, two programmers were given 
+the same spec and told to “build it.” The Really Annoying Project 
+Manager forced the two coders to compete, by promising that 
+whoever delivers first gets one of  those cool Aeron™ chairs all the 
+Silicon Valley guys have. Brad, the hardcore hacker scripter, and 
+Larry, the college grad, both knew this would be a piece of  cake. 
+Larry, sitting in his cube, thought to himself, “What are the things 
+this code has to do? It needs to make sure the string is long enough, 
+it needs to make sure the middle character is a dash, and it needs to 
+make sure every other character is a number. I can use the string’s 
+length property and I know how to access its characters using the 
+charAt method.”
+Brad, meanwhile, kicked back at the cafe and thought to himself, 
+“What are the things this code has to do?”  He first thought, “A string 
+is an object, and there are lots of  methods I can use to help validate 
+the phone number. I’ll brush up on those and get this implemented 
+quickly. After all, an object is an object.” Read on to see how Brad 
+and Larry built their programs, and for the answer to your burning 
+question: who got the Aeron?
+The spec
+The chair
+Larry set about writing code based on the string methods. He wrote 
+the code in no time:
+In Larry’s cube
+Then he makes sure each character 
+zero through two and four 
+through six has a number in it.
+
+302        Chapter    7
+using and manipulating strings
+Brad wrote code to check for two numbers and a dash:
+function validate(phoneNumber) { 
+   if (phoneNumber.length !== 8) {
+      return false;
+   }
+   var first = phoneNumber.substring(0,3);
+   var second = phoneNumber.substring(4);
+   if (phoneNumber.charAt(3) !== "-" || isNaN(first) || isNaN(second)) {
+      return false;
+   }
+   return true;
+}
+Brad starts just like Larry...
+But he uses his knowledge of the 
+string methods.
+He uses the substring method to 
+create a string containing three 
+characters from zero up to 
+character three.
+And again to start at character index four 
+up to the end of the string.
+Then he tests all the 
+conditions for being a 
+correct phone number 
+in one conditional.
+.
+Take a phone number of the form:
+and write code to accept or reject it. 
+To be accepted the number should 
+have seven digits, 0 through 9, with 
+an optional
+ dash in the middle.
+“123-4567”
+In Brad’s cube
+What got added to the spec
+But wait! There’s been a spec change.
+“Okay, technically you were first, Larry, because Brad was looking up how to 
+use all those methods,” said the Manager, “but we have to add just one tiny 
+thing to the spec. It’ll be no problem for crack programmers like you two.”
+“If  I had a dime for every time I’ve heard that one”, thought Larry, knowing 
+that spec-change-no-problem was a fantasy.  “And yet Brad looks strangely 
+serene. What’s up with that?”  Still, Larry held tight to his core belief  that 
+Brad’s fancy way, while cute, was just showing off. And that he’d win again 
+in this next round and produce the code first.
+And interestingly, knowing it or not, he’s 
+depending on some type conversions here to 
+convert a string to a number, and then making 
+sure it’s a number with isNaN. Clever!
+Wait, can you think of any 
+bugs Brad might have 
+introduced with his use of 
+isNaN?
+
+you are here 4        303
+types, equality, conversion and all that jazz
+Back in Larry’s cube
+Brad smiled, sipped his margarita and quickly made his changes. He 
+simply got the second part of  the number using the length of  the phone 
+number minus four as the starting point for the substring, instead of  
+hardcoding the starting point at a position that assumes a dash. That 
+almost did it, but he did need to rewrite the test for the dash because it 
+applies only when the phone number has a length of  eight.
+At Brad’s laptop at the beach
+function validate(phoneNumber) {
+    if (phoneNumber.length  > 8 ||
+           phoneNumber.length < 7) {
+       return false;
+    }
+    for (var i = 0; i < phoneNumber.length; i++) {
+       if (i === 3) {
+           if (phoneNumber.length === 8 && 
+                     phoneNumber.charAt(i) !== '-') {
+              return false;
+           } else if (phoneNumber.length === 7 &&
+                    isNaN(phoneNumber.charAt(i))) {
+              return false;
+           }
+       } else if (isNaN(phoneNumber.charAt(i))) {
+          return false;
+       }
+    }
+    return true;
+}
+Larry had to make a 
+few additions to his logic.  
+Not a lot of code, but 
+it's getting a bit hard 
+to decipher.
+Larry thought he could use most of  his existing code; he just had to 
+work these edge cases of  the missing dash in the number. Either the 
+number would be only seven digits, or it would be eight digits with a 
+dash in the third position. Quickly Larry coded the additions (which 
+took a little testing to get right):
+
+304        Chapter    7
+thinking about strings
+But the smirk on Larry’s face melted when the Really 
+Annoying Project Manager said, “Brad, your code is 
+very readable and maintainable. Good job.” 
+But Larry shouldn’t be too worried, because, as we 
+know, there is more than just code beauty at work. This 
+code still needs to get through QA, and we’re not quite 
+sure Brad’s code works in all cases. What about you? 
+Who do you think deserves the chair?
+The suspense is killing me.  
+Who got the chair?
+Amy from the second floor.
+(Unbeknownst to all, the Project 
+Manager had given the spec to three 
+programmers.)
+function validate(phoneNumber) { 
+   return phoneNumber.match(/^\d{3}-?\d{4}$/);
+}
+Wow, a one-liner! Check out how 
+this works in the appendix!
+Larry snuck in just ahead of Brad.
+function validate(phoneNumber) { 
+   if (phoneNumber.length  > 8 ||
+       phoneNumber.length < 7) {
+       return false;
+   }
+   var first = phoneNumber.substring(0,3);
+   var second = phoneNumber.substring(phoneNumber.length - 4);
+   if (isNaN(first) || isNaN(second)) {
+      return false;
+   }
+   if (phoneNumber.length === 8) {
+      return (phoneNumber.charAt(3) === "-");
+   } 
+   return true;
+}
+Now Brad’s getting the second number 
+using the total length of the phone 
+number to get the starting point.
+And he's validating the dash only 
+if the number is eight characters.
+Err, we think Brad still has a bug. 
+Can you find it?
+Here's Amy's code.
+About the same number of changes 
+as Larry, but Brad’s code is still 
+easier to read.
+How would you rewrite Brad’s code 
+to use the split method instead?
+Here we’re returning the result 
+of evaluating the conditional, 
+which will be true or false.
+
+you are here 4        305
+types, equality, conversion and all that jazz
+IN THE LABORATORY, AGAIN
+The lab crew continues to probe JavaScript using the typeof 
+operator and they’re uncovering some more interesting things 
+deep within the language. In the process, they’ve discovered a 
+new operator, instanceof. With this one, they’re truly on the cutting 
+edge. Put your lab coat and safety goggles back on and see if you 
+can help decipher this JavaScript and the results. Warning: this is 
+deinitely going to be the weirdest code you’ve seen so far.
+function Duck(sound) {
+    this.sound = sound;
+    this.quack = function() {console.log(this.sound);}
+}
+var toy = new Duck("quack quack");
+toy.quack();
+console.log(typeof toy);
+console.log(toy instanceof Duck);
+JavaScript console
+Here's the code. Read it, run it, alter 
+it, massage it, see what it does...
+Put your results here. Are 
+there any surprises?
+How strange. Doesn't this look a bit like 
+a mix of a function and an object?
+Hmm “new". We've haven't seen that before. But 
+we're guessing we should read this as, create a new 
+Duck and assign it to the toy variable.
+If it looks like an object, and walks like an object... 
+let's test it.
+Okay, and here is instanceof...
+Be sure to check your output with the answers at 
+the end of the chapter. But just what does this 
+all mean? Ah, we’ll be getting to all that in just a 
+couple of chapters. And, in case you didn’t notice, 
+you are well on your way to being a pretty darn 
+advanced JavaScript coder. This is serious stuff!
+
+306        Chapter    7
+chapter summary
+ There are two groups of types in JavaScript: 
+primitives and objects. Any value that isn’t a 
+primitive type is an object.
+ The primitives are: numbers, strings, 
+booleans, null and undeined. Everything else 
+is an object.
+ undeined means that a variable (or property 
+or array item) hasn’t yet been initialized to a 
+value.
+ null means “no object”.
+ “NaN” stands for “Not a Number”, although 
+a better way to think of NaN is as a number 
+that can’t be represented in JavaScript. The 
+type of NaN is number.
+ NaN never equals any other value, including 
+itself, so to test for NaN use the function 
+isNaN.
+ Test two values for equality using == or ===.
+ If two operands have different types, the 
+equality operator (==) will try to convert one 
+of the operands into another type before 
+testing for equality.
+ If two operands have different types, the strict 
+equality operator (===) returns false.
+ You can use === if you want to be sure 
+no type conversion happens, however, 
+sometimes the type conversion of == can 
+come in handy.
+ Type conversion is also used with other 
+operators, like the arithmetic operators and 
+string concatenation.
+ JavaScript has ive falsey values: undeined, 
+null, 0, “” (the empty string) and false. All 
+other values are truthy.
+ Strings sometimes behave like objects. If 
+you use a property or method on a primitive 
+string, JavaScript will convert the string to 
+an object temporarily, use the property, and 
+then convert it back to a primitive string. This 
+happens behind the scenes so you don’t 
+have to think about it. 
+ The string has many methods that are useful 
+for string manipulation. 
+ Two objects are equal only if the variables 
+containing the object references point to the 
+same object.
+
+you are here 4        307
+types, equality, conversion and all that jazz
+JavaScript cross
+You’re really expanding your JavaScript skills. Do a crossword 
+to help it all sink in. All the answers are from this chaper.
+123
+4
+56
+7
+891011
+121314
+15
+1617
+18
+ACROSS

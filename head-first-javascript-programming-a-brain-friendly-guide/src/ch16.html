@@ -1,0 +1,74 @@
+<section class="chapter" id="ch16" data-ch="16" data-title="Kiến trúc Hàm nâng cao và Parallel Arrays trong Xử lý Dữ liệu JavaScript">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 16</span>
+    <h1>Advanced Function Architecture and Parallel Arrays in JavaScript Data Processing <span class="vi">Kiến trúc Hàm nâng cao và Parallel Arrays trong Xử lý Dữ liệu JavaScript</span></h1>
+    <p class="chapter-lede">Tách biệt trách nhiệm hàm và đồng bộ hóa cấu trúc dữ liệu đa mảng để giải quyết bài toán nghiệp vụ phức tạp mà không làm suy giảm hiệu năng.</p>
+    <div class="chapter-meta">
+      <span class="pill">2 bài học</span>
+      <span class="pill">2 labs</span>
+      <span class="pill">1 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch16-t1" data-num="16.1" data-short="Refactoring Code">
+    <div class="topic-theory-card">
+      <span class="eyebrow">KIẾN TRÚC HÀM SẠCH</span>
+    <h2>Tách Biệt Trách Nhiệm và Truyền Tham Số</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Biến hàm nguyên khối phụ thuộc biến toàn cục thành hàm thuần túy (pure function) nhận tham số và trả về kết quả.</p>
+    <div class="prose">
+      <p>Khi viết <dfn data-term="refactoring">refactoring</dfn> code, việc để hàm phụ thuộc vào biến toàn cục (global variable) tạo ra sự ràng buộc chết chóc (tight coupling). Bằng cách truyền mảng dữ liệu như <var>scores</var> trực tiếp qua tham số hàm và sử dụng lệnh <kbd>return</kbd>, chúng ta biến hàm thành một khối logic độc lập, có thể chạy ở bất kỳ đâu với bất kỳ tập dữ liệu nào.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại MoMo</div>
+      <p>Khi xử lý danh sách giao dịch nạp tiền, hàm tính tổng tiền không bao giờ được đọc trực tiếp biến giao dịch toàn cục của window, mà phải nhận một mảng danh sách giao dịch qua tham số để đảm bảo tính an toàn luồng và dễ unit test.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch16-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Refactor Lab</strong>
+        — Chuyển đổi hàm phụ thuộc biến toàn cục thành hàm nhận tham số.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch16-t2" data-num="16.2" data-short="Parallel Arrays">
+    <div class="topic-theory-card">
+      <span class="eyebrow">TỐI ƯU CẤU TRÚC DỮ LIỆU</span>
+    <h2>Kỹ Thuật Xử Lý Mảng Song Song (Parallel Arrays)</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Liên kết dữ liệu giữa nhiều mảng thông qua một chỉ số index chung duy nhất.</p>
+    <div class="prose">
+      <p>Khi hệ thống phình to nhưng chưa áp dụng cấu trúc dữ liệu phức tạp như <dfn data-term="object-oriented">Object</dfn>, kỹ thuật <dfn data-term="parallel-arrays">parallel arrays</dfn> cho phép quản lý các thuộc tính khác nhau qua cùng một index. Ví dụ mảng <var>scores[i]</var> ứng với chi phí <var>costs[i]</var>.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại chuỗi F&B (The Coffee House)</div>
+      <p>Đồng bộ mảng mã nguyên liệu và mảng đơn giá tồn kho theo vị trí index để tính toán chi phí giá vốn hàng bán (COGS) trong thời gian thực khi có đơn hàng đổ về.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch16-w2">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Parallel Array Index Tracker</strong>
+        — Theo dõi đồng bộ index giữa scores và costs.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch16-review" data-num="16.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>Chương này chuyển dịch tư duy lập trình từ việc viết mã thủ tục nguyên khối (monolithic script) sang kiến trúc hàm mô-đun hóa (modular functions) và xử lý mảng song song (parallel arrays). Vấn đề cốt lõi khi xử lý tập dữ liệu lớn là mã nguồn dễ bị dính chặt (tightly coupled) với biến toàn cục và khó tái sử dụng. Giải pháp là đóng gói logic tính toán điểm số cao nhất (printAndGetHighScore), lọc danh sách giải pháp tối ưu (getBestResults), và kết hợp nhiều mảng có cùng độ dài (scores và costs) để tìm ra giải pháp tối ưu về cả chất lượng lẫn chi phí (getMostCostEffectiveSolution). Đánh đổi (Trade-offs) lớn nhất ở đây là việc phải quản lý nhiều hàm và tham số truyền vào, đổi lại hệ thống đạt được khả năng bảo trì cao, dễ viết Unit Test và dễ mở rộng khi logic nghiệp vụ thay đổi.</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 1:</strong> Parallel arrays là gì trong JavaScript?</p>
+        <ol><li>Các mảng được chạy đồng thời bằng đa luồng Web Workers</li><li>Các mảng có cùng kích thước, trong đó dữ liệu tại cùng một index có mối quan hệ tương ứng với nhau</li><li>Các mảng chứa các hàm chạy song song</li><li>Phương pháp gộp nhiều mảng thành một mảng duy nhất</li></ol>
+        <p class="explain">Parallel arrays định nghĩa các mảng độc lập nhưng liên kết chặt chẽ với nhau thông qua vị trí index chung (ví dụ scores[0] đi kèm với costs[0]).</p>
+      </div></div>
+  </article>
+</section>

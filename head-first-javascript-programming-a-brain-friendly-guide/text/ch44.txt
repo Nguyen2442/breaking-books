@@ -1,0 +1,591 @@
+Knowing everything we do about JavaScript scope, we expected Specimen #1 to evaluate to 008 and 
+Specimen #2 to evaluate to 007.  But they both result in 008! Can you help us figure out why? 
+EXTREME JAVASCRIPT ChALLENGE
+var secret = "007";
+function getSecret() {
+    var secret = "008";
+    function getValue() {
+        return secret;
+    }
+    return getValue();
+}
+getSecret();
+Specimen #1
+We recommend you form a 
+strong opinion, jot it down 
+on this page, and then turn 
+the page.
+Don’t look at the solution 
+at the end of the chapter 
+just yet; we’ll revisit this 
+challenge a little bit later.
+
+488        Chapter    11
+lexical scope
+var justAVar = "Oh, don't you worry about it, I'm GLOBAL";
+function whereAreYou() {
+    var justAVar = "Just an every day LOCAL";
+    return justAVar;
+}
+var result = whereAreYou();
+console.log(result);
+var justAVar = "Oh, don't you worry about it, I'm GLOBAL";
+function whereAreYou() {
+    var justAVar = "Just an every day LOCAL";
+    function inner() {
+         return justAVar;
+    }
+    return inner();
+}
+var result = whereAreYou();
+console.log(result);
+A little review of lexical scope
+While we’re on the topic of  scope, let’s quickly 
+review how lexical scope works:
+Here's the same function.
+And shadow variable.
+So when we call whereAreYou, 
+the inner function is invoked, and 
+returns the value of the local 
+justAVar, not the global one.
+JavaScript console
+Just an every day LOCAL
+Here we have a global 
+variable called justAVar.
+And this function defines 
+a new lexical scope...
+...in which we have a local variable, justAVar, that 
+shadows the global variable of the same name.
+When this function is called, it returns justAVar. But which one? 
+We're using lexical scope, so we find the justAVar value by looking 
+in the nearest function scope. And if we can't find it there, we 
+look in the global scope.
+So when we call whereAreYou, it 
+returns the value of the local 
+justAVar, not the global one.
+JavaScript console
+Just an every day LOCAL
+Now let’s introduce a nested function:
+But now we have a nested function, that refers to 
+justAVar. But which one? Well, again, we always use 
+the variable from the closest enclosing function. So 
+we're using the same variable as the last time.
+Lexical just means you can determine the 
+scope of a variable by reading the structure 
+of the code, as opposed to waiting until the 
+code runs to figure it out.
+Notice that we’re calling inner here, 
+and returning its result..
+
+you are here 4        489
+anonymous functions, scope and closures
+var justAVar = "Oh, don't you worry about it, I'm GLOBAL";
+function whereAreYou() {
+    var justAVar = "Just an every day LOCAL";
+    function inner() {
+         return justAVar;
+    }
+    return inner;
+}
+var innerFunction = whereAreYou();
+var result = innerFunction();
+console.log(result);
+Where things get interesting with lexical scope
+Let’s make one more tweak. Watch this step carefully; it’s a doozy:
+No changes at all here, same 
+variables and functions.
+But rather than invoking inner, we 
+return the inner function.
+So when we call whereAreYou, we get back a 
+reference to inner function, which we assign 
+to the innerFunction variable. Then we invoke 
+innerFunction, capture its output in result 
+and display the result.
+So when inner is invoked here (as 
+innerFunction), which justAVar is used? 
+The local one, or the global one?
+Not so fast. With lexical scope what 
+matters is the structure in which the 
+function is defined, so the result has to be 
+the value of the local variable, or ”Just an 
+everyday LOCAL”.
+What matters is when 
+the function is invoked. We invoke 
+inner after it’s returned, when the global 
+version of justAVar is in scope, so we’ll get 
+“Oh don’t worry about it, I’m GLOBAL”.
+
+490        Chapter    11
+fighting about functions
+I’m right!
+Wrong!!!!
+While these dummies 
+were fighting, I pulled out the 
+JavaScript language reference, and 
+it looks like we were right. The code 
+outputs “Just an everyday LOCAL”.
+Frank: What do you mean you’re right? That’s like defying the laws of  physics or something. The local variable doesn’t 
+even exist anymore... I mean, when a variable goes out of  scope it ceases to exist. It’s derezzed! Didn’t you see TRON!?
+Judy: Maybe in your weak little C++ and Java languages, but not in JavaScript.
+Jim: Seriously, how is that possible? The whereAreYou function has come and gone, and the local version of  
+justAVar couldn’t possibly exist anymore.
+Judy: If  you’d listen to what I just told you... In JavaScript that’s not how it works.
+Frank: Well, throw us a bone Judy. How does it work?
+Judy: When we define the inner function, the local justAVar is in the scope of  that function. Now lexical scope says 
+how we define things is what matters, so if  we’re using lexical scope, then whenever inner is invoked, it assumes it still 
+has that local variable around if  it needs it.
+Frank: Yeah, but like I already said, that’s like defying the laws of  physics. The whereAreYou function that defined the 
+local version of  the justAVar variable is over. It doesn’t exist any more.
+Judy: True. The whereAreYou function is done, but the scope is still around for inner to use.
+Jim: How is that?
+Judy: Well, let’s see what REALLY happens when we define and return a function...
+EDITOR'S NOTE: Did 
+Joe change his shirt 
+between pages!?
+
+you are here 4        491
+anonymous functions, scope and closures
+justAVar = 
+  "Just an... LOCAL"
+function whereAreYou() {
+    var justAVar = "Just an every day LOCAL";
+    function inner() {
+         return justAVar;
+    }
+    return inner;
+}
+Functions Revisited
+We have a bit of  a confession to make. Up until now we haven’t told you everything 
+about a function. Even when you asked “What does a function reference actually 
+point to?” we kinda skirted the issue. “Oh just think of  it like a crystallized function 
+that holds the function’s code block,” we said.
+Well now it’s time to show you everything.
+To do that, let’s walk through what really happens at runtime with this code, starting 
+with the whereAreYou function:
+This is the environment. It holds all the 
+variables defined in the local scope.
+We then create a function, 
+with the name inner.
+In this example, the environment just has 
+one variable, the justAVar variable.
+function inner() {
+  return justAVar;
+}
+inner
+And finally, when we return 
+the function, we don’t just 
+return the function; we 
+return the function with the 
+environment attached to it.
+1
+2
+4
+3
+function inner() {
+  return justAVar;
+}
+Every function has an attached 
+environment, which contains the local 
+variables within its enclosing scope.
+So, let's see how this 
+gets used when we call 
+the function inner...
+justAVar = 
+  "Just an... LOCAL"
+First we encounter a local variable, named 
+justAVar. We assign the string  “Just an 
+every day LOCAL”  to the variable.
+We haven’t mentioned this before, 
+but all local variables are stored in an 
+environment.
+
+492        Chapter    11
+functions and lexical scope
+Calling a function (revisited)
+Now that we have the inner function, and its environment, let’s invoke inner 
+and see what happens. Here’s the code we want to evaluate:
+1
+var innerFunction = whereAreYou();
+var result = innerFunction();
+console.log(result);
+inner
+Function
+var innerFunction = whereAreYou();
+First, we call whereAreYou. We already know that returns a function 
+reference. So we create a variable innerFunction and assign it that 
+function. Remember, that function reference is linked to an environment.
+After this statement we have a 
+variable innerFunction that refers to 
+the function (plus an environment) 
+returned from whereAreYou.
+Our new variable.
+The function, and its environment.
+var result = innerFunction();
+Next we call innerFunction. To do that we evaluate the code in the 
+function’s body, and do that in the context of  the function’s environment, 
+like this:
+function inner() {
+  return justAVar;
+}
+inner
+Function
+The function has a single statement that 
+returns justAVar. To get the value of 
+justAVar we look in the enviroment.
+2
+function inner() {
+  return justAVar;
+}
+justAVar = 
+  "Just an... LOCAL"
+justAVar = 
+  "Just an... LOCAL"
+justAVar has the 
+value “Just an every 
+day LOCAL". So we 
+return that.
+
+you are here 4        493
+anonymous functions, scope and closures
+var result = innerFunction();
+console.log(result);
+Last, we assign the result of  the function to the result variable, 
+and then display it in the console.
+result
+t an every day LOCAL"
+JavaScript console
+Just an every day LOCAL
+Wait a sec... Judy hasn’t 
+mentioned closures? That looks 
+related to what we’re doing. Let’s 
+see if we can study up on that and 
+use them to one-up her.
+innerFunction returns the value “Just an every 
+day LOCAL", which it got from its environment. 
+So, we throw that into the result variable.
+And then all we have to do is display that 
+string in the console.
+3
+Darn it! Judy 
+was right again. 
+Uh, guys... this 
+IS a closure. You’d better 
+read up on them.
+
+494        Chapter    11
+questions about lexical scope
+Q:
+  When you say that lexical scope determines where a 
+variable is defined, what do you mean?
+A:
+ By lexical scope we mean that JavaScript’s rules for scoping 
+are based purely on the structure of your code (not on some dynamic 
+runtime properties). This means you can determine where a variable 
+is defined by simply examining your code’s structure. Also remember 
+that in JavaScript only functions introduce new scope. So, given a 
+reference to a variable, look for where that variable is defined in a 
+function from the most nested (where it’s used) to the least nested 
+until you find it. And if you can’t find it in a function, then it must be 
+global, or undefined.
+Q:
+  If a function is nested way down many layers, how does 
+the environment work then?
+A:
+ We used a simplistic way of showing the environment to 
+explain it, but you can think of each nested function as having its own 
+little environment with its own variables. Then, what we do is create 
+a chain of the environments of all the nested functions, from inner to 
+outer. 
+ 
+So, when it comes to finding a variable in the environment, you 
+start at the closest one, and then follow the chain until you find your 
+variable. And, if you don’t find it, you look in the global environment.
+Q:
+  Why are lexical scoping and function environments good 
+things? I would have thought the answer in that code example 
+would be “Oh, don’t you worry about it, I’m GLOBAL”. That 
+makes sense to me. The real answer seems confusing and 
+counterintuitive.
+A:
+ We can see how you might think that, but the advantage of 
+lexical scope is that we can always look at the code to determine 
+the scope that’s in place when a variable is defined, and figure out 
+what its value should be from that. And, as we’ve seen, this is true 
+even if you return a function and invoke it much later in a place totally 
+outside of its original scope. 
+ 
+Now there is another reason you might consider this a good thing, 
+and that is the kind of things we can do in code with this capability. 
+We’re going to get to that in just a bit.
+Q:
+  Do parameter variables get included in the environment 
+too?
+A:
+ Yes. As we’ve said before, you can consider parameters to 
+be local variables in your functions, so they are included in the 
+environment as well.
+Q:
+  Do  I need to understand how the environment works in 
+detail?
+A: No. What you need to understand is the lexical scoping rules 
+for JavaScript variables, and we’ve covered that. But now you know 
+that if you have a function that is returned from within a function, it 
+carries its environment around with it. 
+Remember that JavaScript functions are always 
+evaluated in the same scoping environment in which 
+they were defined. Within a function, if you want to 
+determine where a variable is coming from, search in  
+its enclosing functions, from the most nested to the least.
+
+you are here 4        495
+anonymous functions, scope and closures
+What the heck is a closure?
+Sure, everyone talks about closures as the must have language feature, but how many people 
+actually get what they are or how to use them? Darn few. It’s the language feature everyone 
+wants to understand and the feature every traditional language wants to add.
+Here’s the problem. According to many well-educated folks in the business, closures are hard. 
+But that’s really not a problem for you. Want to know why? No, no, it’s not because this is  a 
+“brain friendly book” and no, it’s not because we have a killer application that needs to be built 
+to teach closures to you. It’s because you just learned them. We just didn’t call them closures.
+So without further ado, we give you the super-formal definition.
+If you’ve been trained well in this 
+book you should be thinking at 
+this point, “Ah, this is the ‘get a 
+big raise’ knowledge.”
+Closure, noun
+: A closure is a function 
+together with a referencing environment.
+Okay, we agree that definition isn’t totally illuminating. But why is it called closure? Let’s 
+quickly walk through that, because—seriously—this could be one of  those make-or-break job 
+interview questions, or the thing that gets you that raise at some point in the future.
+To understand the word closure, we need to understand the idea of  “closing” a function. 
+Here’s your task: (1) find all the free variables in the code below and circle them.  A free 
+variable is one that isn't defined in the local scope. (2) Pick one of the environments on the 
+right that closes the function. By that we mean that it provides values for all the free variables.
+function justSayin(phrase) {
+    var ending = "";
+    if (beingFunny) {
+       ending = " -- I'm just sayin!";
+    } else if (notSoMuch) {
+       ending = " -- Not so much.";
+    }
+    alert(phrase + ending);
+}
+Pick one of these that 
+closes the function.
+Circle the free variables in this 
+code. Free variables are not 
+defined in the local scope.
+beingFunny = true;
+notSoMuch = false;
+inConversationWith = "Paul";
+beingFunny = true;
+justSayin = false;
+oocoder = true;
+notSoMuch = true;
+phrase = "Do do da";
+band = "Police";
+
+496        Chapter    11
+defining closure
+Closing a function
+function justSayin() {
+  // code here
+}
+ Closure
+You probably figured this out in the previous exercise, but 
+let’s run through it one more time: a function typically has 
+local variables in its code body (including any parameters it has), 
+and it also might have variables that aren’t defined locally, 
+which we call free variables. The name free comes from the fact 
+that within the function body, free variables aren’t bound 
+to any values (in other words, they’re not declared locally 
+in the function). Now, when we have an environment that 
+has a value for each of  the free variables, we say that we’ve 
+closed the function. And, when we take the function and the 
+environment together, we say we have a closure.
+If a variable in my function 
+body isn’t defined locally, and it’s 
+not a global, you can bet it’s from a 
+function I’m nested in, and available in 
+my environment.
+A closure results when we combine a 
+function that has free variables with 
+an environment that provides variable 
+bindings for all those free variables.
+beingFunny = true;
+notSoMuch = false;
+inConversationWith = "Paul";
+
+you are here 4        497
+anonymous functions, scope and closures
+We’re about ten 
+pages into this topic. 
+Are we ever going back to real-world 
+JavaScript? Or are we staying in 
+theory land forever? Why do I really care 
+how all this low-level function stuff works? 
+I just need to write functions and call 
+them, right?
+If closures weren’t so darned useful, we’d agree. 
+We’re sorry we had to drag you through the learning curve on 
+closures but we assure you, it is well worth it. You see, closures aren’t 
+just some theoretical functional programming language construct; 
+they’re also a powerful programming technique. Now that you’ve 
+got how they work down (and we’re not kidding that understanding 
+closures is what’s going to raise your cred among your managers and 
+peers) it’s time to learn how to use them.
+And here’s the thing: they’re used all over the place. In fact they’re 
+going to become so second nature to you that you’ll find yourself  
+using them liberally in your code. Anyway, let’s get to some closure 
+code and you’ll see what we’re talking about.
+
+498        Chapter    11
+implementing a counter with closures
+Using closures to implement a magic counter
+Ever think of  implementing a counter function? It usually goes like this:
+var count = 0;
+function counter() {
+    count = count + 1;
+    return count;
+}
+The only issue with this is that we have to use a global variable for count, which can 
+be problematic if  you’re developing code with a team (because people often use the 
+same names, which end up clashing).  
+What if  we were to tell you there is a way to implement a counter with a totally local 
+and protected count variable?  That way, you’ll have a counter that no other code 
+can ever clash with, and the only way to increment the counter value is through the 
+function (otherwise known as a closure).
+To implement this with a closure, we can reuse most of  the code above. Watch and 
+be amazed:
+function makeCounter() {
+    var count = 0;
+    function counter() {
+        count = count + 1;
+        return count;
+    }
+    return counter;
+}
+And we can use our counter like this:
+console.log(counter());
+console.log(counter());
+console.log(counter());
+JavaScript console
+1
+2
+3
+We have a global variable count.
+Each time we call counter, we 
+increment the global count variable, 
+and return the new value.
+So we can count 
+and display the 
+value of the 
+counter like this.
+Here, we’re putting the count variable in 
+the function makeCounter. So now count 
+is a local variable, not a global variable.
+Now, we create the counter 
+function, which increments 
+the count variable.
+And return the counter function.
+Think this magic trick will work? Let’s try it and see...
+This is the closure. It holds count in its environment.
+
+you are here 4        499
+anonymous functions, scope and closures
+Test drive your magic counter
+function makeCounter() {
+    var count = 0;
+    function counter() {
+        count = count + 1;
+        return count;
+    }
+    return counter;
+}
+var doCount = makeCounter();
+console.log(doCount());
+console.log(doCount());
+console.log(doCount());
+Looking behind the curtain...
+We added a bit of  testing code to test the counter. Give it a try!
+JavaScript console
+1
+2
+3
+Our counter works... we get 
+solid counting results.
+Let’s step through the code to see how the counter works. 
+function makeCounter() {
+    var count = 0;
+    function counter() {
+        count = count + 1;
+        return count;
+    }
+    return counter;
+}
+var doCount = makeCounter();
+console.log(doCount());
+console.log(doCount());
+console.log(doCount());
+var count = 0;
+function counter() {
+  count = count + 1;
+  return count;
+}
+When we call 
+makeCounter, we 
+get back a closure: 
+a function with an 
+environment.
+1
+We call makeCounter, which creates a 
+counter function and returns it along with an 
+environment containing the free variable, count. 
+In other words, it creates a closure. The function 
+returned from makeCounter is stored in doCount.
+2
+We call the function doCount. This executes the 
+body of the counter function. 
+3
+When we encounter the variable count, we look it 
+up in the environment, and retrieve its value. We 
+increment count, save the new value back into 
+the environment, and return that new value to 
+where doCount was called.
+4
+We repeat steps 2 and 3 each time we call doCount.
+When we call doCount (which is a reference to counter) and 
+need to get the value of count, we use the count variable 
+that’s in the closure’s environment. The outside world (the 
+global scope) never sees the variable count. But we can use it 
+anytime we call doCount. And there’s no other way to get to 
+count except by calling doCount.
+1
+2
+3
+4
+This is a 
+closure.
+
+500        Chapter    11
+exercise for closures
+It’s your turn. Try creating the following closures. We realize this is not an easy task at first, 
+so refer to the answer if you need to. The important thing is to work your way through these 
+examples, and get to the point where you fully understand them.
+function makePassword(password) {
+    return __________________________ {
+        return (passwordGuess === password);
+    };
+}
+First up for 10pts: makePassword takes a password as an argument and returns a function 
+that accepts a password guess and returns true if the guess matches the password 
+(sometimes you need to read these closure descriptions a few times to get them):
+function multN(n) {
+    return __________________________ {
+        return _____________;
+    };
+}
+Next up for 20pts: the multN function takes a number (call it n) and returns a function. That 
+function itself takes a number, multiplies it by n and returns the result.
+Last up for 30 pts:  This is a modification of the counter we just created. makeCounter

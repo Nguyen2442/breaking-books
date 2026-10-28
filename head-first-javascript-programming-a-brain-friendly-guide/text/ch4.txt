@@ -1,0 +1,584 @@
+Grab some tweets from Twitter and display them? Or 
+how about play a game?  Look to JavaScript. JavaScript 
+gives you a way to add programming to your page so 
+that you can compute, react, draw, communicate, alert, 
+alter, update, change, and we could go on... anything 
+dynamic, that’s JavaScript in action.
+And you already know that we 
+use CSS, or Cascading Style 
+Sheets, to specify how the 
+HTML is presented...the colors, 
+fonts, borders, margins, and 
+the layout of your page.  CSS 
+gives you style, and it does it 
+in a way that is separate from 
+the structure of the page.
+You already know 
+we use HTML, or 
+Hypertext Markup 
+Language, to specify 
+all the 
+content
+ of 
+your pages along 
+with their 
+structure
+, 
+like paragraphs, 
+headings and 
+sections.
+HTML
+CSS
+JS
+If  you’re used to creating structure, content, layout and style in your web pages, 
+isn’t it time to add a little behavior as well? These days, there’s no need for 
+the page to just sit there. Great pages should be dynamic, interactive, and they 
+should work with your users in new ways. That’s where JavaScript comes in. 
+Let’s start by taking a look at how JavaScript fits into the web page ecosystem:
+Browser
+
+you are here 4        3
+a quick dip into javascript
+CSS
+How you’re going to write JavaScript
+Yo u create your page 
+just like you always do, 
+with HTML content and 
+CSS style. And you also 
+include JavaScript in 
+your page.  As you’ll see, 
+just like HTML and CSS, 
+you can put everything 
+together in one file, or 
+you can place JavaScript 
+in its own file, to be 
+included in your page.
+Writing
+<html>
+<head>
+<title>Icecream</title>
+<script>
+ var x = 49;
+</script>
+<body>
+<h1>Icecream Flavors</h1>
+<h2><em>49 lavors</em></h2>
+<p>All your favorite  
+lavors!</p>
+</body>
+</html>
+1
+The browser starts 
+executing your code as 
+soon as it encounters it in 
+your page, and continues 
+executing it for the lifetime 
+of your page. Unlike early 
+versions of JavaScript, 
+today’s JavaScript is 
+a powerhouse, using 
+advanced compilation 
+techniques to execute 
+your code at nearly the 
+same speed as many native 
+programming languages.
+3
+Executing
+Point your browser to your 
+page, just as you always 
+do. When the browser sees 
+code, it starts parsing it 
+immediately, getting ready 
+to execute it. Note that 
+like HTML and CSS, if the 
+browser sees errors in your 
+code, it will do its best to 
+keep moving and reading  
+more JavaScript, HTML and 
+CSS. The last thing it wants 
+to do is not be able to give 
+the user a page to see.
+Browser
+2
+Loading
+html
+head
+titlescript
+body
+h1ph2
+em
+Browser
+JavaScript is fairly unique in the programming world. With your typical 
+programming language you have to write it, compile it, link it and deploy 
+it. JavaScript is much more fluid and flexible. With JavaScript all you 
+need to do is write JavaScript right into your page, and then load it into a 
+browser. From there, the browser will happily begin executing your code. 
+Let’s take a closer look at how this works:
+For future reference, the browser also builds 
+an “object model" of your HTML page that 
+JavaScript can make use of. Put that in the back 
+of your brain, we'll come back to it later...
+We’ll talk about the 
+best way in a bit...
+
+4        Chapter    1
+get javascript in your page
+How to get JavaScript into your page
+First things first. You can’t get very far with JavaScript if  you don’t know 
+how to get it into a page. So, how do you do that? Using the  <script> 
+element of  course! 
+Let’s take a boring old, garden-variety web page and add some dynamic 
+behavior using a <script> element. Now, at this point, don’t worry too 
+much about the details of  what we’re putting into the <script> element—
+your goal right now is to get some JavaScript working.
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Just a Generic Page</title>
+    <script>
+      setTimeout(wakeUpUser, 5000);
+      function wakeUpUser() {
+         alert("Are you going to stare at this boring page forever?");
+      }
+    </script>
+  </head>
+  <body>
+       <h1>Just a generic heading</h1>
+       <p>Not a lot to read about here. I'm just an obligatory paragraph living in 
+an example in a JavaScript book. I'm looking for something to make my life more 
+exciting.</p>
+  </body>
+</html>
+Here's our standard HTML5 doctype, and 
+<html> and <head> elements.
+And we've got a pretty generic <body> for this page as well.
+Ah, but we've added a script element to 
+the <head> of the page.
+And we've written some JavaScript code 
+inside it.
+Again, don’t worry too much about what this code does.  
+Then again, we bet you’ll want to take a look at the code 
+and see if you can think through what each part might do.
+Go ahead and type this page into a file named “behavior.html”. Drag 
+the file to your browser (or use File > Open) to load it. What does it do? 
+Hint, you’ll need to wait five seconds to find out. 
+A little test drive
+
+you are here 4        5
+a quick dip into javascript
+Q:
+ I’ve heard JavaScript is a bit of a wimpy language. Is it?
+A: JavaScript certainly wasn’t a power lifter in its early days, but 
+its importance to the web has grown since then, and as a result, 
+many resources (including brain power from some of the best minds 
+in the business) have gone into supercharging the performance of 
+JavaScript. But, you know what? Even before JavaScript was super 
+fast, it was always a brilliant language. As you'll see, we’re going to 
+do some very powerful things with it.
+Q:
+ Is JavaScript related to Java?
+A: Only by name. JavaScript was created during a time when 
+Java was a red hot popular language, and the inventors of JavaScript 
+capitalized on that popularity by making use of the Java name. Both 
+languages borrow some syntax from programming languages like C, 
+but other than that, they are quite different.
+Q:
+ Is JavaScript the best way to create dynamic web pages? 
+What about solutions like Flash?
+A: There was a time when Flash may have been the preferred 
+choice for many to create interactive and more dynamic web pages, 
+but the industry direction is moving strongly in favor of HTML5 
+with JavaScript. And, with HTML5, JavaScript is now the standard 
+scripting language for the Web. Many resources are going into 
+making JavaScript fast and efficient, and creating JavaScript APIs 
+that extend the functionality of the browser.  
+Q:
+ My friend is using JavaScript inside Photoshop, or at least 
+he says he is. Is that possible?
+A: Yes, JavaScript is breaking out of the browser as a general 
+scripting language for many applications from graphics utilities to 
+music applications and even to server-side programming. Your 
+investment in learning JavaScript is likely to pay off in ways beyond 
+web pages in the future.
+Q:
+ You say that many other languages are compiled. What 
+exactly does that mean and why isn't JavaScript?
+A: With conventional programming languages like C, C++ or 
+Java, you compile the code before you execute it. Compiling takes 
+your code and produces a machine efficient representation of it, 
+usually optimized for runtime performance. Scripting languages are 
+typically interpreted, which means that the browser runs each line 
+of JavaScript code as it gets to it. Scripting languages place less 
+importance on runtime performance, and are more geared towards 
+tasks like prototyping, interactive coding and flexibility. This was 
+the case with early JavaScript, and was why, for many years, the 
+performance of JavaScript was not so great. There is a middle 
+ground however; an interpreted language can be compiled on the fly, 
+and that’s the path browser manufacturers have taken with modern 
+JavaScript. In fact, with JavaScript you now have the conveniences 
+of a scripting language, while enjoying the performance of a compiled 
+language. By the way, we’ll use the words interpret, evaluate and 
+execute in this book. They have slightly different meanings in various 
+contexts, but for our purposes, they all basically mean the same thing.
+Relax
+Just relax. At this point we don’t expect you to read JavaScript like you grew up with it. In fact, 
+all we want you to do right now is get a feel for what JavaScript looks like.
+That said, you’re not totally off  the hook because we need to get your brain revved up and 
+working. Remember that code on the previous page? Let’s just walk through it to get a feel for 
+what it might do:
+      setTimeout(wakeUpUser, 5000);
+      function wakeUpUser() {
+         alert("Are you going to stare at this boring page forever?");
+      }
+    
+Perhaps a way to count five seconds of time? Hint: 
+1000 milliseconds = 1 second.
+Clearly a way to alert the user with a message.
+A way to create 
+reusable code 
+and call it 
+“wakeUpUser”?
+
+6        Chapter    1
+javascript history
+JavaScript, you’ve come a long way baby...
+JavaScript 1.0
+JavaScript 1.3
+Netscape might have been before your 
+time, but it was the first real browser 
+company. Back in the mid-1990s browser 
+competition was fierce, particularly with 
+Microsoft, and so adding new, exciting 
+features to the browser was a priority. 
+And towards that goal, Netscape wanted 
+to create a scripting language that would 
+allow anyone to add scripts to their 
+pages. Enter LiveScript, a language 
+developed in short order to meet that 
+need. Now if  you’ve never heard of  
+LiveScript, that’s because this was all 
+about the time that Sun Microsystems 
+introduced Java, and, as a result, drove 
+their own stock to stratospheric levels. So, 
+why not capitalize on that success and 
+rename LiveScript to JavaScript? After 
+all, who cares if  they don’t actually have 
+anything to do with each other? Right?
+Did we mention Microsoft? They 
+created their own scripting language 
+soon after Netscape did, named, um, 
+JScript, and it was, um, quite similar to 
+JavaScript. And so began the browser 
+wars.
+Between 1996 and 2000, JavaScript 
+grew up. In fact, Netscape submitted 
+JavaScript for standardization and 
+ECMAScript was born. Never 
+heard of  ECMAScript? That’s 
+okay, now you have; just know that 
+ECMAScript serves as the standard 
+language definition for all JavaScript 
+implementations (in and out of  the 
+browser). 
+During this time developers 
+continued struggling with JavaScript 
+as casualties of  the browser wars 
+(because of  all the differences in 
+browsers), although the use of  
+JavaScript became common-place 
+in any case. And while subtle 
+differences between JavaScript and 
+JScript continued to give developers 
+headaches, the two languages began 
+to look more and more like each 
+other over time.
+JavaScript still hadn’t outgrown 
+its reputation as an amateurish 
+language, but that was soon to 
+change...
+Finally, JavaScript comes of  
+age and gains the respect of  
+professional developers! While 
+you might say it’s all due to 
+having a solid standard, like 
+ECMAScript 5, which is now 
+implemented in all modern 
+browsers, it’s really Google that 
+pushed JavaScript usage into the 
+professional limelight, when in 
+2005 they released Google Maps 
+and showed the world what could 
+really be done with JavaScript to 
+create dynamic web pages.
+With all the new attention,  
+many of  the best programming 
+language minds focused 
+on improving JavaScript’s 
+interpreters and made vast 
+improvements to its runtime 
+performance. Today, JavaScript 
+stands with only a few changes 
+from the early days, and despite 
+its rushed birth into the world, is 
+showing itself  to be a powerful 
+and expressive language.
+JavaScript 1.8.5
+1995
+20002012
+
+you are here 4        7
+a quick dip into javascript
+Look how easy it is 
+to write JavaScript
+var price = 28.99;
+var discount = 10;
+var total =  
+      price - (price * (discount / 100));
+if (total > 25) {
+   freeShipping();
+}
+var count = 10;
+while (count > 0) {
+   juggle();
+   count = count - 1;
+}
+var dog = {name: "Rover", weight: 35};
+if (dog.weight > 30) {
+    alert("WOOF WOOF");
+} else {
+    alert("woof woof");
+}
+var circleRadius = 20;
+var circleArea = 
+   Math.PI * (circleRadius * circleRadius);
+Yo u don’t know JavaScript yet, but we bet you can make some 
+good guesses about how JavaScript code works. Take a look at 
+each line of code below and see if you can guess what it does. 
+Write in your answers below. We’ve done one for you to get you 
+started. If you get stuck, the answers are on the next page.
+Create a variable named price, and assign the value 28.99 to it.
+
+8        Chapter    1
+javascript exercise solution
+Look how easy it is 
+to write JavaScript
+var price = 28.99;
+var discount = 10;
+var total =  
+      price - (price * (discount / 100));
+if (total > 25) {
+   freeShipping();
+}
+var count = 10;
+while (count > 0) {
+   juggle();
+   count = count - 1;
+}
+var dog = {name: "Rover", weight: 35}; 
+if (dog.weight > 30) {
+    alert("WOOF WOOF");
+} else {
+    alert("woof woof");
+}
+var circleRadius = 20;
+var circleArea = 
+   Math.PI * (circleRadius * circleRadius);
+You don’t know JavaScript yet, but we bet you can make some 
+good guesses about how JavaScript code works. Take a look at 
+each line of code below and see if you can guess what it does. 
+Write in your answers below. We’ve done one for you to get you 
+started. Here are our answers.
+Create a variable named price, and assign the value 28.99 to it.
+Create a variable named discount, and assign the value 10 to it.
+Compute a new price by applying a discount and then assign it 
+to the variable total.
+Compare the value in the variable total to 25. If it's greater...
+  ...then do something with freeShipping.
+End the if statement
+Create a variable named count, and assign the value 10 to it.
+As long as the variable count is greater than 0...
+  ...do some juggling, and...
+ ...reduce the value of count by 1 each time.
+End the while loop
+Create a dog with a name and weight.
+If the dog’s weight is greater than 30...
+ ...alert “WOOF WOOF"  to the browser’s web page
+Otherwise...
+ ...alert “woof woof” to the browser’s web page
+End the if/else statement
+Create a variable, circleRadius, and assign the value 20 to it.
+Create a variable named circleArea...
+  ...and assign the result of this expression to it 
+    (1256.6370614359173)
+
+you are here 4        9
+a quick dip into javascript
+And usually 
+increase the 
+size of your 
+paycheck too!
+Look, if you 
+want to go beyond creating 
+just static web pages, you 
+gotta have JavaScript chops.
+It’s True.
+With HTML and CSS you can create some great looking pages. But once you 
+know JavaScript, you can really expand on the kinds of  pages you can create.  
+So much so, in fact, you might actually start thinking of  your pages as 
+applications (or even experiences!) rather than mere pages.
+Now, you might be saying, “Sure, I know that. Why do you think I’m reading this 
+book?” Well, we actually wanted to use this opportunity to have a little chat about 
+learning JavaScript. If  you already have a programming language or scripting 
+language under your belt, then you have some idea of  what lies ahead. However, 
+if  you’ve mostly been using HTML & CSS to date, you should know that there is 
+something fundamentally different about learning a programming language. 
+With HTML & CSS what you’re doing is largely declarative—for instance, you’re 
+declaring, say, that some text is a paragraph or that all elements in the “sale” class 
+should be colored red. With JavaScript you’re adding behavior to the page, and to 
+do that you need to describe computation. You need to be able to describe things 
+like, “compute the user’s score by summing up all the correct answers” or “do 
+this action ten times” or “when the user clicks on that button play the you-have-
+won sound” or even “go off  and get my latest tweet, and put it in this page.”
+To do those things you need a language that is quite different from HTML or 
+CSS. Let’s see how...
+
+10        Chapter    1
+javascript statements
+With HTML we mark up text to 
+create structure. Like, “I need a large 
+heading called Mocha Cafe Latte; it’s 
+a heading for a drink.  And I need a 
+paragraph after that.”
+How to make a statement
+When you create HTML you usually mark up text to give it structure; to do 
+that you add elements, attributes and values to the text:
+<h1 class="drink">Mocha Caffe Latte</h1>
+<p>Espresso, steamed milk and chocolate syrup, 
+just the way you like it.</p>
+CSS is a bit different. With CSS you’re writing a set of  rules, where each rule 
+selects elements in the page, and then specifies a set of  styles for those elements:
+h1.drink {
+    color: brown;
+}
+p {
+    font-family: sans-serif;
+}
+With JavaScript you write statements. Each statement specifies a small part of  a 
+computation, and together, all the statements create the behavior of  the page:
+var age = 25;
+var name = "Owen";
+if (age > 14) {
+    alert("Sorry this page is for kids only!");
+} else {
+    alert("Welcome " + name + "!");
+}
+A set of statements.
+With CSS we write rules that use selectors, 
+like h1.drink and p, to determine what parts 
+of the HTML the style is applied to.
+Each statement does a little bit of work, like 
+declaring some variables to contain values for us.
+Or making decisions, such as: Is the age of the user greater than 14?
+And if so alerting the user 
+they are too old for this page.
+Otherwise, we welcome the user by name, 
+like this: “Welcome Owen!” (but since Owen 
+is 25, we don’t do that in this case.)
+...and we want all the paragraphs to 
+have a sans-serif type font.
+Here we create a variable to contain an age of 25, and 
+we also need a variable to contain the value “Owen”.
+Let’s make sure all drink 
+headings are colored brown...
+
+you are here 4        11
+a quick dip into javascript
+Variables and values
+Yo u might have noticed that JavaScript statements usually involve 
+variables. Variables are used to store values. What kinds of  values?  
+Here are a few examples:
+var winners = 2;
+var name = "Duke";
+var isEligible = false;
+This statement declares a 
+variable named winners and 
+assigns a numeric value of 2 to it.
+This one assigns a string of 
+characters to the variable name 
+(we call those “strings,” for short).
+And this statement assigns 
+the value false to the 
+variable isEligible. We call 
+true/false values “booleans.”
+winners
+2
+name
+“Duke”
+isEligible
+false
+losers
+No value?! What am 
+I supposed to do now?! 
+I’m so humiliated.
+There are other values that variables can hold beyond numbers, strings 
+and booleans, and we’ll get to those soon enough, but, no matter what 
+a variable contains, we create all variables the same way. Let’s take a 
+little closer look at how to declare a variable:
+We say optionally, because if  you want, you can create a variable without 
+an initial value, and then assign it a value later. To create a variable 
+without an initial value, just leave off  the assignment part, like this:
+We always start 
+with the var 
+keyword when 
+declaring a variable. 
+var winners = 2;
+NO EXCEPTIONS! Even if 
+JavaScript doesn’t complain 
+when you leave off the var. 
+We’ll tell you why later...
+Next we give the 
+variable a name.
+And, optionally, we assign a value to the variable by 
+adding an equals sign followed by the value.
+var losers;
+By leaving off the 
+equals sign and value 
+you’re just declaring the 
+variable for later use.
+Pronounced “boo-lee-ans.”
+Notice we don’t put quotes 
+around boolean values.
+We always end an assignment 
+statement with a semicolon.
+
+12        Chapter    1
+javascript keywords
+Back away from that keyboard!
+You know variables have a name, and you know they have a value.
+You also know some of  the things a variable can hold are numbers, strings and boolean values.
+But what can you call your variables? Is any name okay? Well no, but the rules around 
+creating variable names are simple: just follow the two rules below to create valid variable names:
+1
+2
+Start your variables with a letter, an underscore or a 
+dollar sign. 
+After that, use as many letters, numeric digits, 
+underscores or dollar signs as you like.
+Oh, and one more thing; we really don’t want to confuse JavaScript by using any of  the built-in 
+keywords, like var or function or false, so consider those off  limits for your own variable names. 
+We’ll get to some of  these keywords and what they mean throughout the rest of  the book, but 
+here’s a list to take a quick look at:
+Q:
+ What’s a keyword?
+A:
+ A keyword is a reserved word in 
+JavaScript. JavaScript uses these reserved 
+words for its own purposes, and it would 
+be confusing to you and the browser if you 
+started using them for your variables.
+Q:
+ What if I used a keyword as part 
+of my variable name? For instance, can 
+I have a variable named ifOnly (that is, a 
+variable that contains the keyword if)?

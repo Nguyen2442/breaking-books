@@ -1,0 +1,601 @@
+(you save one variable), but it does make your code shorter. We’d 
+argue that short chains (2 or 3 levels at most) are easier to read than 
+multiple lines of code, but that’s our preference. If you want to keep 
+your statements separate, that’s fine. And if you do use chaining, 
+make sure you don’t create really long chains; they will be harder to 
+read and understand if they’re too long.  
+Q:
+ We have arrays (locations) inside an object (ship) inside 
+an array (ships). How many levels deep can you nest objects 
+and arrays like this?
+A: Pretty much as deep as you want. Practically, of course, it’s 
+unlikely you’ll ever go too deep (and if you find yourself with more 
+than three or four levels of nesting, it’s likely your data structure is 
+getting too complex and you should rethink things a bit).  
+Q:
+ I noticed we added a property named boardSize to the 
+model, but we haven’t used it in the model code. What is that 
+for?
+A: We’re going to be using model.boardSize, and the other 
+properties in model, in the code coming up. The model’s 
+responsibility is to manage the state of the game, and boardSize 
+is definitely part of the state. The controller will access the state it 
+needs by accessing the model’s properties, and we’ll be adding more 
+model methods later that will use these properties too.
+You’ll need to remove 
+or comment out the 
+previous view testing 
+code to get the same 
+results as we show 
+here. You can see 
+how to do that in 
+battleship_tester.js.
+
+you are here 4        349
+bringing it all together
+Implementing the Controller
+Now that you have the view and the model complete, we’re going to start to bring 
+this app together by implementing the controller.  At a high level, the controller glues 
+everything together by getting a guess, processing the guess and getting it to the model. 
+It also keeps track of  some administrative details, like the current number of  guesses 
+and the player’s progress in the game. To do all this the controller relies on the model 
+to keep the state of  the game and on the view to display the game. 
+More specifically, here’s the set of  responsibilities we’re giving the controller:
+ Get and process the player’s guess (like “A0” or “B1”).
+ Keep track of  the number of  guesses.
+ Ask the model to update itself  based on the latest guess.
+ Determine when the game is over (that is, when all ships 
+have been sunk).
+Controller
+guesses: Keeps number of guesses.
+processGuess: Processes guesses and 
+passes them to the model. Detects the 
+end of the game.
+Let’s get started on the controller by first defining a property, guesses, in the controller 
+object. Then we’ll implement a single method, processGuess, that takes an alpha-
+numeric guess, processes it and passes it to the model.
+Here’s the skeleton of  the controller code; we’ll fill this in over the next few pages:
+var controller = {
+   guesses: 0,
+   processGuess: function(guess) {
+     // more code will go here
+   }
+};
+Here we're defining our controller object, with 
+a property, guesses, initialized to zero.
+And here's the beginning of the processGuess method, 
+which takes a guess in the form “A0".
+
+350        Chapter    8
+processing the player’s guess
+"A3"
+"3""A"
+0 3
+"03"
+You know the Battleship-style guess 
+format at this point: it’s a letter 
+followed by a number.
+Processing the player’s guess
+The controller’s responsibility is to get the player’s guess, make sure it’s valid, and then get 
+it to the model object. But, where does it get the player’s guess? Don’t worry, we’ll get to 
+that in a bit. For now we’re just going to assume, at some point, some code is going to call 
+the controller’s processGuess method and give it a string in the form:
+Now after you receive a guess in this form (an alpha-numeric set of  characters, like 
+“A3”), you’ll need to transform the guess into a form the model understands (a string 
+of  two numeric characters, like “03”). Here’s a high level view of  how we’re going to 
+convert a valid input into the number-only form:
+Surely a player would 
+never enter in an invalid 
+guess, right? Ha! We’d 
+better make sure we’ve 
+got valid input.
+Assume we've been handed a 
+string in alphanumeric form:
+Let's then break the string apart, 
+into the row and the column.
+We'll convert this to a number 
+and just check to make sure this 
+number is between 0 and six.
+We'll convert the 
+letter to a number 
+and check to make 
+sure it is between 
+zero and six.
+Finally we'll put the two numbers 
+together back into a string. 
+"A3"
+This is a great 
+technique when you are 
+coding. Focus on the 
+requirements for the 
+specific code you’re 
+working on. Thinking 
+about the whole 
+problem at once is 
+often a less successful 
+technique.
+But first things first. We also need to check that the input is valid. Let’s plan this all 
+out before we write the code.
+
+you are here 4        351
+bringing it all together
+Rather than putting all this guess-processing code into the 
+processGuess method, we’re going to write a little helper 
+function (after all we might be able to use this again). We’ll 
+name the function parseGuess.
+Let’s step through how it is going to work before we start 
+writing code:
+Planning the code...
+1
+We get a player’s guess in classic 
+Battleship-style as a single letter 
+followed by a number.
+2
+Check the input to make sure 
+it is valid (not null or too long 
+or too short).
+3
+Take the letter and convert it 
+to a number: A to 0, B to 1, and 
+so on.
+Get player’s 
+guess
+Is input 
+valid?
+no
+yes
+Convert letter 
+to number
+no
+yes
+Is 
+computed 
+number 
+valid?
+Is second 
+number valid?
+create 
+and 
+return 
+string
+1
+2
+3
+4
+yes
+no
+5
+6
+return 
+null
+4
+See if the number from step 3 
+is valid (between 0 and 6).
+5
+Check the second number for 
+validity (also between 0 and 6).
+6
+If any check failed, return null. 
+Otherwise concatenate the two 
+numbers into a string and return 
+the string.
+
+352        Chapter    8
+parsing the player’s guess
+function parseGuess(guess) {
+   var alphabet = ["A", "B", "C", "D", "E", "F", "G"];
+   if (guess === null || guess.length !== 2) {
+      alert("Oops, please enter a letter and a number on the board.");
+   } else {
+      firstChar = guess.charAt(0);
+      var row = alphabet.indexOf(firstChar); 
+   }
+}
+We have a solid plan for coding this, so let’s get started:
+Implementing parseGuess
+1
+Let’s tackle steps one and two. All we need to do is accept the 
+player’s guess and check to make sure it is valid. At this point we’re 
+just going to deine validity as accepting a non-null string and a 
+string that has exactly two characters in it.
+2
+function parseGuess(guess) {
+   if (guess === null || guess.length !== 2) {
+      alert("Oops, please enter a letter and a number on the board.");
+   } 
+}
+The guess is passed into the guess parameter.
+And then we check for null and to 
+make sure the length is 2 characters.
+If not, we alert the player.
+3
+Next, we take the letter and convert it to a number by using a 
+helper array that contains the letters A-F. To get the number, we 
+can use the indexOf method to get the index of the letter in the 
+array, like this:
+An array loaded with each letter that 
+could be part of a valid guess.
+Grab the first 
+character of the guess.
+Then, using indexOf, we get back a number between zero 
+and six that corresponds to the letter. Try a couple of 
+examples to see how this works.
+
+you are here 4        353
+bringing it all together
+4
+5
+Now we’ll handle checking both characters of the guess to see if they 
+are numbers between zero and six (in other words, to make sure they 
+are both valid positions on the board).
+function parseGuess(guess) {
+   var alphabet = ["A", "B", "C", "D", "E", "F", "G"];
+   if (guess === null || guess.length !== 2) {
+      alert("Oops, please enter a letter and a number on the board.");
+   } else {
+      firstChar = guess.charAt(0);
+      var row = alphabet.indexOf(firstChar); 
+      var column = guess.charAt(1);
+              
+      if (isNaN(row) || isNaN(column)) {
+         alert("Oops, that isn't on the board.");
+      } else if (row < 0 || row >= model.boardSize ||
+                         column < 0 || column >= model.boardSize) {
+         alert("Oops, that's off the board!");
+      } 
+   }
+}
+Here we've added code to grab the 
+second character in the string, which 
+represents the column.
+And we're checking to see if either 
+of the row or column is not a number 
+using the isNAN function.
+We're also making sure that the 
+numbers are between zero and six.
+Actually we're being even more general here. 
+Instead of hardcoding the number six, we're 
+asking the model to tell us how big the board 
+is and using that number for comparison.
+Rather than hard-coding the value six as the biggest value a row 
+or column can hold, we used the model's boardSize property. What 
+advantage do you think that has in the long run?
+Notice we're using type conversion like 
+crazy here! column is a string, so when 
+we check to make sure its value is 0-6, 
+we rely on type conversion to convert it 
+to a number for comparison.
+
+354        Chapter    8
+finishing up the parseGuess function
+function parseGuess(guess) {
+   var alphabet = ["A", "B", "C", "D", "E", "F", "G"];
+   if (guess === null || guess.length !== 2) {
+      alert("Oops, please enter a letter and a number on the board.");
+   } else {
+      firstChar = guess.charAt(0);
+      var row = alphabet.indexOf(firstChar); 
+      var column = guess.charAt(1);
+              
+      if (isNaN(row) || isNaN(column)) {
+         alert("Oops, that isn't on the board.");
+      } else if (row < 0 || row >= model.boardSize ||
+                 column < 0 || column >= model.boardSize) {
+         alert("Oops, that's off the board!");
+      } else {
+         return row + column;
+      }
+   }
+   return null;
+}
+6
+Now for our inal bit of code for the parseGuess function... If 
+any check for valid input fails, we’ll return null. Otherwise we’ll 
+return the row and column of the guess, combined into a string.
+At this point, everything 
+looks good, so we can return 
+a row and column.
+If we get here, there was a failed 
+check along the way, so return null.
+A Test Drive
+Okay, make sure all this code is entered into “battleship.js” and 
+then add some function calls below it all that look like this:
+console.log(parseGuess("A0"));
+console.log(parseGuess("B6"));
+console.log(parseGuess("G3"));
+console.log(parseGuess("H0"));
+console.log(parseGuess("A7"));
+Reload “battleship.html”, and make sure your console 
+window is open. You should see the results of parseGuess 
+displayed in the console and possibly an alert or two.
+JavaScript console
+00
+16
+63
+null
+null
+Notice we're 
+concatenating the 
+row and column 
+together to make 
+a string, and 
+returning that 
+string. We're using 
+type conversion 
+again here: row is a 
+number and column 
+is a string, so we'll 
+end up with a 
+string.
+
+you are here 4        355
+bringing it all together
+ Get and process the player’s guess (like “A0” or “B1”).
+ Keep track of  the number of  guesses.
+ Ask the model to update itself  based on the latest guess.
+ Determine when the game is over (that is, when all ships 
+have been sunk).
+Now that we have the parseGuess helper function written we 
+move on to implementing the controller. Let’s first integrate the 
+parseGuess function with the existing controller code:
+Meanwhile back at the controller...
+var controller = {
+   guesses: 0,
+   processGuess: function(guess) {
+      var location = parseGuess(guess);
+      if (location) {
+      }
+   }
+};
+That completes the first responsibility of  the controller. Let’s see 
+what’s left:
+We’ll use parseGuess to 
+validate the player’s guess.
+And as long as we don’t get null back, we 
+know we’ve got a valid location object.
+Remember null is a  
+falsey value.
+And the rest of the code for the 
+controller will go here.
+We’ll tackle 
+these next.
+The next item on our list is straightforward: to keep track of  the 
+number of  guesses we just need to increment the guesses property 
+each time the player makes a guess. As you’ll see in the code, we’ve 
+chosen not to penalize players if  they enter an invalid guess.
+Next, we’ll ask the model to update itself  based on the guess by calling 
+the model’s fire method. After all, the point of  a player’s guess is to 
+fire hoping to hit a battleship. Now remember, the fire method takes 
+a string, which contains the row and column, and by some luck we get 
+that string by calling parseGuess. How convenient.
+Let’s put all this together and implement the next step...
+Counting guesses and firing the shot
+
+356        Chapter    8
+when is the game over?
+var controller = {
+   guesses: 0,
+   processGuess: function(guess) {
+      var location = parseGuess(guess);
+      if (location) {
+         this.guesses++;
+         var hit = model.fire(location);
+      }
+   }
+};
+var controller = {
+   guesses: 0,
+   processGuess: function(guess) {
+      var location = parseGuess(guess);
+      if (location) {
+         this.guesses++;
+         var hit = model.fire(location);
+         if (hit && model.shipsSunk === model.numShips) {
+               view.displayMessage("You sank all my battleships, in " + 
+                                                this.guesses + " guesses");
+         }
+      }
+   }
+};
+If the player entered a 
+valid guess we increase the 
+number of guesses by one.
+And then we pass the row and column in the form 
+of a string to the model’s fire method. Remember, 
+the fire method returns true if a ship is hit.
+All we have left is to determine when the game is complete. How do we do that? Well, 
+we know that when three ships are sunk the game is over. So, each time the guess is 
+a hit, we’ll check to see if  there are three sunken ships, using the model.shipsSunk 
+property. Let’s generalize this a bit, and instead of  just comparing it to the number 3, 
+we’ll use the model’s numShips property for the comparison. You might decide later 
+to set the number of  ships to, say, 2 or 4, and this way, you won’t need to revisit this 
+code to make it work correctly.
+Game over?
+If the guess was a hit, and the 
+number of ships that are sunk is 
+equal to the number of ships in the 
+game, then show the player a message 
+that they’ve sunk all the ships.
+We’ll show the player the total number 
+of guesses they took to sink the ship. 
+The guesses property is a property of 
+“this” object, the controller.
+Remember, this.guesses++ 
+just adds one to the value 
+of the guesses property. It 
+works just like i++ in for 
+loops.
+Also notice if the player 
+enters an invalid board 
+location, we don’t penalize 
+them by counting the guess.
+
+you are here 4        357
+bringing it all together
+A Test Drive
+Okay, make sure all the controller code is entered into your “battleship.js” file 
+and then add some function calls below it all to test your controller. Reload 
+your “battleship.html” page and note the hits and misses on the board. Are 
+they in the right places? (Download “battleship_tester.js” to see our version.)
+We let the player know the game ended in the message area, after 
+they sink all three ships. But the player can still enter guesses. If 
+you wanted to fix this so a player isn’t allowed to enter guesses 
+after they’ve sunk all the ships, how would you handle that?
+controller.processGuess("A0");
+controller.processGuess("A6");
+controller.processGuess("B6");
+controller.processGuess("C6");
+controller.processGuess("C4");
+controller.processGuess("D4");
+controller.processGuess("E4");
+controller.processGuess("B0");
+controller.processGuess("B1");
+controller.processGuess("B2");
+We’re calling the controller’s 
+processGuess method and passing in 
+guesses in Battleship format.
+Again, you’ll need to remove or comment out the previous 
+testing code to get the same results as we show here. 
+You can see how to do that in battleship_tester.js.
+
+358        Chapter    8
+getting a value from a form
+A0
+“
+”
+function handleFireButton() {
+    // get the player's guess from the form      
+    // and get it to the controller.
+}
+The player enters a guess and clicks on the Fire! button.
+2
+When Fire! is clicked, a pre-assigned event handler is called.
+3
+Getting a player’s guess
+Now that you’ve implemented the core game logic and display, you 
+need a way to enter and retrieve a player’s guesses so the game can 
+actually be played. You might remember that in the HTML we’ve 
+already got a <form> element ready for entering guesses, but how 
+do we hook that into the game?
+To do that we need an event handler. We’ve talked a little about event 
+handlers already. For now, we’re going to spend just enough time with 
+event handlers again to get the game working, and we’ll undertake 
+learning the nitty-gritty details of  event handlers in the next chapter. 
+Our goal is for you to get a high-level understanding of  how event 
+handlers work with form elements, but not necessarily understand 
+everything about how it works at the detailed level, right now. 
+Here’s the big picture:
+A0
+Here’s our HTML form 
+element, ready to take 
+user input.
+1
+1
+2
+3
+The handler for the Fire! button grabs the player’s input from 
+the form and hands it to the controller.
+
+you are here 4        359
+bringing it all together
+How to add an event handler to the Fire! button
+function handleFireButton() {
+    var guessInput = document.getElementById("guessInput");
+    var guess = guessInput.value;
+}
+To get this all rolling the first thing we need to do is add an event handler to the Fire! 
+button. To do that, we first need to get a reference to the button using the button’s id. 
+Review your HTML again, and you’ll find the Fire! button has the id “fireButton”. 
+With that, all you need to do is call document.getElementById to get a reference to 
+the button. Once we have the button reference, we can assign a handler function to the 
+onclick property of  the button, like this:
+First, we get a reference to the Fire! 
+button using the button’s id:
+function init() {
+   var fireButton = document.getElementById("fireButton");
+   fireButton.onclick = handleFireButton;
+}
+function handleFireButton() {
+   // code to get the value from the form
+}
+window.onload = init;
+Then we can add a click handler function 
+named handleFireButton to the button.
+Here’s the handleFireButton function. 
+This function will be called whenever 
+you click the Fire! button.
+The Fire! button is what initiates the guess, but the player’s guess is actually 
+contained in the “guessInput” form element. We can get the value from the form 
+input by accessing the input element’s value property. Here’s how you do it:
+Getting the player’s guess from the form
+First, we get a reference to the input form 
+element using the input element’s id, “guessInput”.
+Then we get the guess from 
+the input element. The guess is 
+stored in the value property of 
+the input element.
+We have the value, now all we need is to do something 
+with it. Luckily we have lots of code already that’s 
+ready to do something with it. Let’s add that next.
+And let’s not forget to get a 
+handleFireButton function started:
+We need somewhere for this code to 
+go, so let’s create an init function.
+Just like we learned in Chapter 6, we 
+want the browser to run init when 
+the page is fully loaded.
+We’ll write this code in just a sec.
+
+360        Chapter    8
+testing the controller
+Here’s where it all comes together. We have a controller waiting—just 
+dying—to get a guess from the player. All we need to do is pass the 
+player’s guess to the controller. Let’s do that:
+Passing the input to the controller
+function handleFireButton() {
+    var guessInput = document.getElementById("guessInput");
+    var guess = guessInput.value;
+    controller.processGuess(guess);
+    guessInput.value = "";
+}
+A6
+A Test Drive
+This is no mere test drive. You’re finally ready to play the real game! Make 
+sure you’ve added all the code to “battleship.js”, and reload “battleship.html” 
+in your browser. Now, remember the ship locations are hardcoded, so you’ll 
+have a good idea of how to win this game. Below you’ll find the winning 
+moves, but be sure to fully test this code. Enter misses, invalid guesses and 
+downright incorrect guesses.
+A6
+B6
+C6
+C4
+D4
+E4
+B0
+B1
+B2
+These are the winning 
+guesses, in order by ship. 
+But you don’t have to enter 
+them all in order. Try mixing 
+them up a bit. Enter some 
+invalid guesses in between 
+the correct ones. Enter 
+misses too. That’s all part 
+of the Quality Assurance 
+testing for the game.
+We’re passing the player’s guess to 
+the controller, and then everything 
+should work like magic!
+This little line just resets the form input element 
+to be the empty string. That way you don’t have 
+to explicitly select the text and delete it before 
+entering the next guess, which would be annoying.
+
+you are here 4        361
+bringing it all together
+Serious Coding
+Finding it clumsy to have to click the Fire! button with every guess? Sure, 
+clicking works, but it’s slow and inconvenient. It would be so much easier 
+if you could just press RETURN, right? Here’s a quick bit of code to handle

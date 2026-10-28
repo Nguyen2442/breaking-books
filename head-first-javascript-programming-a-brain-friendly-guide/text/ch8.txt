@@ -1,0 +1,552 @@
+it—you know, making sure it really is a number between 0 and 6—
+and then we’ll write the logic to check for a hit on a ship and to see 
+if  the ship is sunk. Last, we’ll create a little report for the user with 
+the number of  guesses it took to sink the ship.
+STEP1: Set up the loop, 
+get the user’s input and 
+validate it.
+STEP2:  Check the guess. 
+Is it a hit? A miss? 
+Create loop and get user guess
+Check user guess
+Check if ship has been sunk
+Display stats to user
+To Do:
+STEP3: Check to see if 
+the ship is sunk.
+STEP4: Handle the 
+final message to the user.
+
+52        Chapter    2
+the game input loop
+var location1 = 3;
+var location2 = 4;
+var location3 = 5;
+var guess; 
+var hits = 0;
+var guesses = 0;
+var isSunk = false;
+while (isSunk == false) { 
+    guess = prompt("Ready, aim, fire! (enter a number 0-6):"); 
+}
+LOOP: while the ship  
+is not sunk
+Step One: setting up the loop, getting some input
+DECLARE variables
+Now we’re going to begin to translate the logic of  our game into actual JavaScript 
+code. There isn’t a perfect mapping from pseudocode to JavaScript, so you’ll see a 
+few adjustments here and there. The pseudocode gives us a good idea of  what the 
+code needs to do, and now we have to write the JavaScript code that can do the how.
+Let’s start with all the code we have so far and then we’ll zero in on just the parts 
+we’re adding (to save a few trees here and there, or electrons if  you’re reading the 
+digital version):
+We’ve already covered these, 
+but we’re including them 
+here for completeness.
+Here’s the start of the loop. While 
+the ship isn't sunk, we're still in the 
+game, so keep looping.
+Create loop and get user guess
+Check user guess
+Check if ship has been sunk
+Display stats to user
+GET the user’s guess
+Remember, while uses a conditional test to 
+determine whether to keep looping. In this 
+case we're testing to make sure that isSunk 
+is still false. We'll set it to true as soon as 
+the ship is sunk.
+Each time we go through the while loop we're 
+going to ask the user for a guess. To do that 
+we use the prompt built-in function. More on 
+that on the next page...
+
+you are here 4        53
+writing real code
+How prompt works
+guess = prompt("Ready, aim, fire! (enter a number 0-6):"); 
+Here we're assigning the result 
+of the prompt function to 
+the guess variable.
+The prompt function's job is to get input 
+from the user. Depending on your device, 
+that usually happens in a dialog box.
+Once the prompt function obtains input from the user, it 
+returns that input to your code. In this case the input, in the 
+form of a string, is assigned to the variable guess.
+The browser provides a built-in function you can use to get input from the user, 
+named prompt. The prompt function is a lot like the alert function you’ve already 
+used—prompt causes a dialog to be displayed with a string that you provide, just like 
+alert—but it also provides the user with a place to type a response. That response, 
+in the form of  a string, is then returned as a result of  calling the function. Now, if  the 
+user cancels the dialog or doesn’t enter anything , then null is returned instead.
+5
+"5"
+You provide prompt with a string, 
+which is used as instructions to 
+your user in the dialog box.
+You might be tempted to try this code now...
+...but don’t. If you do, your browser will start an 
+infinite loop
+ of asking you 
+for a guess, and then asking you for a guess, and so on, without any 
+means of stopping the loop (other than using your operating system to 
+force the browser process to stop).  
+
+54        Chapter    2
+verifying user input
+Checking the user’s guess
+If  you look at the pseudocode, to check the user’s guess we need to first make sure the 
+user has entered a valid input.  If  so, then we also check to see if  the guess was a hit 
+or miss. We’ll also want to make sure we appropriately update the guesses and hits 
+variables.  Let’s get started by checking the validity of  the user’s input, and if  the input is 
+valid, we’ll increment the guesses variable. After that we’ll write the code to see if  the 
+user has a hit or miss.
+Create loop and get user guess
+Check user guess
+Check if ship has been sunk
+Display stats to user
+// Variable declarations go here
+while (isSunk == false) { 
+    guess = prompt("Ready, aim, fire! (enter a number from 0-6):");
+    if (guess < 0 || guess > 6) {  
+       alert("Please enter a valid cell number!");
+    } else {
+       guesses = guesses + 1;
+    }
+}
+We check validity by 
+making sure the guess is 
+between zero and six. 
+If the guess isn't valid, we'll 
+tell the user with an alert.
+And if the guess is valid, go ahead and 
+add one to guesses so we can keep track 
+of how many times the user has guessed.
+This is really just two small 
+tests put together. The 
+first test checks if guess is 
+less than zero.
+Try to read this like it's English: this conditional is true if the user’s guess is less than 
+zero OR the user’s guess is greater than six. If either is true, then the input is invalid.
+And this one checks to see if 
+guess is greater than six.
+And this, which we call the OR operator, combines 
+the two tests so that if either test is true, then 
+the entire conditional is true. If both tests are 
+false, then the statement is false, and the guess 
+is between 0 and 6, which means it’s valid.
+Let’s look a little more closely at the validity test. You know we’re checking to see that the 
+guess is between zero and six, but how exactly does this conditional test that? Let’s break 
+it down:
+if (guess < 0 || guess > 6) {    
+
+you are here 4        55
+writing real code
+Two-minute Guide to 
+Boolean Operators
+A boolean operator is used in a 
+boolean expression, which results 
+in a true or false value. There are 
+two kinds of boolean operators: 
+comparison operators and logical 
+operators.
+Comparison Operators
+Comparison operators compare 
+two values. Here are some common 
+comparison operators:
+<
+>
+==
+=== 
+<=
+>=
+!=
+means “less  than”
+means “greater  than”
+means “equal  to”
+means “exactly equal to” (we’ll 
+come back to this one later!)
+means “less than or equal to”
+means “greater than or equal to”
+means “not equal to”
+Logical Operators
+Logical operators combine two 
+boolean expressions to create one 
+boolean result (true or false). Here 
+are two logical operators:
+|| 
+&& 
+means OR. Results in true if either 
+of the two expressions is true.
+means AND. Results in true if both 
+of the two expressions are true.
+means NOT. Results in true if the 
+expression is false.
+! 
+Another logical operator is NOT, 
+which acts on one boolean 
+expression (rather than two):
+Q:
+ I noticed there is a cancel 
+button on the prompt dialog box. 
+What gets returned from the prompt 
+function if the user hits cancel?
+A: If you click cancel in the prompt 
+dialog box then prompt returns 
+the value null rather than a string. 
+Remember that null means “no value”, 
+which is appropriate in this case 
+because you’ve cancelled without 
+entering a value. We can use the fact 
+that the value returned from prompt is 
+null to check to see if the user clicked 
+cancel, and if they did, then we could, 
+say, end the game. We’re not doing that 
+in our code, but keep this idea in the 
+back of your mind as we might use it 
+later in the book. 
+Q:
+ You said that prompt always 
+returns a string. So how can we 
+compare a string value, like “0” or 
+“6”, to numbers, like 0 and 6?
+A: In this situation, JavaScript tries to 
+convert the string in guess to a number 
+in order to do the comparisons, guess < 
+0 and guess > 6. As long as you enter 
+only a number, like 4, JavaScript knows 
+how to convert the string “4” to the 
+number 4 when it needs to. We’ll come 
+back to the topic of type conversion in 
+more detail later.
+Q:
+ What happens if the user 
+enters something that isn't a number 
+into the prompt? Like “six” or 
+“quit”?
+A: In that case, JavaScript won’t be 
+able to convert the string to a number 
+for the comparison. So, you’d be 
+comparing “six” to 6 or “quit” to 6, and 
+that kind of comparison will return false, 
+which will lead to a MISS. In a more 
+robust version of battleship, we’ll check 
+the user input more carefully and make 
+sure they’ve entered a number first. 
+Q:
+ With the OR operator, is it true 
+if only one or the other is true, or can 
+both be true?
+A: Yes, both can be true. The result 
+of the OR operator (||) is true if either of 
+the tests is true, or if both are true.  If 
+both are false, then the result is false. 
+Q:
+ Is there an AND operator?
+A: Yes! The AND operator (&&) 
+works similarly to OR, except that the 
+result of AND is true only if both tests 
+are true. 
+Q:
+ What’s an infinite loop?
+A: Great question. An infinite loop is 
+one of the many problems that plague 
+programmers. Remember that a loop 
+requires a conditional test, and the loop 
+will continue as long as that conditional 
+test is true. If your code never does 
+anything to change things so that the 
+conditional test is false at some point, 
+the loop will continue forever. And ever. 
+Until you kill your browser or reboot. 
+
+56        Chapter    2
+determining hits
+So, do we have a hit?
+This is where things get interesting—the user’s taken a guess at the ship’s 
+location and we need to write the code to determine if  that guess has hit the 
+ship. More specifically, we need to see if  the guess matches one of  the locations 
+of  the ship.  If  it does, then we’ll increment the hits variable. 
+Here’s a first stab at writing the code for the hit detection; let’s step through it:
+if (guess == location1) {
+     hits = hits + 1;
+} else  if (guess == location2) {
+     hits = hits + 1;
+} else if (guess == location3) {
+     hits = hits + 1;
+}
+If the guess is at location1, then 
+we hit the ship, so increment the 
+hits variable by one.
+Otherwise, if the guess is location2, 
+then do the same thing.
+Finally, if the guess is location3, then we 
+need to increment the hits variable.
+And if none of these are true, then the 
+hits variable is never incremented.
+What do you think of this first attempt to write the code to detect when 
+a ship is hit? Does it look more complex than it needs to be? Are we 
+repeating code in a way that seems a bit, well, redundant? Could we 
+simplify it? Using what you know of the || operator (that is, the boolean OR 
+operator), can you simplify this code? Make sure you check your answer at 
+the end of the chapter before moving on.
+Create loop and get user guess
+Check user guess
+Check if ship has been sunk
+Display stats to user
+Notice we’re using indentation for the code 
+in each if/else block. This makes your code 
+easier to read, especially when you’ve got 
+lots of blocks nested inside blocks.
+
+you are here 4        57
+writing real code
+// Variable declarations go here
+while (isSunk == false) { 
+    guess = prompt("Ready, aim, fire! (enter a number from 0-6):");
+    if (guess < 0 || guess > 6) {  
+      alert("Please enter a valid cell number!");
+    } else {  
+      guesses = guesses + 1;
+      if (guess == location1 || guess == location2 || guess == location3) {
+          hits = hits + 1;
+      }
+   }
+}
+LOOP: while the ship  
+is not sunk
+Adding the hit detection code
+Let’s put everything together from the previous couple of  pages:
+If the guess matches one of the ship’s 
+locations we increment the hits counter.
+The user’s guess looks valid, so let’s 
+increase the number of guesses by one.
+We’ve combined the three conditionals into one if 
+statement using || (OR). So read it like this: “If guess 
+is equal to location1 OR guess is equal to location2 OR 
+guess is equal to location3, increment hits.”
+Hey, you sank my battleship!
+We’re almost there; we’ve almost got this game logic nailed down. 
+Looking at the pseudocode again, what we need to do now is test to 
+see if  we have three hits. If  we do, then we’ve sunk a battleship. And, 
+if  we’ve sunk a battleship then we need to set isSunk to true and also 
+tell the user they’ve destroyed a ship. Let’s sketch out the code again 
+before adding it in:
+        if (hits == 3) {
+            isSunk = true;
+            alert("You sank my battleship!");
+        }
+First check to see if 
+there are three hits.
+And if so, set isSunk to true.
+And also let the user know!
+IF the user’s guess 
+matches a location
+ADD one to the 
+number of hits
+GET the user’s guess
+ADD one to guesses 
+Create loop and get user guess
+Check user guess
+Check if ship has been sunk
+Display stats to user
+Create loop and get user guess
+Check user guess
+Check if ship has been sunk
+Display stats to user
+Take another look at the while loop 
+above. What happens when isSunk is true?
+Check the user's guess...
+
+58        Chapter    2
+notifying the user
+LOOP: while the ship  
+is not sunk
+Now let’s add this and the sunk ship detection into the rest of  the code:
+// Variable declarations go here
+while (isSunk == false) { 
+    guess = prompt("Ready, aim, fire! (enter a number from 0-6):");
+    if (guess < 0 || guess > 6) {  
+        alert("Please enter a valid cell number!");
+    } else { 
+        guesses = guesses + 1;
+        if (guess == location1 || guess == location2 || guess == location3) {
+            hits = hits + 1;
+            if (hits == 3) {
+                isSunk = true;
+                alert("You sank my battleship!");
+            }
+        }
+    }
+} 
+var stats = "You took " + guesses + " guesses to sink the battleship, " +
+               "which means your shooting accuracy was " + (3/guesses);
+alert(stats);
+IF the user’s guess 
+matches a location
+ADD one to the 
+number of hits
+GET the user’s guess
+ADD one to guesses 
+IF number of hits is 3
+Provide some post-game analysis
+After isSunk is set to true, the while loop is going to stop looping. That’s right, this 
+program we’ve come to know so well is going to stop executing the body of  the while 
+loop, and before you know it the game’s going to be over. But, we still owe the user 
+some stats on how they did. Here’s some code that does that:
+var stats = "You took " + guesses + " guesses to sink the battleship, " +
+               "which means your shooting accuracy was " + (3/guesses);
+alert(stats);
+Here we're creating a string that contains a message to the user including the 
+number of guesses they took, along with the accuracy of their shots. Notice 
+that we’re splitting up the string into pieces (to insert the variable guesses, and 
+also to fit the string into multiple lines) using the concatenation operator, +. 
+For now just type this as is, and we’ll explain more about this later.
+TELL user stats
+Create loop and get user guess
+Check user guess
+Check if ship has been sunk
+Display stats to user
+SET isSunk to true
+TELL user “You sank 
+my battleship!” 
+
+you are here 4        59
+writing real code
+Remember we said pseudocode often isn’t perfect? Well we actually left something out of our 
+original pseudocode: we’re not telling the user if her guess is a HIT or a MISS. Can you insert 
+these pieces of code in the proper place to correct this?
+// Variable declarations go here
+while (isSunk == false) { 
+    guess = prompt("Ready, aim, fire! (enter a number from 0-6):");
+    if (guess < 0 || guess > 6) {  
+        alert("Please enter a valid cell number!");
+    } else {  
+        guesses = guesses + 1;
+        if (guess == location1 || guess == location2 || guess == location3) {
+            hits = hits + 1;
+            if (hits == 3) {
+              isSunk = true;
+              alert("You sank my battleship!");
+            } 
+        } 
+    } 
+} 
+var stats = "You took " + guesses + " guesses to sink the battleship, " +
+               "which means your shooting accuracy was " + (3/guesses);
+alert(stats);
+alert("HIT!");
+alert("MISS");
+else {
+}
+Here's the code you'll need to insert.
+This is a lot of curly braces to match. If you’re 
+having trouble matching them, just draw lines right 
+in the book, to match them up.
+
+60        Chapter    2
+putting all the code together
+Create loop and get user guess
+Check user guess
+Check if ship has been sunk
+Display stats to user
+var location1 = 3;
+var location2 = 4;
+var location3 = 5;
+var guess; 
+var hits = 0;
+var guesses = 0;
+var isSunk = false;
+while (isSunk == false) { 
+    guess = prompt("Ready, aim, fire! (enter a number from 0-6):");
+    if (guess < 0 || guess > 6) {  
+        alert("Please enter a valid cell number!");
+    } else {  
+        guesses = guesses + 1;
+        if (guess == location1 || guess == location2 || guess == location3) {
+            alert("HIT!");
+            hits = hits + 1;
+            if (hits == 3) {
+                isSunk = true;
+                alert("You sank my battleship!");
+            }
+        } else {
+           alert("MISS");
+        }
+    }
+} 
+var stats = "You took " + guesses + " guesses to sink the battleship, " +
+               "which means your shooting accuracy was " + (3/guesses);
+alert(stats);
+And that completes the logic!
+Alright! We’ve now fully translated the pseudocode to actual JavaScript code. We even 
+discovered something we left out of  the pseudocode and we’ve got that accounted for 
+too. Below you’ll find the code in its entirety. Make sure you have this typed in and 
+saved in “battleship.js”:
+
+you are here 4        61
+writing real code
+Doing a little Quality Assurance
+QA, or quality assurance, is the process of  testing software 
+to find defects. So we’re going to do a little QA on this code. 
+When you’re ready, load “battleship.html” in your browser 
+and start playing. Try some different things. Is it working 
+perfectly? Or did you find some issues?  If  so list them here. 
+You can see our test run on this page too.
+QA Notes
+Jot down anything that doesn't work 
+the way it should, or that could be 
+improved.
+Then we entered 0, 
+to get a miss.
+But then we get 
+three hits in a row!
+On the third and final hit, 
+we sink the battleship.
+And see that it took 4 
+guesses to sink the ship with 
+an accuracy of 0.75.
+Here's what our game interaction 
+looked like.
+First we entered an 
+invalid number, 9.
+
+62        Chapter    2
+using boolean operators
+Boolean operators allow you to write 
+more complex statements of logic.
+You’ve seen enough conditionals to know how to test, 
+say, if  the temperature is greater than 32 degrees. 
+Or, that a variable that represents whether an item is 
+inStock is true. But sometimes we need to test more. 
+Sometimes we need to know not only if  a value is 
+greater than 32, but also if  it’s less than 100. Or, if  an 
+item is inStock, and also onSale. Or that an item is on 
+sale only on Tuesdays when the user is a VIP member. 
+So, you see, these conditions can get complex.
+Let’s step through a few to get a better idea of  how 
+they work.
+The game logic is pretty 
+clear to me, except for 
+the boolean operators. Is that 
+just giving me a way to combine 
+conditionals together?
+Say we need to test that an item is inStock AND onSale. We could do that 
+like this:
+if (inStock == true) {
+    if (onSale == true) {
+         // sounds like a bargain!
+         alert("buy buy buy!");    
+    }
+}
+First, see if the item is in stock...
+And, if so, then see if it is on sale.
+And if so, then take some 
+action, like buy a few!
+Notice this code is executed only 
+if both conditionals are true! 
+We can simplify this code by combining these two conditionals together.  
+Unlike in Simple Battleship, where we tested if  guess < 0 OR guess > 6, 
+here we want to know if  inStock is true AND onSale is true.  Let’s see 
+how to do that...

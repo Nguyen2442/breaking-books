@@ -1,0 +1,553 @@
+handle all in real time. So what I do is throw them all on a 
+queue as they come in. Then I go through the queue and 
+execute handlers where necessary.
+Head First: Boy, that sounds like my days as a short-
+order cook!
+Browser: Sure, if  you had orders coming in every 
+millisecond or so!
+Head First: You have go through the queue one by one?
+Browser: I sure do, and that’s an important thing to 
+know about JavaScript: there’s one queue and one “thread 
+of  control,” meaning there is only one of  me going 
+through the events one at a time.
+Head First: What does that really mean for our readers 
+learning JavaScript?
+Browser: Well, say you write a handler and it requires a 
+lot of  computation—that is, something that takes a long 
+time to compute. As long as your handler is chugging 
+along computing, I’m sitting around waiting until it’s 
+done. Only then can I continue with the queue.
+Head First: Oh wow. Does that happen a lot, that is, you 
+end up waiting on slow code?
+Browser: It happens, but it also doesn’t take long 
+for a web developer to figure out the page or app isn’t 
+responsive because the handlers are slow.  So, it’s not a 
+common problem as long as the web developers know 
+how event queues work.
+Head First: And now all our readers do! Now, back to 
+events, are there lots of  different kinds of  events?
+Browser: There are. We’ve got network-based events, 
+timer events, DOM events related to the page and a few 
+others. Some kinds of  events, like DOM events, generate 
+event objects that contain a lot more detail about the 
+event—like a mouse click event will have information 
+about where the user clicked, and a keypress event will 
+have information about which key was pressed, and so on. 
+Head First: So, you spend a lot of  time dealing with 
+events. Is that really the best use of  your time? After all, 
+you’ve got to deal with retrieving, parsing and rendering 
+pages and all that.
+Browser: Oh, it’s very important. These days you’ve 
+got to write code that makes your pages interactive and 
+engaging, and for that you need events.
+Head First: Oh for sure, the days of  simple pages are 
+gone.
+Browser: Exactly. Oh shoot, this queue is about to 
+overflow. Gotta run!
+Head First: Okay... until next time!
+Events Exposed
+This week’s interview:
+Talking to the browser about events
+
+404        Chapter    9
+the event queue
+A page loaded
+A user clicked
+A timer just went off
+A form was submitted
+A user clicked
+The user clicked again
+Another timer went off
+A form was submitted
+Data arrives from network
+Event queue
+You already know that the browser maintains a queue of  events. And 
+that behind the scenes the browser is constantly taking events off  that 
+queue and processing them by calling the appropriate event handler for 
+them, if  there is one. 
+Events and queues
+It’s important to know that the browser processes these events one at a time, 
+so, where possible, you need to keep your handlers short and efficient. If  
+you don’t, the whole event queue could stack up with waiting events, and 
+the browser will get backed up dealing with them all. The downside to you? 
+Your interface could really start to become slow and unresponsive.
+Another user click
+Watch out! I’m 
+working my way through these 
+events one at a time. For each 
+event I call its handler if there 
+is one.
+Heads up, a new event 
+is coming in. The user just 
+clicked on another element.
+The browser steps 
+through the queue 
+from oldest to newest, 
+processing each event.
+If things get really bad you’ll get 
+the slow script dialog box, which 
+means the browser is giving up!
+The browser.
+
+you are here 4        405
+asynchronous coding
+Here’s the map and X 
+marks the spot!
+Your code will 
+display the 
+coordinates below 
+the map.
+After your code is written, just 
+move the mouse over the X to see 
+the coordinates of the treasure.
+Ahoy matey! You’ve got a treasure map in your possession and we 
+need your help in determining the coordinates of the treasure. To do 
+that you’re going to write a bit of code that displays the coordinates 
+on the map as you pass the mouse over the map. We’ve got some of 
+the code on the next page, but you’ll have to help finish it.
+P.S. We highly 
+encourage you to 
+do this exercise, 
+because we don’t 
+think the pirates 
+are going to be 
+too happy if they 
+don’t get their 
+coordinates... Oh, 
+and you’ll need this 
+to complete your 
+code:
+clientX, clientY:
+ the x (and y) position in pixels of your mouse from the left side (and top) of the browser window.
+screenX, screenY:
+ the x (and y) position in pixels of your mouse from the left side (and top) of the user’s screen.
+pageX, pageY:
+ the x (and y) position in pixels of your mouse from the left side (and top) of the browser’s page.
+The mousemove event
+The mousemove event notifies your handler when a mouse moves over a particular element. You set up your 
+handler using the element’s 
+onmousemove
+ property. Once you’ve done that you’ll be passed an event object 
+that provides these properties:
+
+406        Chapter    9
+exercise for the mousemove event
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Pirates Booty</title>
+  <script>
+       window.onload = init;
+       function init() {
+           var map = document.getElementById("map");
+           _________________________________________
+       }
+ 
+       function showCoords(eventObj) {
+           var map = document.getElementById("coords");
+           ________________________
+           ________________________
+           map.innerHTML = "Map coordinates: " 
+                                  + x + ", " + y;
+       }
+  </script>
+</head>
+<body>
+       <img id="map" src="map.jpg">
+       <p id="coords">Move mouse to find coordinates...</p>
+</body>
+</html>
+Blimey! The code is below. So far it includes the map in the page 
+and creates a paragraph element to display the coordinates. You 
+need to make all the event code work. Good luck. We don’t want to 
+see you go to Davy Jones’ locker anytime soon...
+Set up your handler here.
+Grab the coordinates here.
+When you’re done get this code in a real page, load it, 
+and write your coordinates here.
+              ____________________________________
+
+you are here 4        407
+asynchronous coding
+Even more events
+So far we’ve seen three types of  events: the load event, which occurs when the browser 
+has loaded the page; the click event, which occurs when a user clicks on an element in 
+the page and the mousemove event, which occurs when a user moves the mouse over 
+an element. You’re likely to run into many other kinds of  events too, like events for data 
+arriving over the network, events about the geolocation of  your browser, and time-
+based events (just to name a few).
+For all the events you’ve seen, to wire up a handler, you’ve always assigned the handler 
+to some property, like onload, onmouseover or onclick. But not all events work like 
+this—for example, with time-based events, rather than assigning a handler to a property, 
+you call a function, setTimeout, instead and pass it your handler. 
+Here’s an example: say you want your code to wait five seconds before doing something. 
+Here’s how you do that using setTimeout and a handler:
+function timerHandler() {
+    alert("Hey what are you doing just sitting there staring at a blank screen?");
+}
+   
+setTimeout(timerHandler, 5000);
+First we write an event handler. This 
+is the handler that will be called 
+when the time event has occurred.
+All we’re doing in this event handler is showing an alert.
+And here, we call setTimeout, which takes two arguments: 
+the event handler and a time duration (in milliseconds). 
+Using setTimeout is 
+a bit like setting a 
+stop watch. 
+Test drive your timer
+Don’t just sit there! It’s time to test this code! Throw this code into a basic 
+HTML page, and load the page. At first you won’t see anything, but after 
+five seconds you’ll see the alert.
+Be patient, wait five seconds and you'll see 
+what we see. Now if you've been sitting there 
+a couple minutes you might want to give your 
+machine a little kick... just kidding, you’d 
+actually better check your code.
+Here we’re asking 
+the timer to wait 
+5000 milliseconds 
+(5 seconds).
+And then call the 
+handler timerHandler.
+How would you make 
+the alert appear every 
+5 seconds, over and 
+over?
+
+408        Chapter    9
+a setTimeout handler
+..., 6, 5, 4, 3, 2, 1, 0.
+How setTimeout works
+Let’s step through what just happened.
+When the page loads we do 
+two things: we define a handler 
+named timerHandler, and we 
+call setTimeout to create a time 
+event that will be generated in 
+5000 milliseconds. When the 
+time event happens, the handler 
+will be executed.
+1
+function timerHandler() {
+    alert("Hey what are you doing just sitting there staring at a blank screen?");
+}
+Okay, it’s go time. I’ve 
+got a timer that goes off in 5000 
+milliseconds, and I’ve got a handler to 
+call when that happens.
+The browser continues its 
+normal job as the timer counts 
+down in milliseconds.
+2
+When the browser’s countdown gets to 
+zero, the browser calls the handler.
+3
+That’s 5000 
+milliseconds, the 
+timer is done, let’s 
+call that handler.
+The handler 
+has been called. I’m 
+finished with that timer.
+The handler is called, resulting in an alert 
+being created and displayed in the browser.
+4
+5000, 4999, 4998...
+The browser tracks 
+all timers (yes you can 
+have more than one at 
+a time) along with the 
+corresponding handlers 
+it needs to call.
+The time event is triggered when the countdown is 
+complete. The browser executes the event handler by 
+calling the function you passed in.
+When the browser executes our 
+event handler, we see the alert!
+Your browser 
+manages timers.
+
+you are here 4        409
+asynchronous coding
+Good catch! Remember we said up front that in this chapter 
+you’re going to feel like you aren’t in Kansas anymore? Well this 
+is that point in the movie where everything goes from black and 
+white to color. Back to your question; yes, we defined a function 
+and then took that function, and passed it to setTimeout (which 
+is actually a method). 
+Why would we do this and what does it mean? Let’s think through 
+this: the setTimeout function essentially creates a countdown 
+timer and associates a handler with that timer. That handler is 
+called when the timer hits zero. Now to tell setTimeout what 
+handler to call, we need to pass it a reference to the handler function. 
+setTimeout stores the reference away to use later when the timer 
+has expired.
+If  you’re saying “That makes sense,” then great. On the other 
+hand, you might be saying “Excuse me? Pass a function to a 
+function? Say what?” In that case, you probably have experience 
+with a language like C or Java, where you don’t just go around passing 
+functions to other functions like this... well, in JavaScript, you do, and 
+in fact, being able to pass functions around is incredibly powerful, 
+especially when we’re writing code that reacts to events.
+More likely at this point you’re saying, “I think I sort of  get it, 
+but I’m not sure.” If  so, no worries. For now, just think of  this 
+as giving setTimeout a reference to the handler it’s going to 
+need to invoke when the timer expires. We’re going to be talking 
+a lot more about functions and what you can do with them (like 
+passing them to other functions) in the next chapter. So just go 
+with it for now.
+With setTimeout, did I 
+misunderstand, or did you pass 
+a function to another function?
+setTimeout(timerHandler, 5000);
+Here it is, a reference to a function passed 
+to setTimeout (another function).
+
+410        Chapter    9
+questions about events
+Q:
+ Is there a way to stop setInterval?
+A: There is. When you call setInterval, it returns a timer object. 
+You can pass that timer object to another function, clearInterval, to 
+stop the timer.
+Q:
+ You said setTimeout was a method, but it looks like a 
+function. Where’s the object it’s a method of?
+A: Good catch. Technically we could write window.setTimeout, but 
+because the window object is considered the global object, we can 
+omit the object name, and just use setTimeout, which we’ll see a lot 
+in practice.
+Q:
+ Can I omit window on the window.onload property too?
+A: You can, but most people don’t because they are worried 
+onload is a common enough property name (other elements can have 
+the onload property too) that not specifying which onload property 
+might be confusing.
+Q:
+ With onload I’m assigning one handler to an event. But 
+with setTimeout, I seem to be able to assign as many handlers 
+as I want to as many timers as I want?
+A: Exactly. When you call setTimeout, you are creating a timer 
+and associating a handler with it. You can create as many timers as 
+you like. The browser keeps track of associating each timer with its 
+handler.
+Q:
+ Are there other examples of passing functions to 
+functions?
+A: Lots of them. In fact, you’ll find that passing around functions 
+is fairly common in JavaScript. Not only do lots of built-in functions, 
+like setTimeout and setInterval, make use of function passing, but 
+you’ll also discover there’s a lot code you’ll write yourself that accepts 
+functions as arguments. But that’s only part of the story, and in the 
+next chapter we’re going to dive deep into this topic and discover that 
+you can do all sort of interesting things with functions in JavaScript.
+var tick = true;
+function ticker() {
+    if (tick) {
+        console.log("Tick");
+        tick = false;
+    } else {
+        console.log("Tock");
+        tick = true;
+    }
+}
+setInterval(ticker, 1000);
+Take a look at the code below and see if you can figure out what 
+setInterval does. It’s similar to setTimeout, but with a slight twist. 
+Check your answer at the end of the chapter.
+Here’s the output.
+JavaScript console
+Tick
+Tock
+Tick
+Tock
+Tick
+Tock
+Tick
+Tock
+Here’s the code.
+Your analysis goes here.
+
+you are here 4        411
+asynchronous coding
+Joe: That sounds cool... I bet you’re using 
+setTimeout?
+Frank: That’s my plan, although I’m not sure 
+how to know which image to reblur.
+Jim: What do you mean?
+Frank: I have my code so that when you click on 
+an image and reveal it, I set up a timer that fires 
+in two seconds. When the timeout event fires, it 
+calls a new handler I wrote called reblur.
+Joe: And in reblur, you need to know which image 
+to reblur?
+Frank: Right. I’m not passing any arguments to the handler, it’s just 
+being called by the browser when the time expires, and so I have no way to tell 
+my handler the correct image to reblur. I’m kinda stuck.
+Jim: Have you looked at the setTimeout API?
+Frank: No, I know only what Judy told me: that setTimeout takes a function 
+and a time duration in milliseconds.
+Jim: You can add an argument to the call to setTimeout that is passed on to the 
+handler when the time event fires.
+Frank: Oh that’s perfect. So I can just pass in a reference to the correct image to 
+reblur and that will get passed on to the handler when it is called?
+Jim: You got it.
+Frank: See what a little talking through code gets ya Joe?
+Joe: Oh for sure. Let’s give this a try...
+Hey guys I’m trying to get 
+this image app finished. I’m 
+working on getting the images to 
+reblur a couple of seconds after 
+the user clicks on them.
+Frank
+Jim
+Joe
+
+412        Chapter    9
+using setTimeout in the image game
+window.onload = function() {
+    var images = document.getElementsByTagName("img");
+    for (var i = 0; i < images.length; i++) {
+        images[i].onclick = showAnswer;
+    }
+};
+function showAnswer(eventObj) {
+    var image = eventObj.target;
+    var name = image.id;
+    name = name + ".jpg";
+    image.src = name;
+    setTimeout(reblur, 2000, image);
+}
+function reblur(image) {
+    var name = image.id;
+    name = name + "blur.jpg";
+    image.src = name;
+}
+Finishing the image game
+Now it’s time to put the final polish on the image game. What we want is for 
+an image to automatically reblur a few seconds after it’s revealed. And, as 
+we just learned, we can pass along an argument for the event handler when 
+we call setTimeout. Let’s check out how to do this:
+ 
+       
+setTimeout does not support 
+extra arguments in IE8 and 
+earlier.
+That’s right. This code is not going to 
+work for you or your users if you’re 
+using IE8 or earlier. But you shouldn’t be using 
+IE8 for this book anyway! That said, you’ll see 
+another way to do this a little later in the book 
+that will take care of this for IE8 (and earlier).
+This code is just as we wrote it 
+before. No changes here...
+But now when we show the user the 
+clear image, we also call setTimeout 
+to set up an event that will fire in 
+two seconds.
+We'll use reblur (below) as our 
+handler, and pass it 2000 
+milliseconds (two seconds) and also 
+an argument, the image to reblur.
+Now when this handler is called, it 
+will be passed the image.
+The handler can take the image, get 
+the id of the image, and use that to 
+create the name of the blurred image. 
+When we set the src of the image to 
+that name, it will replace the clear 
+image with the blurred image.
+
+you are here 4        413
+asynchronous coding
+Q:
+ Can I pass just one argument to the 
+setTimeout handler?
+A: No you can actually pass as many as 
+you like: zero, one or more.
+Q:
+ What about the event object? 
+Why doesn't setTimeout pass the event 
+handler one?
+A: The event object is mostly used with 
+DOM-related event handlers. setTimeout 
+doesn't pass any kind of event object to 
+its handler, because it doesn’t occur on a 
+specific element. 
+ 
+Q:
+ showAnswer is a handler, and yet it 
+creates a new handler, reblur, in its code. 
+Is that right?
+A: You’ve got it. You’ll actually see this 
+fairly often in JavaScript. It's perfectly normal 
+to see a handler set up additional event 
+handlers for various events. And this is the 
+style of programming we were referring to in 
+the beginning of the chapter: asynchronous 
+programming. To create the image game we 
+didn’t just translate an algorithm that runs 
+top down. Rather we’re hooking up event 
+handlers to handle the execution of the 
+game as events occur. Trace through a few 
+different examples of clicking on images and 
+the various calls that get made to reveal and 
+reblur the image.
+Q:
+ So there are DOM-based events, 
+and timer events... are there lots of 
+different kinds of events?
+A: Many of the events you deal with 
+in JavaScript are DOM events (like when 
+you click on an element), or timer events 
+(created with setTmeout or setInterval). 
+There are also API-specific events, like 
+events generated by JavaScript APIs 
+including Geolocation, LocalStorage, Web 
+Workers, and so on (see Head First HTML5 
+Programming for more on these). And finally, 
+there is a whole category of events related to 
+I/O: like when you request data from a web 
+service using XmlHttpRequest (again, see 
+Head First HTML5 Programming for more), 
+or Web Sockets.
+Test driving the timer
+That wasn’t much code to add, but it sure makes a big difference in how 
+the image game works. Now when you click, behind the scenes, the browser 
+(through the timer events) is tracking when it needs to call the reblur handler, 
+which blurs the image again. Note how asynchronous this feels—you’re in control 
+of  when the images are clicked, but behind-the-scenes code is being invoked 
+at various times based on the click event and on timer events. There’s no über 
+algorithm driving things here, controlling what gets called and when; it’s just a 
+lot of  little pieces of  code that set up, create and react to events.
+Now when you click, you'll see 
+the image revealed, and then 
+blurred again two seconds later.
+Give this a good QA testing by 
+clicking on lots of images in quick 
+succession. Does it always work? 
+Refer back to the code and 
+wrap your brain around how the 
+browser keeps track of all the 
+images that need to be reblurred.
+
+414        Chapter    9
+using the mouseover event
+Hey guys, our desktop 
+users would like to be able to 
+pass their mouse over the image 
+without clicking to reveal the 
+unblurred image. Can we get that 
+implemented?
+Judy: To make this work you’ll want to make use of  the mouseover event. You can 
+set a handler for this event on any element with the onmouseover property:
+         myElement.onmouseover = myHandler;
+Judy: Also, the mouseout event tells you when the mouse leaves your element. You 
+can set its handler with the onmouseout property. 
+      
+Rework your code so that an image is revealed and reblurred by 
+moving your mouse over and out of the image elements. Be sure to 
+test your code, and check your answer at the end of the chapter:

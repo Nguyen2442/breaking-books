@@ -1,0 +1,229 @@
+JavaScript code goes here.
+
+you are here 4        415
+asynchronous coding
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Don't resize me, I'm ticklish!</title>
+<script>
+    function resize() {
+        var element = document.getElementById("display");
+        element.innerHTML = element.innerHTML + " that tickles!";
+    }
+</script>
+</head>
+<body>
+<p id="display">
+    Whatever you do, don't resize this window! I'm warning you!
+</p>
+<script>
+    window.onresize = resize;
+</script>
+</body>
+</html>
+With the image game complete, Judy wrote some code to review 
+in the weekly team meeting. In fact, she started a little contest, 
+awarding the first person to describe what the code does with 
+lunch. Who wins? Jim, Joe, Frank? Or you?
+Put your notes here describing what this code does. 
+What events are involved? How is the handler set 
+up? And when does the event happen? Don't just 
+make notes, give this a try in your browser.
+
+416        Chapter    9
+code lab on functions
+We’ve found some highly suspicious code we need your help testing. While we’ve already done an 
+initial analysis on the code and it looks like 100% standard JavaScript, something about it looks odd. 
+Below you’ll find two code specimens. For each specimen you’ll need to identify what seems odd 
+about the code, test to make sure the code works, and then try to analyze what exactly it does.  Go 
+ahead and make your notes on this page. You’ll find our analysis on the next page.
+CODE LABORATORY
+DO try this at HOME!
+window.onload = function() {
+       alert("The page is loaded!");
+}
+Specimen #2
+var addOne = function(x) {
+                                retur
+n x + 1;
+                          } ;
+var six = addOne(5);
+Specimen #1
+
+you are here 4        417
+asynchronous coding
+CODE LABORATORY: ANALYSIS
+DO try this at HOME!
+window.onload = function() {
+       alert("The page is loaded!");
+}
+Specimen #2
+var addOne = function(x) {
+                                return x + 1;
+                          } ;
+var six = addOne(5);
+Specimen #1
+At first glance this code appears 
+to simply define a function that 
+adds the number one to any 
+parameter and return it.
+Looking closer, this isn’t a normal 
+function definition. Rather, we 
+are declaring a variable and 
+assigning to it a function that 
+appears to be missing its name.
+Further, we’re invoking the 
+function with the variable name, 
+not a name associated with the 
+function as part of its definition.
+Odd indeed (although it reminds 
+us a bit of how object methods 
+are defined).
+Here we appear to have something 
+similar. Instead of defining 
+a function separately and 
+assigning its name to the window.
+onload property, we’re assigning 
+a function directly to that 
+property. And again, the function 
+doesn’t define its own name.
+We added this code to an HTML page and tested it. The code appears to work as you 
+might expect. With specimen #1, when the function assigned to addOne is invoked, we get 
+a result that is one greater than the number we pass in, which seems right. With specimen 
+#2, when we load the page, we get the alert “The page is loaded!”.
+From these tests it would appear as if functions can be defined without names, and used 
+in places where you’d expect an expression.
+
+418        Chapter    9
+chapter summary
+ Most JavaScript code is written to react to events.
+ There are many different kinds of events your code can 
+react to.
+ To react to an event, you write an event handler 
+function, and register it. For instance, to register a 
+handler for the click event, you assign the handler 
+function to the onclick property of an element.
+ You’re not required to handle any speciic event. You 
+choose to handle the events you’re interested in.
+ Functions are used for handlers because functions 
+allow us to package up code to be executed later (when 
+the event occurs).
+ Code written to handle events is different from code 
+that executes top to bottom and then completes. Event 
+handlers can run at any time and in any order: they are 
+asynchronous.
+ Events that occur on elements in the DOM (DOM 
+events) cause an event object to be passed to the event 
+handler. 
+ The event object contains properties with extra 
+information about the event, including the type (like 
+“click” or “load”) and the target (the object on which the 
+event occurred).
+ Older versions of IE (IE 8 and older) have a different 
+event model from other browsers. See the appendix for 
+more details.
+ Many events can happen very close together. When too 
+many events happen for the browser to handle them as 
+they occur, the events are stored in an event queue (in 
+the order in which they occurred) so the browser can 
+execute the event handlers for each event in turn.
+ If an event handler is computationally complex, it will 
+slow down the handling of the events in the queue 
+because only one event handler can execute at a time.
+ The functions setTimeout and setInterval are used 
+to generate time-based events after a certain time has 
+passed.
+ The method getElementsByTagName returns zero, 
+one or more element objects in a NodeList (which is 
+array-like, so you can iterate over it).
+What does it all 
+mean? Stick around; we’ll 
+reveal our findings on these 
+odd functions in the next 
+chapter...
+
+you are here 4        419
+asynchronous coding
+Event Soup
+We’ve scratched the surface 
+of events, using load, click, 
+mousemove, mouseover, mouseout, 
+resize and timer events. Check out 
+this delicious soup of events you’ll 
+encounter and will want to explore 
+in your web programming.
+click
+load
+keypress
+mouseover
+mouseout
+dragstart
+drop
+play
+pause
+unload
+resize
+touchstart
+touchend
+Get this event 
+when you click (or 
+tap) in a web page.
+The event you get when 
+the browser has completed 
+loading a web page.
+This event is generated 
+when you close the browser 
+window, or navigate away 
+from a web page.
+Whenever you resize 
+your browser window, 
+this event is generated.
+Got <video> in your page? 
+You’ll get this event when 
+you click the play button.
+And this one when you 
+click the pause button.
+This event is generated 
+every time you press a key.
+When you put 
+your mouse over 
+an element, you’ll 
+generate this event.
+And you’ll generate this 
+event when you move your 
+mouse off an element.
+If you drag an element 
+in the page, you’ll 
+generate this event.
+You’ll get this event when 
+you drop an element 
+you’ve been dragging.
+On touch devices, you’ll 
+generate a touchstart 
+event when you touch and 
+hold an element.
+And you’ll get this event 
+when you stop touching.
+mousemove
+When you move your 
+mouse over an element, 
+you’ll generate this event.
+
+420        Chapter    9
+javascript crossword
+12
+345
+6
+789
+101112
+13
+1415
+16
+1718
+1920
+21
+JavaScript cross
+Practice your event reaction time by doing this crossword.
+ACROSS

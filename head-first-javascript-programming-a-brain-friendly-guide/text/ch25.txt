@@ -1,0 +1,477 @@
+when you load up the page. You won’t get why yet, but see if you can take a 
+guess about what might be going on.
+if (99 == "99") {
+    console.log("A number equals a string!");
+} else {
+    console.log("No way a number equals a string");
+}
+JavaScript console
+> false
+Write what you get here.
+
+you are here 4        275
+types, equality, conversion and all that jazz
+We have a confession to make
+There is an aspect of  JavaScript we’ve deliberately been holding 
+back on. We could have told you up front, but it wouldn’t have made 
+as much sense as it will now. 
+It’s not so much that we’ve been pulling the wool over your eyes, it’s 
+that there is more to the story than we’ve been telling you. And what 
+is this topic? Here, let’s take a look:
+var testMe = 99;
+if (testMe == 99) {
+    // good things happen
+}
+At some point a variable gets set, in 
+this case to the number 99.
+And later it gets compared with a 
+number in a conditional test.
+Straightforward enough? Sure, what could be easier? However, one 
+thing we’ve done at least once so far in this book, that you might 
+not have noticed, is something like this:
+var testMe = "99";
+if (testMe == 99) {
+    // good things happen
+}
+At some point a variable gets set, in 
+this case to the string “99".
+And later it gets compared with a 
+number in a conditional test.
+Did we mention we're 
+using a string this time?
+Now we have a string being 
+compared to a number.
+So what happens when we compare a number to a string? Mass 
+chaos? Computer meltdown? Rioting in the streets?
+No, JavaScript is smart enough to determine that 99 and “99” are 
+the same for all practical purposes. But what exactly is going on 
+behind the scenes to make this work? Let’s take a look...
+ var x = 99;   
+= is the assignment operator. 
+It is used to assign a value to 
+a variable. 
+ x == 99 
+= =  is a comparison operator. 
+It is used to compare one 
+value with another to see if 
+they’re equal.
+Just a quick reminder about 
+the difference between 
+assignment and equality:
+
+276        Chapter    7
+the equality operator
+You’d think that understanding equality would be a simple topic. After 
+all, 1 == 1, “guacamole” == “guacamole” and true == true.  But, clearly 
+there is more at work here if  “99” == 99. What could be going on inside 
+the equality operator to make that happen?
+It turns out the == operator takes the types of  its operands (that is, the 
+two things you’re comparing) into account when it does a comparison. 
+You can break this down into two cases:
+99 == 99
+Understanding the equality operator 
+(other wise known as ==)
+99 == "99"
+When you’re comparing a number and a 
+string, JavaScript converts the string 
+to a number (if possible)...
+... and then tries the comparison again. 
+Now, if they're equal, the expression 
+results in true, false otherwise.
+If  the two values you are comparing have the same type, like two 
+numbers or two strings, then the comparison works just like you would 
+expect: the two values are compared against each other and the result is 
+true if  they are the same value. Easy enough.
+If the two values have the same type, just compare them
+This is the more interesting case. Say you have two values with different types 
+that you want to compare, like a number and a string. What JavaScript does is 
+convert the string into a number, and then compares the two values.  Like this:
+If the two values have different types,  
+try to convert them into the same type and then compare them
+Okay, that makes some intuitive sense, but what are the rules here? What 
+if  I compare a boolean to a number, or null to undefined, or some other 
+combination of  values? How do I know what’s going to get converted into 
+what? And, why not convert the number into a string instead, or use some 
+other scheme to test their equality? Well, this is defined by a fairly simple set 
+of  rules in the JavaScript specification that determine how the conversion 
+happens when we compare two values with different types. This is one of  
+those things you just need to internalize—once you’ve done that, you’ll be on 
+top of  how comparisons work the rest of  your JavaScript career.
+Note that the conversion is 
+only temporary, so that the 
+comparison can happen.
+This will also set you above 
+your peers, and help you nail 
+your next interview.
+
+you are here 4        277
+types, equality, conversion and all that jazz
+99 == "vanilla"
+99 == NaN
+Once again, we’re comparing a number and a 
+string. But this time, when we try to convert 
+the string to a number, we fail.
+When we try to convert “vanilla” to a 
+number, we get NaN, and NaN isn’t equal 
+to anything. And so the result is false.
+How equality converts its operands  
+(sounds more dangerous than it actually is)
+So what we know is that when you compare two values that have different types, 
+JavaScript will convert one type into another in order to compare them. If  you’re 
+coming from another language this might seem strange given this is typically 
+something you’d have to code explicitly rather than have it happen automatically. 
+But no worries, in general, it’s a useful thing in JavaScript so long as you understand when 
+and how it happens. And, that’s what we’ve got to figure out now: when it happens and 
+how it happens.
+Here we go (in four simple cases): 
+CASE#1: Comparing a number and a string.
+If  you’re comparing a string and a number the same thing happens every time: the 
+string is converted into a number, and the two numbers are then compared. This 
+doesn’t always go well, because not all strings can be converted to numbers. Let’s see 
+what happens in that case:
+false
+CASE#2: Comparing a boolean with any other type.
+In this case, we convert the boolean to a number, and compare. This might seem a little 
+strange, but it’s easier to digest if  you just remember that true converts to 1 and false converts 
+to 0. You also need to understand that sometimes this case requires doing more than one type 
+conversion. Let’s look at a few examples:
+1 == true
+1 == 1
+We’re comparing a number and a boolean. The 
+true value is converted to the number 1.
+And then we compare 1 to 1, which is true.
+true
+
+278        Chapter    7
+comparing values
+CASE#3: Comparing null and undefined.
+Comparing these values evalutates to true.  That might seem odd as well, but it’s the rule. 
+For some insight, these values both essentially represent “no value” (that is, a variable 
+with no value, or an object with no value), so they are considered to be equal.
+undefined == null
+Undefined and null are always equal.
+true
+"1" == true
+"1" == 1
+We’re comparing a string and a boolean. The 
+true value is converted to the number 1.
+And then we compare the string “1" to 1...
+true
+Here’s another case; this time a boolean is compared to a string. Notice how more 
+steps are needed.
+1 == 1
+Now we use the rule from case#1 and the 
+string is converted into a number.
+And now we can finally compare a number to 
+a number, and in this case, the result is true.
+CASE#4: Oh, actually there is no case #4.
+That’s it. You can pretty much determine the value of  any equality with these rules. 
+That said, there are a few edge cases and caveats. One caveat is that we still need to 
+talk about comparing objects, which we’ll talk about in a bit. The other is around 
+conversions that might catch you off  guard.  Here’s one example:
+1 == ""
+1 == 0
+We’re comparing a number and a string. 
+Use rule #1.
+The empty string is converted to the 
+number 0. Believe it or not!
+false
+Ah, too bad, 1 and 0 are not the same. So 
+this evaluates to false.
+
+you are here 4        279
+types, equality, conversion and all that jazz
+If only I could find a way to test two values for  
+equality without having to worry about their types 
+being converted. A way to just test if two values 
+are equal only if they have the same value 
+and the 
+same type. A way to not have to worry about all these 
+rules and the mistakes they might cause. That would 
+be dreamy. But I know it’s just a fantasy...
+
+280        Chapter    7
+the strict equality operator
+I’m a little 
+more strict about my 
+comparisons.
+Editor's note: Make sure we 
+have a photo release on file 
+from Doug Crockford.
+How to get strict 
+with equality
+While we’re making confessions, here’s another one: there are not 
+one, but two equality operators. You’ve already been introduced to 
+== (equality), and the other operator is === (strict equality).
+That’s right, three equals. You can use === in place of  == 
+anytime you want, but before you start doing that, let’s make sure 
+you understand how they differ.
+With ==, you now know all the complex rules around how the 
+operands are converted (if  they’re different types) when they’re 
+compared.  With ===, the rules are even more complicated. 
+Just kidding, actually there is only one rule with ===:
+Read that again. What that means is, if  two values have the same type 
+we compare them. If  they don’t, forget it, we’re calling it false no matter 
+what—no conversion, no figuring out complex rules, none of  that. All 
+you need to remember is that === will find two values equal only if  they 
+are the same type and the same value.
+Two values are strictly equal only if they have 
+the same type and the same value.
+For each comparison below write true or false below the 
+operators == and === to represent the result of the comparison:
+"42" == 42
+==
+===
+"0" == 0
+"0" == false
+"true" == true
+true == (1 == "1")
+true
+Tricky!
+"42" === 42
+"0" === 0
+"0" === false
+"true" === true
+true === (1 === "1")
+Tricky!
+
+you are here 4        281
+types, equality, conversion and all that jazz
+Q:
+ What happens if I compare a number, like 99, to 
+a string, like “ninety-nine”, that can’t be converted to a 
+number?
+A: JavaScript will try to convert “ninety-nine” to a number, 
+and it will fail, resulting in NaN. So the two values won’t be 
+equal, and the result will be false.
+Q:
+ How does JavaScript convert strings to numbers?
+A: It uses an algorithm to parse the individual characters 
+of a string and try to turn each one of them into a number. 
+So if you write “34”, it will look at “3”, and see that can be 
+a 3, and then it will look at “4” and see that can be a 4. You 
+can also convert strings like “1.2” to floating point numbers—
+JavaScript is smart enough to recognize a string like this can 
+still be a number. 
+Q:
+ So, what if I try something like “true” == true?
+A: That is comparing a string and a boolean, so according 
+to the rules, JavaScript will first convert true to 1, and then 
+compare “true” and 1. It will then try to convert “true” to a 
+number, and fail, so you’ll get false.
+Q:
+ So if there is both a == and a === operator, does 
+that mean we have <= and <==, and >= and >==?
+A: No. There are no <== and >== operators. You can use 
+only <= and >=. These operators only know how to compare 
+strings and numbers (true <= false doesn’t really make sense), 
+so if you try to compare any values other than two strings 
+or two numbers (or a string and a number), JavaScript will 
+attempt to convert the types using the rules we’ve discussed. 
+Q:
+ So if I write 99 <= “100” what happens?
+A: Use the rules: “100” is converted to a number, and then 
+compared with 99. Because 99 is less than or equal to 100 
+(it’s less than), the result is true.
+Q:
+ Is there a !==?
+A: Yes, and just like === is stricter than ==, !== is stricter 
+than !=. You use the same rules for !== as you do for ===, 
+except that you’re checking for inequality instead of equality.
+Q:
+ Do we use the same rules when we’re comparing 
+say, a boolean and a number with < and >, like 0 < true?
+A: Yup! And in that case, true gets converted to 1, so you’ll 
+get true because 0 is less than 1.
+Q:
+ It makes sense for a string to be equal to another 
+string, but how can a string be less than or greater than 
+another string?
+A: Good question. What does it mean to say “banana” < 
+“mango”? Well, with strings, you can use alphabetical order 
+to know if one string is less than or greater than another. 
+Because “banana” begins with a “b” and “mango” with an “m”, 
+“banana” is less than “mango” because “b” comes before “m” 
+in the alphabet.  And “mango” is less than “melon” because, 
+while the first letters are the same, when we compare the 
+second letters, “a” comes before “e”.  
+ 
+This alphabetical comparison can trip you up, however; for 
+instance, “Mango” < “mango” is true, even though you might 
+think that “M” is greater than “m” because its “M” is capitalized. 
+The ordering of strings has to do with the ordering of the 
+Unicode values that are used to represent each character 
+in the computer (Unicode is a standard for representing 
+characters digitally), and that ordering might not always be 
+what you expect! For all the details, try googling “Unicode”. 
+But most of the time, the basic alphabetical ordering is all you 
+need to know if one string is less than or greater than another.
+
+282        Chapter    7
+fireside chat between equality and strict equality
+Tonight’s talk: The equality and 
+strict equality operators let us 
+know who is boss.
+Ah look who it is, Mr. Uptight.
+ 
+ 
+ 
+I’m up for a count of  == versus === across all 
+JavaScript code out in the world. You’re going to 
+come in way behind. It won’t even be close.
+I don’t think so. I provide a valuable service. Who 
+doesn’t want to, say, compare user input in the form 
+of  a string to a number every once in a while?
+ 
+When you were in grade school did you have to 
+walk to school in the snow, every day, uphill, in both 
+directions? Do you always have to do things the 
+hard way?
+The thing is, not only can I do the same 
+comparisons you do, I add value on top of  that by 
+doing some nice conversions of  types.
+You’d rather just throw your hands up, call it false 
+and go home?
+=== 
+ 
+Just keep in mind that several leading JavaScript 
+gurus say that developers should use me, and only 
+me. They think you should be taken out of  the 
+language altogether.
+ 
+ 
+You know, you might be right, but folks are slowly 
+starting to get it, and those numbers are changing.
+And with it come all the rules you have to keep in 
+mind to even use ==. Keep life and code simple; 
+use === and if  you need to convert user input to a 
+number there are methods for that.
+Very funny. There’s nothing wrong with being 
+strict and having clear-cut semantics around your 
+comparisons. Bad, unexpected things can happen if  
+you don’t keep all the rules in mind.
+Every time I look at your rules I throw up in my 
+mouth a little.  I mean comparing a boolean to 
+anything means I convert the boolean to a number? 
+That doesn’t seem very sensical to me.
+==
+
+you are here 4        283
+types, equality, conversion and all that jazz
+It’s working so far. Look at all the code out there, a 
+lot written by mere... well, scripters. 
+ 
+ 
+You mean like taking a shower after one of  these 
+conversations with you?
+Hmm. Well, ever considered just buying me out? I’d 
+be happy to go spend my days on the beach, kicking 
+back with a margarita in hand.
+ 
+Arguing about == versus === gets old. I mean 
+there are more interesting things to do in life.
+Look, here’s the thing you have to deal with: people 
+aren’t going to just stop using ==.  Sometimes 
+it’s really convenient. And people can use it in an 
+educated way, taking advantage of  it when it makes 
+sense. Like the user input example—why the heck 
+not use ==?
+My new attitude is if  people want to use you, great. 
+I’m still here when they need me, and by the way, I 
+still get a check every month no matter what they 
+do! There’s enough legacy code with == in the 
+world—I’m never going off  payroll.
+=== 
+ 
+No, but one can get a little too lax around your 
+complex rules.
+That’s fine but pages are getting more complex, 
+more sophisticated. It’s time to take on some best 
+practices.
+ 
+ 
+No, like sticking to ===. It makes your code clearer 
+and removes the potential for weird edge cases in 
+comparisons.
+I didn’t see that coming, I thought you’d defend 
+your position as THE equality operator until the 
+end. What gives?
+I don’t even know how to respond.
+Well like I said, you never know when something is 
+going to happen.
+==
+
+284        Chapter    7
+thinking about equality
+Great. If it wasn’t 
+confusing enough already, we 
+now have two equality operators. 
+Which one am I supposed to 
+use?
+Deep breath. There’s a lot of  debate around 
+this topic, and different experts will tell you different 
+things. Here’s our take: traditionally, coders have used 
+mostly == (equality) because, well, there wasn’t a great 
+awareness of  the two operators and their differences. 
+Today, we’re more educated and for most purposes === 
+(strict equality) works just fine and is in some ways the 
+safer route because you know what you’re getting. With 
+==, of  course, you also know what you’re getting, but 
+with all the conversions it’s hard sometimes to think 
+through all the possibilities. 
+Now, there are times when == provides some nice 
+convenience (like when you’re comparing numbers to 
+strings) and of  course you should feel free to use == in 
+those cases, especially now that, unlike many JavaScript 
+coders, you know exactly what == does. Now that we’ve 
+talked about ===, you’ll see us mostly shift gears in this 
+book and predominantly use ===, but we won’t get 
+dogmatic about it if  there’s a case where == makes our 
+life easier and doesn’t introduce issues.
+You’ll also hear 
+developers refer to 
+=== (strict equality) 
+as the “identity” 
+operator.
+
+you are here 4        285
+types, equality, conversion and all that jazz
+Compares values to see if they are equal. This 
+guy won’t even consider values that have 
+different types.
+=
+We had our descriptions for these operators all figured out, and then they 
+got all mixed up. Can you help us figure out who does what? Be careful, 
+we’re not sure if  each contender matches zero, one or more descriptions.  
+We’ve already figured one out, which is marked below:
+==
+===
+Assigns a value to a variable.
+Compares values to see if they are equal. This 
+is the considerate equality operator. He’ll go 
+to the trouble of trying to convert your types 
+to see if you are really equal.
+Compares object references and returns 
+true if they are the same and false otherwise.
+====
+
+286        Chapter    7
+type conversion
+Even more type conversions...
+Conditional statements aren’t the only place you’re going to see type 
+conversion. There are a few other operators that like to convert types when 
+they get the chance. While these conversions are meant to be a convenience 
+for you, the coder, and often they are, it’s good to understand exactly where 
+and when they might happen. Let’s take a look.
+var mini = "10" - 5;
+Here the string “10” is converted to 
+the number 10. Then 80 is divided by 
+the number 10, resulting in 8.
+With minus, the “10” is converted to the  
+number 10, so we have 10 minus 5, which is 5.
+Another look at concatenation, and addition
+You’ve probably figured out that when you use the + operator with numbers you 
+get addition, and when you use it with strings you get concatenation. But what happens 
+when we mix the types of  +’s operands? Let’s find out.
+If  you try to add a number and a string, JavaScript converts the number to a string 
+and concatenates the two. Kind of  the opposite of  what it does with equality:

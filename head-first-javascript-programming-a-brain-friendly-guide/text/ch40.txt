@@ -1,0 +1,544 @@
+that into the function...
+fly
+
+436        Chapter    10
+questions about function expressions
+What deductions can you make about function declarations and 
+function expressions given how the browser treats the quack 
+and fly code? Check each statement that applies. Check your 
+answer at the end of the chapter before you go on.
+ ❏Function declarations are evaluated 
+before the rest of the code is evaluated.
+ ❏Function expressions get evaluated  
+later, with the rest of the code.
+ ❏A function declaration doesn’t return a 
+reference to a function; rather it creates 
+a variable with the name of the function 
+and assigns the new function to it.
+ ❏A function expression returns a 
+reference to the new function created 
+by the expression.
+ ❏You can hold function references in 
+variables.
+ ❏Function declarations are statements; 
+function expressions are used in 
+statements.
+ ❏The process of invoking a function 
+created by a declaration is exactly the 
+same for one created with an expression.
+ ❏Function declarations are the tried and 
+true way to create functions.
+ ❏You always want to use function 
+declarations because they get evaluated 
+earlier.
+Q:
+  We’ve seen expressions like 3+4 
+and Math.random() * 6, but how can a 
+function be an expression?
+A:
+ An expression is anything that 
+evaluates to a value. 3+4 evaluates to 7, 
+Math.random() * 6 evaluates to a random 
+number, and a function expression evaluates 
+to a function reference. 
+Q:
+  But a function declaration is not 
+an expression?
+A:
+ No, a function declaration is a 
+statement. Think of it as having a hidden 
+assignment that assigns the function 
+reference to a variable for you. A function 
+expression doesn’t assign a function 
+reference to anything; you have to do that 
+yourself.
+ 
+ 
+ 
+Q:
+  What good does it do me to have a 
+variable that refers to a function?
+A:
+ Well for one thing you can use it to 
+invoke the function: 
+ 
+myFunctionReference(); 
+ 
+But you can also pass a reference to a 
+function or return a reference from a function. 
+But, we’re getting a little ahead of ourselves. 
+We’ll come back to this in a few pages.
+Q:
+ Can function expressions only 
+appear on the right hand side of an 
+assignment statements? 
+A: Not at all. A function expression can 
+appear in many different places, just like 
+other kind of expressions can. Stay tuned 
+because this is a really good question and 
+we’ll be coming back to this in just a bit.
+Q:
+ Okay, a variable can hold a 
+reference to a function. But what is the 
+variable really referencing? Just some 
+code that is in the body of the function?
+A: That’s a good way to begin thinking 
+about functions, but think of them more as 
+a little crystallized version of the code, all 
+ready to pull out at any time and invoke.  
+You’re going to see later that this crystallized 
+function has a bit more in it than just the 
+code from the body. 
+
+you are here 4        437
+first class functions
+We just saw that we invoke functions 
+created by declarations or created by expressions 
+in exactly the same way. So what is the difference 
+between declarations and expressions? I feel like I’m 
+missing something subtle here.
+It is a little subtle. First of  all, you’re right—
+whether you use a function declaration or a function 
+expression, you end up with a function. But there are 
+some important differences between the two. For one, 
+with a declaration, a function is created and setup before 
+the rest of  the code gets evaluated. With a function expression, 
+a function is created as the code executes, at runtime.
+Another difference has to do with function naming—
+when you use a declaration, the function name is used to 
+create and set up as a variable that refers to the function. 
+And, when you use a function expression, you typically 
+don’t provide a name for the function, so either you end 
+up assigning the function to a variable in code, or you 
+use the function expression in other ways. 
+Now take these differences and stash them in the back 
+of  your brain as this is all going to become useful shortly. 
+For now, just remember how function declarations and 
+expressions are evaluated, and how names are handled.
+We’ll take a look at 
+what those are later 
+in the chapter.
+
+438        Chapter    10
+exercise for function declarations and expressions
+Below, you’ll find JavaScript code. Your job is to play like you’re the 
+browser evaluating the code. In the space to the right, record each 
+function as it gets created. Remember to make two passes over 
+the code: the pass that processes declarations, and the second 
+pass that handles expressions.
+BE the Browser
+var midi = true;
+var type = "piano";
+var midiInterface;
+function play(sequence) {
+    // code here
+} 
+var pause = function() {
+    stop();
+}
+function stop() {
+    // code here
+} 
+function createMidi() {
+   // code here
+}
+if (midi) {
+    midiInterface = function(type) {
+        // code here
+    };
+}
+Write, in order, the names of the functions 
+as they are created. If a function is created 
+with a function expression put the name of 
+the variable it is assigned to. We've done the 
+first one for you.
+play
+
+you are here 4        439
+first class functions
+This is the 
+actual function.
+Our two functions again. Remember quack is defined 
+with a function declaration, and fly with a function 
+expression. Both result in function references, which 
+are stored in the variables quack and fly, respectively.
+Sure, we all think of  functions as things we invoke, but you can think of  
+functions as values too. That value is actually a reference to the function, and 
+as you’ve seen, whether you define a function with a function declaration or 
+a function expression, you get a reference to that function.
+How functions are values too
+var superFly = fly;
+superFly(2);
+var superQuack = quack;
+superQuack(3);
+fly
+function(num) {
+   ...
+}
+A variable can hold a 
+reference to a function.
+function quack(num) { 
+   for (var i = 0; i < num; i++) {
+      console.log("Quack!");
+   }
+}
+var fly = function(num) { 
+   for (var i = 0; i < num; i++) {
+      console.log("Flying!");
+   }
+}
+After we assign the value in fly to superFly,  
+superFly holds the function reference, so by 
+adding some parentheses and an argument 
+we can invoke it!
+And even though quack was created by a 
+function declaration, the value in quack is a 
+function reference too, so we can assign it to 
+the variable superQuack and invoke it.
+JavaScript console
+Flying!
+Flying!
+Quack!
+Quack!
+Quack!
+One of  the most straightforward things we can do with functions is assign 
+them to variables. Like this:
+The function declaration takes care of 
+assigning the reference to a variable with 
+the name you supply, in this case quack.
+When you have a function expression, you need to 
+assign the resulting reference to a variable yourself. 
+Here we’re storing the reference in the fly variable.
+In other words, references are references, no 
+matter how you create them (that is, with a 
+declaration or an expression)!
+
+440        Chapter    10
+exercise for function values
+To get the idea of functions as values into your brain, let’s play a little game of 
+chance.  Try the shell game. Will you win or lose? Give it a try and find out.
+var winner = function() { alert("WINNER!") };
+var loser = function() { alert("LOSER!") };
+// let's test as a warm up
+winner();
+// let's assign to other variables for practice
+var a = winner;
+var b = loser;
+var c = loser;
+a();
+b();
+// now let's try your luck with a shell game
+c = a;
+a = b;
+b = c;
+c = a;
+a = c;
+a = b;
+b = c;
+a();
+Execute the code (by 
+hand!) and figure out 
+if you won or lost.
+Remember, these variables hold 
+references to the winner and loser 
+functions. We can assign and reassign 
+these references to other variables, 
+just like with any value.
+Remember, at any time, we can 
+invoke a reference to a function.
+Start thinking about functions as values, just like numbers, strings, 
+booleans or objects. The thing that really makes a function value 
+different from these other values is that we can invoke it.
+
+you are here 4        441
+first class functions
+Head First: Function, we’re so happy to finally have 
+you back on this show. You’re quite a mystery and our 
+readers are dying to know more.
+Function: It’s true, I’m deep.
+Head First: Let’s start with this idea that you can 
+be created with a declaration, or created with an 
+expression. Why two ways of  defining you? Wouldn’t 
+one be enough?
+Function: Well, remember, these two ways of  defining 
+a function do two slightly different things. 
+Head First: But the result is the same: a function, 
+right?
+Function: Yes, but look at it this way. A function 
+declaration is doing a little bit of  work behind the scenes 
+for you: it’s creating the function, and then also creating 
+a variable to store the function reference in. A function 
+expression creates the function, which results in a 
+reference and it’s up to you to do something with it.
+Head First: But don’t we always just store the 
+reference we get from a function expression in a variable 
+anyway? 
+Function: Definitely not. In fact, we usually don’t. 
+Remember a function reference is a value. Think of  the 
+kinds of  things you can do with other kinds of  values, 
+like an object reference for instance. I can do all those 
+things too.
+Head First: But how can you possibly do everything 
+those other values can do? I declare a function, and I 
+call it. That’s about as much as any language allows, 
+right?
+Function: Wrong. You need to start thinking of  a 
+function as a value, just like objects or the primitive 
+types. Once you get a hold of  a function you can do 
+all kinds of  things with it. But there is one important 
+difference between a function and other kinds of  values, 
+and that is what really makes me what I am: a function 
+can be invoked, to execute the code in its body.
+Head First: That sounds very impressive and powerful, 
+but I’d have no idea what to do with you other than 
+define and call you.
+Function: This is where we separate the six figure 
+coders from the scripters. When you can treat a 
+function like any other value, all kinds of  interesting 
+programming constructs become possible.
+Head First: Can you give us just one example?
+Function: Sure. Say you want to write a function that 
+can sort anything.  No problem. All you need is a function 
+that takes two things: the collection of  items you need to 
+sort, and another function that knows how to compare any 
+two items in your collection. Using JavaScript you can 
+easily create code like that. You write one sort function 
+for every kind of  collection, and then just tell that 
+function how to compare items by passing it a function 
+that knows how to do the comparison.
+Head First: Err...
+Function: Like I said, this is where we separate the six 
+figure coders from the scripters. Again, we’re passing a 
+function that knows how to do the comparison to the other 
+function. In other words we’re treating the function like a 
+value by passing it to a function as a value.
+Head First: And what does that get us other than 
+confused?
+Function: It gets you less code, less hard work, more 
+reliability, better flexibility, better maintainability, a 
+higher salary.
+Head First: That all sounds good, but I’m still not sure 
+how to get there.
+Function: Getting there takes a little bit of  work. This 
+is definitely an area where your brain has to expand a 
+bit.  
+Head First: Well, function, my head is expanding so 
+much it’s about to explode, so I’m going to go lie down. 
+Function: Any time. Thanks for having me! 
+Function Exposed
+This week’s interview:
+Understanding Function
+
+442        Chapter    10
+first class functions
+Did we mention functions have  
+First Class status in JavaScript?
+If  you’re coming to JavaScript from a more traditional programming language 
+you might expect functions to be... well, just functions. You can declare them 
+and call them, but when you’re not doing either of  those things they just sit 
+around doing nothing. 
+Now you know that functions in JavaScript are values—values that can be 
+assigned to variables. And you know that with values of  other types, like 
+numbers, booleans, strings and even objects, we can do all sorts of  things with 
+those values, like pass them to functions, return them from functions or even 
+store them in objects or arrays.
+Computer scientists actually have a term for these kinds of  values: they’re called 
+first class values. Here’s what you can do with a first class value:
+ ❏Assign the value to a variable (or store it in a data 
+structure like an array or object).
+ ❏Pass the value to a function.
+ ❏Return the value from a function. 
+Guess what? We can do all these things with functions too. In fact, 
+we can do everything with a function that we can do with other values 
+in JavaScript. So consider functions first class values in JavaScript, 
+along with all the values of  the types you already know: numbers, 
+strings, booleans and objects.
+Here’s a more formal definition of  first class:
+First class
+: a value that can be treated like any other 
+value in a programming language, including the 
+ability to be assigned to a variable, passed as an 
+argument, and returned from a function.
+We’re going to see that JavaScript functions easily qualify as first 
+class values—in fact, let’s spend a little time working through 
+just what it means for a function to be first class in each of  these 
+cases. Here’s a little advice first: stop thinking about functions as 
+something special and different from other values in JavaScript. 
+There is great power in treating a function like a value. Our goal 
+in the rest of  the chapter is to show you why.
+We always thought VIP-access-
+to-all-areas was a better name, 
+but they didn’t listen to us, so 
+we’ll stick with first class. 
+
+you are here 4        443
+first class functions
+Flying First Class
+The next time you’re in a job interview and you get asked “What 
+makes JavaScript functions first class?” you’re going to pass with flying 
+colors. But before you start celebrating your new career, remember 
+that, so far, all your understanding of  first class functions is book 
+knowledge. Sure, you can recite the definition of  what you can do with 
+first class functions:
+If that answer lands you the 
+big job, don’t forget about us! 
+We take donations in chocolate, 
+pizza or bitcoins.
+All passengers are 
+kept in an array.
+ ❏You can assign functions to variables.
+ ❏You can pass functions to functions.
+ ❏You can return functions from functions.
+You’ve seen this already.
+We're going to work on this now.
+var passengers = [  { name: "Jane Doloop", paid: true },
+                    { name: "Dr. Evel", paid: true },
+                    { name: "Sue Property", paid: false },
+                    { name: "John Funcall", paid: true } ];
+And we'll cover this in just a bit...
+But can you use those techniques in your code, or know when it would 
+help you to do so? No worries; we’re going to deal with that now by 
+learning how to pass functions to functions. We’re going to start simple, 
+and take it from there. In fact, we’re going to start with just a simple 
+data structure that represents passengers on an airline flight:
+And here we have four passengers 
+(feel free to expand this list 
+with friends and family).
+And each passenger 
+is represented by an 
+object with a name 
+and a paid property.
+The name is a simple text string.
+And paid is a boolean that represents whether 
+or not the passenger has paid for the flight.
+Here our goal: write some code that looks at the passenger list 
+and makes sure that certain conditions are met before the flight 
+is allowed to take off. For instance, let’s make sure there are no 
+passengers on a no-fly list. And let’s make sure everyone has paid 
+for the flight. We might even want to create a list of  everyone who 
+is on the flight.
+Here's the data 
+structure representing 
+the passengers:
+Think about how you’d write code 
+to perform these three tasks (no-fly 
+list, paid customers and a list of 
+passengers)?
+
+444        Chapter    10
+using functions to check passengers
+Now typically you’d write a function for each of  these conditions: one to check the 
+no-fly-list, one to check that every passenger has paid, and one to print out all the 
+passengers. But if  we wrote that code and stepped back to look at it, we’d find that 
+all these functions look roughly the same, like this:
+Writing code to process and check passengers
+function checkPaid(passengers) {
+    for (var i = 0; i < passengers.length; i++) {
+        if (!passengers[i].paid) {
+           return false;
+        }
+    }
+    return true;
+}
+function checkNoFly(passengers) {
+    for (var i = 0; i < passengers.length; i++) {
+        if (onNoFlyList(passengers[i].name)) {
+           return false;
+        }
+    }
+    return true;
+}
+function printPassengers(passengers) {
+    for (var i = 0; i < passengers.length; i++) {
+        console.log(passengers[i].name);
+        return false;
+    }
+    return true;
+}
+The only thing 
+different here is the 
+test for paid versus 
+being on a no fly list.
+And print is different only in that there is no 
+test (instead we pass the passenger to console.log) 
+and we don't care about the return value, but 
+we're still iterating through the passengers.
+That’s a lot of  duplicated code: all these functions iterate through the passengers doing 
+something with each passenger. And what if  there are additional checks needed in 
+the future? Say, checking to make sure laptops are powered down, checking to see if  a 
+passenger has an upgrade, checking to see if  a passenger has a medical issue, and so on. 
+That’s a lot of  redundant code.
+Even worse, what if  the data structure holding the passengers changes from a simple 
+array of  objects to something else? Then you might have to open every one of  these 
+functions and rewrite it. Not good.
+We can solve this little problem with first class functions. Here’s how: we’re going to 
+write one function that knows how to iterate through the passengers, and pass to that 
+function a second function that knows how to do the check we need (that is, to see if  a 
+name is on a no-fly list, to check whether or not a passenger has paid, and so on).
+
+you are here 4        445
+first class functions
+Let’s do a little pre-work on this by first writing a function that takes a passenger as 
+an argument and checks to see if that passenger’s name is on the no-fly-list.  Return 
+true if it is and false otherwise. Write another function that takes a passenger and 
+checks to see if the passenger hasn’t paid. Return true if the passenger has not paid, 
+and false otherwise. We’ve started the code for you below; you just need to finish it. 
+You’ll find our solution on the next page, but don’t peek! 
+Hint: assume your no-fly list consists 
+of one individual: Dr. Evel.
+function checkNoFlyList(passenger) {
+}
+function checkNotPaid(passenger) {
+}
+Let’s get your brain warmed up for passing your first function to another 
+function. Evaluate the code below (in your head) and see what you 
+come up with. Make sure you check your answer before moving on.
+function sayIt(translator) {
+    var phrase = translator("Hello");
+    alert(phrase);
+}
+function hawaiianTranslator(word) {
+    if (word === "Hello") return "Aloha";
+    if (word === "Goodbye") return "Aloha";
+}
+sayIt(hawaiianTranslator);
+
+446        Chapter    10
+passing a function to a function
+Iterating through the passengers
+function processPassengers(passengers, testFunction) {
+    for (var i = 0; i < passengers.length; i++) {
+        if (testFunction(passengers[i])) {
+            return false;
+        }
+    }
+    return true;
+}
+The function 
+processPassengers has two 
+parameters. The first is an 
+array of passengers.
+We iterate through all the 
+passengers, one at a time.
+If the result of the function is true, then we return 
+false. In other words, if the passenger failed the test 
+(e.g. they haven’t paid, or they are on the no-fly list), 
+then we don’t want the plane to take off!
+Otherwise, if we get here then all 
+passengers passed the test and we 
+return true.
+We need a function that takes the passengers and another function that 
+knows how to test a single passenger for some condition, like being on the 
+no-fly list. Here’s how we do that:
+And the second is a function 
+that knows how to look 
+for some condition in the 
+passengers.
+And then we call the 
+function on each passenger.
+Now all we need are some functions that can test passengers (luckily you 
+wrote these in the previous Sharpen Your Pencil exercise).  Here they are:
+function checkNoFlyList(passenger) {
+    return (passenger.name === "Dr. Evel");
+}
+function checkNotPaid(passenger) {

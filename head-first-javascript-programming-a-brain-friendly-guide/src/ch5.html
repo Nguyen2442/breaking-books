@@ -1,0 +1,104 @@
+<section class="chapter" id="ch5" data-ch="5" data-title="Cú pháp, Biểu thức và Luồng điều khiển trong JavaScript">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 5</span>
+    <h1>JavaScript Syntax, Expressions, and Control Flow <span class="vi">Cú pháp, Biểu thức và Luồng điều khiển trong JavaScript</span></h1>
+    <p class="chapter-lede">Nắm vững nền tảng cú pháp, quy tắc biến, biểu thức đánh giá giá trị và các cấu trúc điều khiển luồng (while, if/else) để xây dựng logic ứng dụng vững chắc.</p>
+    <div class="chapter-meta">
+      <span class="pill">3 bài học</span>
+      <span class="pill">3 labs</span>
+      <span class="pill">2 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch5-t1" data-num="5.1" data-short="Cú pháp cơ bản">
+    <div class="topic-theory-card">
+      <span class="eyebrow">NGUYÊN LÝ CỐT LÕI</span>
+    <h2>Quy tắc cú pháp và quy chuẩn đặt tên biến</h2>
+    <p class="tldr"><strong>TL;DR:</strong> JavaScript phân biệt hoa thường, yêu cầu cú pháp rõ ràng và quy ước đặt tên theo kiểu camelCase.</p>
+    <div class="prose">
+      <p>Khi xây dựng ứng dụng, việc tuân thủ cú pháp là yếu tố sống còn để trình duyệt hiểu được mã nguồn. JavaScript là ngôn ngữ <dfn data-term="case-sensitive">phân biệt chữ hoa chữ thường</dfn>, nghĩa là <code>myVariable</code> và <code>myvariable</code> là hai thực thể hoàn toàn độc lập. Bạn phải sử dụng từ khóa <code>var</code> để khai báo biến, áp dụng quy chuẩn <code>camelCase</code> cho các tên biến dài (ví dụ: <code>twoHeadedDragonWithFire</code>), và tránh tuyệt đối việc dùng các từ khóa dành riêng (reserved keywords) như <code>if</code>, <code>while</code>, <code>return</code>.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Tại các hệ thống lớn như Tiki hay Lazada, việc đặt tên biến không chuẩn hoặc dùng từ khóa trùng lặp có thể gây ra lỗi cú pháp làm sập toàn bộ kịch bản giỏ hàng phía client khi người dùng bấm thanh toán.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch5-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Kiểm tra lỗi cú pháp biến</strong>
+        — Thực hành tìm và sửa lỗi cú pháp trong khai báo biến.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch5-t2" data-num="5.2" data-short="Biểu thức và Toán tử">
+    <div class="topic-theory-card">
+      <span class="eyebrow">XỬ LÝ DỮ LIỆU</span>
+    <h2>Sức mạnh của Biểu thức (Expressions)</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Biểu thức là sự kết hợp của các giá trị, biến và toán tử luôn đánh giá ra một kết quả duy nhất.</p>
+    <div class="prose">
+      <p>Mỗi dòng lệnh trong JavaScript thường chứa các <dfn data-term="expression">biểu thức</dfn>. Biểu thức có thể là toán học (<code>price - (price * discount / 100)</code>), nối chuỗi (<code>"Dear " + "Reader"</code>), hoặc so sánh logic trả về boolean (<code>age < 14</code>). Cần phân biệt rõ ràng giữa toán tử gán <code>=</code> và toán tử so sánh bằng <code>==</code>, khác biệt nhỏ này quyết định logic của toàn bộ hệ thống.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Hệ thống tính giá cước linh hoạt của Grab áp dụng hàng loạt biểu thức toán học và điều kiện logic phức tạp để tính toán chính xác số tiền cước dựa trên khoảng cách, thời gian cao điểm và mã giảm giá.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch5-w2">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Đánh giá biểu thức</strong>
+        — Thực hành tính toán kết quả của các biểu thức phức tạp.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch5-t3" data-num="5.3" data-short="Vòng lặp và Rẽ nhánh">
+    <div class="topic-theory-card">
+      <span class="eyebrow">LUỒNG THỰC THI</span>
+    <h2>Điều khiển luồng thực thi với while và if/else</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Sử dụng vòng lặp while và câu lệnh rẽ nhánh điều kiện để tự động hóa các tác vụ lặp lại và đưa ra quyết định.</p>
+    <div class="prose">
+      <p>Để chương trình có tính thông minh, nó cần khả năng ra quyết định và lặp lại công việc. Cấu trúc <dfn data-term="while-loop">vòng lặp while</dfn> kiểm tra một điều kiện boolean trước khi thực thi khối mã bên trong dấu ngoặc nhọn <code>{}</code>. Nếu điều kiện đúng, mã chạy và quay lại kiểm tra; nếu sai, vòng lặp kết thúc. Tương tự, cấu trúc <dfn data-term="if-else">if/else và else if</dfn> cho phép rẽ nhánh luồng thực thi tùy theo các kịch bản dữ liệu khác nhau.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Các hệ thống thanh toán tự động của MoMo sử dụng chuỗi điều kiện if/else if/else dày đặc để xử lý hàng triệu trạng thái giao dịch: thành công, đang chờ, thất bại, hoặc quá hạn định mức.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch5-w3">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Mô phỏng vòng lặp while</strong>
+        — Theo dõi từng bước thực thi của vòng lặp đếm số kem còn lại.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch5-review" data-num="5.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>Chương này mổ xẻ những yếu tố sơ khai nhưng cực kỳ quan trọng của JavaScript: cú pháp dòng lệnh, quy tắc phân biệt hoa thường (case-sensitive), cách định danh biến an toàn bằng camelCase, và bản chất của biểu thức (expressions) luôn trả về một giá trị (số, chuỗi, boolean). Đồng thời, chương cung cấp kiến thức thực chiến về luồng điều khiển qua vòng lặp while và cấu trúc rẽ nhánh if/else/else if. Việc hiểu rõ cách trình thông dịch JavaScript (browser) phân tích và thực thi mã theo từng dòng giúp lập trình viên tránh được các lỗi cú pháp phổ biến, tối ưu hóa code và xây dựng thuật toán điều kiện chính xác cho các ứng dụng thực tế.</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="2">
+        <p class="q-text"><strong>Câu 1:</strong> Câu lệnh nào sau đây khai báo biến đúng chuẩn camelCase trong JavaScript?</p>
+        <ol><li>var two_headed_dragon;</li><li>var TwoHeadedDragon;</li><li>var twoHeadedDragon;</li><li>var 2headedDragon;</li></ol>
+        <p class="explain">CamelCase quy định viết thường chữ cái đầu tiên và viết hoa chữ cái đầu của các từ tiếp theo (twoHeadedDragon). Phương án 1 dùng snake_case, phương án 2 dùng PascalCase, phương án 4 sai vì biến không được bắt đầu bằng số.</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 2:</strong> Kết quả của biểu thức so sánh điều kiện khi dùng sai toán tử (ví dụ: dùng if (x = 5)) là gì?</p>
+        <ol><li>Trình duyệt báo lỗi cú pháp ngay lập tức.</li><li>Biến x được gán giá trị 5 và biểu thức luôn đánh giá là true.</li><li>Biến x không thay đổi giá trị.</li><li>Chương trình tự động chuyển thành toán tử ==</li></ol>
+        <p class="explain">Toán tử '=' là toán tử gán. Biểu thức (x = 5) gán 5 cho x và kết quả trả về là 5, được JavaScript ép kiểu thành true trong ngữ cảnh điều kiện.</p>
+      </div></div>
+  </article>
+</section>

@@ -1,0 +1,546 @@
+Chapter 2.
+ ❏Use an array with an item for each cell in 
+entire board (49 items total). Record the ship 
+number in each cell that holds part of a ship.
+ ❏Use an array to hold all nine locations. Items 
+0-2 will hold the first ship, 3-5 the second, and 
+so on. 
+ 
+ 
+ ❏Use three different arrays, one for each ship, 
+with three locations  contained in each. 
+ ❏Use an object named ship with three location 
+properties. Put all the ships in an array named 
+ships.
+ ❏______________________________________ 
+______________________________________ 
+______________________________________
+HIT
+And a third ship at G3-G5.
+You’ll note that the ships don’t 
+overlap on the board. That 
+would be impossible on a physical 
+Battleship board and would lead 
+to weird game play. We’ll come 
+back later to see how to make 
+sure ships don't overlap when 
+we talk about how to randomly 
+place ships on the board.
+Or write in your own answer.
+
+338        Chapter    8
+a data structure for the ships
+var ships = [{ locations: ["10", "20", "30"], hits: ["", "", ""] },
+             { locations: ["32", "33", "34"], hits: ["", "", ""] },
+             { locations: ["63", "64", "65"], hits: ["", "", "hit"] }];
+As you can see there are many ways we can represent ships, and you may have 
+even come up with a few other ways of  your own. You’ll find that no matter 
+what kind of  data you’ve got, there are many choices for storing that data, 
+with various tradeoffs depending on your choice—some methods will be space 
+efficient, others will optimize run time, some will just be easier to understand, 
+and so on.
+We’ve chosen a representation for ships that is fairly simple—we’re representing 
+each ship as an object that holds the locations it sits in, along with the hits it’s 
+taken. Let’s take a look at how we represent one ship:
+How we’re going to represent the ships
+And, rather than managing three different variables to hold the ships, 
+we’ll create a single array variable to hold them all, like this:
+Each ship has an array of three 
+locations and an array to track hits.
+Note the plural name, ships.
+Here’s the first ship...
+...and the second...
+...and the third.
+var ship1 = { locations: ["10", "20", "30"], hits: ["", "", ""] };
+var ship2 = { locations: ["32", "33", "34"], hits: ["", "", ""] };
+var ship3 = { locations: ["63", "64", "65"], hits: ["", "", "hit"] };
+var ship1 = { 
+              locations: ["10", "20", "30"],
+              hits: ["", "", ""] 
+            };
+Here’s what all three ships would look like:
+Each ship is an object.
+The ship has a locations 
+property and a hits property.
+The locations property is 
+an array that holds each 
+location on the board.
+The hits property is also an array that holds whether 
+or not a ship is hit at each location. We'll set the 
+array items to the empty string initially, and change 
+each item to “hit" when the ship has taken a hit in 
+the corresponding location.
+We're assigning to ships an array 
+that holds all three ships.
+Note this ship has a hit at 
+location “65" on the grid.
+Note that we've converted 
+the ship locations to two 
+numbers, using 0 for A, 1 for 
+B, and so on.
+
+you are here 4        339
+bringing it all together
+var ships = [{ locations: ["06", "16", "26"], hits: ["hit", "", ""] },
+             { locations: ["24", "34", "44"], hits: ["", "", ""] },
+             { locations: ["10", "11", "12"], hits: ["", "", ""] }];
+Ship Magnets
+Use the following player moves, along with the data structure for the 
+ships, to place the ship and miss magnets onto the game board. Does 
+the player sink all the ships? We’ve done the first move for you.
+Here are the moves:
+A6, B3, C4, D1, B0, D4, F0, A1, C6, B1, B2, E4, B6
+Execute these moves 
+on the game board.
+Here is the data 
+structure. Mark each 
+ship with a hit as the 
+game is played.
+And here's the board and your magnets.
+You might have leftover magnets.
+
+340        Chapter    8
+exercise in data structures
+Let’s practice using the ships data structure to simulate some ship activities.  
+Using the ships definition below, work through the questions and the code 
+below and fill in the blanks. Make sure you check your answers before moving 
+on, as this is an important part of how the game works:
+The player guesses "D4", does that hit a ship?______ If so, which one? __________
+The player guesses "B3", does that hit a ship?______ If so, which one? __________
+Which ships are already hit?____________ And, at what locations? ______________
+Finish this code to access the second ship's middle location and print its value 
+with console.log.
+var ship2 = ships[____];
+var locations = ship2.locations;
+console.log("Location is " + locations[____]);
+Finish this code to see if the third ship has a hit in its first location:
+var ship3 = ships[____];
+var hits = ship3._____;
+if (_____ === "hit") {
+   console.log("Ouch, hit on third ship at location one");
+}
+Finish this code to hit the first ship at the third location:
+var ______ = ships[0];
+var hits = ship1._______;
+hits[____] = ________;
+var ships = [{ locations: ["31", "41", "51"], hits: ["", "", ""] },
+             { locations: ["14", "24", "34"], hits: ["", "hit", ""] },
+             { locations: ["00", "01", "02"], hits: ["hit", "", ""] }];
+
+you are here 4        341
+bringing it all together
+var model = {
+   boardSize: 7,
+   numShips: 3,
+   shipLength: 3,   
+   shipsSunk: 0,
+   ships: [{ locations: ["06", "16", "26"], hits: ["", "", ""] },
+           { locations: ["24", "34", "44"], hits: ["", "", ""] },
+           { locations: ["10", "11", "12"], hits: ["", "", ""] }]
+};
+Implementing the model object
+Now that you know how to represent the ships and the hits, let’s get some 
+code down. First, we’ll create the model object, and then take the ships 
+data structure we just created, and add it as a property. And, while we’re at it, 
+there are a few other properties we’re going to need as well, like numShips, 
+to hold the number of  ships we have in the game. Now, if  you’re 
+asking,  “What do you mean, we know there are three ships, why 
+do we need a numShips property?” Well, what if  you wanted 
+to create a new version of  the game that was more difficult 
+and had four or five ships? By not “hardcoding” this value, 
+and using a property instead (and then using the property 
+throughout the code rather than the number), we can save 
+ourselves a future headache if  we need to change the number 
+of  ships, because we’ll only need to change it in one place.
+Now, speaking of  “hardcoding”, we are going to hardcode the 
+ships’ initial locations, for now.  By knowing where the ships are, 
+we can test the game more easily, and focus on the core game logic for 
+now. We’ll tackle the code for placing random ships on the game board a 
+little later.
+So let’s get the model object created:
+The model is an object.
+These three properties keep us from hardcoding values. 
+They are: boardSize (the size of the grid used for the 
+board), numShips (the number of ships in the game), and 
+shipLength (the number of locations in each ship, 3).
+The property ships is the array of 
+ship objects that each store the 
+locations and hits of one of the 
+three ships. (Notice that we’ve 
+changed ships from a variable, 
+which we used before, to a 
+property for the model object.)
+We've got 
+quite a bit of 
+state already!
+Later on, we’ll generate these locations 
+for the ships so they’re random, but 
+for now, we’ll hardcode them to make 
+it easier to test the game.
+Model
+ships: The ship 
+locations and hits.
+shipsSunk: How 
+many ships have 
+been sunk.
+numShips: The 
+number of ships in 
+the game.
+fire: A method to 
+fire on a ship and 
+figure out if the shot 
+is a hit or miss.
+shipLength: The 
+number of locations 
+in each ship.
+boardSize: The size of 
+the grid for the board.
+shipsSunk (initialized to 0 for the start of the game) keeps 
+the current number of ships that have been sunk by the player.
+Note we’re also hardcoding the sizes of the locations and hits arrays. 
+You’ll learn how to dynamically create arrays later in the book.
+
+342        Chapter    8
+planning the fire method
+Setting up the fire method
+Let’s get a basic skeleton of  the fire method set up. The method will take a guess as an 
+argument, and then iterate over each ship to determine if  that ship was hit. We won’t write 
+the hit detection code just yet, but let’s get the rest set up now:
+ Examine each ship and see if  it occupies that location.
+ If  it does, you have a hit, and we’ll mark the corresponding item 
+in the hits array (and let the view know we got a hit). We’ll also 
+return true from the method, meaning we got a hit.
+ If  no ship occupies the guessed location, you’ve got a miss. We’ll let 
+the view know, and return false from the method.
+Thinking about the fire method
+The fire method is what turns a player’s guess into a hit or a miss. We already 
+know the view object is going to take care of  displaying the hits and misses, 
+but the fire method has to provide the game logic for determining if  a 
+hit or a miss has occurred.
+Knowing that a ship is hit is straightforward: given a player’s guess, 
+you just need to:
+Now the fire method should also determine if  a ship isn’t just hit, but if  it’s sunk. We’ll 
+worry about that once we have the rest of  the logic worked out.
+var model = {
+   boardSize: 7,
+   numShips: 3,
+   shipsSunk: 0,
+   shipLength: 3,
+   ships: [{ locations: ["06", "16", "26"], hits: ["", "", ""] },
+           { locations: ["24", "34", "44"], hits: ["", "", ""] },
+           { locations: ["10", "11", "12"], hits: ["", "", ""] }],
+   fire: function(guess) {
+       for (var i = 0; i < this.numShips; i++) {
+           var ship = this.ships[i];
+       }
+    }
+};
+The method accepts a guess.
+Then, we iterate through the array 
+of ships, examining one ship at a time.
+Here we have our hands on a ship. We need to see if the guess matches any of its locations.
+Model
+ships: The ship 
+locations and hits.
+shipsSunk: How 
+many ships have 
+been sunk.
+numShips: The 
+number of ships in 
+the game.
+fire: A method to fire 
+on a ship and figure 
+out if the shot is a hit 
+or miss.
+shipLength: The 
+number of locations 
+in each ship.
+boardSize: The size of 
+the grid for the board.
+Don't forget to 
+add a comma here!
+
+you are here 4        343
+bringing it all together
+for (var i = 0; i < this.numShips; i++) {
+    var ship = this.ships[i];
+    locations = ship.locations;
+    var index = locations.indexOf(guess);
+    if (index >= 0) {
+        // We have a hit!
+    }
+}
+Looking for hits
+So now, each time through the loop, we need to see if  the guess is one of  the 
+locations of  the ship:
+for (var i = 0; i < this.numShips; i++) {
+    var ship = this.ships[i];
+    locations = ship.locations;
+}
+What we need is the code that 
+determines if the guess is in this 
+ship's locations.
+And we're stepping 
+through each ship.
+And we've accessed the ship's set of 
+locations. Remember this is a property 
+of the ship that contains an array.
+Notice that the indexOf method for an array is similar 
+to the indexOf string method. It takes a value and 
+returns the index of that value in the array (or -1 if 
+it can't find the value).
+So if we get an index greater than or 
+equal to zero, the user's guess is in the 
+location's array, and we have a hit.
+Using indexOf isn’t any more efficient than writing a loop, but it is a little clearer and it’s 
+definitely less code. We’d also argue that the intent of  this code is clearer than if  we wrote 
+a loop: it’s easier to see what value we’re looking for in an array using indexOf. In any 
+case, you now have another tool in your programming toolbelt.
+So, using indexOf, we can write the code to find a hit like this:
+Here’s the situation: we have a string, guess, that we’re looking for in an array, 
+locations. If  guess matches one of  those locations, we know we have a hit:
+guess = "16";
+locations = ["06", "16", "26"];
+We could write yet another loop to go through each item in the locations array, 
+compare the item to guess, and if  they match, we have a hit. 
+But rather than write another loop, we have an easier way to do this: 
+We need to find out if the value 
+in guess is one of the values in 
+the ship's locations array.
+var index = locations.indexOf(guess);
+The indexOf method searches an array for a matching 
+value and returns its index, or -1 if it can't find it.
+
+344        Chapter    8
+implementing the fire method
+var model = {
+    boardSize: 7,
+    numShips: 3,
+    shipsSunk: 0,
+    shipLength: 3,
+    ships: [ { locations: ["06", "16", "26"], hits: ["", "", ""] },
+             { locations: ["24", "34", "44"], hits: ["", "", ""] },
+             { locations: ["10", "11", "12"], hits: ["", "", ""] } ],
+     fire: function(guess) {
+         for (var i = 0; i < this.numShips; i++) {
+             var ship = this.ships[i];
+             var locations = ship.locations;
+             var index = locations.indexOf(guess);
+             if (index >= 0) {
+                 ship.hits[index] = "hit";
+                 return true;
+             }
+         }
+         return false;
+    }
+};
+For each ship...
+If the guess is in the locations 
+array, we have a hit.
+So mark the hits array 
+at the same index.
+Oh, and we need to return 
+true because we had a hit.
+Otherwise, if we make it through all the ships and 
+don't have a hit, it's a miss, so we return false.
+Putting that all together...
+To finish this up, we have one more thing to determine here: if  we 
+have a hit, what do we do? All we need to do, for now, is mark the hit 
+in the model, which means adding a “hit” string to the hits array.  
+Let’s put all the pieces together:
+That’s a great start on our model object. There are only a couple of  
+other things we need to do: determine if  a ship is sunk, and let the 
+view know about the changes in the model so it can keep the player 
+updated. Let’s get started on those...
+
+you are here 4        345
+bringing it all together
+Wait, can we talk about your verbosity again?
+Sorry, we have to bring this up again. You’re being a bit verbose in some of  
+your references to objects and arrays. Take another look at the code:
+Some would call this code overly verbose. Why? Because some of  these references can be 
+shortened using chaining. Chaining allows us to string together object references so that we 
+don’t have to create temporary variables, like the locations variable in the code above.
+Now you might ask why locations is a temporary variable? That’s because we’re using 
+locations only to temporarily store the ship.locations array so we can then turn 
+around and call the indexOf method on it to get the index of  the guess. We don’t need 
+locations for anything else in this method. With chaining, we can get rid of  that temporary 
+locations variable, like this:
+How chaining works...
+Which has a method 
+named indexOf.
+Chaining is really just a shorthand for a longer series of  steps to access properties and 
+methods of  objects (and arrays). Let’s take a closer look at what we just did to combine 
+two statements with chaining.
+We can combine the bottom two statements by chaining together the expressions 
+(and getting rid of  the variable locations):
+ship.locations.indexOf(guess)
+Which has a 
+locations property, 
+which is an array.
+And then using it to access the indexOf method.
+Evaluates 
+to the ship 
+object.
+1
+2
+3
+for (var i = 0; i < this.numShips; i++) {
+  var ship = this.ships[i];
+  var locations = ship.locations;
+  var index = locations.indexOf(guess);
+  ...
+}
+First we get the ship...
+ 
+Then we get the locations 
+in the ship... 
+Then we get the index of 
+the guess in the locations.
+var index = ship.locations.indexOf(guess);
+We’ve combined the two lines 
+highlighted above into a single line.
+var ship = { locations: ["06", "16", "26"], hits: ["", "", ""] };
+var locations = ship.locations;
+var index = locations.indexOf(guess);
+We were grabbing the locations array from the ship
+Here's a ship object.
+
+346        Chapter    8
+is a ship sunk?
+isSunk: function(ship) {
+    for (var i = 0; i < this.shipLength; i++)  {
+        if (ship.hits[i] !== "hit") {
+            return false;
+        }
+    }
+    return true;
+}
+fire: function(guess) {
+    for (var i = 0; i < this.numShips; i++) {
+        var ship = this.ships[i];
+        var index = ship.locations.indexOf(guess);
+        if (index >= 0) {
+            ship.hits[index] = "hit";
+            if (this.isSunk(ship)) {
+                this.shipsSunk++;
+            }
+            return true;
+        }
+    }
+    return false;
+},
+isSunk: function(ship) { ... }
+Meanwhile back at the battleship...
+Now we need to write the code to determine if  a ship is sunk. You know 
+the rules: a battleship is sunk when all of  its locations are hit. We can add 
+a little helper method to check to see if  a ship is sunk:
+This method takes a ship, and 
+then checks every possible 
+location for a hit.
+If there's a location that doesn't 
+have a hit, then the ship is still 
+floating, so return false.
+Otherwise this ship is 
+sunk! Return true.
+We'll call the method isSunk. It's going to take a ship and 
+return true if it's sunk and false if it is still floating.
+We'll add the check here, 
+after we know for sure we 
+have a hit. If the ship is sunk, 
+then we increase the number of 
+ships that are sunk in model's 
+shipsSunk property.
+Now, we can use that method in the fire method to find out if  a ship is sunk:
+Go ahead and add this method to 
+your model object, just below fire.
+Here's where we added the new isSunk method, just below 
+fire. Don't forget to make sure you've got a comma 
+between each of the model's properties and methods!
+
+you are here 4        347
+bringing it all together
+A view to a kill...
+That’s about it for the model object. The model maintains the state of  the game, and 
+has the logic to test guesses for hits and misses. The only thing we’re missing is the code 
+to notify the view when we get a hit or a miss in the model. Let’s do that now:
+var model = {
+    boardSize: 7,
+    numShips: 3,
+    shipsSunk: 0,
+    shipLength: 3,
+    ships: [ { locations: ["06", "16", "26"], hits: ["", "", ""] },
+             { locations: ["24", "34", "44"], hits: ["", "", ""] },
+             { locations: ["10", "11", "12"], hits: ["", "", ""] } ],
+    fire: function(guess) {
+        for (var i = 0; i < this.numShips; i++) {
+            var ship = this.ships[i];
+            var index = ship.locations.indexOf(guess);
+            if (index >= 0) {
+                ship.hits[index] = "hit";
+                view.displayHit(guess);
+                view.displayMessage("HIT!");
+                if (this.isSunk(ship)) {
+                    view.displayMessage("You sank my battleship!");
+                    this.shipsSunk++;
+                }
+                return true;
+            }
+        }
+        view.displayMiss(guess);
+        view.displayMessage("You missed.");
+        return false;
+    },
+    isSunk: function(ship) {
+        for (var i = 0; i < this.shipLength; i++)  {
+            if (ship.hits[i] !== "hit") {
+                return false;
+            }
+        }
+        return true;
+    }
+};
+Notify the view that we got 
+a hit at the location in guess.
+And ask the view to display the message “HIT!”.
+Notify the view that we got 
+a miss at the location in guess.
+And ask the view to display 
+the message “You missed.”.
+Let the player know that 
+this hit sank the battleship!
+This is the whole model object so you 
+can see the entire thing in one piece.
+Remember that the methods in the 
+view object add the “hit” or “miss” 
+class to the element with the id at 
+row and column in the guess string. So 
+the view translates the “hit” in the 
+hits array into a “hit” in the HTML. 
+But keep in mind, the “hit” in the 
+HTML is just for display; the “hit” in 
+the model represents the actual state.
+
+348        Chapter    8
+exercise for the model
+A Test Drive
+Add all the model code to “battleship.js”. Test it by calling the model’s fire method, 
+passing in a row and column of a guess each time. Our ships are hardcoded still, so 
+it’ll be easy for you to hit them all. Try adding some of your own as well (a few more 
+misses). (Download “battleship_tester.js” to see our version of the test code.)
+model.fire("53");
+model.fire("06");
+model.fire("16");
+model.fire("26");
+model.fire("34");
+model.fire("24");
+model.fire("44");
+model.fire("12");
+model.fire("11");
+model.fire("10");
+Reload “battleship.html”. You should see your hits and 
+misses appear on the game board.
+Q:
+ Is using chaining to combine statements better than 
+keeping statements separate?
+A: Not necessarily better, no. Chaining isn’t much more efficient

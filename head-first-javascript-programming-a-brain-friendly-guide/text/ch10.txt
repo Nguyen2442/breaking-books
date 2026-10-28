@@ -1,0 +1,653 @@
+3. To get input from a user, you can use the _________ 
+function.
+5. To randomly choose a position for a ship, use 
+Math._________. 
+8. We keep track of whether a ship is sunk or not with a 
+________ variable. 
+9. If you don’t initialize a variable, the value is 
+__________. 
+10. Boolean operators always result in true or _________. 
+11. Both while and if statements use __________ tests.  
+ 
+ 
+ 
+DOWN
+1. If you’re good at testing programs, you might want to 
+become a ________ Assurance specialist.
+2. == is a _____________ operator you can use to test to 
+see if two values are the same. 
+3. This helps you think about how a program is going to 
+work. 
+4. To get a true value from an AND operator (&&), both 
+parts of the conditional must be ___________. 
+6. OR (||) and AND (&&) are ___________ operators. 
+7. JavaScript has many built-in __________ like alert and 
+prompt. 
+10. To get a false value from an OR operator (||), both 
+parts of the conditional must be __________. 
+
+you are here 4        73
+writing real code
+Let’s say our virtual row looks like this:
+And we’ve represented that by setting:
+location1 = 3;
+location2 = 4;
+location3 = 5;
+Assume the following user input:  
+1, 4, 2, 3, 5
+Now, using the pseudocode on the previous page, trace through each step of code, 
+and see how this works. Put your notes below. We’ve started the trace for you below. 
+Here’s our solution.
+location1       location2        location 3          guess          guesses           hits             isSunk
+3                4                5                                 0              0            false
+3                4                5                 1                1              0            false
+0 1 2 3 4 5 6
+3                4                5                 4               2              1            false
+3                4                5                 2               3              1             false
+3                4                5                 3               4             2             false
+3                4                5                 5               5              3             true
+
+74        Chapter    2
+exercise solutions
+We’ve got a whole bunch of boolean expressions that need evaluating below. Fill in the blanks. Here’s our solution:
+var temp = 81;
+var willRain = true;
+var humid = (temp > 80 && willRain == true);
+What’s the value of humid?
+var guess = 6;
+var isValid = (guess >= 0 && guess <= 6);
+What’s the value of isValid?
+var kB = 1287;
+var tooBig = (kB > 1000);
+var urgent = true;
+var sendFile =  
+    (urgent == true || tooBig == false);
+What’s the value of sendFile?
+var keyPressed = "N";
+var points = 142;
+var level;
+if (keyPressed == "Y" || 
+    (points > 100 && points < 200)) {
+   level = 2;
+} else {
+   level = 1;
+}
+What’s the value of level?
+true
+true
+2
+true
+onSaleinStockbuyItbuyIt 
+truetrue
+truetrue
+truefalsetruefalse
+falsetruetruefalse
+falsefalsefalsefalse
+We’ve got two statements below that use the onSale and inStock variables 
+in conditionals to figure out the value of the variable buyIt. Work through 
+each possible value of inStock and onSale for both statements. Which 
+version is the biggest spender? The OR (||) operator!
+var buyIt = (inStock || onSale); 
+var buyIt = (inStock && onSale); 
+
+you are here 4        75
+writing real code
+if (price < 200 || price > 600) {
+   alert("Price is too low or too high! Don't buy the gadget.");
+} else {
+   alert("Price is right! Buy the gadget.");
+}
+if (price >= 200 || price <= 600) {
+   alert("Price is right! Buy the gadget.");
+} else {
+   alert("Price is too low or too high! Don't buy the gadget.");
+}
+Bob
+Bill
+Bob and Bill, both from accounting, are working on a new price checker application for their 
+company’s web site. They’ve both written if/else statements using boolean expressions. Both 
+are sure they’ve written the correct code. Which accountant is right? Should these accountants 
+even be writing code? Here’s our solution.
+priceB o b ’sBill’s 
+100true
+alert: Don’t buy!
+true
+alert: Buy!
+700true
+alert: Don’t buy!
+true
+alert: Buy!
+400false
+alert: Buy!
+true
+alert: Buy!
+Bob’s the better coder (and possibly, a better accountant, too). 
+Bob’s solution works, but Bill’s doesn’t. To see why, let’s try three 
+different prices (too low, too high and just right) with Bob’s and 
+Bill’s conditionals and see what results we get:
+If price is 100, then 100 is less than 
+200, so Bob’s conditional is true 
+(remember, with OR, you only need one of 
+the expressions to be true for the whole 
+thing to be true), and we alert NOT to 
+buy. 
+But Bill’s conditional is also true, because 
+price is <= 600! So the result of the 
+entire expression is true, and we alert 
+the user to buy, even though the price is 
+too low. 
+Turns out Bill’s conditional is always true, no 
+matter what the price is, so his code tells us to 
+Buy! every time. Bill should stick with accounting.
+
+76        Chapter    2
+exercise solutions
+// Variable declarations go here
+while (isSunk == false) { 
+    guess = prompt("Ready, aim, fire! (enter a number from 0-6):");
+    if (guess < 0 || guess > 6) {  
+        alert("Please enter a valid cell number!");
+    } else {  
+        guesses = guesses + 1;
+        if (guess == location1 || guess == location2 || guess == location3) {
+            hits = hits + 1;
+            if (hits == 3) {
+              isSunk = true;
+              alert("You sank my battleship!");
+            } 
+        }
+ 
+    } 
+} 
+var stats = "You took " + guesses + " guesses to sink the battleship, " +
+               "which means your shooting accuracy was " + (3/guesses);
+alert(stats);
+alert("HIT!");
+alert("MISS");
+else  {
+}
+Remember we said pseudocode often isn’t perfect?  Well we actually left something out of our 
+original pseudocode: we’re not telling the user if her guess is a HIT or a MISS. Can you insert 
+these pieces of code in the proper place to correct this? Here’s our solution:
+
+you are here 4        77
+writing real code
+if (guess == location1) {
+     hits = hits + 1;
+} else  if (guess == location2) {
+     hits = hits + 1;
+} else if (guess == location3) {
+     hits = hits + 1;
+}
+We're using the same code over 
+and over here.
+What do you think of this first attempt to write the code to detect when a ship 
+is hit? Does it look more complex than it needs to be, or are we repeating 
+code in a way that seems a bit, well, redundant? Could we simplify it? Using 
+what you know of the || operator (that is, the boolean OR operator), can you 
+simplify this code? Here’s our solution.
+If we ever have to change how hits are 
+updated, we've got three places to change 
+our code.  Changes like this are often a 
+source of bugs and issues in code.
+Not only that, this code is just way more complex than it 
+needs to be.  It's harder to read than it should be, and it 
+took a lot more thought and typing than needed.
+if (guess == location1 || guess == location2 || guess == location3) {
+     hits = hits + 1;
+}
+But, with the boolean OR operator we can combine the tests 
+so that if location matches any of location1, location2 or 
+location3, then the if conditional will be true, and the hits 
+variable will be updated.
+Isn't that much easier on the eye? Not 
+to mention easier to understand.
+And if we ever have to change how hits is updated, 
+well, then we only have one place to do it, which is 
+much less error prone.
+
+78        Chapter    2
+exercise solutions
+JavaScript cross Solution
+How does a crossword puzzle help you learn 
+JavaScript? The mental twists and turns burn the 
+JavaScript right into your brain! Here’s our solution.
+Q
+1
+C
+2
+P
+3
+ROMPTT
+4
+UOSR
+R
+5
+ANDOMEL
+6
+U
+LPUF
+7
+B
+8
+OOLEAN
+IADUG
+TROU
+9
+NDEFINED
+YICCC
+SOTF
+10
+ALSE
+C
+11
+ONDITIONAL
+NEOL
+NS
+SE
+
+this is a new chapter     79
+3  introducing functions
+Getting functional
+Get ready for your first superpower.  You’ve got some 
+programming under your belt; now it’s time to really move things along with 
+functions. Functions give you the power to write code that can be applied to 
+all sorts of different circumstances, code that can be reused over and over, 
+code that is much more manageable, code that can be abstracted away and 
+given a simple name so you can forget all the complexity and get on with the 
+important stuff. You’re going to find not only that functions are your gateway 
+from scripter to programmer, they’re the key to the JavaScript programming 
+style. In this chapter we’re going to start with the basics: the mechanics, the 
+ins and outs of how functions really work, and then you’ll keep honing your 
+function skills throughout the rest of the book. So, let’s get a good foundation 
+started, now.
+More on this 
+as we progress 
+through the book.
+
+80        Chapter    3
+code analysis
+A. The code seems very 
+redundant.
+B. If we want to change the 
+display of the output, or add 
+another weight for dogs, this is 
+going to require a lot of reworking.
+C. Looks tedious to type in! 
+D. Not the most readable code I’ve 
+ever seen. 
+ 
+E.
+ ___________________________ 
+ _____________________________
+var dogName = "rover";
+var dogWeight = 23;
+if (dogWeight > 20) {
+   console.log(dogName + " says WOOF WOOF");
+} else {
+   console.log(dogName + " says woof woof");
+}
+dogName = "spot";
+dogWeight = 13;
+if (dogWeight > 20) {
+   console.log(dogName + " says WOOF WOOF");
+} else {
+   console.log(dogName + " says woof woof");
+}
+dogName = "spike";
+dogWeight = 53;
+if (dogWeight > 20) {
+   console.log(dogName + " says WOOF WOOF");
+} else {
+   console.log(dogName + " says woof woof");
+}
+dogName = "lady";
+dogWeight = 17;
+if (dogWeight > 20) {
+   console.log(dogName + " says WOOF WOOF");
+} else {
+   console.log(dogName + " says woof woof");
+}
+Do a little analysis of the code below. How does it look? Choose as many of 
+the options below as you like, or write in your own analysis:
+
+you are here 4        81
+introducing functions
+var dogName = "rover";
+var dogWeight = 23;
+if (dogWeight > 20) {
+    console.log(dogName + " says WOOF WOOF");
+} else {
+    console.log(dogName + " says woof woof"); 
+}
+ ...
+dogName = "lady";
+dogWeight = 17;
+if (dogWeight > 20) {
+    console.log(dogName + " says WOOF WOOF");
+} else {
+    console.log(dogName + " says woof woof"); 
+}
+What’s wrong with the code anyway?
+We just looked at some code that got used over and over. What’s wrong 
+with that? Well, at face value, nothing. After all, it works, right? Let’s 
+have a closer look at the code in question:
+What we're doing here is comparing 
+the dog's weight to 20, and if it's 
+greater than 20, we're outputting a 
+big WOOF WOOF. If it's less than 20, 
+we’re outputting a smaller woof woof. 
+ And this code is... d’oh! It's 
+doing EXACTLY the same 
+thing. And so on, many times 
+over in the rest of the code.
+Sure, this code looks innocent enough, but it’s tedious to write, a 
+pain to read and will be problematic if  your code needs to change, 
+over time. That last point will ring true more and more as you gain 
+experience in programming—all code changes over time and the 
+code above is a nightmare waiting to happen because we’ve got the 
+same logic repeated over and over, and if  you need to change that 
+logic, you’ll have to change it in multiple places. And the bigger the 
+program gets, the more changes you’ll have to make, leading to more 
+opportunities for mistakes. What we really want is a way to take 
+redundant code like this and to put it in one place where it can be 
+easily re-used whenever we need it.
+How can we improve this code? Take a few 
+minutes to think of a few possibilities. Does 
+JavaScript have something that could help?
+dogName = "spike";
+dogWeight = 53;
+if (dogWeight > 20) {
+   console.log(dogName + " says WOOF WOOF");
+} else {
+   console.log(dogName + " says woof woof");
+}
+dogName = "lady";
+dogWeight = 17;
+if (dogWeight > 20) {
+   console.log(dogName + " says WOOF WOOF");
+} else {
+   console.log(dogName + " says woof woof");
+}
+
+82        Chapter    3
+If only I could find a way to reuse code 
+so that anytime I needed it, I could just use it 
+rather than retyping it. And a way to give it a nice 
+memorable name so that I could remember it. And 
+a way to make changes in just one place instead of 
+many if something changes. That would be dreamy. 
+But I know it’s just a fantasy...
+
+you are here 4        83
+introducing functions
+function bark(name, weight) {
+}
+By the way, did we happen to 
+mention FUNCTIONS?
+Meet functions.  JavaScript functions allow you to take a bit of  code, give it a 
+name, and then refer to it over and over whenever we need it. That sounds like 
+just the medicine we need.
+Say you’re writing some code that does a lot of  “barking.” If  your code is 
+dealing with a big dog then the bark is a big “WOOF WOOF”. And if  it’s 
+a small dog, the bark is a tiny “woof  woof ”. You’re going to need to use this 
+barking functionality many times in your code. Let’s write a bark function you 
+can use over and over:
+The function 
+keyword begins a 
+function definition.
+function bark(name, weight) {
+    if (weight > 20) {
+        console.log(name + " says WOOF WOOF");
+    } else {
+        console.log(name + " says woof woof"); 
+    }
+}
+Next we give the 
+function a name, 
+like bark.
+And we're going to hand it two 
+things when we get around to using 
+it: a dog name and a dog weight.
+Next we're going to write some code that 
+gets executed when we use the function.
+Now we need to write the code for the function; our code will check the weight and 
+output the appropriate sized bark.
+First we need to check 
+the weight, and...
+...then output the dog's name with 
+WOOF WOOF or woof woof.
+Notice the variable names 
+used in the code match the 
+parameters of the function.
+We call these the parameters of the 
+function. We put these in parentheses 
+after the function name.
+We'll call this the body of the 
+function. It’s everything inside 
+the { and the }. 
+Now you have a function you can use in your code. 
+Let’s see how that works next...
+
+84        Chapter    3
+how the function works
+function bark(name, weight) {
+   if (weight > 20) {
+      console.log(name + " says WOOF WOOF");
+   } else {
+      console.log(name + " says woof woof");
+   }
+}
+bark("rover", 23);
+bark("spot", 13);
+bark("spike", 53);
+bark("lady", 17);
+Okay, but how does it actually work?
+First, let’s rework our code using the new function bark:
+Wow, that’s a lot less code—and it’s so much more readable to your co-worker who 
+needs to go into your code and make a quick change. We’ve also got all the logic in 
+one convenient location.
+Okay, but how exactly does it all come together and actually work? Let's go through it 
+step by step.
+function bark(name, weight) {
+   if (weight > 20) {
+      console.log(name + " says WOOF WOOF");
+   } else {
+      console.log(name + " says woof woof");
+   }
+}
+First we have the function.
+So we’ve got the bark function right at the 
+top of  the code. The browser reads this code, 
+sees it’s a function and then takes a look at the 
+statements in the body. The browser knows 
+it isn’t executing the function statements 
+now; it’ll wait until the function is called from 
+somewhere else in the code.
+Notice too that the function is parameterized, 
+meaning it takes a dog’s name and weight when 
+it is called. That allows you to call this function 
+for as many different dogs as you like. Each 
+time you do, the logic applies to the name and 
+weight you pass to the function call.
+Again, these are parameters; 
+they are assigned values when 
+the function is called. 
+And everything inside the function 
+is the body of the function.
+Wow, now 
+that's simple!
+Ahh, this is nice, 
+all the logic of 
+the code is here in 
+one place.
+Now all that code becomes just a few calls to the 
+bark function, passing it each dog's name and weight.
+
+you are here 4        85
+introducing functions
+function bark(name, weight) {
+   if (weight > 20) {
+      console.log(name + " says WOOF WOOF");
+   } else {
+      console.log(name + " says woof woof");
+   }
+}
+Now let's call the function.
+To call, or invoke, a function, just use its 
+name, followed by an open parenthesis, 
+then any values you need to pass it, 
+separated by commas, and finally a 
+closing parenthesis. The values in the 
+parentheses are arguments. For the bark 
+function we need two arguments: the 
+dog’s name and the dog’s weight.
+Here’s how the call works:
+bark("rover", 23);
+Here we’re passing 
+two arguments, the 
+name and the weight.
+When we call the bark function, 
+the arguments are assigned to the 
+parameter names.
+And any time the parameters 
+appear in the function, the 
+values we passed in are used.
+Our function name.
+"rover"
+23
+After you call the function, the 
+body of the function does all 
+the work.
+After we know the value for each parameter—
+like name is “rover” and weight is 23—then 
+we’re ready to execute the function body. 
+Statements in the function body are executed 
+from top to bottom, just like all the other code 
+you’ve been writing. The only difference is that 
+the parameter names name and weight have 
+been assigned the values of  the arguments you 
+passed into the function.
+After we've assigned the argument values 
+to the parameter names, we then execute 
+the statements in the body.
+function bark(name, weight) {
+   if (weight > 20) {
+      console.log(dogName + " says WOOF WOOF");
+   } else {
+      console.log(dogName + " says woof woof");
+   }
+}
+"rover"
+23
+"rover"
+The parameters act like variables in the 
+body, which have been assigned the values 
+of the arguments you passed in.
+“Invoking a function” is just a fancy way of 
+saying “calling a function.” Feel free to mix and 
+match, especially when your new boss is around.
+
+86        Chapter    3
+function execise
+And when it's done... The logic of  the body 
+has been carried out (and, in this example, you’ll see 
+that Rover, being 23 pounds, sounds like “WOOF 
+WOOF”), and the function is done. After the function 
+completes, then control is returned to the statement 
+following our call to bark.
+function bark(name, weight) {
+   if (weight > 20) {
+      console.log(name + " says WOOF WOOF");
+   } else {
+      console.log(name + " says woof woof");
+   }
+}
+bark("rover", 23);
+bark("spot", 13);
+bark("spike", 53);
+bark("lady", 17);
+"rover says WOOF WOOF"
+When the function completes, the browser starts executing 
+the next line of code after where we called the function.
+Here, we're calling the function again, with different 
+arguments, so the process starts all over again!
+We just 
+did this...
+...so do 
+this next.
+bark("juno", 20);
+bark("scottie", -1);
+bark("dino", 0, 0);
+We’ve got some more calls to bark below. Next to each call, write what you think the 
+output should be, or if you think the code will cause an error. Check your answer at the 
+end of the chapter before you go on.
+Write what 
+you think the 
+console log will 
+display here.
+Hmm, any ideas 
+what these do?
+bark("fido", "20");
+bark("lady", 10);
+bark("bruno", 21);
+Use your browser’s Developer Tools to access 
+the console so you can see the output of bark.
+
+you are here 4        87
+introducing functions
+JavaScript console
+Wear a jacket
+Wear a t-shirt
+Wear a sweater
+Code Magnets
+This working JavaScript code is all scrambled up on 
+the fridge. Can you reconstruct the code snippets to 
+make a working program that produces the output 
+listed below? Notice, there may be some extra code 
+on the fridge, so you may not use all the magnets. 
+Check your answer at the end of the chapter.
+function
+,
+,
+,
+}
+}
+}
+{
+(
+)
+whatShallIWear
+whatShallIWear(50);
+whatShallIWear(80);
+whatShallIWear(60);
+else {
+    console.log("Wear t-shirt");
+}
+else if (temp < 70) {
+    console.log("Wear a sweater");
+}
+if (temp < 60) {
+    console.log("Wear a jacket");
+}
+temp
+temperature
+We’re using this to represent 
+a generic console.
+
+88        Chapter    3
+interview with a function
+Head First: Welcome Function! We’re looking 
+forward to digging in and finding out what you’re all 
+about.
+Function: Glad to be here.
+Head First:  Now we’ve noticed many JavaScript 
+newbies tend to ignore you. They just get in and write 
+their code, line by line, top to bottom, no functions at 
+all. Are you really needed?
+Function: Those newbies are missing out. That’s 
+unfortunate because I’m powerful. Think about me 
+like this: I give you a way to take code, write it once, 
+and then reuse it over and over.
+Head First: Well, excuse me for saying this, but 
+if  you’re just giving them the ability to do the same

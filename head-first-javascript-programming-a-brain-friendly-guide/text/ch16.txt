@@ -1,0 +1,339 @@
+temptation. If  we were working in a professional environment we might reconsider 
+and break this into two functions, printScores and getHighScore. But for 
+now, we’ll stick with one function. Let’s get this code refactored:
+function printAndGetHighScore(scores) {
+    var highScore = 0;
+    var output;
+    for (var i = 0; i < scores.length; i++) {
+        output = "Bubble solution #" + i + " score: " + scores[i];
+        console.log(output);
+        if (scores[i] > highScore) {
+            highScore = scores[i];
+        }
+    }
+    return highScore;
+}
+We’ve created a function that expects 
+one argument, the scores array. 
+This code is exactly the same. 
+Well, actually it LOOKS exactly 
+the same, but it now uses the 
+parameter scores rather than the 
+global variable scores.
+And we’ve added one line here to 
+return the highScore to the code 
+that called the function.
+
+you are here 4        159
+putting some order in your data
+Now, we need to change the rest of  the code to use our new function. To do so, we 
+simply call the new function, and set the variable highScore to the result of  the 
+printAndGetHighScore function:
+Refactoring the code using printAndGetHighScore
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Bubble Factory Test Lab</title>
+  <meta charset="utf-8">
+  <script>
+    var scores = [60, 50, 60, 58, 54, 54, 58, 50, 52, 54, 48, 69,
+                  34, 55, 51, 52, 44, 51, 69, 64, 66, 55, 52, 61, 
+                  46, 31, 57, 52, 44, 18, 41, 53, 55, 61, 51, 44];
+    function printAndGetHighScore(scores) {
+        var highScore = 0;
+        var output;
+        for (var i = 0; i < scores.length; i++) {
+            output = "Bubble solution #" + i + " score: " + scores[i];
+            console.log(output);
+            if (scores[i] > highScore) {
+                highScore = scores[i];
+            }
+        }
+        return highScore;
+    } 
+    var highScore = printAndGetHighScore(scores);
+    console.log("Bubbles tests: " + scores.length);
+    console.log("Highest bubble score: " + highScore);
+    var bestSolutions = [];
+    for (var i = 0; i < scores.length; i++) {
+      if (scores[i] == highScore) {
+        bestSolutions.push(i);
+      }
+    }
+    console.log("Solutions with the highest score: " + bestSolutions);
+  </script>
+</head>
+<body> </body>
+</html>
+Here's our new 
+function, all ready 
+to use.
+And now we just call the function, 
+passing in the scores array. We 
+assign the value it returns to the 
+variable highScore.
+Now we need to refactor this 
+code into a function and make 
+the appropriate changes to the 
+rest of the code.
+
+160        Chapter    4
+exercise in refactoring code
+function getBestResults(__________, ____________) {
+    var bestSolutions = ______;
+    for (var i = 0; i < scores.length; i++) {
+        if (___________ == highScore) {
+            bestSolutions.__________;
+        }
+    }
+    return _______________;
+}
+var bestSolutions = _____________(scores, highScore);
+console.log("Solutions with the highest score: " + bestSolutions);
+var bestSolutions = [];
+for (var i = 0; i < scores.length; i++) {
+    if (scores[i] == highScore) {
+        bestSolutions.push(i);
+    }
+}
+console.log("Solutions with the highest score: " + bestSolutions);
+Here's the original 
+code in case you need 
+to refer to it.
+We've already started this but we 
+need your help to finish it!
+Let’s work through this next one together. The goal is to write a function to create an 
+array of bubble solutions that have the high score (and there might be more than one, so 
+that's why we're using an array). We’re going to pass this function the scores array and the 
+highScore we computed with printAndGetHighScore.  Finish the code below. You’ll find the 
+answer on the next page but don’t peek! Do the code yourself first, so you really get it.
+
+you are here 4        161
+putting some order in your data
+Once you’ve completed refactoring your code, make all the changes to “bubbles.html”, just 
+like we have below, and reload the bubble report. You should get exactly the same results 
+as before. But now you know your code is more organized and reusable. Create your own 
+scores array and try some reuse!
+Putting it all together...
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Bubble Factory Test Lab</title>
+  <script>
+    var scores = [60, 50, 60, 58, 54, 54, 58, 50, 52, 54, 48, 69,
+                  34, 55, 51, 52, 44, 51, 69, 64, 66, 55, 52, 61, 
+                  46, 31, 57, 52, 44, 18, 41, 53, 55, 61, 51, 44];
+    function printAndGetHighScore(scores) {
+        var highScore = 0;
+        var output;
+        for (var i = 0; i < scores.length; i++) {
+            output = "Bubble solution #" + i + " score: " + scores[i];
+            console.log(output);
+            if (scores[i] > highScore) {
+                highScore = scores[i];
+            }
+        }
+        return highScore;
+    } 
+    function getBestResults(scores, highScore) {
+        var bestSolutions = [];
+        for (var i = 0; i < scores.length; i++) {
+            if (scores[i] == highScore) {
+                bestSolutions.push(i);
+            }
+        }
+        return bestSolutions;
+    }
+    var highScore = printAndGetHighScore(scores);
+    console.log("Bubbles tests: " + scores.length);
+    console.log("Highest bubble score: " + highScore);
+    var bestSolutions = getBestResults(scores, highScore);
+    console.log("Solutions with the highest score: " + bestSolutions);
+  </script>
+</head>
+<body> </body>
+</html>
+Okay, here's the new 
+getBestResults function.
+And we use the result of 
+that function to display the 
+best solutions in the report.
+
+162        Chapter    4
+more bubble computing
+var costs = [.25, .27, .25, .25, .25, .25, 
+             .33, .31, .25, .29, .27, .22, 
+             .31, .25, .25, .33, .21, .25, 
+             .25, .25, .28, .25, .24, .22,
+             .20, .25, .30, .25, .24, .25, 
+             .25, .25, .27, .25, .26, .29];
+var scores = [60,  50,  60,  58,  54,  54,  58,  50,  52,  54,  48,  69,  ..., 44];
+var costs = [.25, .27, .25, .25, .25, .25, .33, .31, .25, .29, .27, .22, ..., .29];
+So, what’s the job here?  It’s to take the leading bubble solutions—that is, the ones 
+with the highest bubble scores—and choose the lowest cost one. Now, luckily, we’ve 
+been given a costs array that mirrors the scores array. That is, the bubble solution 
+score at index 0 in the scores array has the cost at index 0 in the costs array (.25), 
+the bubble solution at index 1 in the scores array has a cost at index 1 in the costs 
+array (.27), and so on. So, for any score you’ll find its cost in the costs array at the 
+same index. Sometimes we call these parallel arrays:
+The cost at 0 is the cost of 
+the bubble solution at 0...
+And likewise for the other cost 
+and score values in the arrays.
+Great job! Just one more thing... 
+can you figure out the most cost effective 
+bubble solution? With that final bit of data, 
+we’ll definitely take over the entire bubble 
+solution market. Here’s an array with the cost of 
+each solution you can use to figure it out. 
+Here’s the array. Notice that it has a cost 
+for each of the corresponding solutions in the 
+scores array.
+Scores and costs are parallel arrays 
+because for each score there is a 
+corresponding cost at the same index.
+
+you are here 4        163
+putting some order in your data
+This seems a little tricky. How do 
+we determine not only the scores 
+that are highest, but then pick the one 
+with the lowest cost?
+Judy: Well, we know the highest score already.
+Frank: Right, but how do we use that? And we have these two arrays, 
+how do we get those to work together?
+Judy: I’m pretty sure either of  us could write a simple for loop that 
+goes through the scores array again and picks up the items that 
+match the highest score.
+Frank: Yeah, I could do that. But then what?
+Judy: Anytime we hit a score that matches the highest score, we need 
+to see if  its cost is the lowest we’ve seen.
+Frank:  Oh I see, so we’ll have a variable that keeps track of  the index of  the “lowest cost 
+high score.” Wow, that’s a mouthful.
+Judy: Exactly. And once we get through the entire array, whatever index is in that variable 
+is the index of  the item that not only matches the highest score, but has the lowest cost.
+Frank: What if  two items match in cost?
+Judy: Hmm, we have to decide how to handle that. I’d say, whatever one we see first is the 
+winner. Of  course we could do something more complex, but let’s stick with that unless 
+the CEO says differently.
+Frank: This is complicated enough I think I want to sketch out some pseudocode before 
+writing anything.
+Judy: I agree; whenever you are managing indices of  multiple arrays things can get tricky. 
+Let’s do that; in the long run I’m sure it will be faster to plan it first.
+Frank: Okay, I’ll take a first stab at it...
+
+164        Chapter    4
+translating pseudocode to code
+function getMostCostEffectiveSolution(scores, costs, highscore) {
+}
+var mostCostEffective = getMostCostEffectiveSolution(scores, costs, highScore);
+console.log("Bubble Solution #" + mostCostEffective + " is the most cost effective");
+FUNCTION GETMOSTCOSTEFFECTIVESOLUTION (SCORE, COSTS, HIGHSCORE) 
+DECLARE a variable cost and set to 100.
+DECLARE a variable index.
+FOR: var i=0; i < scores.length; i++
+        IF the bubble solution at score[i] has the highest score
+            IF the current value of cost is greater than the cost of the bubble solution
+           THEN 
+                SET the value of index to the value of i
+                SET the value of cost to the cost of the bubble solution
+           END IF
+    END IF
+END FOR
+RETURN index
+Translate the 
+pseudocode to 
+JavaScript here.
+I’m pretty sure I nailed the pseudocode. 
+Check it out below.  Now you go ahead 
+and translate it into JavaScript. Make sure to 
+check your answer.
+
+you are here 4        165
+putting some order in your data
+# 11
+The last bit of code you wrote really helped determine the TRUE winner; that 
+is, the solution that produces the most bubbles at the lowest cost. Congrats 
+on taking a lot of data and crunching it down to something Bubbles-R-Us 
+can make real business decisions with. 
+Now, if you're like us, you’re dying to know what is in Bubble Solution #11. 
+Look no further; the Bubble-R-Us CEO said he’d be delighted to give you the 
+recipe after all your unpaid work. 
+So, you’ll find the recipe for Bubble Solution #11 below. Take some time to let 
+your brain process arrays by making a batch, getting out, and blowing some 
+bubbles before you begin the next chapter. Oh, but don’t forget the bullet 
+points and the crossword before you go!
+The WINNER: SOLUTION #11
+2/3 cup dishwashing soap
+1 gallon water
+2 to 3 tablespoons of glycerine (available at the 
+pharmacy or chemical supply house.)
+INSTRUCTIONS: Mix ingredients together in a 
+large bowl and have fun!
+Bubble Solution #11
+DO try this at HOME!
+
+166        Chapter    4
+chapter summary
+ Arrays are a data structure for ordered 
+data.
+ An array holds a set of items, each with its 
+own index.
+ Arrays use a zero-based index, where the 
+irst item is at index zero.
+ All arrays have a length property, which 
+holds a number representing the number 
+of items in the array.
+ You can access any item using its index. 
+For example, use myArray[1] to access 
+item one (the second item in the array).
+ If an item doesn’t exist, trying to access it 
+will result in a value of undeined.
+ Assigning a value to an existing item will 
+change its value.
+ Assigning a value to an item that doesn’t 
+exist in the array will create a new item in 
+the array.
+ You can use a value of any type for an 
+array item.
+ Not all the values in an array need to be 
+the same type. 
+ Use the array literal notation to create a 
+new array.
+ You can create an empty array with  
+    var myArray = [ ];
+ The for loop is commonly used to iterate 
+through arrays.
+ A for loop packages up variable 
+initialization, a conditional test, and 
+variable increment into one statement.
+ The while loop is most often used when 
+you don’t know how many times you 
+need to loop, and you’re looping until a 
+condition is met. The for loop is most often 
+used when you know the number of times 
+the loop needs to execute.
+ Sparse arrays occur when there are 
+undeined items in the middle of an array.
+ You can increment a variable by one with 
+the post-increment operator ++. 
+ You can decrement a variable by one with 
+the post-decrement operator - - .
+ You can add a new value to an array using 
+push.
+
+you are here 4        167
+putting some order in your data
+JavaScript cross
+Let arrays sink into your brain as you do the crossword. 
+123
+4
+567
+8
+9
+101112
+13
+141516
+17
+ACROSS

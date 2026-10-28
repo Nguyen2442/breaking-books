@@ -1,0 +1,481 @@
+Praise for Head First JavaScript Programming
+“Warning: Do not read Head First JavaScript Programming unless you want to learn the 
+fundamentals of  programming with JavaScript in an entertaining and meaningful fashion. 
+There may be an additional side effect that you may actually recall more about JavaScript than 
+after reading typical technical books.”
+       — Jesse Palmer, Senior Software Developer, Gannett Digital
+“If  every elementary and middle school student studied Elisabeth and Eric’s Head First HTML 
+and CSS, and if  Head First JavaScript Programming and Head First HTML5 Programming were part of  
+the high school math and science curriculum, then our country would never lose its competitive 
+edge.”
+        — Michael Murphy, senior systems consultant, The History Tree
+“The Head First series utilizes elements of  modern learning theory, including constructivism, to 
+bring readers up to speed quickly. The authors have proven with this book that expert-level content 
+can be taught quickly and efficiently. Make no mistake here, this is a serious JavaScript book, and 
+yet, fun reading!”
+    — Frank Moore, Web designer and developer
+“Looking for a book that will keep you interested (and laughing) but teach you some serious 
+programming skills? Head First JavaScript Programming is it!”
+    — Tim Williams, software entrepreneur
+“Add this book to your library regardless of  your programming skill level!”
+    — Chris Fuselier, engineering consultant
+“Robson and Freeman have done it again! Using the same fun and information-packed style 
+as their previous books in the Head First series, Head First JavaScript Programming leads you 
+through entertaining and useful projects that, chapter-by-chapter, allow programmers—even 
+nonspecialists like myself—to develop a solid foundation in modern JavaScript programming 
+that we can use to solve real problems.”
+        — Russell Alleen-Willems, digital archeologist, DiachronicDesign.com
+“Freeman and Robson continue to use innovative teaching methods for communicating complex 
+concepts to basic principles.”
+        — Mark Arana, Strategy & Innovation, The Walt Disney Studios
+
+Praise for other books by Eric T. Freeman and Elisabeth Robson
+“Just the right tone for the geeked-out, casual-cool guru coder in all of  us. The right reference for 
+practical development strategies—gets my brain going without having to slog through a bunch of  tired, 
+stale professor-speak.”
+    — Travis Kalanick, CEO Uber 
+“This book’s admirable clarity, humor and substantial doses of  clever make it the sort of  book that helps 
+even non-programmers think well about problem-solving.”
+    — Cory Doctorow, co-editor of  Boing Boing,  Science Fiction author
+“I feel like a thousand pounds of  books have just been lifted off  of  my head.”
+    — Ward Cunningham, inventor of  the Wiki  
+“One of  the very few software books I’ve ever read that strikes me as indispensable. (I’d put maybe 10 
+books in this category, at the outside.)”
+    — David Gelernter, Professor of  Computer Science, Yale University
+“I laughed, I cried, it moved me.”
+    — Daniel Steinberg, Editor-in-Chief, java.net
+“I can think of  no better tour guides than Eric and Elisabeth.”
+    — Miko Matsumura, VP of  Marketing and Developer Relations at Hazelcast 
+                      Former Chief  Java Evangelist, Sun Microsystems
+“I literally love this book. In fact, I kissed this book in front of  my wife.”
+ —  Satish Kumar
+“The highly graphic and incremental approach precisely mimics the best way to learn this stuff...”
+    — Danny Goodman, author of  Dynamic HTML: The Deinitive Guide
+“Eric and Elisabeth clearly know their stuff. As the Internet becomes more complex, inspired construction 
+of  web pages becomes increasingly critical. Elegant design is at the core of  every chapter here, each 
+concept conveyed with equal doses of  pragmatism and wit.”
+    — Ken Goldstein, former CEO of  Shop.com and author of   
+                       This is Rage: A Novel of Silicon Valley and Other Madness
+
+Other related books from O’Reilly
+Head First HTML5 Programming
+JavaScript: The Deinitive Guide
+JavaScript Enlightenment
+Other O’Reilly books by Eric T. Freeman and Elisabeth Robson
+Head First Design Patterns
+Head First HTML and CSS
+Head First HTML5 Programming
+Other books in O’Reilly’s Head First series
+Head First HTML and CSS
+Head First HTML5 Programming
+Head First Design Patterns
+Head First Servlets and JSP
+Head First SQL
+Head First Software Development
+Head First C#
+Head First Java
+Head First Object-Oriented Analysis and Design (OOA&D)
+Head First Ajax
+Head First Rails
+Head First PHP & MySQL
+Head First Web Design
+Head First Networking
+Head First iPhone and iPad Development
+Head First jQuery
+
+Beijing  •  Cambridge  •  Kln  •  Sebastopol  •  Tokyo
+Eric T. Freeman 
+Elisabeth Robson
+Head First 
+JavaScript 
+Programming
+Wouldn’t it be dreamy if there was 
+a JavaScript book that was more 
+fun than going to the dentist and 
+more revealing than an IRS form? 
+It’s probably just a fantasy...
+
+Head First JavaScript Programming
+by Eric T. Freeman and Elisabeth Robson
+Copyright © 2014 Eric Freeman, Elisabeth Robson. All rights reserved.
+Printed in the United States of  America.
+Published by O’Reilly Media, Inc., 1005 Gravenstein Highway North, Sebastopol, CA 95472.
+O’Reilly Media books may be purchased for educational, business, or sales promotional use. Online editions 
+are also available for most titles (http://my.safaribooksonline.com). For more information, contact our corporate/
+institutional sales department: (800) 998-9938 or corporate@oreilly.com.
+Editors:  Meghan Blanchette, Courtney Nash
+Cover Designer:  Randy Comer
+Code Monkeys:  Eric T. Freeman, Elisabeth Robson
+Production Editor:          Melanie Yarbrough
+Indexer:       Potomac Indexing 
+Proofreader:         Rachel Monaghan
+Page Viewer: Oliver
+Printing History:
+March 2014: First Edition.
+Nutshell Handbook, the Nutshell Handbook logo, and the O’Reilly logo are registered trademarks of  O’Reilly 
+Media, Inc. The Head First series designations, Head First JavaScript Programming, and related trade dress are 
+trademarks of  O’Reilly Media, Inc.
+Many of  the designations used by manufacturers and sellers to distinguish their products are claimed as 
+trademarks. Where those designations appear in this book, and O’Reilly Media, Inc., was aware of  a trademark 
+claim, the designations have been printed in caps or initial caps.
+While every precaution has been taken in the preparation of  this book, the publisher and the authors assume no 
+responsibility for errors or omissions, or for damages resulting from the use of  the information contained herein.
+In other words, if  you use anything in Head First JavaScript Programming to, say, run a nuclear power plant, you’re 
+on your own. We do, however, encourage you to visit Webville.
+No variables were harmed in the making of  this book.
+ISBN: 978-1-449-34013-1 
+[M]                                                                                                                                                                
+
+To JavaScript—you weren’t born with a silver spoon in 
+your mouth, but you’ve outclassed every language that’s 
+challenged you in the browser.
+
+viii 
+the authors
+Authors of Head First JavaScript Programming
+Elisabeth is a software engineer, writer, and trainer. 
+She has been passionate about technology since her 
+days as a student at Yale University, where she earned a 
+Masters of  Science in Computer Science and designed 
+a concurrent, visual programming language and 
+software architecture. 
+Elisabeth’s been involved with the Internet since the 
+early days; she co-created the award-winning Web site, 
+The Ada Project, one of  the first Web sites designed 
+to help women in computer science find career and 
+mentorship information online. 
+She’s currently co-founder of  WickedlySmart, an online 
+education experience centered on web technologies, 
+where she creates books, articles, videos and more. 
+Previously, as Director of  Special Projects at O’Reilly 
+Media, Elisabeth produced in-person workshops and 
+online courses on a variety of  technical topics and 
+developed her passion for creating learning experiences 
+to help people understand technology. Prior to her work 
+with O’Reilly, Elisabeth spent time spreading fairy dust 
+at The Walt Disney Company, where she led research 
+and development efforts in digital media. 
+When not in front of  her computer, you’ll find Elisabeth 
+hiking, cycling or kayaking in the great outdoors, with 
+her camera nearby, or cooking vegetarian meals. 
+You can send her email at beth@wickedlysmart.com 
+or visit her blog at http://elisabethrobson.com.
+Eric Freeman
+Eric is described by Head First series co-creator Kathy 
+Sierra as “one of  those rare individuals fluent in the language, 
+practice, and culture of  multiple domains from hipster 
+hacker, corporate VP, engineer, think tank.”
+Professionally, Eric recently ended nearly a decade as a media 
+company executive—having held the position of  CTO of  
+Disney Online & Disney.com at The Walt Disney Company. 
+Eric is now devoting his time to WickedlySmart, a startup he 
+co-created with Elisabeth.
+By training, Eric is a computer scientist, having studied with 
+industry luminary David Gelernter during his Ph.D. work 
+at Yale University. His dissertation is credited as the seminal 
+work in alternatives to the desktop metaphor, and also as the 
+first implementation of  activity streams, a concept he and Dr. 
+Gelernter developed. 
+In his spare time, Eric is deeply involved with music; you’ll 
+find Eric’s latest project, a collaboration with ambient music 
+pioneer Steve Roach, available on the iPhone app store 
+under the name Immersion Station. 
+Eric lives with his wife and young daughter on Bainbridge 
+Island. His daughter is a frequent vistor to Eric’s studio, where 
+she loves to turn the knobs of  his synths and audio effects. 
+Write to Eric at eric@wickedlysmart.com or visit his site 
+at http://ericfreeman.com.
+Elisabeth Robson
+
+ix
+Intro
+Your brain on JavaScript.  Here you are trying to learn something, while here 
+your brain is doing you a favor by making sure the learning doesn’t stick. Your brain’s 
+thinking, “Better leave room for more important things, like which wild animals to avoid 
+and whether naked snowboarding is a bad idea.”  So how do you trick your brain into 
+thinking that your life depends on knowing JavaScript programming? 
+Table of Contents (summary)
+        Intro xxv
+1  A quick dip into JavaScript:  Getting your feet wet                                    1
+2 Writing real code: Going further                                                            43
+3 Introducing functions: Getting functional                                               79
+4 Putting some order in your data: Arrays                                            125
+5 Understanding objects: A trip to Objectville                                         173
+6 Interacting with your web page: Getting to know the DOM                  229
+7 Types, equality, conversion, and all that jazz: Serious types                 265
+8 Bringing it all together: Building an app                                              317
+9 Asynchronous coding: Handling events                                                381
+10    First-class functions: Liberated functions                                               429
+11    Anonymous functions, scope, and closures: Serious functions              475
+12    Advanced object construction: Creating objects                                   521
+13    Using prototypes: Extra-strength objects                                                563
+Appendix: The Top Ten Topics (we didn’t cover): Leftovers                       623
+Table of Contents (the real thing)
+table of contents
+Who is this book for ?     xxvi
+We know what you’re thinking.    xxvii
+We think of  a “Head First” reader as a learner.       xxviii
+Metacognition: thinking about thinking    xxix
+Here’s                what                WE                did:                                                                                xxx
+Here’s what YOU can do to bend your brain into submission xxxi
+Read                Me                                                                                                                xxxii
+Tech                Reviewers                                                                                                xxxv
+Acknowledgments*                                                                                                xxxvi
+
+x 
+1
+Getting your feet wet
+a quick dip into javascript
+JavaScript gives you superpowers. The true programming 
+language of the web, JavaScript lets you add behavior to your web pages. No 
+more dry, boring, static pages that just sit there looking at you—with JavaScript 
+you’re going to be able to reach out and touch your users, react to interesting 
+events, grab data from the web to use in your pages, draw graphics right in your 
+web pages and a lot more. And once you know JavaScript you’ll also be in a 
+position to create totally new behaviors for your users.
+The                way                JavaScript                works                                                                                2
+How you’re going to write JavaScript        3
+How to get JavaScript into your page        4
+JavaScript, you’ve come a long way baby...   6
+How to make a statement     10
+Variables                and                values                                                                                11
+Back away from that keyboard!    12
+Express                yourself                                                                                                 15
+Doing things more than once     17
+How the while loop works     18
+Making decisions with JavaScript    22
+And, when you need to make LOTS of  decisions    23
+Reach out and communicate with your user   25
+A closer look at console.log         27
+Opening                the                console                                                                                28
+Coding a Serious JavaScript Application    29
+How do I add code to my page? (let me count the ways)  32
+We’re going to have to separate you two    33
+table of contents
+HTML
+CSS
+JS
+Browser
+You’ve got a lot of flexibility in 
+choosing your variable names, so here 
+are a few Webville tips to make your 
+naming easier:
+Choose names that mean something. 
+Variable 
+names like _m, $, r and foo 
+might mean something to you but they 
+are generally frowned upon in Webville. 
+Not only are you likely to forget them 
+over time, your code will be much 
+more readable with names like angle, 
+currentPressure and passedExam.
+ 
+ 
+ 
+ 
+Use “camel case” when creating 
+multiword variable names. 
+At some point you’re going to have to 
+decide how you name a variable that 
+represents, say, a two-headed dragon 
+with fire. How? Just use camel case, 
+in which you capitalize the first letter 
+of each word (other than the first): 
+twoHeadedDragonWithFire. Camel 
+case is easy to form, widely spoken 
+in Webville and gives you enough 
+flexibility to create as specific a 
+variable name as you need. There are 
+other schemes too, but this is one of 
+the more commonly used (even beyond 
+JavaScript).
+Use variables that begin with _ and $ 
+only with very good reason. 
+Variables that begin with $ are 
+usually 
+reserved for JavaScript 
+libraries and while some authors use 
+variables beginning with _ for various 
+conventions, we recommend you stay 
+away from both unless you have very 
+good reason (you’ll know if you do).
+Be safe. 
+Be safe in your variable naming; we’ll 
+cover a few more tips for staying 
+safe later in the book, but for now be 
+clear in your naming, avoid keywords, 
+and always use var when declaring 
+a variable.
+WEBVILLE 
+T I M E S
+How to avoid those embarassing naming mistakes
+
+xi
+2
+Going further
+writing real code
+You already know about variables, types, expressions... 
+we could go on.  The point is, you already know a few things about 
+JavaScript. In fact, you know enough to write some real code. Some code that 
+does something interesting, some code that someone would want to use. What 
+you’re lacking is the real experience of writing code, and we’re going to remedy 
+that right here and now. How? By jumping in head first and coding up a casual 
+game, all written in JavaScript. Our goal is ambitious but we’re going to take it 
+one step at a time. Come on, let’s get this started, and if you want to launch the 
+next casual startup, we won’t stand in your way; the code is yours.
+Let’s build a Battleship game      44
+Our                first                attempt...                                                                                                44
+First,                a                high-level                design                                                                                45
+Working through the Pseudocode    47
+Oh, before we go any further, don’t forget the HTML!  49
+Writing the Simple Battleship code    50
+Now let’s write the game logic    51
+Step One: setting up the loop, getting some input   52
+How                prompt                works                                                                                                53
+Checking                the                user’s                guess                                                                                54
+So, do we have a hit?     56
+Adding the hit detection code     57
+Provide some post-game analysis    58
+And that completes the logic!      60
+Doing a little Quality Assurance    61
+Can we talk about your verbosity...    65
+Finishing the Simple Battleship game       66
+How to assign random locations    67
+The world-famous recipe for generating a random number   67
+Back to do a little more QA        69
+Congrats on your first true JavaScript program,  
+and a short word about reusing code    71
+table of contents
+Start
+Game set-up
+Get user 
+guess
+Check 
+guess
+hit
+miss
+Mark ship as 
+hit
+sunk
+Mark ship 
+as sunk
+Display user 
+score/rating
+Game 
+over
+
+xii 
+3
+Getting functional
+introducing functions
+Get ready for your first superpower.  You’ve got some programming under 
+your belt; now it’s time to really move things along with functions. Functions give you the 
+power to write code that can be applied to all sorts of different circumstances, code that 
+can be reused over and over, code that is much more manageable, code that can be 
+abstracted away and given a simple name so you can forget all the complexity and get 
+on with the important stuff. You’re going to find not only that functions are your gateway 
+from scripter to programmer, they’re the key to the JavaScript programming style. In 
+this chapter we’re going to start with the basics: the mechanics, the ins and outs of how 
+functions really work, and then you’ll keep honing your function skills throughout the rest 
+of the book. So, let’s get a good foundation started, now.
+What’s wrong with the code anyway?        81
+By the way, did we happen to mention FUNCTIONS?  83
+Okay, but how does it actually work?    84
+What can you pass to a function?    89
+JavaScript                is                pass-by-value.                                                                                92
+Weird                Functions                                                                                                94
+Functions can return things too    95
+Tracing through a function with a return statement  96
+Global                and                local                variables                                                                                99
+Knowing the scope of  your local and global variables  101
+The short lives of  variables         102
+Don’t forget to declare your locals!    103
+table of contents
+
+xiii
+4
+Arrays
+putting some order in your data
+There’s more to JavaScript than numbers, strings and 
+booleans.   So far you’ve been writing JavaScript code with primitives—simple 
+strings, numbers and booleans, like “Fido”, 23, and true. And you can do a lot with 
+primitive types, but at some point you’ve got to deal with more data. Say, all the items 
+in a shopping cart, or all the songs in a playlist, or a set of stars and their apparent 
+magnitude, or an entire product catalog. For that we need a little more ummph. The 
+type of choice for this kind of ordered data is a JavaScript array, and in this chapter 
+we’re going to walk through how to put your data into an array, how to pass it around 
+and how to operate on it. We’ll be looking at a few other ways to structure your data 
+in later chapters but let’s get started with arrays.
+Can                you                help                Bubbles-R-Us?                                                                                126
+How to represent multiple values in JavaScript   127
+How                arrays                work                                                                                                128
+How big is that array anyway?    130
+The                Phrase-O-Matic                                                                                132
+Meanwhile, back at Bubbles-R-Us...    135
+How to iterate over an array      138
+But wait, there’s a better way to iterate over an array  140
+Can we talk about your verbosity?    146
+Redoing the for loop with the post-increment operator  147
+Quick                test                drive                                                                                                147
+Creating an array from scratch (and adding to it)    151
+And                the                winners                are...                                                                                155
+A quick survey of  the code...       157
+Writing the printAndGetHighScore function   158
+Refactoring the code using printAndGetHighScore  159
+Putting                it                all                together...                                                                                161
+table of contents
+60    50    60    58    54     54     58    50    52     54
+0123456789
+
+xiv 
+5
+A trip to Objectville
+undestanding objects
+So far you’ve been using primitives and arrays in your 
+code.   And, you’ve approached coding in quite a procedural manner using simple 
+statements, conditionals and for/while loops with functions—that’s not exactly object-
+oriented. In fact, it’s not object-oriented at all! We did use a few objects here and 
+there without really knowing it, but you haven’t written any of your own objects yet. 
+Well, the time has come to leave this boring procedural town behind to create some 
+objects of your own. In this chapter, you’re going to find out why using objects is 
+going to make your life so much better—well, better in a programming sense (we 
+can’t really help you with your fashion sense and your JavaScript skills all in one 
+book). Just a warning: once you’ve discovered objects you’ll never want to come back. 
+Send us a postcard when you get there.
+Did                someone                say                “Objects”?!                                                                                                174
+Thinking                about                properties...                                                                                                175
+How                to                create                an                object                                                                                                177
+What                is                Object-Oriented                Anyway?                                                                                180
+How                properties                work                                                                                                181
+How does a variable hold an object? Inquiring minds want to know...   186
+Comparing                primitives                and                objects                                                                                187
+Doing even more with objects...     188
+Stepping                through                pre-qualification                                                                                190
+Let’s talk a little more about passing objects to functions   192
+Oh Behave! Or, how to add behavior to your objects   198
+Improving                the                drive                method                                                                                                199
+Why doesn’t the drive method know about the started property?  202
+How this                works                                                                                                                204
+How behavior affects state... Adding some Gas-o-line   210
+Now let’s affect the behavior with the state    211
+Congrats on your first objects!     213
+Guess what? There are objects all around you!  
+(and they’ll make your life easier)     214
+table of contents
+
+xv
+6
+Getting to know the DOM
+interacting with your web page
+You’ve come a long way with JavaScript.  In fact you’ve evolved from a newbie to 
+a scripter to, well, a programmer. But, there’s something missing. To really begin leveraging your 
+JavaScript skills you need to know how to interact with the web page your code lives in. Only by doing 
+that are you going to be able to write pages that are dynamic, pages that react, that respond, that 
+update themselves after they’ve been loaded. So how do you interact with the page? By using the DOM, 
+otherwise known as the document object model. In this chapter we’re going to break down the DOM 
+and see just how we can use it, along with JavaScript, to teach your page a few new tricks.
+The “crack the code challenge.”    230
+So what does the code do?     231
+How JavaScript really interacts with your page   233
+How to bake your very own DOM    234
+A first taste of  the DOM     235

@@ -1,0 +1,50 @@
+<section class="chapter" id="ch25" data-ch="25" data-title="Kiểm Tra Kiểu Dữ Liệu, Toán Hạng và Cơ Chế Ép Kiểu Ngầm Trong JavaScript">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 25</span>
+    <h1>Types, Equality, Conversion and Operators in JavaScript <span class="vi">Kiểm Tra Kiểu Dữ Liệu, Toán Hạng và Cơ Chế Ép Kiểu Ngầm Trong JavaScript</span></h1>
+    <p class="chapter-lede">Hiểu rõ tường tận cơ chế ép kiểu ngầm (type coercion) và sự khác biệt cốt lõi giữa toán tử lỏng lẻo (==) và nghiêm ngặt (===) để triệt tiêu hoàn toàn các bug tiềm ẩn trong hệ thống production.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học</span>
+      <span class="pill">1 labs</span>
+      <span class="pill">1 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch25-t1" data-num="25.1" data-short="Ep kieu ngam">
+    <div class="topic-theory-card">
+      <span class="eyebrow">KIẾN TRÚC VẬN HÀNH</span>
+    <h2>Cơ chế ép kiểu ngầm trong toán tử so sánh lỏng</h2>
+    <p class="tldr"><strong>TL;DR:</strong> JavaScript tự động chuyển đổi kiểu dữ liệu của toán hạng khi sử dụng toán tử ==.</p>
+    <div class="prose">
+      <p>Khi thực hiện so sánh bằng toán tử <dfn data-term="type-coercion">ép kiểu ngầm (type coercion)</dfn>, JavaScript không ném lỗi khi hai vế lệch kiểu. Thay vào đó, nó áp dụng các quy tắc tiêu chuẩn: chuyển chuỗi thành số, chuyển boolean thành 1 hoặc 0, và đánh giá null bằng undefined.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Hệ thống thương mại điện tử Tiki khi lọc sản phẩm theo khoảng giá từ URL query parameters (vốn là chuỗi '100000') nếu dùng toán tử == sẽ vô tình khớp đúng với số 100000, nhưng sẽ gặp rủi ro logic lớn nếu tham số truyền vào là rỗng hoặc chuỗi rác.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch25-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Mô phỏng bộ quy tắc ép kiểu</strong>
+        — Kiểm tra kết quả ma trận so sánh các kiểu dữ liệu khác nhau.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch25-review" data-num="25.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>Trong JavaScript, hệ thống kiểu dữ liệu yếu (weak typing) mang lại sự linh hoạt nhưng ẩn chứa rủi ro lớn khi sử dụng toán tử so sánh lỏng lẻo (==) và toán tử số học/chuỗi (+). Khi so sánh hai giá trị khác kiểu (như số và chuỗi, hoặc boolean với số), JavaScript tự động thực hiện ép kiểu ngầm (type coercion) dựa trên các quy tắc xác định trước: chuỗi được cố gắng đổi thành số, boolean đổi thành 1 hoặc 0, và null/undefined được coi là tương đương. Tuy nhiên, cơ chế này dễ dẫn đến các kết quả phản trực giác (như '1' == true hay 1 == ''). Ngược lại, toán tử nghiêm ngặt (===) không thực hiện bất kỳ phép chuyển đổi nào: nếu khác kiểu hoặc khác giá trị, kết quả lập tức là false. Kiến trúc sư và kỹ sư phần mềm cao cấp phải nắm vững các quy tắc này để lựa chọn tiêu chuẩn code sạch, ưu tiên sử dụng === nhằm đảm bảo tính dự đoán (predictability) của hệ thống.</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="3">
+        <p class="q-text"><strong>Câu 1:</strong> Biểu thức nào sau đây trả về kết quả là true?</p>
+        <ol><li>'0' === 0</li><li>null == undefined</li><li>1 == true</li><li>Cả 2 và 3 đều đúng</li></ol>
+        <p class="explain">null == undefined luôn trả về true theo quy tắc Case #3. 1 == true trả về true vì boolean true được ép thành số 1. Riêng '0' === 0 trả về false vì khác kiểu dữ liệu.</p>
+      </div></div>
+  </article>
+</section>

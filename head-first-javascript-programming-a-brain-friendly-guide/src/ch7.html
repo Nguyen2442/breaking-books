@@ -1,0 +1,50 @@
+<section class="chapter" id="ch7" data-ch="7" data-title="Xây Dựng Game Đầu Tiên: Tư Duy Thiết Kế Thuật Toán và Mã Giả (Pseudocode)">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 7</span>
+    <h1>Building Real Code: The Battleship Game and Pseudocode Architecture <span class="vi">Xây Dựng Game Đầu Tiên: Tư Duy Thiết Kế Thuật Toán và Mã Giả (Pseudocode)</span></h1>
+    <p class="chapter-lede">Chuyển hóa kiến thức JavaScript cơ bản thành ứng dụng thực chiến thông qua việc thiết kế và lập trình trò chơi Battleship đơn giản.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học</span>
+      <span class="pill">1 labs</span>
+      <span class="pill">1 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch7-t1" data-num="7.1" data-short="Thiết kế hệ thống">
+    <div class="topic-theory-card">
+      <span class="eyebrow">NGUYÊN LÝ CỐT LÕI</span>
+    <h2>Từ Bài Toán Thực Tế Đến Thiết Kế Kiến Trúc Trò Chơi</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Chia nhỏ bài toán lớn thành các module logic thông qua sơ đồ luồng và mã giả.</p>
+    <div class="prose">
+      <p>Khi xây dựng bất kỳ hệ thống phần mềm nào, từ một trò chơi nhỏ trên trình duyệt cho đến hệ thống lõi ngân hàng tại MoMo, bước quan trọng nhất không phải là gõ phím mà là <dfn data-term="System Design">thiết kế hệ thống</dfn>. Trò chơi Battleship phiên bản 1D yêu cầu chúng ta quản lý một dãy ô nhớ ảo, nơi máy tính ẩn giấu một chiếc tàu chiếm 3 ô liên tiếp.</p><p>Để giải quyết bài toán này mà không bị rối, chúng ta áp dụng mô hình ba bước: <strong>High-level Design</strong> (Thiết kế cấp cao), <strong>Flowchart</strong> (Sơ đồ luồng), và <strong>Pseudocode</strong> (Mã giả). Việc này giúp cô lập hoàn toàn logic nghiệp vụ khỏi cú pháp đặc thù của ngôn ngữ lập trình.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Tại các cổng thanh toán như ZaloPay, mọi tính năng mới đều phải được mô tả bằng tài liệu thiết kế logic và mã giả để các kỹ sư backend và frontend thống nhất luồng xử lý giao dịch trước khi viết code.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch7-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Mô phỏng Luồng Trò Chơi</strong>
+        — Kiểm tra cách vòng lặp while hoạt động dựa trên trạng thái biến isSunk.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch7-review" data-num="7.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>Lập trình thực chiến đòi hỏi phải vượt qua giai đoạn học cú pháp thuần túy để bước vào tư duy giải quyết vấn đề. Chương này hướng dẫn cách xây dựng một ứng dụng hoàn chỉnh từ đầu: từ việc phác thảo luồng xử lý bằng Lưu đồ (Flowchart), chuẩn hóa logic qua Mã giả (Pseudocode), cho đến hiện thực hóa thành mã JavaScript chạy trên trình duyệt. Trọng tâm nằm ở việc quản lý trạng thái trò chơi (state management) bằng các biến, kiểm soát vòng đời thực thi bằng vòng lặp while, và xử lý luồng điều kiện phức tạp để đảm bảo tính toàn vẹn của dữ liệu nhập từ người dùng.</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="2">
+        <p class="q-text"><strong>Câu 1:</strong> Trong mã giả của game Battleship, biến nào chịu trách nhiệm quyết định khi nào vòng lặp game kết thúc?</p>
+        <ol><li>guess</li><li>guesses</li><li>isSunk</li><li>location1</li></ol>
+        <p class="explain">Vòng lặp được thiết lập chạy khi tàu chưa chìm ('while the ship is not sunk'), và biến 'isSunk' được chuyển thành true khi số lượt bắn trúng đạt đến 3, làm chấm dứt vòng lặp.</p>
+      </div></div>
+  </article>
+</section>

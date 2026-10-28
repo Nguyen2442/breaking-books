@@ -1,0 +1,511 @@
+Let’s look at the Car constructor again and see how we might be able to 
+clean it up a bit.
+function Car(make, model, year, color, passengers, convertible, mileage) {
+    this.make = make;
+    this.model = model;
+    this.year = year;
+    this.color = color;
+    this.passengers = passengers;
+    this.convertible = convertible;
+    this.mileage = mileage;
+    this.started = false;
+    this.start = function() {
+        this.started = true;
+    };     
+    //rest of the methods here
+}
+Notice we're using a lot of 
+parameters here. We count seven.
+And when we write code that calls this 
+constructor we have to make sure we get the 
+arguments all in exactly the right order.
+The more we add (and we always end up adding 
+more as the requirements for objects grow), 
+the harder this is to read.
+So the problem we’re highlighting here is that we have a heck of  a lot of  
+parameters in the Car constructor, making it difficult to read and maintain. It’s 
+also difficult to write code to call this constructor. While that might seem like a 
+minor inconvenience, it actually causes more bugs than you might think, and 
+not only that, they’re often nasty bugs that are hard to diagnose at first.
+However, there is a common technique that we can use when passing all these 
+arguments that can be used for any function, whether or not it’s a constructor. 
+The technique works like this: take all your arguments, throw them in an object 
+literal, and then pass that literal to your function—that way you’re passing all 
+your values in one container (the literal object) and you don’t have worry about 
+matching the order of  your arguments and parameters.
+Let’s rewrite the code to call the Car constructor, and then do a slight rework of  
+the constructor code to see how this works.
+They're hard to diagnose because 
+if you switch two variables, the 
+code is still syntactically correct, 
+but it doesn't function correctly 
+because you've switched two values.
+Or if you leave out a value, all 
+kinds of craziness can ensue!
+
+540        Chapter    12
+using an object literal for arguments
+Rewiring the arguments 
+as an object literal
+Let’s take the call to the Car constructor and rework its arguments 
+into an object literal:
+var cadi = new Car("GM", "Cadillac", 1955, "tan", 5, false, 12892);
+var cadiParams = {make: "GM", 
+                  model: "Cadillac", 
+                  year: 1955, 
+                  color: "tan", 
+                  passengers: 5, 
+                  convertible: false, 
+                  mileage: 12892};
+All you need to do is take each argument and place it in 
+an object literal with an appropriate property name. We 
+use the same property names used in the constructor.
+And then we can rewrite the call to the Car constructor like this:
+var cadi = new Car(cadiParams);
+var cadiParams = {make: "GM", 
+                  model: "Cadillac", 
+                  year: 1955, 
+                  color: "tan", 
+                  passengers: 5, 
+                  convertible: false, 
+                  mileage: 12892};
+Wow, talk about a makeover. 
+Not only is this much cleaner, 
+it's a lot more readable, at 
+least in our humble opinion. 
+But we’re not done yet because the constructor itself  is still 
+expecting seven arguments, not one object. Let’s rework the 
+constructor code, and then we’ll give this a test.
+We’ve kept the same 
+order, but there is no 
+reason you’d have to.
+Now we’re passing a single argument to the Car constructor.
+
+you are here 4        541
+advanced object construction
+var cadiParams = {make: "GM", 
+                  model: "Cadillac", 
+                  year: 1955, 
+                  color: "tan", 
+                  passengers: 5, 
+                  convertible: false, 
+                  mileage: 12892};
+var cadi = new Car(cadiParams);
+function Car(params) {
+    this.make = params.make;
+    this.model = params.model;
+    this.year = params.year;
+    this.color = params.color;
+    this.passengers = params.passengers;
+    this.convertible = params.convertible;
+    this.mileage = params.mileage;
+    this.started = false;
+    this.start = function() {
+        this.started = true;
+    };     
+    this.stop = function() {
+        this.started = false;
+    };    
+    this.drive = function() {
+        if (this.started) {
+            alert("Zoom zoom!");
+        } else {
+            alert("You need to start the engine first.");
+        }      
+    };
+}
+Reworking the Car constructor
+Now you need to remove all the individual parameters in the Car 
+constructor and replace them with properties from the object that 
+we’re passing in. We’ll call that parameter params. You also need to 
+rework the code a bit to use this object. Here’s how:
+Then for each reference to a 
+parameter, we substitute the 
+corresponding property from the 
+object passed into the function.
+In our methods we never use a parameter directly. It 
+wouldn't make sense to because we always want to use 
+the object's properties (which we do using the 
+this
+ 
+variable). So, no changes are needed to this code at all.
+First things first. We’ll replace the seven 
+parameters of the Car constructor with one 
+parameter, for the object we’re passing in.
+No changes here, we've just 
+reproduced the object literal and 
+the call to the Car constructor 
+from the previous page.
+Test drive
+Update the cadi and all 
+your other cars, and test 
+your code.
+cadi.start();
+cadi.drive();
+cadi.drive();
+cadi.stop();
+
+542        Chapter    12
+questions about type
+Copy the Car and Dog constructors into one file, and then add the code 
+below along with it. Give this a run and capture the output.
+var limoParams = {make: "Webville Motors",
+                  model: "limo",
+                  year: 1983,
+                  color: "black",
+                  passengers: 12,
+                  convertible: true,
+                  mileage: 21120};
+var limo = new Car(limoParams);
+var limoDog = new Dog("Rhapsody In Blue", "Poodle", 40);
+console.log(limo.make + " " + limo.model + " is a " + typeof limo);
+console.log(limoDog.name + " is a " + typeof limoDog);
+Put the output here.
+Q:
+ Remind me what typeof does again?
+A:
+ The typeof operator returns the type of its operand. If you pass 
+it a string you’ll get back “string”, if you pass it an object you’ll get 
+back “object” and so on. You can pass it any type: a number, a string, 
+a boolean, or a more complex type like an object or function. But 
+typeof can’t be more specific and tell you the object is a dog or a car. 
+Q:
+ So if typeof can’t tell me that my object is a dog or car, 
+how do I determine what is what?
+A: Many other object-oriented languages, like Java or C++,  
+have a strong notion of object typing. In those languages you can 
+examine an object and determine exactly what type of object it 
+is. But, JavaScript treats objects and their types in a looser, more 
+dynamic way. Because of this, many developers have jumped to the 
+conclusion that JavaScript has a less powerful object system, but 
+the truth is, its object system is actually more general and flexible. 
+Because JavaScript’s type system is more dynamic, it’s a little more 
+difficult to determine if an object is a dog or a car, and it depends 
+on what you think a dog is or a car is. However, we have another 
+operator that can give us a little more information... so continue 
+reading.
+Say someone handed you an object and you wanted to know 
+what type of object it was (is it a Car? a Dog? Superman?), or you 
+wanted to see if it was the same type as another object. Would the 
+typeof operator be helpful?
+You’ll find the Dog constructor 
+on page 530.
+
+you are here 4        543
+advanced object construction
+Understanding Object Instances
+You can’t look at a JavaScript object and determine that it is an object of  a specific type, like 
+a dog or a car. In JavaScript, objects are dynamic structures, and the type of  all objects is just 
+“object,” no matter what properties and methods it has. But we can get some information about 
+an object if  we know the constructor that created the object.
+Remember that each time you call a constructor using the new operator, you are creating a 
+new instance of  an object. And, if  you used, say, the Car constructor to do that, then we say, 
+informally, that the object is a car. More formally, we say that object is an instance of a Car. 
+Instance 1
+Instance 2
+Instance 3
+Now saying an object is an instance of  some constructor is more than just talk. We can 
+actually write code to inspect the constructor that made an object with the instanceof 
+operator. Let’s look at some code:
+You can think of these cars as 
+being the same kind of object 
+because they all were created by 
+the same constructor.
+As you know, each instance can have its own unique set of 
+property values, but we think of all the objects created 
+from the Car constructor as instances of Car.
+var cadiParams = {make: "GM", model: "Cadillac", year: 1955, color: "tan", 
+                  passengers: 5, convertible: false, mileage: 12892};
+var cadi = new Car(cadiParams);
+if (cadi instanceof Car) {
+    console.log("Congrats, it's a Car!");
+};
+It’s a bit more complicated than we’re describing here,  
+but we’ll talk about that in the next chapter.
+As it turns out, one of  the things the new operator does behind the scenes when the object 
+is created is to store information that allows it to determine, at any time, the constructor 
+that created the object. And instanceof uses that to determine if  an object is an 
+instance of  a certain constructor. 
+The instanceof operator returns true if the object 
+was created by the specified constructor. 
+In this case we're saying “Is the cadi object an 
+instance that was created by the Car constructor?”
+JavaScript console
+Congrats, it's a Car!
+
+544        Chapter    12
+exercise for instanceof
+We need a function named dogCatcher that returns true if the object passed to it is a dog, 
+and false otherwise. Write that function and test it with the rest of the code below. Don’t 
+forget to check your answer at the end of the chapter before you go on!
+function dogCatcher(obj) {
+}
+Add your code here 
+to implement the 
+dogCatcher function.
+And here's your test code.
+function Cat(name, breed, weight) {
+    this.name = name;
+    this.breed = breed;
+    this.weight = weight;
+}
+var meow = new Cat("Meow", "Siamese", 10); 
+var whiskers = new Cat("Whiskers", "Mixed", 12); 
+var fido = {name: "Fido", breed: "Mixed", weight: 38}; 
+function Dog(name, breed, weight) {
+    this.name = name;
+    this.breed = breed;
+    this.weight = weight;
+    this.bark = function() {
+        if (this.weight > 25) {
+            alert(this.name + " says Woof!");
+        } else {
+            alert(this.name + " says Yip!");
+        }
+    };
+}
+var fluffy = new Dog("Fluffy", "Poodle", 30);
+var spot = new Dog("Spot", "Chihuahua", 10);
+var dogs = [meow, whiskers, fido, fluffy, spot];
+for (var i = 0; i < dogs.length; i++) {
+    if (dogCatcher(dogs[i])) {
+        console.log(dogs[i].name + " is a dog!");
+    }
+}
+
+you are here 4        545
+advanced object construction
+So an object is a dog if it was 
+created with a Dog constructor, 
+and not otherwise?
+Yes, that’s how it works. JavaScript doesn’t 
+have a strong sense of  an object’s type, so if  you need to 
+compare objects to see if  they are both cats or both dogs, 
+you check to see if  they were constructed the same way—
+that is, with the same constructor function. As we’ve said, 
+a cat is a cat if  it was created by the Cat constructor, and a 
+dog is a dog if  it was created by the Dog constructor. 
+Now in the next chapter you’re going to see JavaScript 
+constructors and objects are even more flexible than we’ve 
+already seen. For instance, we might have an object that 
+was created with a Taxi constructor, and yet we know that 
+it is also a car. But for now, just stash that idea in the back 
+of  your brain and we’ll come back to it later.
+
+546        Chapter    12
+changing an object created with a constructor
+Even constructed objects can have  their 
+own independent properties
+We ’ve talked a lot about how to use constructors to create consistent objects—
+objects that have the same set of  properties and the same methods. But what we 
+haven’t mentioned is that using constructors still doesn’t prevent us from changing 
+an object into something else later, because after an object has been created by a 
+constructor, it can be altered.
+What exactly are we talking about? Remember when we introduced object 
+literals? We looked at how we could add and delete properties after the object was 
+created. You can do the same with objects created from constructors:
+var fido = new Dog("Fido", "Mixed", 38);
+fido.owner = "Bob";
+delete fido.weight;
+We can add a new property just by 
+assigning it a value in our object.
+Here's our dog Fido, created 
+with the Dog constructor.
+Or we can get rid of a property by 
+using the delete operator.
+You can even add new methods if  you like:
+fido.trust = function(person) {
+                    return (person === "Bob");
+              };
+To add a method just assign the method 
+to a new property name in the object.
+Anonymous function alert! 
+See, they're everywhere!
+Notice that here we’re changing only the ido object. If  we add a method 
+to ido, only ido has that method. No other dogs have it:
+This code works because trust is defined in 
+the fido object. So notBite is true.
+var notBite = fido.trust("Bob");
+var spot = new Dog("Spot", "Chihuahua", 10);
+notBite = spot.trust("Bob");
+This code doesn't work because spot doesn't have 
+a method trust, resulting in: “TypeError: Object 
+#<Dog> has no method ‘trust’"
+
+you are here 4        547
+advanced object construction
+So if I change a car 
+object after I create it, 
+is it still a car?
+Yes, a car is still a car, even if you change it later. 
+And what we mean by that is if  you check to see if  your object is still 
+an instance of  Car, it will be. For instance, if  we create a car object: 
+var cadiParams = {make: "GM", model: "Cadillac", 
+                  year: 1955, color: "tan", 
+                  passengers: 5, convertible: false, 
+                  mileage: 12892};
+var cadi = new Car(cadiParams); 
+We can add a new property chrome and delete the property 
+convertible: 
+    cadi.chrome = true;
+    delete cadi.convertible; 
+ and yet, the cadi is still a car:
+        cadi instanceof Car 
+Now is it really a car in practical terms? What if  we deleted every 
+property in the object? Would it still be a car? The instanceof 
+operator would tell us yes. But judging by our own terms, probably not.
+Chances are, you won’t often want to use a constructor to create an 
+object and then later change it into something that’s unrecognizable 
+as an object created by that constructor. In general, you’ll use 
+constructors to create objects that are fairly consistent. But if  you need 
+objects that are more flexible, well, JavaScript can handle that. It’s your 
+job as a code designer to decide how to use constructors and objects in 
+a way that makes sense for you (and don’t forget your coworkers).
+Evaluates to true.
+This is what we 
+meant earlier 
+when we said that 
+JavaScript has 
+a dynamic type 
+system.
+
+548        Chapter    12
+the date object
+Real World Constructors
+JavaScript comes with a set of  constructors for instantiating some handy 
+objects—like objects that know how to deal with dates and times, objects 
+that are great at finding patterns in text, and even objects that will give you 
+a new perspective on arrays. Now that you know how constructors work, 
+and also how to use the new keyword, you’re in a great position to make use 
+of  these constructors, or more importantly the objects they create. Let’s just 
+take a quick dip into a couple, and then you’ll be all ready to go out and 
+explore them on your own.
+Let’s start with JavaScript’s built-in date object. To get one we just use its 
+constructor:
+Calling the Date constructor gives you back an instance of  Date that 
+represents the current local date and time. With a date object in hand, you 
+can then use its methods to manipulate dates (and times) and also retrieve 
+various properties of  a date and time. Here are a few examples:
+You can easily create date objects representing any date and time by passing 
+additional arguments to the Date constructor. For instance, say you need a 
+date object representing “May 1, 1983”, you can do that with:
+And you can get even more specific by including a time:
+We are, of  course, just giving you a flyby of  the date object; you’ll want to 
+check out its full set of  properties and methods in JavaScript: The Deinitive 
+Guide.
+You can pass a simple date string 
+to the constructor like this.
+Returns a string that represents 
+the date, like “Thu Feb 06 2014 
+17:29:29 GMT-0800 (PST)”.
+Returns the year in the date.
+var now = new Date();
+var dateString = now.toString();
+var theYear = now.getFullYear();
+var theDayOfWeek = now.getDay();
+Creates a new date representing 
+the current date and time.
+Returns a number for the day of the week 
+represented by the date object, like 1 (for Monday).
+var birthday = new Date("May 1, 1983");
+var birthday = new Date("May 1, 1983 08:03 pm");
+Now, we’re including a 
+time in the string too.
+These built-in objects 
+really save me time. Heck, these 
+days I get home early enough to 
+watch a little “Golden Girls.” 
+
+you are here 4        549
+advanced object construction
+The Array object
+Next up, another interesting built-in object: the array object. While we’ve been 
+creating arrays using the square bracket notation [1, 2, 3], you can create arrays using  
+a constructor too:
+Here, we’re creating a new, empty array object. And at any time we can add items to 
+it, like this:
+We can also create array objects that have a specific size. Say we want an array with 
+three items:
+Here we’ve created an array of  length three. Initially the three items in oddNumbers 
+are undefined, but we then set each item in the array to a value. You could easily add 
+more items to the array if  you wanted.
+None of  this should be shockingly different than what you’re used to. Where the array 
+object gets interesting is in its set of  methods. You already know about array’s sort 
+method, and here are a few other interesting ones:
+Again, that’s just the tip of  the iceberg, so take a look at JavaScript: The Deinitive Guide 
+to fully explore the array object. You’ve got all the knowledge you need to take it on.
+Creates an empty array 
+with length zero.
+This should look familiar. This is the same 
+way we’ve always added items to an array.
+var emptyArray = new Array();
+var oddNumbers = new Array(3);
+oddNumbers[0] = 1;
+oddNumbers[1] = 3;
+oddNumbers[2] = 5;
+emptyArray[0] = 99;
+oddNumbers.reverse();
+var aString = oddNumbers.join(" - ");
+var areAllOdd = oddNumbers.every(function(x) { 
+    return ((x % 2) !== 0); 
+});
+We create an array of length 
+three, and fill it in with values 
+after we create it.
+This reverses all the values in the array (so we have 5, 3, 1 in 
+oddNumbers now). Notice, the method changes the original array.
+The join method creates a string from the values in 
+oddNumbers placing a “  - ” between the values, and returns 
+that string. So this returns the string “5  - 3 - 1”.
+The every method takes a function and tests each 
+value of the array to see if the function returns 
+true or false when called on that value. If the 
+function returns true for all the array items, then 
+the result of the every method is true.
+
+550        Chapter    12
+two ways to create arrays
+Good catch. The bracket notation, [ ], that you’ve been using to create 
+arrays is actually just a shorthand for using the Array constructor directly. 
+Check out these two equivalent ways of  creating empty arrays:
+Back up the bus. Up until 
+now we’ve been creating arrays 
+in a totally different way. 
+var items = [];
+var items = new Array();
+var n = getNumberOfWidgetsFromDatabase();
+var widgets = new Array(n);
+for(var i=0; i < n; i++) {
+    widgets[i] = getDatabaseRecord(i);
+}
+These do the same thing. The 
+bracket notation is supported in the 
+JavaScript language to make your life 
+easier when creating arrays.
+Likewise, if  you write code like this:
+var items = ["a", "b", "c"];
+That’s just a shorthand for using the constructor in another way:
+var items = new Array("a", "b", "c");
+If you pass more than one argument, this 
+creates an array holding the values you pass it.
+And, the objects created from the literal notation or by using the constructor 
+directly are the same, so you can use methods on either one. 
+You might be asking why you’d ever use the constructor rather than the 
+literal notation. The constructor comes in handy when you need to create 
+an array of  a specific size you determine at runtime, and then add items to it 
+later, like this:
+We call this array literal 
+syntax.
+This code presumably 
+uses big arrays that we 
+won't know the size of 
+until runtime. 
+So, for creating a quick array, using the array literal syntax to create your 
+array objects works wonderfully, but using the Array constructor might make 
+sense when you’re creating the array programmatically. You can use either or 
+both as much as you want.
+
+you are here 4        551
+advanced object construction
+Q:
+ I’m confused by how the Date and

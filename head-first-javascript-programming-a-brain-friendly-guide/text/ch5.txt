@@ -1,0 +1,637 @@
+A: You sure can, just don’t match the 
+keyword exactly. It’s also good to write clear 
+code, so in general you wouldn’t want to 
+use something like elze, which might be 
+confused with else.
+Q:
+ Is JavaScript case sensitive? 
+In other words, are myvariable and 
+MyVariable the same thing?
+A: If you’re used to HTML markup you 
+might be used to case insensitive languages; 
+after all, <head> and <HEAD> are treated 
+the same by the browser. With JavaScript 
+however, case matters for variables, 
+keywords, function names and pretty much 
+everything else, too. So pay attention to your 
+use of upper- and lowercase.
+break
+case
+catch
+class
+const
+continue
+debugger
+default
+delete
+do
+else
+enum
+export
+extends
+false
+finally
+for
+function
+if
+implements
+import
+in
+instanceof
+interface
+let
+new
+package
+private
+protected
+public
+return
+static
+super
+switch
+this
+throw
+true
+try
+typeof
+var
+void
+while
+with
+yield
+
+you are here 4        13
+a quick dip into javascript
+ Each statement ends in a semicolon. 
+x = x + 1;
+ A single line comment begins with two forward 
+slashes. Comments are just notes to you or other 
+developers about the code.They aren’t executed. 
+// I'm a comment
+ Whitespace doesn’t matter (almost everywhere). 
+x     =     2233;
+ Surround strings of characters with double quotes 
+(or single, both work, just be consistent). 
+"You rule!" 
+'And so do you!'
+ Don’t use quotes around the boolean values true 
+and false. 
+rockin = true;
+ Variables don’t have to be given a value when 
+they are declared: 
+var width;
+ JavaScript, unlike HTML markup, is case 
+sensitive, meaning upper- and lowercase matters. 
+The variable counter is different from the 
+variable Counter. 
+Syntax Fun
+You’ve got a lot of flexibility in 
+choosing your variable names, so here 
+are a few Webville tips to make your 
+naming easier:
+Choose names that mean something. 
+Variable names like _m, $, r and foo 
+might mean something to you but they 
+are generally frowned upon in Webville. 
+Not only are you likely to forget them 
+over time, your code will be much 
+more readable with names like angle, 
+currentPressure and passedExam.
+ 
+ 
+ 
+ 
+Use “camel case” when creating 
+multiword variable names. 
+At some point 
+you’re going to have to 
+decide how you name a variable that 
+represents, say, a two-headed dragon 
+with fire. How? Just use camel case, 
+in which you capitalize the first letter 
+of each word (other than the first): 
+twoHeadedDragonWithFire. Camel 
+case is easy to form, widely spoken 
+in Webville and gives you enough 
+flexibility to create as specific a 
+variable name as you need. There are 
+other schemes too, but this is one of 
+the more commonly used (even beyond 
+JavaScript).
+Use variables that begin with _ and $ 
+only with very good reason. 
+Variables that begin with 
+$ are 
+usually 
+reserved for JavaScript 
+libraries and while some authors use 
+variables beginning
+ with _ for various 
+conventions, we recommend you stay 
+away from both unless you have very 
+good reason (you’ll know if you do).
+Be safe. 
+Be safe in your variable naming; we’ll 
+cover a few more tips for staying 
+safe later in the book, but for now be 
+clear in your naming, avoid keywords, 
+and always use var when declaring a 
+variable.
+WEBVILLE 
+T I M E S
+How to avoid those embarassing naming mistakes
+
+14        Chapter    1
+syntax exercise
+Below, you’ll find JavaScript code 
+with some mistakes in it. Your 
+job is to play like you’re the 
+browser and find the errors in 
+the code. After you’ve 
+done the exercise 
+look at the end of 
+the chapter to see if 
+you found them all.
+// Test for jokes
+var joke = "JavaScript walked into a bar....';
+var toldJoke = "false";
+var $punchline = 
+  "Better watch out for those semi-colons."
+var %entage = 20;
+var result
+if (toldJoke == true) {
+    Alert($punchline);
+} else 
+    alert(joke);
+}
+\\ Movie Night
+var zip code = 98104;
+var joe'sFavoriteMovie = Forbidden Planet;
+var movieTicket$    =    9;
+if (movieTicket$ >= 9) { 
+    alert("Too much!"); 
+} else {
+    alert("We're going to see " + joe'sFavoriteMovie);
+}
+A
+B
+BE the Browser
+Don't worry too much about what this 
+JavaScript does for now; just focus on 
+looking for errors in variables and syntax.
+
+you are here 4        15
+a quick dip into javascript
+Express yourself
+var total = price - (price * (discount / 100));
+Here’s a JavaScript statement that assigns the result of 
+evaluating an expression to the variable total.
+And this whole thing is an expression.
+Here’s our 
+variable total.
+And the 
+assignment.
+To truly express yourself  in JavaScript you need expressions. 
+Expressions evaluate to values. You’ve already seen a few in passing in 
+our code examples. Take the expression in this statement for instance:
+This expression evaluates 
+to a price reduced by 
+a discount that is a 
+percent of the price. So 
+if your price is 10 and the 
+discount is 20, we get 8 
+as a result.
+If  you’ve ever taken a math class, balanced your checkbook or done your 
+taxes, we’re sure these kinds of  numeric expressions are nothing new. 
+There are also string expressions; here are a few:
+"Dear " + "Reader" + ","
+"super" + "cali" + youKnowTheRest
+phoneNumber.substring(0,3)
+We also have expressions that evaluate to true or false, otherwise 
+known as boolean expressions. Work through each of  these to see how 
+you get true or false from them:
+age < 14
+cost >= 3.99
+animal == "bear"
+And expressions can evaluate to a few other types; we’ll get to these 
+later in the book. For now, the important thing is to realize all these 
+expressions evaluate to something: a value that is a number, a string or 
+a boolean. Let’s keep moving and see what that gets you!
+This adds together, or concatenates, these strings to 
+form a new string “Dear Reader,”.
+Same here, except we have a variable that 
+contains a string as part of the expression. This 
+evaluates to “supercalifragilisticexpialidocious”.
+Just another example of an expression that results in a string.  
+We’ll get to exactly how this works later, but this returns the 
+area code of a US phone number string.
+*
+*
+Of course, that is assuming the variable youKnowTheRest is “fragilisticexpialidocious”.
+If a person’s age is less than 14 this is true, otherwise it is false.  
+We could use this to test if someone is a child or not.
+If the cost is 3.99 or greater, this is true. Otherwise it’s 
+false. Get ready to buy on sale when it’s false!
+This is true when animal contains the string “bear”. If it does, beware!
+We use * for multiply 
+and / for divide.
+
+16        Chapter    1
+expressions exercise
+(9 / 5) * temp + 32
+color == "orange"
+name + ", " + "you've won!"
+yourLevel > 5
+(level * points) + bonus
+color != "orange"
+1000 + "108"
+What is the result when temp is 10?  __________
+Is this expression true or false when color has the value 
+“pink”?   __________  
+Or has the value “orange”?   __________
+What value does this compute to when name is “Martha”?   
+_____________________________________
+When yourLevel is 2, what does this evaluate to?   ________
+When yourLevel is 5, what does this evaluate to?   ________
+When yourLevel is 7, what does this evaluate to?   ________
+Okay, level is 5, points is 30,000 and bonus is 3300. What 
+does this evaluate to?   ________
+Is this expression true or false when color has the value 
+“pink”?   __________
+Get out your pencil and put some expressions through their paces. For each expression below, compute its 
+value and write in your answer. Yes, WRITE IN... forget what your Mom told you about writing in books and 
+scribble your answer right in this book!  Be sure to check your answers at the end of the chapter.
+Serious Coding
+Did you notice that the = 
+operator is used in assignments, 
+while the == operator tests for equality?  
+That is, we use one equal sign to assign 
+values to variables.  We use two equal 
+signs to test if two values are equal to 
+each other. Substituting one for the other 
+is a common coding mistake.
+Can you say “Celsius to Fahrenheit calculator”?
+This tests if the first 
+value is greater than the 
+second.  You can also use 
+>= to test if the first 
+value is greater than or 
+equal to the second.
+The != operator tests if two values 
+are NOT equal to each other.
+Extra CREDIT!
+Are there a few possible answers? 
+Only one is correct. Which would you 
+choose?  ______________________
+This is a boolean expression. The 
+== operator tests if two values 
+are equal to each other.
+
+you are here 4        17
+a quick dip into javascript
+while (scoops > 0) {
+   document.write("Another scoop!");
+   scoops = scoops - 1;
+}
+Doing things more than once
+You do a lot of  things more than once:
+Lather, rinse, repeat...
+Wax on, wax off...
+Eat candies from the bowl until they’re all gone.
+Of  course you’ll often need to do things in code more than once, and 
+JavaScript gives you a few ways to repeatedly execute code in a loop: while, 
+for, for in and forEach. Eventually, we’ll look at all these ways of  looping, 
+but let’s focus on while for now.
+We just talked about expressions that evaluate to boolean values, like  
+scoops > 0, and these kinds of  expressions are the key to the while 
+statement. Here’s how:
+while (juggling) {
+    keepBallsInAir(); 
+}
+While uses a boolean expression 
+that we call a conditional test, or 
+conditional for short.
+A while statement starts 
+with the keyword while.
+If  the conditional is true, 
+everything in the code 
+block is executed.
+What’s a code block? 
+Everything between the curly 
+braces; that is, between  { }.
+And, if  our conditional is true, then, 
+after we execute the code block, we 
+loop back around and do it all again. If  
+the conditional is false, we’re done.
+Like we said, lather, rinse, repeat!
+
+18        Chapter    1
+javascript iteration
+Seeing as this is your first while loop, let’s trace through a round of  its execution 
+to see exactly how it works.  Notice we’ve added a declaration for scoops to 
+declare it, and initialize it to the value 5.
+How the while loop works
+var scoops = 5;
+while (scoops > 0) {
+   document.write("Another scoop!<br>");
+   scoops = scoops - 1;
+}
+document.write("Life without ice cream isn't the same");
+var scoops = 5;
+while (scoops > 0) {
+   document.write("Another scoop!<br>");
+   scoops = scoops - 1;
+}
+document.write("Life without ice cream isn't the same");
+After that we hit the while statement.  When we evaluate a while 
+statement the first thing we do is evaluate the conditional to see if  
+it’s true or false.
+Is scoops greater 
+than zero? Looks 
+like it to us!
+Now let’s start executing this code. First we set scoops to five.
+Because the conditional is true, we start executing the block of  code. 
+The first statement in the body writes the string “Another scoop! <br>” 
+to the browser. 
+var scoops = 5;
+while (scoops > 0) {
+   document.write("Another scoop!<br>");
+   scoops = scoops - 1;
+}
+document.write("Life without ice cream isn't the same");
+
+you are here 4        19
+a quick dip into javascript
+var scoops = 5;
+while (scoops > 0) {
+   document.write("Another scoop!<br>");
+   scoops = scoops - 1;
+}
+document.write("Life without ice cream isn't the same");
+The next statement subtracts one from the number of  
+scoops and then sets scoops to that new value, four.
+1 scoop gone, 
+4 left!
+That’s the last statement in the block, so we loop back up 
+to the conditional and start over again.
+var scoops = 5;
+while (scoops > 0) {
+   document.write("Another scoop!<br>");
+   scoops = scoops - 1;
+}
+document.write("Life without ice cream isn't the same");
+var scoops = 5;
+while (scoops > 0) {
+   document.write("Another scoop!<br>");
+   scoops = scoops - 1;
+}
+document.write("Life without ice cream isn't the same");
+Evaluating our conditional again, this time scoops is four. But 
+that’s still more than zero.
+Still plenty left!
+Once again we write the string “Another scoop! <br>” to the browser. 
+var scoops = 5;
+while (scoops > 0) {
+   document.write("Another scoop!<br>");
+   scoops = scoops - 1;
+}
+document.write("Life without ice cream isn't the same");
+
+20        Chapter    1
+javascript while loop
+var scoops = 5;
+while (scoops > 0) {
+   document.write("Another scoop!<br>");
+   scoops = scoops - 1;
+}
+document.write("Life without ice cream isn't the same");
+The next statement subtracts one from the number of  
+scoops and sets scoops to that new value, which is three.
+2 scoops gone, 
+3 left!
+That’s the last statement in the block, so we loop back up 
+to the conditional and start over again.
+var scoops = 5;
+while (scoops > 0) {
+   document.write("Another scoop!<br>");
+   scoops = scoops - 1;
+}
+document.write("Life without ice cream isn't the same");
+var scoops = 5;
+while (scoops > 0) {
+   document.write("Another scoop!<br>");
+   scoops = scoops - 1;
+}
+document.write("Life without ice cream isn't the same");
+Evaluating our conditional again, this time scoops is three. But 
+that’s still more than zero.
+Still plenty left!
+Once again we write the string “Another scoop! <br>” to the browser. 
+var scoops = 5;
+while (scoops > 0) {
+   document.write("Another scoop!<br>");
+   scoops = scoops - 1;
+}
+document.write("Life without ice cream isn't the same");
+
+you are here 4        21
+a quick dip into javascript
+var scoops = 5;
+while (scoops > 0) {
+   document.write("Another scoop!<br>");
+   scoops = scoops - 1;
+}
+document.write("Life without ice cream isn't the same");
+And as you can see, this continues... each time we 
+loop, we decrement (reduce scoops by 1), write 
+another string to the browser, and keep going.
+3 scoops gone, 
+2 left!
+var scoops = 5;
+while (scoops > 0) {
+   document.write("Another scoop!<br>");
+   scoops = scoops - 1;
+}
+document.write("Life without ice cream isn't the same");
+And continues...
+4 scoops gone, 1 left!
+var scoops = 5;
+while (scoops > 0) {
+   document.write("Another scoop!<br>");
+   scoops = scoops - 1;
+}
+document.write("Life without ice cream isn't the same");
+Until the last time... this time something’s different. Scoops 
+is zero, and so our conditional returns false. That’s it folks; 
+we’re not going to go through the loop anymore, we’re not 
+going to execute the block. This time, we bypass the block 
+and execute the statement that follows it.
+5 scoops gone, 0 left!
+var scoops = 5;
+while (scoops > 0) {
+   document.write("Another scoop!<br>");
+   scoops = scoops - 1;
+}
+document.write("Life without ice cream isn't the same");
+Now we execute the other document.write, and write the 
+string “Life without ice cream isn’t the same”. We’re done!
+
+22        Chapter    1
+javascript conditionals
+You’ve just seen how you use a conditional to decide whether to continue looping in a 
+while statement. You can also use boolean expressions to make decisions in JavaScript 
+with the if statement. The if statement executes its code block only if  a conditional test 
+is true. Here’s an example:
+if (scoops < 3) {
+   alert("Ice cream is running low!");
+} 
+This conditional tests to see if we’re down 
+to fewer than three scoops. 
+Making decisions with JavaScript
+if (cashInWallet > 5)  {
+   order = “I’ll take the works: cheeseburger, fries and a coke”;
+} else {
+   order = “I’ll just have a glass of water”;
+}
+And if we’ve got fewer than three left, then 
+we execute the if statement’s code block.
+With an if statement we can also string together multiple tests by adding on one or more 
+else if’s, like this:
+if (scoops >= 5) {
+   alert("Eat faster, the ice cream is going to melt!");
+} else if (scoops < 3) {
+   alert("Ice cream is running low!");
+}
+Add as many tests with “else if” as you need, each 
+with its own associated code block that will be 
+executed when the condition is true. 
+Here’s the if keyword, followed by a conditional 
+and a block of code.
+alert takes a string and displays it in a popup dialog in your 
+browser. Give it a try! 
+We can have one test, and then 
+another test with if/else if
+
+you are here 4        23
+a quick dip into javascript
+You can string together as many if/else statements as you need, and if  you want one, even a 
+final catch-all else, so that if  all conditions fail, you can handle it. Like this:
+And, when you need to make LOTS of decisions
+if (scoops >= 5) {
+   alert("Eat faster, the ice cream is going to melt!");
+} else if (scoops == 3) {
+   alert("Ice cream is running low!");
+} else if (scoops == 2) {
+   alert("Going once!");
+} else if (scoops == 1) {
+   alert("Going twice!");
+} else if (scoops == 0) {
+   alert("Gone!");
+} else {
+   alert("Still lots of ice cream left, come and get it.");
+}
+In this code we check to see if there are 
+five or more scoops left...
+And if none of the conditions above are 
+true, then this code is executed.
+...or if there are 2, 1 or 0, and then 
+we provide the appropriate alert.
+...or if there are precisely three left...
+Q:
+ What exactly is a block of code?
+A: Syntactically, a block of code (which 
+we usually just call a block) is a set of 
+statements, which could be one statement, 
+or as many as you like, grouped together 
+between curly braces. Once you’ve got a 
+block of code, all the statements in that 
+block are treated as a group to be executed 
+together. For instance, all the statements 
+within the block in a while statement are 
+executed if the condition of the while is true. 
+The same holds for a block in an if or else if. 
+ 
+ 
+Q: I’ve seen code where the 
+conditional is just a variable that is 
+sometimes a string, not a boolean. How 
+does that work? 
+A: We’ll be covering that a little later, 
+but the short answer is JavaScript is quite 
+flexible in what it thinks is a true or false 
+value. For instance, any variable that holds 
+a (non-empty) string is considered true, but 
+a variable that hasn’t been set to a value is 
+considered false. We’ll get into these details 
+soon enough.
+Q:
+ You’ve said that expressions can 
+result in things other than numbers, 
+strings and booleans. Like what?
+A:   Right now we’re concentrating on 
+what are known as the primitive types, that 
+is, numbers, strings and booleans. Later 
+we’ll take a look at more complex types, 
+like arrays, which are collections of values, 
+objects and functions.
+Q:
+ Where does the name boolean 
+come from?
+A:   Booleans are named after George 
+Boole, an English mathematician who 
+invented Boolean logic. You’ll often see 
+boolean written “Boolean,” to signify that 
+these types of variables are named after 
+George.
+
+24        Chapter    1
+code magnets coding exercise
+Code Magnets
+A JavaScript program is all scrambled up on the fridge. Can you put the magnets back in the 
+right places to make a working JavaScript program to produce the output shown below?. 
+Check your answer at the end of the chapter before you go on.
+var name = "Joe";
+Your unscrambled program 
+should produce this output.
+Arrange these magnets to make a 
+working JavaScript program.
+Use this space for your 
+re-arranged magnets.
+var i = 0;
+while (i < 2) {
+document.write("Happy Birthday to you.<br>");
+i = i + 1;
+}
+document.write("Happy Birthday to you.<br>");
+document.write("Happy Birthday dear " + name + ",<br>");
+
+you are here 4        25
+a quick dip into javascript
+We’re using these three 
+methods in this chapter.
+As you’ve seen, the browser gives you a quick way to alert your 
+users through the alert function. Just call alert with a string 
+containing your alert message, and the browser will give your 
+user the message in a nice dialog box.  A small confession though: 
+we’ve been overusing this because it’s easy; alert really should 
+be used only when you truly want to stop everything and let the 
+user know something.
+We’ve been talking about making your pages more interactive, 
+and to do that you need to be able to communicate with your user. 
+As it turns out there are a few ways to do that, and you’ve already 
+seen some of  them. Let’s get a quick overview and then we’ll dive 
+into these in more detail throughout the book:
+Reach out and communicate with your user
+Every JavaScript environment also has a console that can log messages 
+from your code. To write a message to the console’s log you use the 
+function console.log and hand it a string that you’d like printed to 
+the log (more details on using console log in a second).  You can view 
+console.log as a great tool for troubleshooting your code, but typically 
+your users will never see your console log, so it’s not a very effective way 
+to communicate with them.
+Use the console.
+Write directly into your document.
+Create an alert.
+Think of your web  page as a document (that’s what the browser calls it). 
+You can use a function document.write to write arbitrary HTML and 
+content into your page at any point. In general, this is considered bad

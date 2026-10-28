@@ -1,0 +1,594 @@
+Chapter 2.
+ ❏Use an array with an item for each cell in 
+entire board (49 items total). Record the ship 
+number in each cell that holds part of a ship.
+ ❏Use an array to hold all nine locations. Items 
+0-2 will hold the first ship, 3-5 the second, and 
+so on. 
+ 
+ 
+ ❏Use three different arrays, one for each ship, 
+with three locations  contained in each. 
+ ❏Use an object named ship with three location 
+properties. Put all the ships in an array named 
+ships.
+ ❏______________________________________ 
+______________________________________ 
+______________________________________
+Or write in your own answer.
+Any of these solutions could work! (In fact 
+we tried each one when we were figuring 
+out the best way to do it.) This is the one 
+we use in the chapter.
+
+1
+S
+2
+ETATTRIBUTE
+O
+3
+N
+B
+4
+AC
+
+GROUNDC
+5
+JLD
+6
+O
+
+
+7
+ILE
+EENI
+CJ
+8
+AVASCRI
+9
+PTT
+TNR
+DO
+10
+BJECT
+C
+11
+ELL
+XL
+O
+12
+V
+13
+ER
+14
+LAP
+F
+15
+IRE
+ETM
+16
+
+UM
+17
+ODEL
+RD
+C
+18
+ONSOLE
+L
+JavaScript 
+cross 
+solution
+
+378        Chapter    8
+exercise solutions
+var ships = [{ locations: ["06", "16", "26"], hits: ["hit", "hit", "hit"] },
+             { locations: ["24", "34", "44"], hits: ["hit", "hit", "hit"] },
+             { locations: ["10", "11", "12"], hits: ["hit", "hit", "hit"] }];
+Ship Magnets Solution
+Use the following player moves, along with the data structure for the 
+ships, to place the ship and miss magnets onto the game board. Does 
+the player sink all the ships? We’ve done the first move for you.
+Here are the moves:
+A6, B3, C4, D1, B0, D4, F0, A1, C6, B1, B2, E4, B6
+And here’s our solution:
+Execute these moves 
+on the game board.
+All three ships are sunk!
+And here's the board and your magnets.
+Leftover magnets.
+
+you are here 4        379
+bringing it all together
+Let’s practice using the ships data structure to simulate some ship activities.  
+Using the ships definition below, work through the questions and the code 
+below and fill in the blanks. Make sure you check your answers before moving 
+on, as this is an important part of how the game works:
+The player guesses "D4", does that hit a ship?______ If so, which one? __________
+The player guesses "B3", does that hit a ship?______ If so, which one? __________
+Which ships are already hit?______________ And at what locations? ______________
+Finish this code to access the second ship’s middle location and print its value 
+with console.log.
+var ship2 = ships[____];
+var locations = ship2.locations;
+console.log("Location is " + locations[____]);
+Finish this code to see if the third ship has a hit in its first location:
+var ship3 = ships[____];
+var hits = ship3._____;
+if (_______ === "hit") {
+   console.log("Ouch, hit on third ship at location one");
+}
+Finish this code to hit the first ship at the third location:
+var ______ = ships[0];
+var hits = ship1._______;
+hits[____] = ________;
+var ships = [{ locations: ["31", "41", "51"], hits: ["", "", ""] },
+             { locations: ["14", "24", "34"], hits: ["", "hit", ""] },
+             { locations: ["00", "01", "02"], hits: ["hit", "", ""] }];
+Ships 2 and 3
+C4, A0
+yes
+Ship 2
+no
+1
+1
+2
+hits
+hits[0]
+ship1
+“hit”
+hits
+2
+
+380        Chapter    8
+exercise solutions
+Add the new ship's locations 
+to the ships array.
+Generate a random direction 
+(vertical or horizontal) 
+for the new ship.
+Generate a random 
+location for the new ship.
+Loop for the number of 
+ships we want to create.
+Test to see if the new ship's 
+locations collide with any 
+existing ship's locations.
+Code Magnets Solution
+An algorithm to generate ships is all scrambled up on the fridge. Can you put the magnets 
+back in the right places to produce a working algorithm? Here’s our solution. 
+
+this is a new chapter     381
+Handling events
+9  asynchronous coding
+After this chapter you’re going to realize you aren’t in 
+Kansas anymore.   Up until now, you’ve been writing code that typically 
+executes from top to bottom—sure, your code might be a little more complex than 
+that, and make use of a few functions, objects and methods, but at some point the 
+code just runs its course. Now, we’re awfully sorry to break this to you this late in 
+the book, but that’s not how you typically write JavaScript code. Rather, most 
+JavaScript is written to react to events. What kind of events? Well, how about a 
+user clicking on your page, data arriving from the network, timers expiring in the 
+browser, changes happening in the DOM and that’s just a few examples. In fact, 
+all kinds of events are happening all the time, behind the scenes, in your browser. 
+In this chapter we’re going rethink our approach to JavaScript coding, and learn 
+how and why we should write code that reacts to events.
+
+382        Chapter    9
+exercise for events
+You know what a browser does, right? It retrieves a page and all that page’s contents 
+and then renders the page. But the browser’s doing a lot more than just that. What else 
+is it doing? Choose any of the tasks below you suspect the browser is doing behind the 
+scenes. If you aren’t sure just make your best guess.
+Knows when the page is fully 
+loaded and displayed.
+Watches all mouse movement.
+Keeps track of all the clicks 
+you make to the page, be it 
+on a button, link or elsewhere.
+Watches the clock and 
+manages timers and timed 
+events.
+Knows when a user submits 
+a form.
+Knows when the user 
+presses keys on a keyboard.
+Tracks when the page has been 
+resized or scrolled.
+Knows when an element gets 
+user interface focus.
+Knows when the cookies are 
+finished baking.
+Pick two of the events above. If the browser could notify your code when these 
+events occurred, what cool or interesting code might you write?
+No, you can't use the cookie 
+event as one of your examples!
+Retrieves additional data for 
+your page.
+
+you are here 4        383
+asynchronous coding
+We’re sure you know by now that after the browser retrieves and displays your page, it 
+doesn’t just sit there. Behind the scenes, a lot is going on: users are clicking buttons, the 
+mouse location is being tracked, additional data is becoming available on the network, 
+windows are getting resized, timers are going off, the browser’s location could be changing, 
+and so on. All these things cause events to be triggered.
+Whenever there’s an event, there is an opportunity for your code to handle it; that is, to 
+supply some code that will be invoked when the event occurs. Now, you’re not required to 
+handle any of  these events, but you’ll need to handle them if  you want interesting things 
+to happen when they occur—like, say, when the button click event happens, you might 
+want to add a new song to a playlist; when new data arrives you might want to process it 
+and display it on your page; when a timer fires you might want to tell a user the hold on a 
+front row concert ticket is going to expire, and so on. 
+What are events?
+A browser’s geo-
+location, as well as 
+a number of other 
+advanced types of 
+events, is something 
+we cover in Head 
+First HTML5 
+Programming. In this 
+book we’ll stick to 
+the bread & butter 
+foundational types of 
+events.
+Browser
+Hey, just wanted to 
+let you know the page 
+just finished loading. 
+Oh, just so you 
+know, the user just moved 
+the mouse a little. I can 
+tell you how much it moved 
+if you want.
+Okay, letting you know 
+that a minute has elapsed.  
+The user just submitted 
+the form in your page. 
+That web service just 
+responded to your request 
+and I’ve got the data ready 
+for you.
+That video in the page 
+just stalled. 
+Whenever there’s an event, there is an opportunity 
+for your code to handle it.
+
+384        Chapter    9
+event handlers
+What’s an event handler?
+We write handlers to handle events. Handlers are typically small 
+pieces of  code that know what to do when an event occurs. In 
+terms of  code, a handler is just a function. When an event occurs, 
+its handler function is called.  
+To have your handler called when an event occurs, you first need 
+to register it. As you’ll see, there are a few different ways to do that 
+depending on what kind of  event it is. We’ll get into all that, but for 
+now let’s get started with a simple example, one you’ve seen before: 
+the event that’s generated when a page is fully loaded.
+Hey browser, 
+I’ve got a handler with 
+some code that needs to run 
+when you’ve finished getting 
+the page fully loaded. And did 
+I mention I’m in a hurry?
+The handler, code 
+that will be run 
+later, when the page 
+is loaded.
+You might also hear developers 
+use the name callback or 
+listener instead of handler. 
+The browser.
+Never any pressure around 
+here huh? Sure thing, as soon as 
+I’m done loading everything, I’ve 
+got your handler ready to go and 
+I’ll be sure to invoke it.
+
+you are here 4        385
+asynchronous coding
+How to create your first event handler
+There’s no better way to understand events than by writing a handler and wiring it up 
+to handle a real, live event. Now, remember, you’ve already seen a couple of  examples 
+of  handling events—including the page load event—but we’ve never fully explained 
+how event handling works. The page load event is triggered when the browser has 
+fully loaded and displayed all the content in your page (and built out the DOM 
+representing the page). 
+Let’s step through what it takes to write the handler and to make sure it gets invoked 
+when the page load event is triggered:
+2
+Now that we have a handler written and ready to go, we need to wire 
+things up so the browser knows there’s a function it should invoke when 
+the load event occurs. To do that we use the onload property of the 
+window object, like this:
+window.onload = pageLoadedHandler;
+function pageLoadedHandler() {
+    alert("I'm alive!");
+}
+First we need to write a function that can handle the page load event 
+when it occurs. In this case, the function is going to announce to the 
+world “I’m alive!” when it knows the page is fully loaded. 
+1
+Here's our function, we'll name it 
+pageLoadedHandler, but you can 
+call it anything you like.
+Remember we often refer to 
+this as a handler or a callback.
+This event handler doesn't do 
+much. It just creates an alert.
+In the case of the load event, we assign the name 
+of the handler to the window's onload property.
+Now when the page load event is 
+generated, the pageLoadedHandler 
+function is going to be called.
+3
+That’s it! Now, with this code written, we can sit back and know that 
+the browser will invoke the function assigned to the window.onload 
+property when the page is loaded.
+We’re going to see that different 
+kinds of events are assigned 
+handlers in different ways.
+A handler is just an ordinary function.
+
+386        Chapter    9
+testing an event handler
+If we didn’t have functions, could we have event handlers?
+Test drive your event
+Go ahead and create a new file, “event.html”, and add the code to test your load event 
+handler. Load the page into the browser and make sure you see the alert.
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title> I'm alive! </title>
+  <script>
+    window.onload = pageLoadedHandler;
+    function pageLoadedHandler() {
+        alert("I'm alive!");
+    }
+  </script>
+</head>
+<body>
+</body>
+</html>
+First the browser loads your 
+page, and starts parsing the 
+HTML and building up the DOM.
+When it gets to your script the 
+browser starts executing the code. 
+For now, the script just defines a 
+function, and assigns that function to 
+the window.onload property. Remember 
+this function will be invoked when the 
+page is fully loaded.
+Then the browser continues 
+parsing the HTML.
+When the browser is done parsing the HTML, and the 
+DOM is ready, the browser calls the page load handler.
+Which in this case creates 
+the “I’m alive” alert.
+
+you are here 4        387
+asynchronous coding
+As we already mentioned, up until now you’ve taken a rather, let’s say, linear 
+approach to writing code: you took an algorithm, like computing the best bubble 
+solution, or generating the 99 bottles song, and wrote the code stepwise, top to 
+bottom. 
+But remember the Battleship game? The code for that game didn’t quite fit the 
+linear  model—sure, you wrote some code that set up the game, initialized the 
+model, and all that—but then the main part of  the game operated in a different way. 
+Each time you wanted to fire at another ship you entered your guess into a form 
+input element and pressed the “Fire” button. That button then caused a whole 
+sequence of  actions that resulted in the next move of  the game being executed. In 
+that case your code was reacting to the user input.
+Organizing code around reacting to events is a different way of  thinking about 
+how you write your code. To write code this way, you need to consider the events 
+that can happen, and how your code should react. Computer science types like 
+to say that this kind of  code is asynchronous, because we’re writing code to be 
+invoked later, if and when an event occurs. This kind of  coding also changes your 
+perspective from one of  encoding an algorithm step-by-step into code, into one of  
+gluing together an application that is composed of  many handlers handling many 
+different kinds of  events.
+If you’re ever 
+going to be a real Javascript 
+developer, you’re going to 
+have to learn to deal with 
+events.
+
+388        Chapter    9
+planning a game with events
+Getting your head around events... by creating a game
+The best way to understand events is with experience, so let’s get some more by writing 
+a simple game. The game works like this: you load a page and are presented with an 
+image. Not just any image, but a really blurred image. Your job is to guess what the 
+image is. And, to check your answer, you click on the image to unblur it.
+Like this:
+Here’s the 
+blurred version 
+of the image. 
+Hmmm, what 
+could it be?
+When you think you 
+have it, click to reveal 
+the unblurred image.
+Let’s start with the markup. We’ll use two JPG images. One is blurred and the other isn’t. 
+We’ve named them “zeroblur.jpg” and “zero.jpg” respectively. Here’s the markup:
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title> Image Guess </title>
+  <style> body { margin: 20px; } </style>
+  <script>  </script>
+</head>
+<body>
+    <img id="zero" src="zeroblur.jpg">
+</body>
+</html>
+And here’s the blurred image, 
+placed in the page. We’ll give 
+it an id of “zero”. You’ll see 
+how we use the id in a sec...
+Just some basic HTML, with a <script> 
+element all ready for our code. Rather 
+than use a separate file for the 
+JavaScript, we’ll keep it simple and add 
+the script here. As you’ll see, there is 
+very little code needed to implement this.
+Hum the 
+Jeopardy 
+theme song to 
+yourself as you 
+try to figure 
+it out...
+
+you are here 4        389
+asynchronous coding
+Implementing the game
+Go ahead and load this markup in your browser and you’ll see the 
+blurred image. To implement the game, we need to react to a click on 
+the image in order to display the unblurred version of  the image.
+Lucky for us, every time an HTML element in the page is clicked 
+(or touched on a mobile device), an event is generated. Your job is to 
+create a handler for that event, and in it write the code to display the 
+unblurred version of  the image. Here’s how you’re going to do that:
+Access the image object in the DOM and 
+assign a handler to its onclick property.
+In your handler, write the code to change the 
+image src attribute from the blurred image to 
+the unblurred one.
+We create a function init, and 
+assign it to the onload handler to 
+make sure this code doesn’t run 
+until the page is fully loaded.
+window.onload = init;
+function init() {
+    var image = document.getElementById("zero");
+}
+1
+2
+In the code of init, we’ll grab a 
+reference to the image with id=“zero”.
+Let’s walk through these steps and write the code.
+Step 1: access the image in the DOM
+Getting access to the image is old hat for you; we just need to use our 
+old friend, the getElementById method, to get a reference to it.
+var image = document.getElementById("zero");
+Here we’re grabbing a reference 
+to the image element and 
+assigning it to the image variable.
+Oh, but we also need this code to run only after the DOM for the 
+page has been created, so let’s use the window’s onload property 
+to ensure that. We’ll place our code into a function, init, that we’ll 
+assign to the onload property.
+Remember in JavaScript the order 
+in which you define your functions 
+doesn’t matter. So we can define 
+init after we assign it to the 
+onload property. 
+Remember, we can’t get the image from the 
+DOM until the page has finished loading.
+
+390        Chapter    9
+adding an event handler
+First, we have to get the 
+image from the DOM again.
+function showAnswer() {
+    var image = document.getElementById("zero");
+    image.src = "zero.jpg";
+}
+Test drive
+Let’s take this simple game for a test drive. Make sure you’ve 
+got all the HTML, CSS and JavaScript typed into a file named 
+“image.html”, and that you’ve got the images you downloaded 
+from http://wickedlysmart.com/hfjs in the same folder. Once all 
+that’s done, load up the file in your browser and give it a try!
+Once we have the image, we can 
+change it by setting its src 
+property to the unblurred image. 
+Step 2: add the handler, and update 
+the image
+To add a handler to deal with clicks on the image, we simply assign 
+a function to the image’s onclick property. Let’s call that function 
+showAnswer, and we’ll define it next.
+window.onload = init;
+function init() {
+    var image = document.getElementById("zero");
+    image.onclick = showAnswer;
+}
+Now we need to write the showAnswer function, which unblurs the 
+image by resetting the image element’s src property to the unblurred 
+image:
+Click anywhere on the image to 
+have the showAnswer handler 
+called. When that happens, the 
+src of the image is changed to 
+reveal the answer.
+Using the image object from the DOM, we’re 
+assigning a handler to its onclick property.
+Remember the blurred version 
+is named “zeroblur.jpg” and the 
+unblurred is named “zero.jpg”.
+
+you are here 4        391
+asynchronous coding
+Q:
+ Is setting the src property of 
+the image the same as setting the src 
+attribute using setAttribute?
+A: In this case, yes, it is. When you get 
+an HTML element from the DOM using 
+getElementById, you’re getting an element 
+object that has several methods and 
+properties. All element objects come with a 
+property, id, that is set to the id of the HTML 
+element (if you’ve given it one in your HTML). 
+The image element object also comes with  
+ 
+ 
+a src property that is set to the image file 
+specified in the src attribute of the <img> 
+element.  
+ 
+Not all attributes come with corresponding 
+object properties, however, so you will need 
+to use setAttribute and getAttribute for those. 
+And in the case of src and id, you can use 
+either the properties or get/set them using 
+getAttribute and setAttribute and it does the 
+same thing.
+Q:
+ So do we have a handler called 
+within a handler?
+A: Not really. The load handler is the code 
+that is called when the page is fully loaded. 
+When the load handler is called, we assign a 
+handler to the image’s onclick property, but 
+it won’t be called until you actually click on 
+the image. When you do that (potentially a 
+long time after the page has loaded), the 
+showAnswer click handler is called. So the 
+two handlers get called at different times. 
+Ah, yes. It can get tricky to follow the 
+flow of execution in code with a lot of 
+event handlers. Remember, the init function is 
+called when the page is loaded. But the showAnswer 
+function isn’t called until later, when you click the 
+image. So these two event handlers get called at two 
+different times. 
+In addition, remember your scope rules. In the 
+init function we’re putting the object returned by 
+getElementById into a local variable image, which 
+means when that function completes, the variable 
+falls out of  scope and is destroyed. So later, when the 
+showAnswer function is called, we have to get the 
+image object again from the DOM. Sure, we could 
+have put this in a global variable, but over use of  
+globals can lead to confusing and buggy code, which 
+we’d like to avoid.
+Wait, why do we need to 
+use getElementById again in 
+showAnswer? I’m not sure of 
+the flow of execution here.

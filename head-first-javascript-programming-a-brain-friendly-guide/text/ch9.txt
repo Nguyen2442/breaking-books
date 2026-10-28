@@ -1,0 +1,384 @@
+you are here 4        63
+writing real code
+if (inStock == true  &&  onSale == true) {
+         // sounds like a bargain!
+         alert("buy buy buy!");    
+}
+Not only is this code more concise, it's also 
+more readable. Compare this code with the 
+code on the previous page to see.
+Here’s our AND operator. With AND this combined conditional 
+is true only if the first part AND the second part are true.
+if (inStock == true  &&  (onSale == true || price < 60)) {
+         // sounds like a bargain!
+         alert("buy buy buy!");    
+}
+Now we’re using both AND and OR in the same conditional expression. This one says: If 
+an item is in stock AND it’s either on sale, OR the price is less than 60, then buy. 
+Notice we’re using parentheses to group the conditions 
+together so we get the result of the OR first, and then 
+use that result to compute the result of the AND.
+We don’t have to stop there; we can combine boolean operators in 
+multiple ways:
+We’ve got a whole bunch of boolean expressions that need evaluating below. Fill in the blanks, and then 
+check your answers at the end of the chapter before you go on.
+var temp = 81;
+var willRain = true;
+var humid = (temp > 80 && willRain == true);
+What’s the value of humid?
+var guess = 6;
+var isValid = (guess >= 0 && guess <= 6);
+What’s the value of isValid?
+var kB = 1287;
+var tooBig = (kB > 1000);
+var urgent = true;
+var sendFile =  
+    (urgent == true || tooBig == false);
+What’s the value of sendFile?
+var keyPressed = "N";
+var points = 142;
+var level;
+if (keyPressed == "Y" || 
+    (points > 100 && points < 200)) {
+   level = 2;
+} else {
+   level = 1;
+}
+What’s the value of level?
+
+64        Chapter    2
+boolean operator exercise
+if (price < 200 || price > 600) {
+   alert("Price is too low or too high! Don't buy the gadget.");
+} else {
+   alert("Price is right! Buy the gadget.");
+}
+if (price >= 200 || price <= 600) {
+   alert("Price is right! Buy the gadget.");
+} else {
+   alert("Price is too low or too high! Don't buy the gadget.");
+}
+Bob
+Bill
+Bob and Bill, both from accounting, are working on a new price 
+checker application for their company’s web site. They’ve both 
+written if/else statements using boolean expressions. Both are 
+sure they’ve written the correct code. Which accountant is right? 
+Should these accountants even be writing code? Check your 
+answer at the end of the chapter before you go on.
+
+you are here 4        65
+writing real code
+if  (inStock) { 
+   ...
+}
+Can we talk about your verbosity...
+We   don’t know how to bring this up, but you’ve been a little verbose in specifying 
+your conditionals. What do we mean? Take this condition for instance:
+if  (inStock == true) { 
+   ...
+}
+And, inStock is a variable that holds a 
+boolean value of true or false.
+We often compare our boolean 
+variables to true or false to 
+form our conditional.
+As it turns out, that’s a bit of  overkill. The whole point of  a conditional is that it evaluates to either true or 
+false, but our boolean variable inStock already is one of  those values. So, we don’t need to compare the 
+variable to anything; it can just stand on its own. That is, we can just write this instead:
+If we just use the boolean variable by itself, then 
+if that variable is true, the conditional test is 
+true, and the block is executed.
+And if inStock is false, then the conditional 
+test fails and the code block is skipped.
+Now, while some might claim our original, verbose version was clearer in its intent, it’s more common to 
+see the more succinct version in practice. And, you’ll find the less verbose version easier to read as well.
+onSaleinStockbuyItbuyIt 
+truetrue
+truefalse
+falsetrue
+falsefalse
+We’ve got two statements below that use the onSale and inStock variables in conditionals 
+to figure out the value of the variable buyIt. Work through each possible value of inStock 
+and onSale for both statements. Which version is the biggest spender?
+var buyIt = (inStock || onSale); 
+var buyIt = (inStock && onSale); 
+
+66        Chapter    2
+fixing hardcoded values
+It was brutal, I tell ya. 
+No matter what we did, it 
+was like, like.... they knew 
+exactly where our ship was!
+Do you think 
+it had anything to 
+do with hardcoding 
+your ship locations?
+Yes, we still have one little matter to take care of  because right now you’ve hard coded the location 
+of  the ship—no matter how many times you play the game, the ship is always at locations 3, 4 and 5. 
+That actually works out well for testing, but we really need to randomly place the ship to make it a little 
+more interesting to the user. 
+Let’s step back and think about the right way to place a ship on the 1-D grid of  seven cells. We need a 
+starting location that allows us to place three consecutive positions on the grid. That means we need a 
+starting location from zero to four.
+Finishing the Simple Battleship game
+0 1 2 3 4 5 6
+We can start in locations 0, 1, 2, 3 
+or 4 and still have room to place the 
+ship in the next three positions.
+0 1 2 3 4 5 6
+0 1 2 3 4 5 6
+But, starting at position 5 or 6 won't work.
+WRONG
+
+you are here 4        67
+writing real code
+var location1 = randomLoc;
+var location2 = location1 + 1;
+var location3 = location2 + 1;
+Take the random 
+location along 
+with the next two 
+consecutive locations.
+How to assign random locations
+The only problem is it returns numbers like 
+0.128, 0.830, 0.9, 0.42. These numbers 
+are between 0 and 1 (not including exactly 
+1).  So we need a way to use this to 
+generate random numbers 0-4.
+var randomLoc = Math.random();
+Our variable randomLoc. We want 
+to assign a number from 0 to 4 to 
+this variable.
+Math.random is part of 
+standard JavaScript and 
+returns a random number. 
+Now, once we have a starting location (between zero and four), we 
+simply use it and the following two locations to hold the ship.
+Okay, but how do we generate a random number? That’s where 
+we turn to JavaScript and its built-in functions. More specifically, 
+JavaScript comes with a bunch of  built-in math-related functions, 
+including a couple that can be used to generate random numbers. 
+Now we’re going to get deeper into built-in functions, and functions in 
+general a little later in the book.  For now, we’re just going to make use 
+of  these functions to get our job done.
+The world-famous recipe for generating 
+a random number
+We’re going to start with the Math.random function. By calling this 
+function we’ll get back a random decimal number:
+What we need is an integer between 0 and 4—that is, 0, 1, 2, 3 or 4—not a 
+decimal number, like 0.34. To start, we could multiply the number returned 
+by Math.random by 5 to get a little closer; here’s what we mean...
+
+68        Chapter    2
+using random numbers
+First, if we multiply the random number 
+by 5, then we get a number between 
+0 and 5, but not including 5. Like 
+0.13983, 4.231, 2.3451, or say 4.999.
+We can use Math.floor to round down all these 
+numbers to their nearest integer value.
+So, for instance, 0.13983 becomes 0,  
+2.34 becomes 2 and 4.999 becomes 4. 
+var randomLoc = Math.random() * 5;
+That’s closer! Now all we need to do is clip off  the end of  the number 
+to give us an integer number. To do that we can use another built-in 
+Math function, Math.floor:
+var randomLoc = Math.floor(Math.random() * 5);
+Q:
+ If we’re trying to generate a number 
+between 0 and 4, why does the code have 
+a 5 in it, as in  
+Math.floor(Math.random() * 5)?
+A: Good question. First, Math.random 
+generates a number between 0 and 1, but 
+not including 1. The maximum number you 
+can get from Math.random is 0.999.... When 
+you multiply that number by 5, the highest 
+number you’ll get is 4.999...  
+Math.floor always rounds a number down, 
+so 1.2 becomes 1, but so does 1.9999. If we 
+generate a number from 0 to 4.999... then 
+everything will be rounded down to 0 to 4. 
+This is not the only way to do it, and in other 
+languages it’s often done differently, but this 
+is how you’ll see it done in most JavaScript 
+code.
+Q:
+ So if I wanted a random number 
+between 0 and 100 (including 100), I’d 
+write 
+Math.floor(Math.random() * 101)?
+A: That’s right! Multiplying by 101, and 
+using Math.floor to round down, ensures that 
+your result will be at most 100.
+Q:
+ What are the parentheses for in 
+Math.random()?
+A: We use parentheses whenever we “call” 
+a function. Sometimes we need to hand a 
+value to a function, like we do when we use 
+alert to display a message, and sometimes 
+we don’t, like when we use Math.random. 
+But whenever you’re calling a function 
+(whether it’s built-in or not), you’ll need to 
+use parentheses.  Don’t worry about this 
+right now; we’ll get into all these details in 
+the next chapter.
+Q:
+ I can’t get my battleship game to 
+work. I’m not seeing anything in my web 
+page except the “Play battleship” heading. 
+How can I figure out what I did wrong?
+A: This is where using the console can 
+come in handy. If you’ve made an error 
+like forgetting a quote on a string, then 
+JavaScript will typically complain about 
+the syntax of your program not being right, 
+and may even show you the line number 
+where your error is. Sometimes errors are 
+more subtle, however. For instance, if you 
+mistakenly write isSunk = false instead of 
+isSunk == false, you won’t see a JavaScript 
+error, but your code won’t behave as you 
+expect it to. For this kind of error, try using 
+console.log to display the values of your 
+variables at various points in your code to 
+see if you can track down the error.
+Remember, * means multiplication.
+
+you are here 4        69
+writing real code
+Back to do a little more QA
+That’s all we need. Let’s put this code together (we’ve already done that below) and 
+replace your existing location code with it. When you’re finished, give it a few test 
+runs to see how fast you can sink the enemy.
+QA Notes
+var randomLoc = Math.floor(Math.random() * 5);
+var location1 = randomLoc;
+var location2 = location1 + 1;
+var location3 = location2 + 1;
+var guess; 
+var hits = 0;
+var guesses = 0;
+var isSunk = false;
+while (isSunk == false) { 
+    guess = prompt("Ready, aim, fire! (enter a number from 0-6):");
+    if (guess < 0 || guess > 6) {  
+      // the rest of your code goes here....
+Here’s one of  our test sessions. The game’s a little more 
+interesting now that we’ve got random locations for the 
+ship. But we still managed to get a pretty good score...
+On our second 
+guess, we miss.
+But then we get 
+two hits in a row.
+On the last hit, we 
+sink the battleship! 
+We get a hit on 
+our first guess.
+Go ahead and replace your 
+location variable declarations 
+with these new statements. 
+
+70        Chapter    2
+exercise in finding a bug
+It’s a clif-hanger!
+Will we find the bug? 
+Will we fix the bug?
+Stay tuned for a much improved version 
+of Battleship a little later in the book...
+And in the meantime, see if you can 
+come up with ideas for how you  might 
+fix the bug.
+On our second guess 
+we find a location 
+of the ship.
+And then we keep 
+entering that same 
+location, and keep 
+getting hits!
+On the third hit, 
+we see that we sank 
+the battleship! 
+But 
+something’s wrong
+. We 
+shouldn’t be able to sink 
+it by hitting the same 
+location three times.
+Wait a sec, we noticed something that looks wrong. Hint: when we enter 0, 1, 
+1, 1 things don’t look right! Can you figure out what’s happening? 
+We miss on our 
+first guess.
+Here are our guesses...
+We entered 0, 1, 1, 1, and 
+the ship is at 1, 2, 3.
+QA Notes
+Found a bug! 
+Entering the same 
+number that is a 
+hit on a ship results 
+in sinking the ship, 
+when it shouldn’t.
+
+you are here 4        71
+writing real code
+ You can use a lowchart to outline the logic of a 
+JavaScript program, showing decision points and 
+actions.
+ Before you begin writing a program, it’s a good idea 
+to sketch out what your program needs to do with 
+pseudocode.
+ Pseudocode is an approximation of what your real code 
+should do. 
+ There are two kinds of boolean operators: comparison 
+operators and logical operators. When used in an 
+expression, boolean operators result in a true or false 
+value.
+ Comparison operators compare two values and result 
+in true or false. For example, we can use the boolean 
+comparison operator < (“less than”) like this: 3 < 6. This 
+expression results in true.
+ Logical operators combine two boolean values. For 
+example true || false results in true; true && false results 
+in false.
+ You can generate a random number between 0 and 1 
+(including 0, but not including 1) using the Math.random 
+function.
+ The Math.loor function rounds down a decimal number 
+to the nearest integer.
+ Make sure you use Math with an uppercase M, and not 
+m, when using Math.random and Math.loor.
+ The JavaScript function prompt shows a dialog with 
+message and a space for the user to enter a value.
+ In this chapter, we used prompt to get input from the 
+user, and alert to display the results of the battleship 
+game in the browser.
+You’ve probably noticed that we made use of  a few built-in functions like alert, prompt, 
+console.log  and Math.random. With very little effort, these functions have given you 
+the ability to pop up dialog boxes, log output to the console and generate random numbers, 
+almost like magic. But, these built-in functions are just packaged up code that’s already been 
+written for you, and as you can see their power is that you can use and reuse them just by 
+making a call to them when you need them.
+Now there’s a lot to learn about functions, how to call them, what kinds of  values 
+you can pass them, and so on, and we’re going to start getting into all that in the 
+next chapter where you learn to create your own functions.
+But before you get there you’ve got the bullet points to review, a crossword puzzle to 
+complete... oh, and a good night’s sleep to let everything sink in.
+Congrats on your first true JavaScript program, 
+and a short word about reusing code
+
+72        Chapter    2
+javascript crossword
+JavaScript cross
+How does a crossword puzzle help you learn 
+JavaScript? The mental twists and turns burn the 
+JavaScript right into your brain!
+1234
+56
+78
+9
+10
+11
+ACROSS

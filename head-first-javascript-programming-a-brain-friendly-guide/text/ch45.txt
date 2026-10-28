@@ -1,0 +1,450 @@
+takes no arguments, but defines a count variable. It then creates and returns an object 
+with one method, increment. This method increments the count variable and returns it.
+
+you are here 4        501
+anonymous functions, scope and closures
+Creating a closure by passing a 
+function expression as an argument
+function makeTimer(doneMessage, n) {
+    setTimeout(function() {
+        alert(doneMessage);
+    }, n);
+}
+makeTimer("Cookies are done!", 1000);
+Returning a function from a function isn’t the only way to create a closure. You 
+create a closure whenever you have a reference to a function that has free variables, 
+and that function is executed outside of  the context in which it was created. 
+Another way we can create a closure is to pass a function to a function. The 
+function we pass will be executed in a completely different context than the one in 
+which it was defined. Here’s an example:
+We have a function...
+...with a free variable...
+...and this function will be executed 1000 
+milliseconds from now, long after the 
+function makeTimer has completed.
+Here, we’re passing a function expression that contains a free variable, 
+doneMessage, to the function setTimeout. As you know, what happens is we 
+evaluate the function expression to get a function reference, which is then passed 
+to setTimeout. The setTimeout method holds on to this function (which 
+is a function plus an environment—in other words, a closure) and then 1000 
+milliseconds later it calls that function. 
+And again, the function we’re passing into setTimeout is a closure because it 
+comes along with an environment that binds the free variable, doneMessage, to the 
+string “Cookies are done!”. 
+...that we are using as a handler for setTimeout.
+What would happen 
+if our code looked 
+like this instead?
+function handler() {
+    alert(doneMessage);
+}
+function makeTimer(doneMessage, n) {
+    setTimeout(handler, n);
+}
+makeTimer("Cookies are done!", 1000);
+2
+Revisit the code on page 
+412 in Chapter 9. Can you 
+modify your code to use a 
+closure, and eliminate the 
+need for the third argument 
+to setTimeout?
+
+502        Chapter    11
+the closure contains the environment
+function setTimer(doneMessage, n) {
+    setTimeout(function() {
+        alert(doneMessage);
+    }, n);
+    doneMessage = "OUCH!";
+}
+setTimer("Cookies are done!", 1000);
+The closure contains the actual environment, not a copy
+var doneMessage = 
+"Cookies are done!"
+function() {
+  alert(doneMessage);
+}
+var doneMessage =  
+ "OUCH!"
+function() {
+  alert(doneMessage);
+}
+setTimeout(function() {
+    alert(doneMessage);
+}, n);
+1
+When we call setTimeout and pass to it the function 
+expression, a closure is created containing the 
+function along with a reference to the environment.
+2
+Then, when we change the value of 
+doneMessage to “OUCH!” outside of the closure, 
+it’s changed in the same environment that is 
+used by the closure. 
+3
+1000 milliseconds later, the function in the closure 
+is called. This function references the doneMessage 
+variable, which is now set to “OUCH!” in the 
+environment, so we see “OUCH!” in the alert.
+doneMessage = "OUCH!";
+function() { alert(doneMessage); }
+When the function is called, it uses the value for 
+doneMessage that’s in the environment, which is 
+the new value we set it to earlier, in setTimer.
+Now we’re changing the 
+value of doneMessage after 
+we call setTimeout. 
+The closure is created here.
+One thing that often misleads people learning closures is that they think the environment in the 
+closure must have a copy of  all the variables and their values. It doesn’t. In fact, the environment 
+references the live variables being used by your code, so if  a value is changed by code outside your 
+closure function, that new value is seen by your closure function when it is evaluated.
+Let’s modify our example to see what that means.
+
+you are here 4        503
+anonymous functions, scope and closures
+Creating a closure with an event handler
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Click me!</title>
+<style> 
+    body, button { margin: 10px; }
+    div { padding: 10px; }
+</style>
+<script>
+    // JavaScript code here
+</script>
+</head>
+<body>
+    <button id="clickme">Click me!</button>
+    <div id="message"></div>
+</body>
+</html>
+Let’s look at one more way to create a closure. We’ll create a closure with an event handler, 
+which is something you’ll see fairly often in JavaScript code. We’ll start by creating a simple 
+web page with a button and a <div> element to hold a message. We’ll keep track of  how 
+many times you click the button and display the tally in the <div>. 
+Here’s the HTML and a tiny bit of  CSS to create the page. Go ahead and add the HTML and 
+CSS below into a file named “divClosure.html”. 
+Here’s what we’re going for: 
+each time you click the button, 
+the message in the <div> will be 
+updated to show the number of 
+times you’ve clicked.
+Next, let’s write the code. Now, you could write the code for this example without using 
+a closure at all, but as you’ll see, by using a closure, our code is more concise, and even a 
+bit more efficient.
+Just your typical, basic web page...
+With a little CSS to style the 
+elements in the page.
+Here’s where our code’s going to go.
+We have a button, and a <div> to hold the message 
+we’ll update each time you click the button.
+
+504        Chapter    11
+using a closure with an event handler
+window.onload = function() {
+    var count = 0; 
+    var message = "You clicked me ";
+    var div = document.getElementById("message");
+    var button = document.getElementById("clickme");
+    button.onclick = function() {
+        count++;
+        div.innerHTML = message + count + " times!";
+    };
+};
+Click me! without a closure
+Let’s first take a look at how you’d implement this example without a closure.
+var count = 0;
+window.onload = function() {
+    var button = document.getElementById("clickme");
+    button.onclick = handleClick;
+};
+function handleClick() {
+    var message = "You clicked me ";
+    var div = document.getElementById("message");
+    count++;
+    div.innerHTML = message + count + " times!";
+}
+The count variable will need to be a global variable, because if it's 
+local to handleClick (the click event handler on the button, see 
+below), it'll just get re-initialized every time we click.
+In the load event handler function, we 
+get the button element, and add a click 
+handler to the onclick property.
+Here's the button's click handler function.
+We define the message variable...
+...get the <div> element from the page...
+...increment the counter...
+...and update the <div> with the message 
+containing how many times we've clicked.
+The version without a closure looks perfectly reasonable, except for that global 
+variable which could potentially cause trouble. Let’s rewrite the code using a closure 
+and see how it compares. We’ll show the code here, and take a closer look after we 
+test it. 
+Click me! with a closure
+Now, all our variables are local to window.onload. 
+No problems with name clashing now.
+We’re setting up the click handler 
+as a function expression assigned 
+to the button’s onclick property, 
+so we can reference div, message 
+and count in the function. 
+(Remember your lexical scoping!)
+This function has three free variables: div, message and count, 
+so a closure is created for the click handler function. So what 
+gets assigned to the button’s onclick property is a closure.
+
+you are here 4        505
+anonymous functions, scope and closures
+Test drive your button counter
+Okay, let’s bring the HTML and the code together in your 
+“divClosure.html” file and give this a test run. Go ahead and 
+load the page and then click on the button to increment the 
+counter. You should see the message update in the <div>. Look 
+at the code again, and make sure you think you know how this 
+all works. After you’ve done so, turn the page and we’ll walk 
+through it together. 
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Click me!</title>
+<style> 
+    body, button { margin: 10px; }
+    div { padding: 10px; }
+</style>
+<script>
+    window.onload = function() {
+        var count = 0;
+        var message = "You clicked me ";
+        var div = document.getElementById("message");
+        var button = document.getElementById("clickme");
+        button.onclick = function() {
+            count++;
+            div.innerHTML = message + count + " times!";
+        };
+    };
+</script>
+</head>
+<body>
+    <button id="clickme">Click me!</button>
+    <div id="message"></div>
+</body>
+</html>
+Here’s what we got.
+Update your “divClosure.html” 
+file like this.
+
+506        Chapter    11
+stepping through how the closure works
+window.onload = function() {
+   var count = 0; 
+   var message = "You clicked me ";
+   var div = document.getElementById("message");
+   var button = document.getElementById("clickme");
+   button.onclick = function() {
+      count++;
+      div.innerHTML = message + count + " times!";
+   };
+};
+How the Click me! closure works
+function() {
+ count++;
+ div.innerHTML = ...;
+}
+var message =  
+   "You clicked me ";
+var count = 0;
+var div = [object]
+And now I’ll assign 
+that closure to the onclick 
+property of the Click me! button in the 
+page. Okay done with the load handler... 
+now I’ve just got to wait for someone to 
+click the button.
+To understand how the closure works, let’s follow along with 
+the browser once again, as it evaluates this code...
+The page has loaded so I can 
+run the load handler. I’ve got some variables 
+to define... Oh, and I see I’ve got a function 
+expression. Let’s see... that’s referencing three 
+free variables, so I’d better make a closure.
+The browser creates a closure for the function 
+that’s assigned to the button.onclick property. 
+The environment has the div variable, the 
+message variable and the count variable. 
+Once the window.onload function 
+completes, nothing happens until 
+you click on the Click me! button.
+
+you are here 4        507
+anonymous functions, scope and closures
+Hey, someone clicked 
+the button! Time to execute 
+that click handler function I 
+stashed away earlier...
+function() {
+ count++;
+ div.innerHTML = ...;
+}
+var message =  
+   "You clicked me ";
+var count = 0;
+var div = [object]
+Oh,    I see we have a 
+closure. Good, that means 
+I can find values for the free 
+variables in the environment.
+onclick
+Even though the button variable doesn’t 
+exist anymore (it goes away when the 
+window.onload function has completed), the 
+button object is in the DOM, and it has 
+our closure stored in its onclick property.
+function() {
+ count++;
+ div.innerHTML = ...;
+}
+var message =  
+   "You clicked me ";
+var count = 1;
+var div = [object]
+I’ve incremented the 
+count variable by one and made sure 
+the value is updated in the environment. 
+And I’ve updated the message in the page, 
+so now all I have to do is wait for 
+another click.
+Notice that the div variable in the closure holds an object. 
+When div was initialized in window.onload we stored the 
+object returned by document.getElementById in the div 
+variable, so we don’t have to get the object from the 
+DOM again; we have it already. This saves us a little bit of 
+computation and makes our code just a tiny bit faster.
+The closure doesn’t go away 
+until you close the page. It’s 
+ready to spring into action 
+whenever you click the button!
+
+508        Chapter    11
+closure extreme challenge
+We need a closures expert and we’ve heard that’s you!  Now you know how closures work, can you 
+figure out why both specimens below evaluate to 008? To figure it out, write any variables that are 
+captured in the environments for the functions below. Note that it’s perfectly fine for an environment 
+to be empty. Check your answer at the end of the chapter.
+EXTREME JAVASCRIPT ChALLENGE
+var secret = "007";
+function getSecret() {
+    var secret = "008";
+    function getValue() {
+        return secret;
+    }
+    return getValue();
+}
+getSecret();
+Specimen #1
+var secret = "007";
+function getSecret() {
+    var secret = "008";
+    function getValue() {
+        return secret;
+    }
+    return getValue;
+}
+var getValueFun = getSecret();
+getValueFun();
+Specimen #2
+revisited
+Environment
+Environment
+
+you are here 4        509
+anonymous functions, scope and closures
+First, check out this code:
+(function(food) {
+    if (food === "cookies") {
+        alert("More please");
+    } else if (food === "cake") {
+        alert("Yum yum");
+    }
+ })("cookies");
+Your task is to figure out not just what this code computes, but 
+how it computes. To do that, go in reverse. That is, take out the 
+anonymous function, assign it to a variable, and then use that 
+variable where the function expression used to be. Is the code 
+more obvious now? So, what does it do?
+Using a function expression 
+in place of a reference, 
+taken to the extreme.
+
+510        Chapter    11
+chapter summary
+ An anonymous function is a 
+function expression that has no 
+name.
+ Anonymous functions can make your 
+code more concise. 
+ A function declaration is deined 
+before the rest of your code is 
+evaluated. 
+ A function expression is evaluated 
+at runtime with the rest of your 
+code, and so is not deined until 
+the statement in which it appears is 
+evaluated.
+ You can pass a function expression 
+to another function, or return a 
+function expression from a function.
+ A function expression evaluates to a 
+function reference, so you can use 
+a function expression anywhere you 
+can use a function reference.
+ Nested functions are functions 
+deined inside another function.
+ A nested function has local scope, 
+just like other local variables.
+ Lexical scope means that we can 
+determine the scope of a variable by 
+reading our code.
+ To bind the value of a variable in a 
+nested function, use the value that’s 
+deined in the closest enclosing 
+function. If no value is found, then 
+look in the global scope.
+ Closures are a function along with a 
+referencing environment. 
+ A closure captures the value of 
+variables in scope at the time the 
+closure is created.
+ Free variables in the body of a 
+function are variables that are not 
+bound in the body of that function. 
+ If you execute a function closure in 
+a different context in which it was 
+created, the values of free variables 
+are determined by the referencing 
+environment.
+ Closures are often used to capture 
+state for event handlers.
+
+you are here 4        511
+anonymous functions, scope and closures
+JavaScript cross
+Time for another crossword puzzle to burn some 
+JavaScript into those neuron pathways.
+1
+23
+45
+678
+910
+11
+1213
+1415
+16
+17
+18
+ACROSS

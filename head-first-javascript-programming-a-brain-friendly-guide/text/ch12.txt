@@ -1,0 +1,584 @@
+variable, but even with globals, life has its limits.  
+But what determines the life of  a variable? Think 
+about it like this:
+Globals live as long as the page. A global 
+variable begins life when its JavaScript is loaded 
+into the page. But, your global variable’s life ends 
+when the page goes away. Even if  you reload the 
+same page, all your global variables are destroyed 
+and then recreated in the newly loaded page.
+Local variables typically disappear 
+when your function ends. Local variables 
+are created when your function is first called and 
+live until the function returns (with a value or 
+not).  That said, you can take the values of  your 
+local variables and return them from the function 
+before the variables meet their digital maker.
+So, there really is NO escape from the page is 
+there? If  you’re a local variable, your life comes 
+and goes quickly, and if  you’re lucky enough to 
+be a global, you’re good as long as that browser 
+doesn’t reload the page. 
+We say “typically” because there are some 
+advanced ways to retain locals a little longer, 
+but we’re not going to worry about them now.
+
+you are here 4        103
+introducing functions
+Don’t forget to declare your locals!
+If  you use a variable without declaring it first, that variable 
+will be global.  That means that even if  you use a variable 
+for the first time inside a function (because you meant 
+for it to be local), the variable will actually be global, and 
+be available outside the function too (which might cause 
+confusion later). So, don’t forget to declare your locals!
+If you forget to 
+declare a variable 
+before using it, the 
+variable will always 
+be global (even if the 
+first time you use it is 
+in a function).
+function playTurn(player, location) {
+    points = 0;
+    if (location == 1) {
+       points = points + 100;
+    }
+    return points;
+}
+var total = playTurn("Jai", 1);
+alert(points);
+var points = 0;
+function playTurn(player, location) {
+    points = 0;
+    if (location == 1) {
+       points = points + 100;
+    }
+    return points;
+}
+var total = playTurn("Jai", 1);
+alert(points);
+We forgot to declare 
+points with “var” before 
+we used it. So points is 
+automatically global.
+That means we can use points outside the 
+function! The value doesn’t go away (like it 
+should) when the function is done executing.
+This program behaves as if  you’d written this instead:
+JavaScript assumes that we meant for points to be 
+global because we forgot to use “var”, and behaves 
+as if points were declared at the global level.
+Forgetting to declare 
+your local variables can 
+cause problems if you use 
+the same name as another 
+global variable. You might 
+overwrite a value you 
+didn’t mean to.
+
+104        Chapter    3
+shadowing variables
+You “shadow” your global.
+Here’s what that means: say you have a global variable 
+beanCounter and you then declare a function, like this:
+When you do this, any references to beanCounter within 
+the function refer to the local variable and not the global. 
+So we say the global variable is in the shadow of  the local 
+variable (in other words we can’t see the global variable 
+because the local version is in our way).
+What happens when I 
+name a local variable the 
+same thing as an existing 
+global variable?
+var beanCounter = 10; 
+function getNumberOfItems(ordertype) {
+    var beanCounter = 0;
+    if (ordertype == "order") {
+       // do some stuff with beanCounter...
+    } 
+    return beanCounter;
+}
+Note that the local and global 
+variables have no effect on each 
+other: if you change one, it has 
+no effect on the other. They 
+are independent variables.
+We’ve got a global 
+and a local!
+
+you are here 4        105
+introducing functions
+var x = 32;
+var y = 44;
+var radius = 5;
+var centerX = 0;
+var centerY = 0;
+var width = 600;
+var height = 400;
+function setup(width, height) {
+    centerX = width/2;
+    centerY = height/2;
+}
+function computeDistance(x1, y1, x2, y2) {
+    var dx = x1 - x2;
+    var dy = y1 - y2;
+    var d2 = (dx * dx) + (dy * dy);
+    var d = Math.sqrt(d2);
+    return d;
+}
+function circleArea(r) {
+    var area = Math.PI * r * r;
+    return area;
+}
+setup(width, height);
+var area = circleArea(radius);
+var distance = computeDistance(x, y, centerX, centerY);
+alert("Area: " + area);
+alert("Distance: " + distance);
+Arguments
+Parameters
+Globals
+Locals
+Below you’ll find some JavaScript code, including variables, function definitions and function 
+calls. Your job is to identify the variables used in all the arguments, parameters, local 
+variables and global variables. Write the variable names in the appropriate boxes on the right. 
+Then circle any variables that are shadowed. Check your answer at the end of the chapter.
+
+106        Chapter    3
+fireside chat
+Tonight’s talk: Global and Local variables argue over who is 
+most important in a program.
+Global variable:
+Hey Local, I’m really not sure why you’re here 
+because I can handle any need for a variable a 
+coder might have. After all, I’m visible everywhere!  
+ 
+ 
+ 
+ 
+You have to admit that I could replace all your 
+previous local variables with global ones and your 
+functions would work just the same.   
+ 
+ 
+ 
+ 
+ 
+It wouldn’t have to be a mess. Programmers could 
+just create all the variables they need up at the top 
+of  a program, so they’d all be in one place... 
+ 
+ 
+ 
+ 
+ 
+ 
+Well, if  you’d use better names, then you might be 
+able to keep track of  your variables more easily. 
+ 
+True. But why bother with arguments and 
+parameters if  you’ve got all the values you need in 
+globals? 
+ 
+ 
+ 
+ 
+Local variable:
+ 
+ 
+ 
+Yes but using globals everywhere is just bad style. 
+Lots of  functions need variables that are local. You 
+know, their own private variables for their own use. 
+Globals can be seen everywhere. 
+ 
+ 
+ 
+Well, yes and no. If  you’re extremely careful, sure. 
+But being that careful is difficult, and if  you make 
+a mistake, then we’ve got functions using variables 
+that other functions are using for different purposes. 
+You’d also be littering the program with global 
+variables that you only need inside one function 
+call... that would just make a huge mess. 
+ 
+ 
+ 
+Yeah, and so what happens if  you need to call a 
+function that needs a variable, like, oh I dunno, 
+x, and you can’t remember what you’ve used x 
+for before. You have to go searching all over your 
+code to see if  you’ve used x anywhere else! What a 
+nightmare. 
+ 
+ 
+And what about parameters? Function parameters 
+are always local. So you can’t get around that. 
+ 
+ 
+Excuse me, do you hear what you’re saying? The 
+whole point of  functions is so we can reuse code to 
+compute different things based on different inputs.  
+ 
+ 
+
+you are here 4        107
+introducing functions
+ 
+Face it. It’s just good programming practice to use 
+local variables unless you absolutely need globals. 
+And globals can get you into real trouble. I’ve seen 
+JavaScript programs that barely use globals at all! 
+ 
+ 
+Of  inexperienced programmers, sure. But as 
+programmers learn to correctly structure their 
+code for correctness, maintainability, and just good 
+coding style, they learn how to stop using globals 
+except when necessary. 
+ 
+ 
+They let globals drink? Now, we’re really in 
+dangerous territory.
+Local variable:
+Global variable:
+ 
+ 
+But your variables are just so... temporary. Locals 
+come and go at a moment’s notice.  
+ 
+ 
+ 
+Not at all? Globals are the mainstay of  JavaScript 
+programmers!
+ 
+ 
+I think I need a drink.
+Lucky for me you can't 
+read my local variables.
+Who needs to. Your cards are 
+written all over your face.
+A Function
+Another Function
+
+108        Chapter    3
+questions about variables
+Q:
+ Keeping track of the scope of all these locals and 
+globals is confusing, so why not just stick to globals? That’s 
+what I’ve always done.
+A: If you’re writing code that is complex or that needs to be 
+maintained over a long period of time, then you really have to 
+watch how you manage your variables. When you’re overzealous 
+in creating global variables, it becomes difficult to track where 
+your variables are being used (and where you’re making changes 
+to your variables’ values), and that can lead to buggy code. All 
+this becomes even more important when you’re writing code with 
+co-workers or you’re using third-party libraries (although if those 
+libraries are written well, they should be structured to avoid these 
+issues).   
+ 
+So, use globals where it makes sense, but use them in 
+moderation, and whenever possible, make your variables local. 
+As you get more experience with JavaScript, you can investigate 
+additional techniques to structure code so that it’s more 
+maintainable.
+Q:
+ I have global variables in my page, but I’m loading in 
+other JavaScript files as well. Do those files have separate 
+sets of global variables?
+A: There is only one global scope so every file you load sees 
+the same set of variables (and creates globals in the same 
+space). That’s why it is so important you be careful with your 
+use of variables to avoid clashes (and reduce or eliminate global 
+variables when you can).
+Q:
+ If I use the same name for a parameter as I do for a 
+global variable, does the parameter shadow the global?
+A: Yes. Just like if you declare a new, local variable in a 
+function with the same name as a global, if you use the same 
+name for a parameter as a global, you’re also going to shadow 
+the global with that name. It’s perfectly fine to shadow a global 
+name as long as you don’t want to use the global variable inside 
+your function. But it’s a good idea to document what you’re doing 
+with comments so you don’t get confused later when you’re 
+reading your code.
+Q:
+ If I reload a page in the browser, do the global 
+variables all get re-initialized?
+A: Yes. Reloading a page is like starting over from scratch 
+as far as the variables are concerned. And if any code was in 
+the middle of executing when you reload the page, any local 
+variables will disappear, too.    
+Q:
+ Should we always declare our local variables at the 
+top of a function?
+A: Just like with global variables, you can declare local 
+variables when you first need to use them in a function. However, 
+it’s a good programming practice to go ahead and declare them 
+at the top of your function so someone reading your code can 
+easily find those declarations and get a sense at a glance of all 
+the local variables used within the function. In addition, if you 
+delay declaring a variable and then decide to use that variable 
+earlier in the body of the function than you originally anticipated, 
+you might get behavior that you don’t expect. JavaScript creates 
+all local variables at the beginning of a function whether you 
+declare them or not (this is called “hoisting” and we’ll come 
+back to it later), but the variables are all undefined until they are 
+assigned a value, which might not be what you want.
+Q:
+ Everyone seems to complain about the overuse 
+of global variables in JavaScript. Why is this? Was the 
+language badly designed or do people not know what they’re 
+doing, or what? And what do we do about it?
+A: Globals are often overused in JavaScript. Some of this is 
+because the language makes it easy to just jump in and start 
+coding—and that’s a good thing—because JavaScript doesn’t 
+enforce a lot of structure or overhead on you. The downside 
+is when people write serious code this way and it has to be 
+changed and maintained over the long term (and that pretty much 
+describes all web pages). All that said, JavaScript is a powerful 
+language that includes features like objects you can use to 
+organize your code in a modular way. Many books have been 
+written on that topic alone, and we’re going to give you a taste of 
+objects in Chapter 5 (which is only a couple of chapters away).
+
+you are here 4        109
+introducing functions
+We’ve talked a 
+lot about local and global 
+variables and where they should be 
+declared, but we haven’t talked about 
+where to declare our functions. Should 
+we just put them all at the top of our 
+JavaScript files?
+Actually, you can put your functions 
+anywhere in your JavaScript file.
+JavaScript doesn’t care if  your functions are declared before or 
+after you use them. For instance, check out this code: 
+var radius = 5;
+var area = circleArea(radius);
+alert(area);
+function circleArea(r) {
+    var a = Math.PI * r * r;
+    return a;
+}
+Notice that 
+we’re using 
+the circleArea 
+function before 
+we’re defining it!
+The circleArea function isn’t 
+actually defined until after we’ve 
+called it, in the code above. How on 
+earth does this work?
+This might seem really odd, especially if  you remember 
+when the browser loads your page, it starts executing the 
+JavaScript from the top to the bottom of  your file. But, the 
+truth is JavaScript actually makes two passes over your 
+page: in the first pass it reads all the function definitions, 
+and in the second it begins executing your code. So, that 
+allows you to place functions anywhere in your file.
+
+110        Chapter    3
+function exercise
+function clunk(times) {
+    var num = times;
+    while (num > 0) {
+        display("clunk");
+        num = num - 1;
+    }
+}
+function thingamajig(size) {
+    var facky = 1;
+    clunkCounter = 0;
+    if (size == 0) {
+       display("clank");
+    } else if (size == 1) {
+       display("thunk");
+    } else {
+        while (size > 1) {
+            facky = facky * size;
+            size = size - 1;
+        }
+        clunk(facky);
+    }
+}
+function display(output) {
+    console.log(output);
+    clunkCounter = clunkCounter + 1;
+}
+var clunkCounter = 0;
+thingamajig(5);
+console.log(clunkCounter);
+The Thing-A-Ma-Jig
+Your output 
+here!
+The Thing-A-Ma-Jig is quite a contraption—it clanks and clunks and even thunks, 
+but what it really does, well, you’ve got us stumped. Coders claim they know how it 
+works. Can you uncrack the code and find its quirks?
+The Thing-A-Ma-Jig
+We recommend passing the Thing-A-Ma-Jig the numbers 
+0, 1, 2, 3, 4, 5, etc. See if you know what it's doing.
+JavaScript console
+
+you are here 4        111
+introducing functions
+Webville Guide to Code Hygiene
+In Webville we like to keep things clean, organized and ready for expansion. 
+There’s no place that needs to be better maintained than your code, and 
+JavaScript can seem pretty loosey-goosey when it comes to organizing your 
+variables and functions. So we’ve put together a neat little guide for you that makes 
+a few recommendations for those new to Webville. Take one, they’re FREE. 
+ 
+Global variables, right at the TOP!
+It’s a good idea to keep your globals grouped together as much as possible, and if  
+they’re all up at the top, it’s easy to find them. Now you don’t have to do this, but 
+isn’t it easier for you and others to locate the variables used in your code if  they’re 
+all at the top? 
+ 
+Functions like to sit together.
+Well, not really; they actually don’t care, they’re just functions. But, if  you keep 
+your functions together, it’s a lot easier to locate them. As you know, the browser 
+actually scans your JavaScript for the functions before it does anything else. So you 
+can place them at the top or bottom of  the file, but if  you keep them in one place 
+your life will be easier. Here in Webville, we often start with our global variables 
+and then put our functions next. 
+ 
+Let your local variables be declared at the TOP of  the function they’re 
+in.
+Put all your local variable declarations at the beginning of  the function body. This 
+makes them easy to find and ensures they are all declared properly before use.
+That’s it, just be safe and we hope you enjoy your time coding in Webville!
+
+112        Chapter    3
+who am i exercise
+Who am I?
+I get passed into a function.
+I send values back to the calling code.
+I’m the all important keyword.
+I’m what receives arguments.
+It really means ‘make a copy’.
+I’m everywhere.
+Another phrase for invoking a function.
+Example of  a function attached to an object.
+alert and prompt are examples.
+What functions are great for.
+Where I can be seen.
+I’m around when my function is.
+A bunch of JavaScript attendees, in full costume, are playing a 
+party game, “Who am I?”  They give you a clue, and you try to 
+guess who they are, based on what they say. Assume they always 
+tell the truth about themselves.  Fill in the blank next to each 
+sentence with the name of one attendee. 
+Tonight’s attendees:
+function, argument, return, scope, local variable, global 
+variable, pass-by-value, parameter, function call,  
+Math.random, built-in functions, code reuse.
+
+you are here 4        113
+introducing functions
+The case of  the attempted robbery not worth investigating
+Sherlock finished his phone call with the bumbling chief  of  police, Lestrade, and sat 
+down in front of  the fireplace to resume reading the newspaper. Watson looked at him 
+expectantly. 
+“What?” said Sherlock, not looking up from the paper.   
+“Well? What did Lestrade have to say?” Watson asked.
+“Oh, he said they found a bit of  rogue code in the bank account where the 
+suspicious activity was taking place.”
+“And?” Watson said, trying to hide his frustration.
+“Lestrade emailed me the code, and I told him it wasn’t worth pursuing. The 
+criminal made a fatal flaw and will never be able to actually steal the money,” 
+Sherlock said.
+“How do you know?” Watson asked.
+“It’s obvious if  you know where to look,” Sherlock exclaimed. “Now stop bothering me 
+with questions and let me finish this paper.”
+With Sherlock absorbed in the latest news, Watson snuck a peek at Sherlock’s phone and 
+pulled up Lestrade’s email to look at the code.
+Five Minute 
+Mystery
+var balance = 10500;
+var cameraOn = true;
+function steal(balance, amount) {
+    cameraOn = false;
+    if (amount < balance) {
+        balance = balance - amount;
+    }
+    return amount;
+    cameraOn = true;
+}
+var amount = steal(balance, 1250);
+alert("Criminal: you stole " + amount + "!");
+Why did Sherlock decide not to investigate the case? How could he 
+know that the criminal would never be able to steal the money just by 
+looking at the code? Is there one problem with the code?  Or more?
+This is the real, actual bank 
+balance in the account.
+
+114        Chapter    3
+chapter summary
+ Declare a function using the function 
+keyword, followed by the name of the 
+function.
+ Use parentheses to enclose any parameters 
+a function has. Use empty parentheses if 
+there are no parameters.
+ Enclose the body of the function in curly 
+braces. 
+ The statements in the body of a function are 
+executed when you call a function.
+ Calling a function and invoking a function 
+are the same thing.
+ You call a function by using its name 
+and passing arguments to the function’s 
+parameters (if any).
+ A function can optionally return a value using 
+the return statement.
+ A function creates a local scope for 
+parameters and any local variables the 
+function uses.
+ Variables are either in the global scope 
+(visible everywhere in your program) or in 
+the local scope (visible only in the function 
+where they are declared).
+ Declare local variables at the top of the body 
+of your function.
+ If you forget to declare a local variable using 
+var, that variable will be global, which could 
+have unintended consequences in your 
+program.
+ Functions are a good way to organize your 
+code and create reusable chunks of code.
+ You can customize the code in a function by 
+passing in arguments to parameters (and 
+using different arguments to get different 
+results).
+ Functions are also a good way to reduce or 
+eliminate duplicate code. 
+ You can use JavaScript’s many built-in 
+functions, like alert, prompt, and  
+Math.random, to do work in your programs.
+ Using built-in functions means using existing 
+code you don’t have to write yourself.
+ It’s a good idea to organize your code so 
+your functions are together, and your global 
+variables are together, at the top of your 
+JavaScript ile.
+
+you are here 4        115
+introducing functions
+JavaScript cross
+In this chapter you got functional. Now use some 
+brain functions to do this crossword.
+12
+3
+45
+678
+910
+1112
+13
+1415
+16
+17
+ACROSS

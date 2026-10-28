@@ -1,0 +1,50 @@
+<section class="chapter" id="ch20" data-ch="20" data-title="Kiến trúc Hướng Đối Tượng: Đóng gói Trạng thái và Hành vi trong JavaScript">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 20</span>
+    <h1>Understanding Objects: State, Behavior, and References <span class="vi">Kiến trúc Hướng Đối Tượng: Đóng gói Trạng thái và Hành vi trong JavaScript</span></h1>
+    <p class="chapter-lede">Làm chủ mô hình đối tượng trong JavaScript để chuyển dịch từ tư duy lập trình thủ tục sang tư duy hướng đối tượng đóng gói.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học</span>
+      <span class="pill">1 labs</span>
+      <span class="pill">1 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch20-t1" data-num="20.1" data-short="State & Behavior">
+    <div class="topic-theory-card">
+      <span class="eyebrow">NGUYÊN LÝ CỐT LÕI</span>
+    <h2>Trạng thái và Hành vi trong Đối tượng</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Đối tượng lưu trữ state qua properties và tạo hành vi qua methods.</p>
+    <div class="prose">
+      <p>Trong kiến trúc phần mềm, việc kết hợp dữ liệu (<dfn data-term="state">trạng thái</dfn>) và các hàm xử lý (<dfn data-term="behavior">hành vi</dfn>) vào cùng một <dfn data-term="object">đối tượng</dfn> giúp mã nguồn trực quan hơn. Phương thức có thể thay đổi trạng thái và trạng thái quyết định cách thức hành vi phản ứng.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Hệ thống gọi xe như Grab/XanhSM quản lý trạng thái xe (đang tài, rảnh, hết pin/xăng) và hành vi (nhận cuốc, di chuyển) ngay bên trong đối tượng tài xế.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch20-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Mô phỏng Xe hơi</strong>
+        — Kiểm tra mức nhiên liệu trước khi cho xe chạy.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch20-review" data-num="20.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>Chương này bóc tách bản chất của đối tượng (objects) trong JavaScript không chỉ là tập hợp các cặp khóa-giá trị tĩnh mà là thực thể chứa cả trạng thái (state thông qua properties) và hành vi (behavior thông qua methods). Khi thiết kế hệ thống lớn, việc phân tách và đóng gói logic vào đối tượng giúp giảm thiểu độ phức tạp, quản lý ngữ cảnh thực thi thông qua từ khóa 'this' và hiểu rõ cơ chế truyền tham chiếu (reference variables). Sự hiểu biết này đặt nền móng cho việc sử dụng các built-in objects (Math, Date, document, console) và chuẩn bị cho các mẫu thiết kế hướng đối tượng nâng cao.</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 1:</strong> Khi bạn truyền một đối tượng vào một hàm và thay đổi thuộc tính của nó bên trong hàm đó, điều gì xảy ra?</p>
+        <ol><li>Đối tượng gốc bên ngoài hàm không bị thay đổi</li><li>Đối tượng gốc bên ngoài hàm bị thay đổi vì biến lưu tham chiếu</li><li>JavaScript sẽ báo lỗi cú pháp</li><li>Hàm tạo ra một bản sao hoàn toàn độc lập</li></ol>
+        <p class="explain">Biến đối tượng lưu trữ tham chiếu. Khi truyền vào hàm, hàm nhận được một bản sao của tham chiếu trỏ tới cùng một ô nhớ chứa đối tượng gốc, do đó mọi thay đổi thuộc tính đều ảnh hưởng đến bản gốc.</p>
+      </div></div>
+  </article>
+</section>

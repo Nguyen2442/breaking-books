@@ -298,7 +298,27 @@
     };
 
     topics.forEach((t, i) => {
-      if (t.querySelector('.topic-foot')) return;
+      // 1. Separate Theory Card and Visual Lab Card into distinct, spacious cards
+      const lab = t.querySelector('figure.lab');
+      if (lab && !t.querySelector('.topic-theory-card')) {
+        const theoryCard = h('div', { class: 'topic-theory-card' });
+        const children = [...t.childNodes];
+        children.forEach((child) => {
+          if (child !== lab) {
+            theoryCard.appendChild(child);
+          }
+        });
+        clear(t);
+        t.appendChild(theoryCard);
+        lab.classList.add('topic-lab-card');
+        t.appendChild(lab);
+      } else if (!lab && !t.querySelector('.topic-theory-card')) {
+        t.classList.add('topic-standalone-card');
+      }
+
+      const hostCard = t.querySelector('.topic-theory-card') || t;
+      if (hostCard.querySelector('.topic-foot')) return;
+
       const btn = h('button', { type: 'button', class: 'mark-read', 'aria-pressed': String(readSet.has(t.id)) });
       const label = () => {
         btn.textContent = readSet.has(t.id) ? '✓ Đã đọc mục này' : 'Đánh dấu đã đọc';
@@ -396,8 +416,8 @@
       const foot = h('footer', { class: 'topic-foot' }, leftGroup);
       const next = topics[i + 1];
       if (next) foot.appendChild(h('a', { class: 'next', href: '#' + next.id }, 'Tiếp: ' + (topicNum(next) ? topicNum(next) + ' ' : '') + topicTitle(next) + ' →'));
-      t.appendChild(noteBox);
-      t.appendChild(foot);
+      hostCard.appendChild(noteBox);
+      hostCard.appendChild(foot);
     });
 
     initWidgets(root);

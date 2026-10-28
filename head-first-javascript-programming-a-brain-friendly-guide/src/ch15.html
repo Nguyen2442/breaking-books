@@ -1,0 +1,104 @@
+<section class="chapter" id="ch15" data-ch="15" data-title="Quản lý dữ liệu nâng cao với mảng, vòng lặp và hàm trong JavaScript">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 15</span>
+    <h1>Advanced Data Management with Arrays, Loops, and Functions in JavaScript <span class="vi">Quản lý dữ liệu nâng cao với mảng, vòng lặp và hàm trong JavaScript</span></h1>
+    <p class="chapter-lede">Làm chủ cách xử lý tập dữ liệu lớn bằng mảng động, tối ưu hóa thuật toán tìm kiếm và tái cấu trúc mã nguồn theo chuẩn kỹ sư.</p>
+    <div class="chapter-meta">
+      <span class="pill">3 bài học</span>
+      <span class="pill">3 labs</span>
+      <span class="pill">2 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch15-t1" data-num="15.1" data-short="Mảng động">
+    <div class="topic-theory-card">
+      <span class="eyebrow">NGUYÊN LÝ CỐT LÕI</span>
+    <h2>Tạo mảng từ đầu và thêm dữ liệu với push()</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Sử dụng mảng rỗng và phương thức push để lưu trữ tập dữ liệu động mà không lo lỗi chỉ số.</p>
+    <div class="prose">
+      <p>Khi xử lý dữ liệu thực tế, kích thước tập dữ liệu thường không cố định. Việc khai báo mảng rỗng bằng cú pháp <dfn data-term="Array Literal">array literal</dfn> rỗng `var bestSolutions = [];` cung cấp một vùng chứa linh hoạt. Thay vì tự quản lý chỉ số (index) dễ dẫn đến lỗi, phương thức <dfn data-term="push()">push()</dfn> tự động đẩy phần tử mới vào vị trí trống tiếp theo ở cuối mảng.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Hệ thống quản lý giỏ hàng của Tiki sử dụng mảng động để lưu danh sách các sản phẩm khách hàng thêm vào giỏ hàng liên tục trong phiên làm việc mà không cần định trước dung lượng bộ nhớ.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch15-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Mô phỏng Push Array</strong>
+        — Kiểm tra cách phương thức push hoạt động trên mảng rỗng.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch15-t2" data-num="15.2" data-short="Thuật toán tìm kiếm">
+    <div class="topic-theory-card">
+      <span class="eyebrow">THỰC CHIẾN THUẬT TOÁN</span>
+    <h2>Quét mảng tìm giá trị lớn nhất và lọc kết quả</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Duyệt qua mảng hai lần: lần một tìm kỷ lục, lần hai gom nhóm các phần tử đạt kỷ lục.</p>
+    <div class="prose">
+      <p>Để tìm giải pháp tốt nhất trong bài toán Bubbles-R-Us, chúng ta áp dụng thuật toán tuyến tính (<dfn data-term="Linear Scan">linear scan</dfn>). Vòng lặp đầu tiên cập nhật biến `highScore` khi phát hiện điểm số cao hơn. Vòng lặp thứ hai so sánh từng phần tử với `highScore` đã biết và dùng `push()` để lưu lại các chỉ số đạt đỉnh.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Hệ thống đặt xe Grab/XanhSM áp dụng logic quét dữ liệu tương tự để tìm ra tài xế có điểm đánh giá cao nhất trong bán kính cho phép quanh vị trí khách hàng.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch15-w2">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Mô phỏng 2 vòng lặp</strong>
+        — Kiểm tra logic tách biệt giữa tìm max và gom nhóm.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch15-t3" data-num="15.3" data-short="Sparse Array">
+    <div class="topic-theory-card">
+      <span class="eyebrow">KIẾN TRÚC BỘ NHỚ</span>
+    <h2>Hiểm họa Sparse Array và tối ưu bộ nhớ</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Gán giá trị cho chỉ số quá lớn sẽ tạo ra mảng thưa chứa vô số giá trị undefined lãng phí RAM.</p>
+    <div class="prose">
+      <p>Trong JavaScript, mảng thực chất là một dạng đối tượng đặc biệt. Nếu bạn tạo một mảng và gán giá trị tại index 10000 mà bỏ qua các index trước đó, bạn tạo ra một <dfn data-term="Sparse Array">sparse array</dfn>. Các ô trống sẽ nhận giá trị mặc định là <dfn data-term="Undefined">undefined</dfn>, chiếm dụng bộ nhớ RAM một cách vô ích.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Các hệ thống backend xử lý dữ liệu lớn bằng Node.js tại các sàn thương mại điện tử phải đặc biệt cẩn trọng với sparse array để tránh hiện tượng rò rỉ bộ nhớ (memory leak) gây sập tiến trình (OOM crash).</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch15-w3">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Mô phỏng Sparse Array</strong>
+        — Kiểm tra kích thước mảng khi gán index rời rạc.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch15-review" data-num="15.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>Trong chương này, chúng ta giải quyết bài toán xử lý hàng loạt dữ liệu điểm kiểm tra chất lượng bong bóng (bubble scores) tại Bubbles-R-Us. Vấn đề cốt lõi là làm thế nào để lưu trữ danh sách động, duyệt qua hàng chục phần tử, tìm ra giá trị lớn nhất (high score), và gom nhóm các giải pháp đạt điểm cao nhất vào một cấu trúc dữ liệu tối ưu. Giải pháp kỹ thuật được đưa ra bao gồm: sử dụng mảng rỗng (empty array literal) kết hợp phương thức push() để thêm dữ liệu an toàn mà không sợ lỗi chỉ số (index), triển khai thuật toán quét tuyến tính (linear scan) qua nhiều vòng lặp độc lập, và nhận diện hiện tượng sparse array (mảng thưa) gây lãng phí bộ nhớ do các ô trống chứa giá trị undefined. Cuối cùng, chúng ta áp dụng tư duy refactoring để tách biệt logic xử lý thành các hàm có thể tái sử dụng, giúp mã nguồn sạch sẽ, dễ bảo trì và sẵn sàng mở rộng cho các hệ thống cấp độ doanh nghiệp.</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 1:</strong> Phương thức .push() làm gì khi được gọi trên một mảng?</p>
+        <ol><li>Xóa phần tử đầu tiên của mảng</li><li>Thêm một giá trị mới vào vị trí trống tiếp theo ở cuối mảng</li><li>Tìm giá trị lớn nhất trong mảng</li><li>Chuyển mảng thành một chuỗi JSON</li></ol>
+        <p class="explain">Phương thức push() tự động tìm vị trí trống kế tiếp ở cuối mảng, gắn giá trị truyền vào và tăng độ dài mảng lên 1 đơn vị.</p>
+      </div>
+
+      <div class="q" data-answer="2">
+        <p class="q-text"><strong>Câu 2:</strong> Hiện tượng Sparse Array xảy ra khi nào?</p>
+        <ol><li>Khi mảng có quá nhiều phần tử trùng lặp</li><li>Khi mảng không có phần tử nào (mảng rỗng)</li><li>Khi gán giá trị cho một chỉ số rất xa mà bỏ trống các chỉ số ở giữa</li><li>Khi sử dụng từ khóa new Array() sai cú pháp</li></ol>
+        <p class="explain">Sparse array xuất hiện khi có khoảng trống (holes) giữa các chỉ số, khiến các ô trung gian mang giá trị undefined và làm lãng phí bộ nhớ.</p>
+      </div></div>
+  </article>
+</section>

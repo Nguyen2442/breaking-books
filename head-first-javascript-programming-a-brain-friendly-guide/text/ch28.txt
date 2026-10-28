@@ -1,0 +1,740 @@
+2. The only value in JavaScript that doesn’t equal 
+anything. 
+5. The type of Infinity is ________. 
+7. There are _______ falsey values in JavaScript.
+8. Who got the Aeron? 
+10. Two variables containing object references
+are equal only if they ______ the same
+object.
+12. The value returned when you’re expecting an
+object, and that object doesn’t exist.
+13. The ______ method is a string method that
+returns an array.
+16. It’s always 67 degrees in _______,
+Missouri. 
+17. The type of null in the JavaScript specification. 
+18. The ______ equality operator returns true only if the 
+operands have the same type and the same value.  
+ 
+DOWN
+1. The _________ operator can be used to get the type 
+of a value. 
+2. The weirdest value in the world. 
+3. Your Fiat is parked at _____ Autos. 
+4. Sometimes strings masquerade as
+_________. 
+6. The value of a property that doesn’t exist.
+9. There are lots of handy string ________
+you can use.
+11. The _______ operator tests two values to
+see if they’re equal, after trying to convert
+the operands to the same type. 
+14. null == undefined
+15. To find a specific character at an index in a
+string, use the ______ method. 
+
+308        Chapter    7
+exercise solutions
+Who am I?
+I get returned from a function when there 
+is no return statement.
+I’m the value of  a variable when I haven’t 
+been assigned a value.
+I’m the value of  an array item that doesn’t 
+exist in a sparse array.
+I’m the value of  a property that doesn’t 
+exist.
+I’m the value of  a property that’s been 
+deleted.
+I’m the value that can’t be assigned to a 
+property when you create an object.
+zero
+empty object
+null
+undefined
+NaN
+infinity
+area 51
+...---...
+{}
+[]
+A bunch of JavaScript values and party crashers, in full costume, are 
+playing a party game, “Who am I?”  They give you a clue, and you try to 
+guess who they are, based on what they say. Assume they always tell 
+the truth about themselves.  Fill in the blank next to each sentence with 
+the name of one attendee.  We’ve already guessed one of them.
+Here’s our solution:
+Tonight’s 
+attendees:
+
+you are here 4        309
+types, equality, conversion and all that jazz
+IN THE LABORATORY
+In the laboratory we like to take things apart, look under the hood, 
+poke and prod, hook up our diagnostic tools and check out what 
+is really going on. Today, we’re investigating JavaScript’s type 
+system and we’ve found a little diagnostic tool called typeof to 
+examine variables. Put your lab coat and safety goggles on, and 
+come on in and join us.
+The typeof operator is built into JavaScript. You can use it to 
+probe the type of its operand (the thing you use it to operate on). 
+Here’s an example:
+var subject = "Just a string";
+var probe = typeof subject;
+console.log(probe);
+JavaScript console
+string
+The typeof operator takes an 
+operand, and evaluates to the 
+type of the operand. 
+The type here is “string". Note 
+that typeof uses strings to 
+represent types, like “string",  
+“boolean", “number", “object", 
+“undefined" and so on.
+Now it’s your turn. Collect the data for the 
+following experiments:
+var test1 = "abcdef";
+var test2 = 123;
+var test3 = true;
+var test4 = {};
+var test5 = [];
+var test6;
+var test7 = {"abcdef": 123};
+var test8 = ["abcdef", 123];
+function test9(){return "abcdef"};
+console.log(typeof test1);
+console.log(typeof test2);
+console.log(typeof test3);
+console.log(typeof test4);
+console.log(typeof test5);
+console.log(typeof test6);
+console.log(typeof test7);
+console.log(typeof test8);
+console.log(typeof test9);
+JavaScript console
+Here's the test data, 
+and the tests.
+SOLUTION
+string
+number
+boolean
+object
+object
+undefined
+object
+object
+function
+Here are our results. 
+
+310        Chapter    7
+exercise solutions
+BACK IN THE LABORATORY
+Oops, we forgot null in our test data. Here’s the missing test case:
+var test10 = null;
+console.log(typeof test10);
+JavaScript console
+Here’s our result.
+We’ve been looking at some rather, um, interesting, values so far in this chapter. 
+Now, let’s take a look at some interesting behavior. Try adding the code below 
+to the <script> element in a basic web page and see what you get in the console 
+when you load up the page. You won’t get why yet, but see if you can take a 
+guess about what might be going on.
+if (99 == "99") {
+    console.log("A number equals a string!");
+} else {
+    console.log("No way a number equals a string");
+}
+JavaScript console
+A number equals a string!
+Here’s what we got.
+object
+SOLUTION
+
+you are here 4        311
+types, equality, conversion and all that jazz
+Compares values to see if they are equal. This 
+guy won’t even consider values that have 
+different types.
+=
+We had our descriptions for these operators all figured out, and then they got all mixed up. Can 
+you help us figure out who does what? Be careful, we’re not sure if  each contender matches zero, 
+one or more descriptions. Here’s our solution:
+==
+===
+Assigns a value to a variable.
+Compares values to see if they are equal. This 
+is the considerate equality operator. He’ll go 
+to the trouble of trying to convert your types 
+to see if you are really equal.
+Compares object references and returns 
+true if they are the same and false otherwise.
+====
+For each comparison below write true or false below the 
+operators = =  or = = =  to represent the result of the comparison:
+Both these 
+work if you're 
+comparing two 
+objects!
+There is 
+no such 
+operator. 
+SOlUTion
+"42" == 42
+==
+===
+"0" == 0
+"0" == false
+"true" == true
+true == (1 == "1")
+true
+Tricky!
+"42" === 42
+"0" === 0
+"0" === false
+"true" === true
+true === (1 === "1")
+true
+true
+false
+true
+false
+false
+false
+false
+If you replace both == with 
+===, then the result is false.
+false
+
+312        Chapter    7
+exercise solutions
+For each expression below, write the result in the blank next to it. We’ve done one 
+for you. Here’s our solution.
+Infinity - "1"
+"42" + 42
+2 + "1 1"
+99 + 101
+"1" - "1"
+console.log("Result: " + 10/2)
+3 + " bananas " + 2 + " apples"
+Infinity
+“4242”
+“21 1”
+200
+0
+“Result: 5”
+“3 bananas 2 apples”
+“1” is converted to 1, and 
+Infinity - 1 is Infinity.
+Both strings are 
+converted to 1, and 
+1-1 is 0.
+10/2 happens first, 
+and the result is 
+concatenated to the 
+string “Result: ”
+Each + is concatenation because 
+for both, one operand is a string.
+
+you are here 4        313
+types, equality, conversion and all that jazz
+Time for a quick lie detector test. Figure out how many lies the perp tells, and 
+whether the perp is guilty as charged, by determining which values are truthy 
+and which values are falsey. Here’s our solution. Did you try these out in the 
+browser yourself?
+function lieDetectorTest() {
+    var lies = 0;
+    var stolenDiamond = { };
+    if (stolenDiamond) {
+        console.log("You stole the diamond");
+        lies++;
+    }
+    var car = {
+        keysInPocket: null
+    };
+    if (car.keysInPocket) {
+        console.log("Uh oh, guess you stole the car!");
+        lies++;
+    }
+    if (car.emptyGasTank) {
+        console.log("You drove the car after you stole it!");
+        lies++;
+    }
+    var foundYouAtTheCrimeScene = [ ];
+    if (foundYouAtTheCrimeScene) {
+        console.log("A sure sign of guilt");
+        lies++;
+    }
+    if (foundYouAtTheCrimeScene[0]) {
+        console.log("Caught with a stolen item!");
+        lies++;
+    }
+    var yourName = " ";
+    if (yourName) {
+        console.log("Guess you lied about your name");
+        lies++;
+    }
+    return lies;
+}
+var numberOfLies = lieDetectorTest();
+console.log("You told " + numberOfLies + " lies!");
+if (numberOfLies >= 3) {
+    console.log("Guilty as charged");
+}
+A string with one space.
+JavaScript console
+You stole the diamond
+A sure sign of guilt
+Guess you lied about your name
+You told 3 lies!
+Guilty as charged
+Any object is truthy, 
+even an empty one.
+This perp didn't steal the car because 
+the value of the keysInPocket property 
+is null, which is falsey.
+And the perp didn't drive 
+the car either, because the 
+emptyGasTank property is 
+undefined, which is falsey.
+But [ ] (an empty array) 
+is truthy, so the perp was 
+caught on the scene.
+There is no item in the array, so 
+the array item at 0 is undefined, 
+which is falsey. Hmm, the perp must 
+have hidden the stash already.
+Any non-empty string is truthy, 
+even if it just has one space!
+The number of lies is 3 so we think the perp is guilty.
+
+314        Chapter    7
+exercise solutions
+Earl, from 
+Earl’s Autos. 
+function findCarInLot(car) {
+    for (var i = 0; i < lot.length; i++) {
+        if (car === lot[i]) {
+            return i;
+        }
+    }
+    return -1;
+}
+var chevy = {
+    make: "Chevy", 
+    model: "Bel Air"
+};
+var taxi = {
+    make: "Webville Motors", 
+    model: "Taxi"
+};
+var fiat1 = {
+    make: "Fiat", 
+    model: "500"
+};
+var fiat2 = {
+    make: "Fiat", 
+    model: "500"
+};
+var lot = [chevy, taxi, fiat1, fiat2];
+var loc1 = findCarInLot(fiat2);
+var loc2 = findCarInLot(taxi);
+var loc3 = findCarInLot(chevy);
+var loc4 = findCarInLot(fiat1);
+Here's a little code that helps find cars in Earl’s Used Autos parking lot. 
+Trace through this code and write the values of loc1 through loc4 below.
+Here are our answers.
+0
+3
+1
+2
+
+you are here 4        315
+types, equality, conversion and all that jazz
+IN THE LABORATORY, AGAIN
+The lab crew continues to probe JavaScript using the typeof 
+operator and they’re uncovering some more interesting things 
+deep within the language. In the process, they’ve discovered a 
+new operator, instanceof. With this one, they’re truly on the cutting 
+edge. Put your lab coat and safety goggles back on and see if you 
+can help decipher this JavaScript and the results. Warning: this is 
+deinitely going to be the weirdest code you’ve seen so far.
+function Duck(sound) {
+    this.sound = sound;
+    this.quack = function() {console.log(this.sound);}
+}
+var toy = new Duck("quack quack");
+toy.quack();
+console.log(typeof toy);
+console.log(toy instanceof Duck);
+JavaScript console
+Here's the code. Read it, run it, alter 
+it, massage it, see what it does...
+Here are our results.
+How strange. Doesn't this look a bit like 
+a mix of a function and an object?
+Hmm “new". We've haven't seen that before. But 
+we're guessing we should read this as, create a new 
+Duck and assign it to the toy variable.
+If it looks like an object, and walks like an object... 
+let's test it.
+Okay, and here is instanceof...
+SOLUTION
+quack quack
+object
+true
+The toy acts like an 
+object... we can call 
+its method.
+And the type is object.
+But it is an “instanceof” 
+a Duck, whatever that 
+means... Hmm.
+Just what does this all mean? Ah, we’ll be getting 
+to all that in just a few chapters. And, in case you 
+didn’t notice, you are well on your way to being a 
+pretty darn advanced JavaScript coder. This is 
+serious stuff!
+
+316        Chapter    7
+exercise solutions
+JavaScript cross Solution
+You’re really expanding your JavaScript skills. Do a 
+crossword to help it all sink in. All the answers are 
+from this chaper. Here’s our solution.
+T
+1
+N
+2
+ANE
+3
+YAO
+4
+A
+PN
+5
+U
+6
+MBER
+F
+7
+I
+	
+EN
+J
+L
+ODES
+A
+8
+M
+9
+YR
+10
+E
+11
+FERENCE
+EQFT
+TN
+12
+ULLIS
+13
+PLIT
+14
+
+C
+15
+ANR
+O
+
+B
+16
+LAINEN
+17
+ULL
+DAIDE
+S
+18
+TRICT
+AY
+T
+
+this is a new chapter     317
+Building an app
+8  bringing it all together
+Put on your toolbelt.  That is, the toolbelt with all your new coding 
+skills, your knowledge of the DOM, and even some HTML & CSS. We’re 
+going to bring everything together in this chapter to create our first true web 
+application. No more silly toy games with one battleship and a single row of 
+hiding places. In this chapter we’re building the entire experience: a nice big 
+game board, multiple ships and user input right in the web page. We’re going 
+to create the page structure for the game with HTML, visually style the game 
+with CSS, and write JavaScript to code the game’s behavior. Get ready: this 
+is an all out, pedal to the metal development chapter where we’re going to lay 
+down some serious code.
+I love how you’ve 
+brought all the ingredients 
+together to create 
+something truly tasty.
+Hey! Eyes up! The 
+poundcake’s up here.
+
+318        Chapter    8
+building the real battleship game
+Sure, you can feel good because back in Chapter 2 you built a nice little battleship game 
+from scratch, but let’s admit it: that was a bit of  a toy game—it worked, it was playable, 
+but it wasn’t exactly the game you’d impress your friends with, or use to raise your first 
+round of  venture capital. To really impress, you’ll need a visual game board, snazzy 
+battleship graphics, and a way for players to enter their moves right in the game (rather 
+than a generic browser dialog box). You’ll also want to improve the previous version by 
+supporting all three ships.
+In other words, you’ll want to create something like this:
+This time, let’s build a REAL Battleship game
+Highly visual game 
+board right in the 
+web page, complete 
+with a grid.
+Enter your guesses 
+right in the page.
+Your hits and 
+misses are placed 
+right on the 
+game board as 
+you take your 
+shots.
+And now we’ve 
+got all three ships 
+ducking your shots.
+Forget JavaScript for a minute... look at the Battleship mockup above. 
+If you focus on the structure and visual represention of the page, how 
+would you create it using HTML and CSS?
+
+you are here 4        319
+bringing it all together
+Stepping back... to HTML and CSS
+To create a modern, interactive web page, or app, you need to 
+work with three technologies: HTML, CSS and JavaScript. You 
+already know the mantra “HTML is for structure, CSS is for 
+style and JavaScript is for behavior.” But rather than just stating 
+it, in this chapter we’re going to fully embody it. And we’re 
+going to start with the HTML and CSS first.
+Our first goal is going to be to reproduce the look of  the game 
+board on the previous page. But not just reproduce it; we need 
+to implement the game board so it has a structure we can use 
+in JavaScript to take player input and place hits, misses and 
+messages on the page.  
+To pull that off  we’re going to do things like use an image in the 
+background to give us the slick grid over a radar look, and then 
+we’ll lay a more functional HTML table over that so we can 
+place things (like ships) on top of  it. We’ll also use an HTML 
+form to get the player input.
+board.jpg
+ship.png
+miss.png
+INVENTORY includes...
+This toolkit contains three images, 
+“board.jpg”, which is the main 
+background board for the game 
+including the grid; “ship.png”, which 
+is a small ship for placement on 
+the board—notice that it is a PNG 
+image with transparency, so it will 
+lay right on top of the background—
+and finally we have “miss.png”, 
+which is also meant to be placed on 
+the board. True to the original game, 
+when we hit a ship we place a ship 
+in the corresponding cell, and when 
+we miss we place a miss graphic 
+there.
+GET YOUR  
+Battleship Toolkit
+And then add an 
+HTML table that 
+overlays the grid.
+We’ll place an 
+image in the 
+background of 
+the page that 
+depicts the grid 
+of the game.
+Download everything you need for the 
+game at http://wickedlysmart.com/hfjs
+Here’s a toolkit to get you started on 
+this new version of Battleship.  
+Then we can place the ship or MISS 
+graphic in the table cells as needed.
+So, let’s build this game. We’re going to take a step back and 
+spend a few pages on the crucial HTML and CSS, but once 
+we have that in place, we’ll be ready for the JavaScript.
+
+320        Chapter    8
+planning the html for the game
+1
+First we’ll concentrate on the background 
+of the game, which includes setting the 
+background image to black and placing the 
+radar grid image in the page.
+2
+Next we’ll create an HTML table and lay 
+it on top of the background image. Each 
+cell in the table will represent a board 
+cell in the game.
+3
+Then we’ll add an HTML form element 
+where players can enter their guesses, 
+like “A4”.  We’ll also add an area to 
+display messages, like “You sank my 
+battleship!”
+Creating the HTML page: the Big Picture
+Here’s the plan of  attack for creating the Battleship HTML page:
+Finally, we’ll figure out how to use 
+the table to place the images of a 
+battleship (for a hit) and a MISS (for a 
+miss) into the board.
+4
+An HTML form 
+for player input.
+We’re placing an image in 
+the background to give 
+the game its cool, green 
+phosphorus radar feel.
+An HTML table 
+on top of the 
+background creates 
+a game board for 
+the game to play 
+out in.
+We’ll use these 
+images and place 
+them into the 
+table as needed.
+Step 1: The Basic HTML
+Let’s get started! First we need an HTML 
+page. We’re going to start by creating a simple 
+HTML5-compliant page; we’ll also add some 
+styling for the background image. In the page 
+we’re going to place a <body> element that 
+contains a single <div> element. This <div> 
+element is going to hold the game grid.  
+Go ahead and check out the next page that 
+contains our starter HTML and CSS.
+A little rusty?
+If  you’re feeling a bit rusty 
+on your HTML and CSS, 
+Head First HTML and 
+CSS
+ was written to be the 
+companion to this book.
+
+you are here 4        321
+bringing it all together
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Battleship</title>
+    <style>
+      body {
+        background-color: black;
+      }
+      div#board {
+        position: relative;
+        width: 1024px;
+        height: 863px;
+        margin: auto;
+        background: url("board.jpg") no-repeat;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="board">
+    </div>
+    <script src="battleship.js"></script>
+  </body>
+</html>
+Just a regular HTML page.
+We want the game board to stay in the 
+middle of the page, so we’re setting the 
+width to 1024px (the width of the game 
+board), and the margins to auto.
+And we want the background 
+of the page to be black.
+Here’s where we add the  
+“board.jpg” image to the page, as 
+the background of the “board” 
+<div> element. We’re positioning 
+this <div> relative, so that we can 
+position the table we add in the 
+next step relative to this <div>.
+We’re going to put the 
+table for the game 
+board and the form for 
+getting user input here.
+Here’s what the web 
+page looks like so far...
+A Test Drive
+Go ahead and enter the code above (or download all the code for the book from 
+http://wickedlysmart.com/hfjs) into the file “battleship.html” and then load it in your 
+browser. Our test run is below.
+We’ll put our code in the file 
+“battleship.js”. Go ahead and 
+create a blank file for that.
+
+322        Chapter    8
+creating the html for the game
+Step 2: Creating the table
+<div id="board">
+  <table>
+    <tr>
+      <td id="00"></td><td id="01"></td><td id="02"></td><td id="03"> 
+</td><td id="04"></td> <td id="05"></td><td id="06"></td>
+    </tr>
+    <tr>
+      <td id="10"></td><td id="11"></td><td id="12"></td><td id="13"></td> 
+<td id="14"></td> <td id="15"></td><td id="16"></td>
+    </tr>
+    ...
+    <tr>
+      <td id="60"></td><td id="61"></td><td id="62"></td><td id="63"></td> 
+<td id="64"></td><td id="65"></td><td id="66"></td>
+    </tr>
+  </table>
+</div>
+Next up is the table. The table will overlay the visual grid in the background image, and 
+provide the area to place the hit and miss graphics where you play the game. Each cell (or 
+if  you remember your HTML, each <td> element) is going to sit right on top of  a cell 
+in the background image. Now here is the trick: we’ll give each cell its own id, so we can 
+manipulate it later with CSS and JavaScript. Let’s check out how we’re going to create 
+these ids and add the HTML for the table:
+Each cell of the grid 
+corresponds to a <td> 
+in the table. 
+Each id represents the 
+cell’s location in the grid. 
+So, the top-left cell gets 
+the id of “00” and the 
+bottom-right cell gets 
+the id “66”.
+In the game, the rows are represented 
+with letters (A, B, C, etc.) but for our 
+ids, we’re going to replace the letter 
+with its corresponding number (0, 1, 2, 
+etc.) So the first row of the grid is row 
+0 (for A), and the last one is 6 (for G). 
+This is cell is id “66”
+Here’s the HTML for the table. Go ahead and add this between the <div> tags:
+We’re nesting the table inside the “board” <div>.
+Make sure each <td> 
+gets the correct id 
+corresponding to its row 
+and column in the grid.
+We’ve left out a few rows to 
+save some trees, but we’re sure 
+you can fill these in on your own.
+This cell has id=“06”
+
+you are here 4        323
+bringing it all together
+Step 3: Player interaction
+Okay, now we need an HTML element to enter guesses (like “A0” or “E4”), and an 
+element to display messages to the player (like “You sank my battleship!”). We’ll use a

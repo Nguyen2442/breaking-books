@@ -1,0 +1,671 @@
+thing, over and over... that’s a little boring isn’t it?
+Function: No no, functions are parameterized—in 
+other words, each time you use the function, you 
+pass it arguments so it can compute something that’s 
+relevant to what you need.
+Head First: Err, example?
+Function: Let’s say you need to show a 
+user how much the items in his shopping 
+cart are going to cost, so you write a function 
+computeShoppingCartTotal. Then you can pass 
+that function the shopping carts of  many users and 
+each time I compute the amount of  each specific 
+shopping cart.
+Head First: If  you’re so great, why aren’t more new 
+coders using you?
+Function: That’s not even a true statement; they 
+use me all the time: alert, prompt, Math.random, 
+document.write. It’s hard to write anything 
+meaningful without using functions. It’s not so much 
+that new users don’t use functions, they just aren’t 
+defining their own functions.
+Head First: Well, right, alert and prompt, those 
+make sense, but take Math.random—that doesn’t 
+look quite like a function.
+Function: Math.random is a function, but it 
+happens to be attached to another powerful thing 
+new coders don’t make a lot of  use of: objects.
+Head First: Oh yes, objects. I believe our readers 
+are learning about those in a later chapter.
+Function: Fair enough, I’ll save my breath on that 
+one for later.
+Head First: Now this argument/parameter stuff  all 
+seems a little confusing.
+Function: Think about it like this: each parameter 
+acts like a variable throughout the body of  the 
+function.  When you call the function, each value you 
+pass in is assigned to a corresponding parameter.
+Head First: And arguments are what?
+Function: Oh, that’s just another name for 
+the values you pass into a function... they’re the 
+arguments of  the function call.
+Head First: Well you don’t seem all that great; I 
+mean, okay you allow me to reuse code, and you have 
+this way of  passing values as parameters. Is that it? I 
+don’t get the mystery around you.
+Function: Oh, that’s just the basics, there’s so much 
+more: I can return values, I can masquerade around 
+your code anonymously, I can do a neat trick called 
+closures, and I have an intimate relationship with 
+objects.
+Head First: Ohhhhh REALLY?!  Can we get an 
+exclusive on that relationship for our next interview?
+Function: We’ll talk...
+The Function Exposed
+This week’s interview: the intimate 
+side of  functions...
+
+you are here 4        89
+introducing functions
+What can you pass to a function?
+When you call a function you pass it arguments and those arguments 
+then get matched up with the parameters in the function definition.  
+You can pass pretty much any JavaScript value as an argument, like a 
+string, a boolean, or a number:
+saveMyProfile("krissy", 1991, 3.81, false);
+function saveMyProfile(name, birthday, GPA, newuser) {
+    if (birthday >= 2004) {
+        // code for handling a child
+    }
+   // rest of code for this function here
+}
+Pass any JavaScript value as an argument.
+Each argument is passed to 
+its corresponding parameter 
+in the function.
+And each parameter acts as a 
+variable within the function.
+You can also pass variables as arguments, and that’s often the 
+more common case. Here’s the same function call using variables:
+var student = "krissy";
+var year = 1991;
+var GPA = 381/100;
+var status = "existinguser";
+var isNewUser = (status == "newuser");
+saveMyProfile(student, year, GPA, isNewUser);
+And, you can even use expressions as arguments:
+var student = "krissy";
+var status = "existinguser";
+var year = 1991;
+saveMyProfile(student, year, 381/100, status == "newuser");
+Now, each of the values we’re passing 
+is stored in a variable. When we call 
+the function, the variable’s values are 
+passed as the arguments.
+So, in this case we’re passing the value 
+in the variable student, “krissy”, as the 
+argument to the name parameter.
+And we’re also using variables 
+for these other arguments.
+Yes, even these 
+expressions will work 
+as arguments! 
+In each case we first evaluate the 
+expression to a value, and then that 
+value is passed to the function.
+We can evaluate a 
+numeric expression...
+... or a boolean expression, like this one that 
+results in passing false to the function.
+
+90        Chapter    3
+parameters vs. arguments
+I’m still not sure I get the 
+difference between a parameter 
+and an argument—are they just two 
+names for the same thing?
+No, they’re different.
+When you define a function you can define it with one or 
+more parameters. 
+function cook(degrees, mode, duration) {
+   // your code here
+}
+Here we’re defining three parameters: 
+degrees, mode and duration.
+When you call a function, you call it with arguments:
+cook(425.0, "bake", 45);
+These are arguments. There are three arguments: a floating 
+point number, a string and an integer.
+cook(350.0, "broil", 10);
+So you’ll only define your parameters once, but you’ll probably call 
+your function with many different arguments.
+What does this code output? Are you sure?
+function doIt(param) {
+    param = 2;
+}
+var test = 1;
+doIt(test);
+console.log(test);
+
+you are here 4        91
+introducing functions
+Below you’ll find some JavaScript code, including variables, function definitions 
+and function calls. Your job is to identify all the variables, functions, arguments and 
+parameters. Write the names of each in the appropriate boxes on the right. Check 
+your answer at the end of the chapter before you go on.
+Variables
+Functions
+Parameters
+Arguments
+function dogYears(dogName, age) {
+    var years = age * 7;
+    console.log(dogName + " is " + years + " years old");
+}
+var myDog = "Fido";
+dogYears(myDog, 4);
+function makeTea(cups, tea) {
+    console.log("Brewing " + cups + " cups of " + tea);
+}
+var guests = 3;
+makeTea(guests, "Earl Grey");
+function secret() {
+    console.log("The secret of life is 42");
+}
+secret();
+function speak(kind) {
+    var defaultSound = "";
+    if (kind == "dog") {
+        alert("Woof");
+    } else if (kind == "cat") {
+        alert("Meow");
+    } else {
+        alert(defaultSound);
+    }
+}
+var pet = prompt("Enter a type of pet: ");
+speak(pet);
+Built-in functions
+
+92        Chapter    3
+pass by value
+JavaScript is pass-by-value.
+It’s important to understand how JavaScript passes arguments. JavaScript passes arguments to a 
+function using pass-by-value. What that means is that each argument is copied into the parameter 
+variable. Let’s look at a simple example to see how this works.
+That means pass-by-copy.
+function addOne(x) {
+    x = x + 1;
+}
+var age = 7;
+addOne(age);
+function addOne(x) {
+    x = x + 1;
+}
+age
+7
+x
+age
+7
+x
+8
+age
+7
+Let’s declare a variable age, and initialize it to the value 7. 
+2
+1
+Now let’s declare a function addOne, with a parameter named x, that 
+adds 1 to the value of x.
+x
+3
+Now let’s call the function addOne,  pass it the variable age as the 
+argument. The value in age is copied into the parameter x.
+4
+Now the value of x is incremented by one. But remember x is a copy, 
+so only x is incremented, not age.
+7
+This is a 
+COPY of age.
+age doesn’t change 
+even if x does.
+x has been 
+incremented 
+within addOne.
+We’re 
+incrementing 
+x.
+
+you are here 4        93
+introducing functions
+So how do I think about this 
+pass-by-value stuff? On the one hand 
+it feels pretty straightforward, and on 
+the other hand I feel like I might be 
+missing something.
+We’re glad you’re thinking about it. Understanding 
+how JavaScript passes values to functions is important. On the 
+one hand it is pretty straightforward: when an argument is 
+passed to a function its value is first copied and then assigned to 
+the corresponding parameter.  But, if  you don’t understand this, 
+you can make some wrong assumptions about how functions, 
+arguments and parameters all work together. 
+The real impact of  pass-by-value is that any changes to a 
+parameter’s value within the function will affect only the parameter, 
+not the original variable passed to the function. That’s pretty 
+much it.
+But of  course, there’s an exception to every rule, and we’re going 
+to have to talk about this topic again when we learn objects, 
+which we’ll talk about in a couple of  chapters. But no worries, 
+with a solid understanding of  pass-by-value, you’re in good shape 
+to have that discussion.
+And, for now, just remember that because of  pass-by-value, 
+whatever happens to a parameter in the function, stays in the function. Kinda 
+like Vegas.
+Remember this Brain Power? Do you think 
+about it differently now, knowing about pass by 
+value? Or did you guess correctly the first time?
+function doIt(param) {
+    param = 2;
+}
+var test = 1;
+doIt(test);
+console.log(test);
+Revisited
+
+94        Chapter    3
+more about function arguments
+JavaScript console
+Brewing 3 cups of undefined
+Notice that the value of the 
+parameter tea is undefined 
+because we didn’t pass in a value.  
+Weird Functions
+So far you’ve seen the normal way to use functions, but what happens 
+when you experiment a little by, say, passing too many arguments to a 
+function? Or not enough? Sounds dangerous. Let’s see what happens:
+  function makeTea(cups, tea) {
+    console.log("Brewing " + cups + " cups of " + tea);
+  }
+  makeTea(3);
+EXPERIMENT #1: what happens when we 
+don’t pass enough arguments?
+Sounds dicey, but all that really happens is each parameter that doesn’t 
+have a matching argument is set to undefined. Here’s an example:
+JavaScript console
+Brewing 3 cups of Earl Grey
+Works fine, the function 
+ignores the extras.
+  function makeTea(cups, tea) {
+    console.log("Brewing " + cups + " cups of " + tea);
+  }
+  makeTea(3, "Earl Grey", "hey ma!", 42);
+EXPERIMENT #2: what happens when we 
+pass too many argments?
+Ah, in this case JavaScript just ignores the extra. Here’s an example:
+There's actually a way to get at the extra arguments, but we won't worry about that just now...
+EXPERIMENT #3: what happens when we have NO parameters?
+No worries, many functions have no parameters!
+  function barkAtTheMoon() {
+    console.log("Woooooooooooooo!");
+  }
+  barkAtTheMoon();
+JavaScript console
+Woooooooooooooo!
+
+you are here 4        95
+introducing functions
+Functions can return things too
+You know how to communicate with your functions in one direction; 
+that is, you know how to pass arguments to functions. But what about 
+the other way? Can a function communicate back? Let’s check out 
+the return statement:
+function bake(degrees) {
+    var message;
+    if (degrees > 500) {
+        message = "I'm not a nuclear reactor!";
+    } else if (degrees < 100) {
+        message = "I'm not a refrigerator!";
+    } else {
+        message = "That's a very comfortable temperature for me.";
+        setMode("bake");
+        setTemp(degrees);
+    }
+    return message;
+}
+var status = bake(350);
+Here we've got a new bake function 
+that takes the temperature in 
+degrees for the oven.
+It then sets a variable to a string 
+that depends on the temperature 
+requested in the degrees parameter.
+And presumably some real work is 
+getting done here, but we won't 
+worry about those details for now...
+What we care about is that a 
+return statement is returning 
+the message as the result of 
+this function.
+Now, when the function is called and returns, 
+the string that is returned as a result will be 
+assigned to the status variable.
+And in this case, if the status variable was 
+printed, it would hold the string “That's a 
+very comfortable temperature for me." Work 
+through the code and make sure you see why!
+350 degrees is the perfect temperature 
+for good cookies.  Feel free to make 
+some and return to the next page.
+
+96        Chapter    3
+the return statement
+Tracing through a function with a return statement
+function calculateArea(r) {
+    var area;
+    if (r <= 0) {
+       return 0;
+    } else {
+       area = Math.PI * r * r;
+       return area;
+    }
+}
+3
+4
+5
+6
+7
+Now that you know how arguments and parameters work, and how you can return a value 
+from a function, let’s trace through a function call from start to finish to see what happens at 
+every step along the way. Be sure to follow the steps in order.
+Developers often call this “tracing the 
+flow of execution” or just “tracing.” As 
+you can see the flow can jump around when 
+you’re calling functions and returning values. 
+Just take it slow, one step at a time.
+var radius = 5.2;
+1
+2
+8
+9
+First, we declare a variable radius 
+and initialize it to 5.2.
+Next, we call the calculateArea 
+function, and pass the radius 
+variable as the argument.
+The argument is sent to the 
+parameter r, and the calculateArea 
+function begins executing with r 
+containing the value 5.2.
+The body of the function executes 
+starting with declaring a variable, 
+area. We then test to see if the 
+parameter r has a value <= 0. 
+We execute the else clause instead.
+We compute the area of the circle 
+using the value 5.2 in the parameter r.
+We return the value of area from the 
+function. This stops the execution of 
+the function and returns the value. 
+The value returned from the 
+function is stored in the variable 
+theArea.
+Execution continues on the next 
+line.
+3
+4
+5
+6
+7
+1
+2
+8
+9
+10
+If r <= 0, then we return 0 from 
+the function and the function 
+stops executing. But we passed in 
+5.2 so this line does NOT execute.
+10
+JavaScript console
+The area is: 84.94866535306801
+Output here!
+var theArea = calculateArea(radius);
+console.log("The area is: " + theArea);
+
+you are here 4        97
+introducing functions
+Now that you know how to define and call a function, let’s make sure we’ve got 
+the syntax down cold. Here are all the parts of  a function’s anatomy:
+Anatomy of a Function
+function  addScore ( level , score ) {
+   var bonus = level * score * .1;
+   return score + bonus;
+}
+Always start with the 
+keyword “function”. 
+Follow the function keyword with 
+the name of your function.
+Even if your function has 
+no parameters, you still 
+need an opening and closing 
+set of parentheses, like ().
+And then zero or more 
+comma-separated parameters 
+between parentheses.
+The body sits between 
+two curly braces and 
+contains a set of 
+statements (just like 
+the statements you’re 
+used to).
+A function can include a 
+return statement, but it 
+doesn’t have to.
+The return statement includes a 
+value or an expression, which is 
+returned as a result of calling 
+the function.
+Here’s the closing 
+brace of the body.
+Variables you need 
+inside the function 
+are declared within 
+the function body.
+Q:
+ What happens if I mix up the order 
+of my arguments, so that I’m passing the 
+wrong arguments into the parameters?
+A: All bets are off; in fact, we’d guess 
+you’re pretty much guaranteed either an 
+error at run time or incorrect code. Always 
+take a careful look at a function’s parameters, 
+so you know what arguments the function 
+expects to be passed in.
+Q:
+ Why don’t the parameter names 
+have var in front of them? A parameter is 
+a new variable right? 
+ 
+ 
+A: Effectively yes. The function does all 
+the work of instantiating the variable for you, 
+so you don’t need to supply the var keyword 
+in front of your parameter names. 
+Q:
+ What are the rules for function 
+names?
+A: The rules for naming a function are the 
+same as the rules for naming a variable. Just 
+like with variables, you’ll want to use names 
+that make sense to you when you read 
+them, and provide some indication of what 
+the function does, and you can use camel 
+case (e.g. camelCase) to combine words in 
+function names, just like with variables. 
+Q:
+ What happens if I use the same 
+name for an argument variable as the 
+parameter? Like if I use the name x for 
+both? 
+A: Even if your argument and parameter 
+have the same name, like x, the parameter 
+x gets a copy of the argument x, so they are 
+two different variables. Changing the value 
+of the parameter x does not change the 
+value of the argument x. 
+Q:
+ What does a function return if it 
+doesn’t have a return statement?
+A: A function without a return statement 
+returns undefined.
+
+98        Chapter    3
+local variable declarations
+Good catch. Yes and no.
+These declarations work exactly the same within a 
+function as they do outside a function, in the sense 
+that you are initializing a new variable to a value. 
+However, the difference between a variable declared 
+outside a function and a variable declared inside a function 
+is where that variable can be used—in other words, 
+where in your JavaScript code you can reference the 
+variable. If  the variable is declared outside a function, 
+then you can use it anywhere in your code. If  a variable 
+is declared inside a function, then you can use it only 
+within that function. This is known as a variable’s scope. 
+There are two kinds of  scope: global and local.
+I noticed you started putting 
+variable declarations right inside 
+of your functions. Do these 
+declarations work just the same?
+
+you are here 4        99
+introducing functions
+Global and local variables
+You already know that you can declare a variable by using 
+the var keyword and a name anywhere in your script:
+function getScore(points) {
+    var score;
+    var i = 0;
+    while (i < levelThreshold) {
+       //code here
+       i = i + 1;
+    }
+    return score;
+}
+The points, score and i 
+variables are all declared 
+within a function.
+var avatar;
+var levelThreshold = 1000;
+And you’ve seen that you can also declare 
+variables inside a function:
+But what does it matter? Variables are variables, right? 
+Well, where you declare your variables determines how 
+visible they are to other parts of  your code, and, later, 
+understanding how these two kinds of  variables operate 
+will help you write more maintainable code (not to 
+mention, help you understand the code of  others).
+These are global variables; 
+they’re accessible everywhere 
+in your JavaScript code.
+Know the difference or risk humiliation
+If a variable is 
+declared outside 
+a function, it’s 
+GLOBAL. If it’s 
+declared inside a 
+function, it’s LOCAL.
+We call them local variables 
+because they are known 
+locally only within the 
+function itself.
+We need to talk about 
+your variable usage...
+Even if we use levelThreshold inside 
+the function, it’s global because it’s 
+declared outside the function.
+
+100        Chapter    3
+variable name conventions
+Another good catch.
+There’s a long history of  using the letter i as the 
+variable you iterate with. This convention developed 
+back in the days when space was limited (like when 
+we used punched cards to write code), and there 
+was an advantage to short variable names. Now it’s 
+a convention all programmers understand.  You’ll 
+also commonly see j, k, and sometimes even x and y 
+used in this manner. However, this is one of  the only 
+exceptions to the best practice of  choosing meaningful 
+variable names.
+Hey, just a quick question... 
+We talked about choosing 
+meaningful variable names, but you 
+just used the variable name i. That 
+doesn’t seem very meaningful.
+
+you are here 4        101
+introducing functions
+var avatar = "generic";
+var skill = 1.0;
+var pointsPerLevel = 1000;
+var userPoints = 2008;
+function getAvatar(points) {
+    var level = points / pointsPerLevel;
+    if (level == 0) {
+       return "Teddy bear";
+    } else if (level == 1) {
+       return "Cat";
+    } else if (level >= 2) {
+       return "Gorilla";
+    }
+}
+function updatePoints(bonus, newPoints) {
+    var i = 0;
+    while (i < bonus) {
+        newPoints = newPoints + skill * bonus;
+        i = i + 1;
+    }
+    return newPoints + userPoints;
+}
+userPoints = updatePoints(2, 100);
+avatar = getAvatar(2112);
+Knowing the scope of your local and global variables
+Where you define your variables determines their scope; that is, where they’re visible to 
+your code and where they aren’t. Let’s look at an example of  both locally and globally 
+scoped variables—remember, the variables you define outside a function are globally 
+scoped, and the function variables are locally scoped:
+These four variables are 
+globally scoped. That means 
+they are defined and visible 
+in all the code below.
+Note that if you link to 
+additional scripts in your 
+page, they will see these global 
+variables, and you will see their 
+global variables too!
+The level variable here is 
+local and is visible only 
+to the code within the 
+getAvatar function. That 
+means only this function can 
+access the level variable.
+Note that getAvatar makes 
+use of the pointsPerLevel 
+global variable too.
+And let’s not forget the 
+points parameter, which 
+also has local scope in the 
+getAvatar function.
+In updatePoints we have a local 
+variable i. i is visible to all of 
+the code in updatePoints. 
+And here in our code we can 
+use only the global variables, 
+we have no access to any 
+variables inside the functions 
+because they’re not visible in 
+the global scope.
+bonus and newPoints are also 
+local to updatePoints, while 
+userPoints is global.
+
+102        Chapter    3
+variable scope
+The short lives of variables
+I  could have sworn 
+the variable was right behind 
+me, but when I turned around 
+he was just...gone...
+When you’re a variable, you work hard and 
+life can be short. That is, unless you’re a global

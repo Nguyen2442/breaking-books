@@ -1,0 +1,552 @@
+Getting an element with getElementById   240
+What, exactly, am I getting from the DOM?   241
+Finding                your                inner                HTML                                                                                242
+What happens when you change the DOM   244
+A test drive around the planets    247
+Don’t even think about running my code until the page  
+is                fully                loaded!                                                                                                249
+You say “event hander,” I say “callback”   250
+How to set an attribute with setAttribute   255
+More fun with attributes! 
+(you can GET attributes too)      256
+Don’t forget getElementById can return null too!    256
+Any time you ask for something, you need to make sure  
+you got back what you expected...    256
+So what else is a DOM good for anyway?   258
+table of contents
+Browser here, I’m 
+reading the page and 
+creating a DOM of it.
+body
+p id =”greenplanet”
+p id =”redplanet”
+p id =”blueplanet”
+All is 
+well
+Nothing to 
+report
+All systems 
+A-OK
+head
+html
+document
+
+xvi 
+7
+Serious types
+types, equality, conversion, and all that jazz 
+It’s time to get serious about our types.  One of the great things about 
+JavaScript is you can get a long way without knowing a lot of details of the language. 
+But to truly master the language, get that promotion and get on to the things you really 
+want to do in life, you have to rock at types. Remember what we said way back about 
+JavaScript? That it didn’t have the luxury of a silver-spoon, academic, peer-reviewed 
+language definition? Well that’s true, but the academic life didn’t stop Steve Jobs and 
+Bill Gates, and it didn’t stop JavaScript either. It does mean that JavaScript doesn’t have 
+the... well, the most thought-out type system, and we’ll find a few idiosyncrasies along 
+the way. But, don’t worry, in this chapter we’re going to nail all that down, and soon you’ll 
+be able to avoid all those embarrassing moments with types.
+The truth is out there...     266
+Watch out, you might bump into undefined  
+when you aren’t expecting it...    268
+How                to                use                null                                                                                                271
+Dealing                with                NaN                                                                                                273
+It                gets                even                weirder                                                                                                273
+We have a confession to make     275
+Understanding the equality operator (otherwise known as ==) 276
+How equality converts its operands  
+(sounds more dangerous than it actually is)   277
+How to get strict with equality    280
+Even                more                type                conversions...                                                                                286
+How to determine if  two objects are equal   289
+The truthy is out there...     291
+What JavaScript considers falsey    292
+The Secret Life of  Strings     294
+How a string can look like a primitive and an object  295
+A five-minute tour of  string methods (and properties)  297
+Chair                Wars                                                                                                301
+table of contents
+
+xvii
+8
+Building an app
+bringing it all together
+Put on your toolbelt.  That is, the toolbelt with all your new coding skills, your 
+knowledge of the DOM, and even some HTML & CSS. We’re going to bring everything 
+together in this chapter to create our first true web application. No more silly toy 
+games with one battleship and a single row of hiding places. In this chapter we’re 
+building the entire experience: a nice big game board, multiple ships and user input 
+right in the web page. We’re going to create the page structure for the game with HTML, 
+visually style the game with CSS, and write JavaScript to code the game’s behavior. Get 
+ready: this is an all out, pedal to the metal development chapter where we’re going to lay 
+down some serious code.
+This time, let’s build a REAL Battleship game   318
+Stepping back... to HTML and CSS    319
+Creating the HTML page: the Big Picture   320
+Adding                some                more                style                                                                                324
+Using the hit and miss classes     327
+How to design the game     329
+Implementing                the                View                                                                                331
+How                displayMessage                works                                                                                331
+How displayHit and displayMiss work      333
+The                Model                                                                                                336
+How we’re going to represent the ships     338
+Implementing the model object    341
+Setting up the fire method     342
+Implementing                the                Controller                                                                                349
+Processing                the                player’s                guess                                                                                350
+Planning                the                code...                                                                                                351
+Implementing                parseGuess                                                                                352
+Counting guesses and firing the shot    355
+How to add an event handler to the Fire! button     359
+Passing the input to the controller    360
+How                to                place                ships                                                                                                364
+Writing the generateShip method    365
+Generate the starting location for the new ship   366
+Completing the generateShip method      367
+table of contents
+A
+B
+C
+D
+E
+F
+G
+0 1 2 3 4 5 6 
+Ship3
+Ship2
+Ship1
+HIT
+
+xviii 
+9
+Handling events
+asynchronous coding
+After this chapter you’re going to realize you aren’t in 
+Kansas anymore.   Up until now, you’ve been writing code that typically 
+executes from top to bottom—sure, your code might be a little more complex than 
+that, and make use of a few functions, objects and methods, but at some point the 
+code just runs its course. Now, we’re awfully sorry to break this to you this late in 
+the book, but that’s not how you typically write JavaScript code. Rather, most 
+JavaScript is written to react to events. What kind of events? Well, how about a user 
+clicking on your page, data arriving from the network, timers expiring in the browser, 
+changes happening in the DOM and that’s just a few examples. In fact, all kinds 
+of events are happening all the time, behind the scenes, in your browser. In this 
+chapter we’re going rethink our approach to JavaScript coding, and learn how and 
+why we should write code that reacts to events.
+What                are                events?                                                                                383
+What’s an event handler?    384
+How to create your first event handler     385
+Test drive your event    386
+Getting your head around events... by creating a game 388
+Implementing                the                game                                                                389
+Test                drive                                                                                                390
+Let’s add some more images      394
+Now we need to assign the same event handler  
+to each image’s onclick property   395
+How to reuse the same handler for all the images   396
+How the event object works       399
+Putting the event object to work   401
+Test drive the event object and target       402
+Events                and                queues                                                                                404
+Even                more                events                                                                                407
+How                setTimeout                works                                                                408
+Finishing the image game    412
+Test driving the timer    413
+table of contents
+
+xix
+10
+Liberated functions
+first class functions
+Know functions, then rock.   Every art, craft, and discipline has a key principle that 
+separates the intermediate players from the rock star virtuosos—when it comes to JavaScript, it’s truly 
+understanding functions that makes the difference. Functions are fundamental to JavaScript, and 
+many of the techniques we use to design and organize code depend on advanced knowledge and 
+use of functions. The path to learning functions at this level is an interesting and often mind-bending 
+one, so get ready... This chapter is going to be a bit like Willy Wonka giving a tour of the chocolate 
+factory—you’re going to encounter some wild, wacky and wonderful things as you learn more about 
+JavaScript functions.
+The mysterious double life of  the function keyword   430
+Function declarations versus function expressions    431
+Parsing                the                function                declaration                                                                                432
+What’s next? The browser executes the code    433
+Moving                on...                The                conditional                                                                                                434
+How                functions                are                values                too                                                                                                439
+Did we mention functions have  
+First Class status in JavaScript?     442
+Flying                First                Class                                                                                                                443
+Writing code to process and check passengers    444
+Iterating                through                the                passengers                                                                                446
+Passing a function to a function     447
+Returning                functions                from                functions                                                                                450
+Writing the flight attendant drink order code    451
+The flight attendant drink order code: a different approach    452
+Taking orders with first class functions       454
+Webville                Cola                                                                                                                457
+How the array sort method works     459
+Putting                it                all                together                                                                                                460
+Take sorting for a test drive         462
+table of contents
+
+xx 
+11
+Serious functions
+anonymous functions, scopes, and closures
+You’ve put functions through their paces, but there’s more to learn.   
+In this chapter we take it further; we get hard-core. We’re going to show you how to really handle 
+functions. This won’t be a super long chapter, but it will be intense, and at the end you’re going to 
+be more expressive with your JavaScript than you thought possible. You’re also going to be ready to 
+take on a coworker’s code, or jump into an open source JavasScript library, because we’re going to 
+cover some common coding idioms and conventions around functions. And if you’ve never heard of an 
+anonymous function or a closure, boy are you in the right place.
+Taking a look at the other side of  functions...   476
+How to use an anonymous function    477
+We need to talk about your verbosity, again   479
+When is a function defined? It depends...   483
+What just happened? Why wasn’t fly defined?   484
+How                to                nest                functions                                                                                485
+How                nesting                affects                scope                                                                                486
+A little review of  lexical scope     488
+Where things get interesting with lexical scope   489
+Functions                Revisited                                                                                                491
+Calling                a                function                (revisited)                                                                                492
+What the heck is a closure?         495
+Closing                a                function                                                                                                496
+Using closures to implement a magic counter   498
+Looking                behind                the                curtain...                                                                                499
+Creating a closure by passing a function expression as an argument     501
+The closure contains the actual environment, not a copy  502
+Creating a closure with an event handler   503
+How the Click me! closure works    506
+table of contents
+Wait a sec... what 
+is this closure thing? It 
+looks related to what 
+we’re doing. Maybe we can 
+get a leg up on her yet.
+Darn it! Judy 
+was right again. 
+
+xxi
+12
+Creating objects
+advanced object construction
+So far we’ve been crafting objects by hand.  For each object, 
+we’ve used an object literal to specify each and every property. That’s okay on a 
+small scale, but for serious code we need something better. That’s where object 
+constructors come in. With constructors we can create objects much more easily, 
+and we can create objects that all adhere to the same design blueprint—meaning 
+we can use constructors to ensure each object has the same properties and includes 
+the same methods.  And with constructors we can write object code that is much 
+more concise and a lot less error prone when we’re creating lots of objects. So, let’s 
+get started and after this chapter you’ll be talking constructors just like you grew up in 
+Objectville.
+Creating objects with object literals    522
+Using                conventions                for                objects                                                                                523
+Introducing                Object                Constructors                                                                525
+How to create a Constructor      526
+How to use a Constructor     527
+How                constructors                work                                                                                528
+You can put methods into constructors as well   530
+It’s                Production                Time!                                                                                536
+Let’s test drive some new cars     538
+Don’t count out object literals just yet       539
+Rewiring the arguments as an object literal   540
+Reworking the Car constructor    541
+Understanding                Object                Instances                                                                543
+Even constructed objects can have their own independent properties   546
+Real                World                Constructors                                                                                548
+The                Array                object                                                                                                549
+Even more fun with built-in objects    551
+table of contents
+
+xxii 
+13
+Extra strength objects
+using prototypes
+Learning how to create objects was just the beginning.   It’s 
+time to put some muscle on our objects. We need more ways to create relationships 
+between objects and to share code among them. And, we need ways to extend 
+and enhance existing objects. In other words, we need more tools. In this chapter, 
+you’re going to see that JavaScript has a very powerful object model, but one that 
+is a bit different than the status quo object-oriented language. Rather than the typical 
+class-based object-oriented system, JavaScript instead opts for a more powerful 
+prototype model, where objects can inherit and extend the behavior of other objects. 
+What is that good for? You’ll see soon enough. Let’s get started...
+Hey, before we get started, we’ve got a better way to diagram our objects 565
+Revisiting object constructors: we’re reusing code, but are we being efficient? 566
+Is duplicating methods really a problem?    568
+What                are                prototypes?                                                                                                569
+Inheriting                from                a                prototype                                                                                                570
+How                inheritance                works                                                                                                571
+Overriding                the                prototype                                                                                                573
+How to set up the prototype        576
+Prototypes                are                dynamic                                                                                                582
+A more interesting implementation of  the sit method   584
+One more time: how the sitting property works        585
+How to approach the design of  the show dogs    589
+Setting up a chain of  prototypes     591
+How inheritance works in a prototype chain    592
+Creating the show dog prototype     594
+Creating                a                show                dog                Instance                                                                                                598
+A final cleanup of  show dogs       602
+Stepping                through                Dog.call                                                                                                604
+The chain doesn’t end at dog       607
+Using inheritance to your advantage...by overriding built-in behavior   608
+Using inheritance to your advantage...by extending a built-in object     610
+Grand Unified Theory of  Everything        612
+Better                living                through                objects                                                                                                612
+Putting                it                all                together                                                                                                613
+What’s                next?                                                                                                                613
+table of contents
+Object
+toString()
+hasOwnProperty()
+// and more
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+name: “Scotty”
+breed: “Scottish Terrier”
+weight: 15
+handler: “Cookie”
+ShowDog
+league: “Webville”
+ShowDog Prototype
+stack()
+bait()
+gait()
+groom()
+
+xxiii
+14
+The top ten topics (we didn’t cover)
+Appendix: Leftovers
+We’ve covered a lot of  ground, and 
+you’re almost finished with this book.  
+We’ll miss you, but before we let you go, we wouldn’t 
+feel right about sending you out into the world without a 
+little more preparation. We can’t possibly fit everything 
+you’ll need to know into this relatively small chapter. 
+Actually, we did originally include everything you need 
+to know about JavaScript Programming (not already 
+covered by the other chapters), by reducing the type 
+point size to .00004. It all fit, but nobody could read it. 
+So we threw most of it away, and kept the best bits for 
+this Top Ten appendix.This really is the end of the book. 
+Except for the index, of course (a must-read!).
+#1                jQuery                                                                                624
+#2 Doing more with the DOM   626
+#3 The Window Object    627
+#4                Arguments                                                                                628
+#5                Handling                exceptions                                                                629
+#6 Adding event handlers with addEventListener  630
+#7                Regular                Expressions                                                                632
+#8                Recursion                                                                                634
+#9                JSON                                                                                                636
+#10                Server-side                JavaScript                                                                637
+table of contents
+i
+Index
+641
+
+xxv
+Intro
+how to use this book 
+I can’t believe 
+they put 
+that in a  
+JavaScript book!
+In this section, we answer the burning question:            
+“So, why DID they put that in a JavaScript book?”
+
+how to use this book
+xxvi 
+intro
+Who is this book for ?
+1
+Do you have access to a computer with a modern web 
+browser and a text editor?
+2
+Do you want to learn, understand and remember how 
+to program with JavaScript using the best techniques 
+and the most recent standards?
+this book is for you.
+Who should probably back away from this book ?
+1
+Are you completely new to web development?
+Are HTML and CSS foreign concepts to you? If so, 
+you’ll probably want to start with Head First HTML 
+and CSS to understand how to put web pages 
+together before tackling JavaScript.
+3
+this book is not for you.
+Are you afraid to try something different?  Would you 
+rather have a root canal than mix stripes with plaid? 
+Do you believe that a technical book can’t be serious if 
+JavaScript objects are anthropomorphized?
+If  you can answer “yes” to all of  these:
+If  you can answer “yes” to any one of  these:
+2
+Are you a kick-butt web developer looking for a 
+reference book?
+[Note from marketing: this book is 
+for anyone with a credit card.]
+3
+Do you prefer stimulating dinner party conversation 
+to dry, dull, academic lectures?
+We consider an updated 
+version of Safari, Chrome, 
+Firefox or IE version 9 or 
+newer to be modern.
+
+the intro
+you are here4
+xxvii
+“How can this be a serious book?”
+“What’s with all the graphics?”
+“Can I actually learn it this way?”
+We know what you’re thinking.
+Your brain craves novelty. It’s always searching, scanning, waiting for 
+something unusual. It was built that way, and it helps you stay alive. 
+Today, you’re less likely to be a tiger snack. But your brain’s still looking. 
+You just never know.
+So what does your brain do with all the routine, ordinary, normal things 
+you encounter? Everything it can to stop them from interfering with the 
+brain’s real job—recording things that matter.  It doesn’t bother saving the 
+boring things; they never make it past the “this is obviously not important” 
+filter.
+How does your brain know what’s important? Suppose you’re out for a day 
+hike and a tiger jumps in front of  you. What happens inside your head 
+and body? 
+Neurons fire. Emotions crank up. Chemicals surge. 
+And that’s how your brain knows...
+This must be important! Don’t forget it!
+But imagine you’re at home, or in a library. It’s a safe, warm, tiger-
+free zone. You’re studying. Getting ready for an exam. Or trying to 
+learn some tough technical topic your boss thinks will take a week, 
+ten days at the most.
+Just one problem. Your brain’s trying to do you a big favor. It’s 
+trying to make sure that this obviously non-important content doesn’t 
+clutter up scarce resources. Resources that are better spent storing 
+the really big things. Like tigers. Like the danger of  fire. Like how 
+you should never again snowboard in shorts.
+And there’s no simple way to tell your brain, “Hey brain, thank 
+you very much, but no matter how dull this book is, and how little 
+I’m registering on the emotional Richter scale right now, I really do 
+want you to keep this stuff  around.”
+And we know what your brain is thinking.
+Your brain thinks 
+THIS is important.
+Your brain thinks 
+THIS isn’t worth 
+saving.
+Great. Only 661 
+more dull, dry, 
+boring pages.
+
+how to use this book
+xxviii 
+intro
+We think of a “Head First” reader as a learner.
+I really think 
+JavaScript should go 
+in the <head> element
+.
+Now that I have your 
+attention, you should be  
+more careful using global 
+variables. 
+So what does it take to 
+learn 
+something? First, you have to 
+get 
+it, then make 
+sure you don’t 
+forget
+ it.  It’s not about pushing facts into your head. Based 
+on the latest research in cognitive science, neurobiology and educational 
+psychology, 
+learning 
+takes a lot more than text on a page. We know what 
+turns your brain on.
+Some of the Head First learning principles:
+Make it visual.
+ Images are far more memorable than words 
+alone, and make learning much more effective (up to 89% 
+improvement in recall and transfer studies). It also makes things 
+more understandable.  
+Put the words within or near the 
+graphics
+ they relate to, rather than on the bottom or on another 
+page, and learners will be up to twice as likely to solve problems 
+related to the content.  
+Use a conversational and personalized style
+. In recent studies, 
+students performed up to 40% better on post-learning tests if the content 
+spoke directly to the reader, using a first-person, conversational style rather than 
+taking a formal tone. Tell stories instead of lecturing. Use casual language. Don’t 
+take yourself too seriously. Which would you pay more attention to: a 
+stimulating dinner party companion, or a lecture?
+Get the learner to think more deeply.
+ In other words, 
+unless you actively flex your neurons, nothing much happens in your 
+head.  A reader has to be motivated, engaged, curious and inspired 
+to solve problems, draw conclusions and generate new 
+knowledge. And for that, you need challenges, exercises 
+and thought-provoking questions, and activities that 
+involve both sides of the brain and multiple senses.
+Get—and keep—the reader’s attention. 
+ We’ve all 
+had the “I really want to learn this but I can’t stay awake past page one” 
+experience.  Your brain pays attention to things that are out of the ordinary, 
+interesting, strange, eye-catching, unexpected.   Learning a new, tough, technical topic doesn’t have 
+to be boring. Your brain will learn much more quickly if it’s not.
+Touch their emotions.
+ We now know that your ability to remember something is largely 
+dependent on its emotional content.  You remember what you care about.  You remember when 
+you 
+feel
+ something. No, we’re not talking heart-wrenching stories about a boy and his dog. We’re 
+talking emotions like surprise, curiosity, fun, “what the
+...
+?” , and the feeling of “I Rule!” that comes 
+when you solve a puzzle, learn something everybody else thinks is hard, or realize you know 
+something that “I’m more technical than thou” Bob from engineering 
+doesn’t
+. 
+Unlike other languages, JavaScript is 
+delivered, as code, directly to your 
+browser. That’s different!
+“Found the code, here ya go”
+Web Server
+<html>
+ <head>
+   <title>
+      My Playlist
+   </title>
+ <head>
+ <body>
+   <h1>Kick’n Tunes
+   </h1>
+   <p>BT - Satellite: nice 
+downbeat tune.
+ 
+   </p>
+   <p>
+Not so fast! There are 
+performance and page 
+loading implications!
+
+the intro
+you are here4
+xxix
+If  you really want to learn, and you want to learn more quickly and more deeply, 
+pay attention to how you pay attention. Think about how you think. Learn how you 
+learn.
+Most of  us did not take courses on metacognition or learning theory when we were 
+growing up. We were expected to learn, but rarely taught how to learn.
+But we assume that if  you’re holding this book, you really want to learn 
+how to create JavaScript programs. And you probably don’t want to

@@ -1,0 +1,110 @@
+<section class="chapter" id="ch22" data-ch="22" data-title="Kiến trúc DOM và Giao tiếp HTML-JavaScript">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 22</span>
+    <h1>The DOM and Interacting with Your Web Page <span class="vi">Kiến trúc DOM và Giao tiếp HTML-JavaScript</span></h1>
+    <p class="chapter-lede">Hiểu cách trình duyệt dịch mã HTML thành cây DOM phân cấp và cách JavaScript sử dụng DOM API để truy vấn, thao tác nội dung trực tiếp trên trang.</p>
+    <div class="chapter-meta">
+      <span class="pill">3 bài học</span>
+      <span class="pill">3 labs</span>
+      <span class="pill">3 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch22-t1" data-num="22.1" data-short="Cấu trúc DOM">
+    <div class="topic-theory-card">
+      <span class="eyebrow">NGUYÊN LÝ CỐT LÕI</span>
+    <h2>Giải phẫu cây DOM và quy trình tạo lập</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Trình duyệt phân tích cú pháp HTML từ trên xuống dưới để xây dựng một cây đối tượng ngược với gốc là document.</p>
+    <div class="prose">
+      <p>Khi trình duyệt nạp một trang web, nó không chỉ hiển thị văn bản thuần túy mà thực thi một thuật toán phân tích cú pháp (parsing). Khởi đầu bằng một <dfn data-term="document-node">document node</dfn> tối cao ở đỉnh. Tiếp theo, trình duyệt bóc tách thẻ <code>&lt;html&gt;</code>, gắn nó làm con của document, rồi đệ quy lặp lại cho mọi thẻ con, nhánh và lá bên trong. Kết quả là một tập hợp các đối tượng (element objects) nằm trong bộ nhớ.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Khi hệ thống ZaloPay render giao diện mã QR thanh toán động, trình duyệt phải dựng DOM cho hàng triệu node cùng lúc trong các dịp cao điểm như Tết, đòi hỏi tối ưu hóa cấu trúc cây để tránh nghẽn luồng render.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch22-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>DOM Tree Builder</strong>
+        — Mô phỏng cách trình duyệt xây dựng cây DOM từ mã HTML.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch22-t2" data-num="22.2" data-short="Truy xuất & Thao tác">
+    <div class="topic-theory-card">
+      <span class="eyebrow">THỰC CHIẾN LẬP TRÌNH</span>
+    <h2>Kết nối JavaScript với HTML qua getElementById và innerHTML</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Sử dụng getElementById để lấy đối tượng element và innerHTML để thay đổi nội dung động.</p>
+    <div class="prose">
+      <p>HTML và JavaScript vận hành theo hai trường phái khác nhau: HTML mang tính khai báo (declarative), còn JavaScript mang tính mệnh lệnh (imperative). Cầu nối duy nhất giữa chúng tại tầng DOM là phương thức <dfn data-term="get-element-by-id">getElementById()</dfn>. Khi gọi phương thức này trên đối tượng <code>document</code>, trình duyệt trả về một tham chiếu đến element object thực tế. Sau đó, thông qua thuộc tính <dfn data-term="inner-html">innerHTML</dfn>, kỹ sư có thể đọc hoặc ghi đè toàn bộ nội dung HTML bên trong phần tử đó ngay lập tức.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Trang thương mại điện tử Tiki cập nhật trạng thái đơn hàng theo thời gian thực (Đang đóng gói, Đang giao) bằng cách lấy ID của progress bar và cập nhật nội dung text thông qua innerHTML.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch22-w2">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>DOM Mutator Lab</strong>
+        — Thực hành thay đổi nội dung trạng thái hành tinh bằng innerHTML.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch22-t3" data-num="22.3" data-short="Lỗi Thời Điểm Tải">
+    <div class="topic-theory-card">
+      <span class="eyebrow">CẠNH TRANH & RỦI RO</span>
+    <h2>Hố sâu tử thần: Chạy script trước khi DOM hoàn thành</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Đặt script trong thẻ head khi DOM chưa hình thành sẽ trả về null và gây lỗi ngầm.</p>
+    <div class="prose">
+      <p>Một lỗi sơ đẳng của lập trình viên sơ cấp là đặt thẻ <code>&lt;script&gt;</code> ở phần <code>&lt;head&gt;</code> và gọi ngay <code>document.getElementById()</code>. Vào thời điểm đó, trình duyệt chưa đọc đến phần <code>&lt;body&gt;</code>, đồng nghĩa với việc các phần tử HTML chưa được chuyển đổi thành node trong DOM. Kết quả là hàm trả về <dfn data-term="null-reference">null</dfn>, gây gãy khúc logic ứng dụng mà không báo lỗi dừng chương trình rõ ràng.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Các hệ thống đặt vé xem phim như CGV hay Galaxy nếu viết script sai thời điểm tải trang sẽ khiến nút 'Đặt vé' không bắt được sự kiện click khi người dùng truy cập dồn dập.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch22-w3">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Timing Debugger</strong>
+        — Mô phỏng lỗi khi gọi getElementById quá sớm.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch22-review" data-num="22.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>Chương này bóc tách bản chất của Document Object Model (DOM) - cấu trúc dữ liệu cây ngược (inverted tree) mà trình duyệt xây dựng từ mã nguồn HTML. Trình duyệt bắt đầu từ node `document` cao nhất, duyệt qua từng thẻ HTML lồng nhau để tạo ra tập hợp các đối tượng (element objects) chứa thuộc tính và phương thức. JavaScript không thể trực tiếp thao tác văn bản HTML tĩnh; nó giao tiếp với trang web thông qua "lỗ sâu" (wormhole) là phương thức `document.getElementById()`. Khi lấy được một element object, kỹ sư có thể thay đổi thuộc tính `innerHTML` để cập nhật nội dung trang theo thời gian thực. Một cạm bẫy kinh điển được chỉ ra là thực thi mã JavaScript trong thẻ `<head>` trước khi DOM được tải xong, dẫn đến việc trả về `null` và lỗi ngầm.</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="2">
+        <p class="q-text"><strong>Câu 1:</strong> Phương thức getElementById trả về cái gì nếu ID truyền vào không tồn tại trong trang?</p>
+        <ol><li>Một chuỗi rỗng ('')</li><li>Một đối tượng lỗi (Error object)</li><li>Giá trị null</li><li>Số nguyên 0</li></ol>
+        <p class="explain">Khi không tìm thấy ID khớp trong cây DOM, phương thức getElementById sẽ trả về giá trị null. Do đó, việc kiểm tra null trước khi gọi thuộc tính trên kết quả trả về là một tiêu chuẩn an toàn bắt buộc.</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 2:</strong> Tại sao việc đặt mã JavaScript ở thẻ <head> gọi getElementById('greenplanet') lại thường thất bại?</p>
+        <ol><li>Vì JavaScript không hỗ trợ tìm kiếm phần tử trong thẻ head</li><li>Vì trình duyệt chưa phân tích cú pháp phần body nên phần tử chưa tồn tại trong DOM</li><li>Vì cú pháp getElementById yêu cầu phải có tiền tố window</li><li>Vì thẻ script trong head bị cấm thực thi DOM API</li></ol>
+        <p class="explain">Trình duyệt đọc HTML từ trên xuống dưới. Khi script ở head chạy, trình duyệt chưa hề chạm tới body, do đó cây DOM chưa chứa các phần tử nằm ở dưới.</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 3:</strong> Thuộc tính innerHTML đại diện cho điều gì?</p>
+        <ol><li>Chỉ định dạng CSS của phần tử</li><li>Toàn bộ nội dung và thẻ HTML nằm bên trong phần tử đó</li><li>Địa chỉ IP của máy chủ chứa trang web</li><li>Tên định danh duy nhất (ID) của thẻ</li></ol>
+        <p class="explain">innerHTML đại diện cho nội dung 'bên trong' (inner) của element, bao gồm cả các thẻ HTML lồng nhau và văn bản thuần túy.</p>
+      </div></div>
+  </article>
+</section>

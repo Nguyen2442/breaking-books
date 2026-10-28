@@ -1,0 +1,26 @@
+pages 704
+Chương 1: Mở đầu & Tổng quan
+Chương 2: Phần 2
+Chương 3: Phần 3
+Chương 4: Phần 4
+Chương 5: Phần 5
+Chương 6: Phần 6
+Chương 7: Phần 7
+Chương 8: Phần 8
+Chương 9: Phần 9
+Chương 10: To get input from a user, you can use the _________
+Chương 11: Phần 11
+Chương 12: Phần 12
+Chương 13: A parameter acts like a _________ in the body of a
+Chương 14: Phần 14
+Chương 15: Phần 15
+Chương 16: Phần 16
+Chương 17: An array with undefined values is called a ______
+Chương 18: Phần 18
+Chương 19: , except that the
+Chương 20: Phần 20
+Chương 21: An object gets ________ with its methods.
+Chương 22: Start by creating a document node at the top.
+Chương 23: Phần 23
+Chương 24: Functions that handle events are known as event
+Chương 25: Phần 25

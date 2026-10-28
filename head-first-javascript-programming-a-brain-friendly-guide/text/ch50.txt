@@ -1,0 +1,713 @@
+2. A constructor is a ____________.
+7. If you want to save my birthday in a variable, you'll 
+need a ______ constructor. 
+9. You can use an object literal to pass arguments to a 
+constructor when the constructor has lots of these. 
+10. When you create an object from a constructor, we say 
+it is an __________ of the constructor. 
+11. A constructor is a bit like a _______ cutter. 
+14. The constructor function returns the newly 
+constructed __________. 
+15. If you forget to use new with a constructor, you might 
+see a ___________. 
+DOWN
+1. Constructor syntax is a bit ______________. 
+3. You can add a property to an object created by a 
+________ whenever you want. 
+4. new is an __________, not a PR lackey. 
+5. The Webville Motors test car comes in this color. 
+6. Using a constructor, we can make our cars so they 
+have all the same ___________. 
+8. Never hold a ___________ over your laptop. 
+12. The limo and the limoDog are the same _________. 
+13. To create an object with a constructor, you use the 
+____ operator. 
+
+you are here 4        555
+advanced object construction
+,,,,,,,`
+We need your help. We’ve been using object literals to create ducks. Given what you 
+learned above, can you write a constructor to create ducks for us? You’ll find one of our 
+object literals below to base your constructor on. Here’s our solution.
+var duck = {
+    type: "redheaded",
+    canFly: true
+}
+Write a constructor 
+for creating ducks.
+P.S. We know you haven’t fully figured out how this all 
+works yet, so for now concentrate on the syntax.
+Here’s an example 
+duck object literal.
+function Duck(type, canFly) {
+    this.type = type;
+    this.canFly = canFly;
+}
+Get some quick hands on 
+experience to help this all sink 
+in. Go ahead and put this code 
+in a page and give it a test drive. 
+Write your output here.
+function Dog(name, breed, weight) {
+    this.name = name;
+    this.breed = breed;
+    this.weight = weight;
+}
+var fido = new Dog("Fido", "Mixed", 38);
+var fluffy = new Dog("Fluffy", "Poodle", 30);
+var spot = new Dog("Spot", "Chihuahua", 10);
+var dogs = [fido, fluffy, spot];
+for (var i = 0; i < dogs.length; i++) {
+    var size = "small";
+    if (dogs[i].weight > 10) {
+        size = "large";
+    }
+    console.log("Dog: " + dogs[i].name
+                 + " is a " + size
+                 + " " + dogs[i].breed);
+}
+JavaScript console
+Dog: Fido is a large Mixed
+Dog: Fluffy is a large Poodle
+Dog: Spot is a small Chihuahua 
+
+556        Chapter    12
+exercise solutions
+Below, you’ll find JavaScript code with some mistakes in it. 
+Your job is to play like you’re the browser and find 
+the errors in the code. Here’s our solution.
+BE the Browser Solution
+function widget(partNo, size) {
+    var this.no = partNo;
+    var this.breed = size;
+} 
+function FormFactor(material, widget) {
+    this.material = material,
+    this.widget = widget,
+    return this;
+} 
+var widgetA = widget(100, "large");
+var widgetB = new widget(101, "small");
+var formFactorA = newFormFactor("plastic", widgetA);
+var formFactorB = new ForumFactor("metal", widgetB);
+If widget is to be a constructor, it 
+needs a capital letter for W. That 
+won’t cause an error, but it’s a good 
+convention to follow.
+We don’t need “var” 
+in front of this. 
+We’re not declaring 
+new variables, we’re 
+adding properties to 
+an object.
+Also, by convention we usually name the parameters 
+the same as the property names. So probably  
+this.partNo and this.size would be better.
+We’re using commas 
+instead of semicolons. 
+Remember, in the 
+constructor we use 
+normal statements 
+rather than comma 
+separated property 
+name/value pairs.
+We’re returning this and we don’t 
+need to. The constructor will do it 
+for us. This statement won’t cause 
+an error, but it’s not necessary.
+Forgot new!
+Needs a space 
+between new and the 
+constructor name.
+Misspelled the name of the constructor.
+
+you are here 4        557
+advanced object construction
+We’ve got a constructor to create coffee drinks, but it’s missing its 
+methods.
+We need a method, getSize, that returns a string depending on the 
+number of ounces of coffee: 
+ 8oz is a small
+ 12oz is a medium
+ 16oz is a large
+We also need a method, toString, that returns a string specifying your order. 
+Write your code below, and then test it in the browser. Try creating a few different 
+sizes of coffee. Here’s our solution.
+function Coffee(roast, ounces) {
+    this.roast = roast;
+    this.ounces = ounces;
+    this.getSize = function() {
+        if (this.ounces === 8) {
+            return "small";
+        } else if (this.ounces === 12) {
+            return "medium";
+        } else if (this.ounces === 16) {
+            return "large";
+        }
+    };
+    this.toString = function() {
+        return "You've ordered a " + this.getSize() + " "  
+               + this.roast + " coffee.";
+    };
+}
+var houseBlend = new Coffee("House Blend", 12);
+console.log(houseBlend.toString());
+var darkRoast = new Coffee("Dark Roast", 16);
+console.log(darkRoast.toString());
+The getSize method looks 
+at the ounces property of 
+the object, and returns the 
+corresponding size string.
+JavaScript console
+You've ordered a medium House 
+Blend coffee.
+You've ordered a large Dark 
+Roast coffee.
+Here's our output; yours 
+should look similar.
+The toString method just returns a string 
+description of the object. It uses the getSize 
+method to get the size of the coffee.
+Remember, 
+this
+ will 
+be the object whose 
+method we call. So if 
+we call houseBlend.size, 
+then 
+this
+ will be the 
+houseBlend object.
+We create two 
+coffee objects 
+and call the 
+toString 
+method and 
+display the 
+resulting string.
+
+558        Chapter    12
+exercise solutions
+Use everything you’ve learned to create a Car constructor. We suggest the following order:
+1
+2
+3
+Start by providing the function keyword (actually we did that for you) followed by the 
+constructor name. Next supply the parameters; you’ll need one for each property that 
+you want to supply an initial value for.
+Next, assign each property in the object its initial value (make sure you use this 
+along with the property name). 
+Finally, add in the three car methods: start, drive and stop.
+1
+2
+3
+function Car(make, model, year, color, passengers, convertible, mileage) {
+    this.make = make;
+    this.model = model;
+    this.year = year;
+    this.color = color;
+    this.passengers = passengers;
+    this.convertible = convertible;
+    this.mileage = mileage;
+    this.started = false;
+    this.start = function() {
+        this.started = true;
+    };     
+    this.stop = function() {
+        this.started = false;
+    };    
+    this.drive = function() {
+        if (this.started) {
+            alert("Zoom zoom!");
+        } else {
+            alert("You need to start the engine first.");
+        }      
+    };
+}
+The constructor name is Car.
+Here’s our solution.
+And seven parameters, one for each 
+property we want to customize.
+Each property of the new car object 
+that’s customized with a parameter is set 
+to the parameter name. Notice we’re using 
+the same name for the property and the 
+parameter by convention.
+The methods are exactly the same as 
+before, but now they’re assigned to 
+properties in the object with slightly 
+different syntax because we’re in a 
+constructor not an object literal.
+The started property is 
+just initialized to false.
+
+you are here 4        559
+advanced object construction
+Copy the Car and Dog constructors into one file, and then add the 
+code below along with it. Give this a run and capture the output. 
+Here’s our result:
+var limoParams = {make: "Webville Motors",
+                  model: "limo",
+                  year: 1983,
+                  color: "black",
+                  passengers: 12,
+                  convertible: true,
+                  mileage: 21120};
+var limo = new Car(limoParams);
+var limoDog = new Dog("Rhapsody In Blue", "Poodle", 40);
+console.log(limo.make + " " + limo.model + " is a " + typeof limo);
+console.log(limoDog.name + " is a " + typeof limoDog);
+What we got.
+JavaScript console
+Webville Motors limo is a object
+Rhapsody In Blue is a object
+
+560        Chapter    12
+exercise solutions
+We need a function, dogCatcher, that returns true if the object passed to it is 
+a Dog, and false otherwise. Write that function and test it with the rest of the 
+code below. Here’s our solution:
+function dogCatcher(obj) {
+    if (obj instanceof Dog) {
+        return true;
+    } else {
+        return false;
+    }
+}
+function Cat(name, breed, weight) {
+    this.name = name;
+    this.breed = breed;
+    this.weight = weight;
+}
+var meow = new Cat("Meow", "Siamese", 10); 
+var whiskers = new Cat("Whiskers", "Mixed", 12); 
+var fido = {name: "Fido", breed: "Mixed", weight: 38}; 
+function Dog(name, breed, weight) {
+    this.name = name;
+    this.breed = breed;
+    this.weight = weight;
+    this.bark = function() {
+        if (this.weight > 25) {
+            alert(this.name + " says Woof!");
+        } else {
+            alert(this.name + " says Yip!");
+        }
+    };
+}
+var fluffy = new Dog("Fluffy", "Poodle", 30);
+var spot = new Dog("Spot", "Chihuahua", 10);
+var dogs = [meow, whiskers, fido, fluffy, spot];
+for (var i = 0; i < dogs.length; i++) {
+    if (dogCatcher(dogs[i]) {
+        console.log(dogs[i].name + " is a dog!");
+    }
+}
+JavaScript console
+Fluffy is a dog!
+Spot is a dog!
+function dogCatcher(obj) {
+    return (obj instanceof Dog);
+}
+Or more succinctly:
+
+you are here 4        561
+advanced object construction
+function CarProtoype() { 
+    this.make = "Webville Motors";
+    this.year = 2013;
+    this.start = function() {...};
+    this.stop = function() {...};
+    this.drive = function() {...};
+}
+var taxi = new CarPrototype();
+taxi.model = "Delorean Remake";
+taxi.color = "silver";
+taxi.currentTime = new Date();
+taxi.fluxCapacitor = {type: "Mr. Fusion"};
+taxi.timeTravel = function(date) {...};
+Draw your car here.
+And customize 
+the prototype 
+here.
+Oh, and where are we going with 
+this? You’ll find out in the next 
+chapter! By the way, you’re done 
+with this chapter now.
+Webville Motors is revolutionizing car production by creating all 
+their cars from a prototype car. The prototype gives you all the 
+basics you need: a way to start, drive and stop it along with a 
+couple properties like the make and year it was manufactured—
+but the rest is up to you. Want it to be red or blue? No problem, 
+just customize it. Need for it to have a fancy stereo? No problem, 
+go crazy, add it.
+So this is your opportunity to design your perfect car. Check out 
+our design below.
+
+562        Chapter    12
+exercise solutions
+F
+1
+R
+A
+F
+2
+UNC
+3
+TION
+O
+4
+O
+
+M
+5
+PP
+6
+NE
+D
+7
+ATERSNT
+8
+RROTSE
+IAP
+9
+ARAMETERS
+I
+10
+NSTANCEUET
+EORC
+11
+OO
+
+IET
+RT
+12
+TTNUN
+13
+YIOIO
+14
+BJECT
+T
+15
+YPEERRORAE
+
+ESN
+JavaScript cross Solution
+
+this is a new chapter     563
+Extra strength objects
+13  using prototypes
+Learning how to create objects was just the beginning.   
+It’s time to put some muscle on our objects. We need more ways to create 
+relationships between objects and to share code among them. And, we need 
+ways to extend and enhance existing objects. In other words, we need more 
+tools. In this chapter, you’re going to see that JavaScript has a very powerful 
+object model, but one that is a bit different than the status quo object-oriented 
+language. Rather than the typical class-based object-oriented system, JavaScript 
+instead opts for a more powerful prototype model, where objects can inherit 
+and extend the behavior of other objects. What is that good for? You’ll see soon 
+enough. Let’s get started...
+
+564        Chapter    13
+talking about objects and inheritance
+If you’re used to Java, C++, or any language based on classical 
+object-oriented programming let’s have a quick chat. 
+And if  you aren’t... what, you got a date? Take a seat, and go along for the ride—you 
+might just learn something as well.
+We’ll give it to you straight: JavaScript doesn’t have a classical object-oriented model, 
+where you create objects from classes. In fact, JavaScript doesn’t have classes at all. In 
+JavaScript, objects inherit behavior from other objects, which we call prototypal inheritance, 
+or inheritance based on prototypes.
+JavaScript gets a lot of  groans (and confused looks) from those trained in object-
+oriented programming, but know this: prototype-based languages are more general 
+than classical object oriented ones. They’re more flexible, efficient and expressive. 
+So expressive that if  you wanted to, you could use JavaScript to implement classical 
+inheritance.
+So, if  you are trained in the art of  classical object-oriented programming, sit 
+back, relax, open your mind and be ready for something a little different. And if  
+you have no idea what we’re talking about when we say “classical object-oriented 
+programming,” that just means you’re starting fresh, which is often a very good thing.  
+Sorry, but you’re going 
+to have to unlearn all 
+that classical object-oriented 
+inheritance stuff you learned 
+with Java and C++.
+And if you haven’t learned 
+classical inheritance, you’re 
+lucky because you don’t have 
+to unlearn anything!
+This may change in 
+the future: the next 
+version of JavaScript 
+may add classes. So 
+keep an eye out on 
+wickedlysmart.com/hfjs 
+for the latest on this.
+Left to the reader 
+as an exercise.
+
+you are here 4        565
+using prototypes
+name: “Fido”
+breed: “Mixed”
+weight:  38
+bark()
+Dog
+Hey, before we get started, we’ve got a 
+better way to diagram our objects
+The object diagrams we’ve been using are cute and all that, but this is the 
+serious objects chapter, so we’re going to get more serious about our object 
+diagrams. Actually, we really like the old ones, but the object diagrams in 
+this chapter get complicated enough we just can’t squeeze everything we 
+need to into them.
+So, without further ado, let us present the new format:
+name: “Fido”
+breed: “Mixed”
+weight: 38
+Dog
+bark()
+Here are the 
+properties.
+Here's the constructor.
+And here are 
+the methods.
+Here are the 
+properties.
+Here's the constructor.
+And here are 
+the methods.
+OLD SCHOOLNEW AND IMPROVED
+,,,,,,,`
+Do a little practice just to make sure you’ve got the new format down. Take 
+the object below and redo it in the new and improved object diagram.
+brand: “Head First”
+model: 2112
+inUse:  true
+sharpen()
+PencilSharpener
+clean()
+Fill in this 
+object diagram.
+
+566        Chapter    13
+looking closely at objects
+Revisiting object constructors: we’re reusing 
+code, but are we being efficient?
+Remember the Dog constructor we created in the last chapter? Let’s take another quick 
+look and review what we’re getting out of  using the constructor:
+name: "Fido"
+breed: "Mixed"
+weight: 38
+Dog
+bark()
+name: "Fluffy"
+breed: "Poodle"
+weight: 30
+Dog
+bark()
+name: "Spot"
+breed: "Chihuahua"
+weight: 10
+Dog
+bark()
+function bark() {
+  // code to bark
+}
+function bark() {
+  // code to bark
+}
+function bark() {
+  // code to bark
+}
+function Dog(name, breed, weight) {
+    this.name = name;
+    this.breed = breed;
+    this.weight = weight;
+    this.bark = function() {
+        if (this.weight > 25) {
+            alert(this.name + " says Woof!");
+        } else {
+            alert(this.name + " says Yip!");
+        }
+    };
+}
+And here each object 
+has a reference to 
+the bark function.
+Here are the three 
+different dog objects, 
+each with its own values 
+in the properties.
+Every dog can have its own custom values 
+and a consistent set of properties.
+var fido = new Dog("Fido", "Mixed", 38);
+var fluffy = new Dog("Fluffy", "Poodle", 30);
+var spot = new Dog("Spot", "Chihuahua", 10);
+Even better, we're totally 
+reusing code across all the dogs.
+So by using the constructor we get a nice, consistent dog object that we can customize to 
+our liking, and, we also can leverage the methods that are defined in it (in this case there’s 
+only one, bark). Further, every dog gets the same code from the constructor, saving us 
+lots of  code headaches if  things change in the future. That’s all great, but let’s look at 
+what happens at runtime when we evaluate the code below:
+And every dog comes complete 
+with a bark method.
+This code causes three dog objects to be created. Let’s use our new object diagrams to 
+see what that looks like:
+But wait a second, 
+each dog has its own, 
+individual bark function. 
+They all do the same 
+thing, but each dog has 
+it's own copy of the 
+function.
+At a code level we've got 
+reuse, but at runtime it 
+looks like we get a new 
+duplicate function with 
+every dog.
+
+you are here 4        567
+using prototypes
+The browser.
+Hey! You up there!
+I’ve cornered the dog 
+market and it’s all thanks to your Dog 
+constructor. Check it out...
+If this was a mobile device 
+we’d be dead already.
+You’re killing us down 
+here with all those  extra 
+methods you’re creating. We’re 
+just about to run out of memory 
+and then it’s game over!
+
+568        Chapter    13
+reusing behavior
+Personally, I think every dog 
+should have her very own bark 
+method. Just sayin’.
+Is duplicating methods really a problem?
+Actually, it is. In general we don’t want a new set of  methods being created 
+every time you instantiate an object with a constructor. Doing so hurts the 
+performance of  your application and impacts resources on your computer, 
+which can be a big deal, particularly on mobile devices. And, as you’re going to 
+see, there are more flexible and powerful ways to craft your JavaScript objects.
+Let’s take a step back and think about one of  the main reasons we used 
+constructors in the first place: we were trying to reuse behavior. For instance, 
+remember that we had a bunch of  dog objects and we wanted all those objects 
+to use the same bark method. By using a constructor we achieved this at a code 
+level by placing the bark method in one place—inside the Dog constructor—
+and so we reused the same bark code each time we instantiated an object. But, 
+our solution doesn’t look as promising at runtime because every dog instance is 
+getting its own copy of  the bark method.
+Now the reason we’re running into this problem is because we aren’t taking full 
+advantage of  JavaScript’s object model, which is based on the idea of  prototypes. 
+In this model, we can create objects that are extensions of  other objects—that is, 
+of  prototype objects. 
+To demonstrate prototypes, hmm... if  only we had a dog prototype around that 
+we could work from...
+ 
+Typically when we talk 
+about an object’s “behavior” 
+we're referring to the set 
+of methods it supports.
+
+you are here 4        569
+using prototypes
+I’m the dog 
+prototype. I’ve got properties 
+that every dog needs and you 
+can use me as a prototype for 
+any dog you want to create.
+What are prototypes?
+JavaScript objects can inherit properties and behavior from other 
+objects. More specifically, JavaScript uses what is known as prototypal 
+inheritance, and the object you’re inheriting behavior from is called 
+the prototype. The whole point of  this scheme is to inherit and reuse 
+existing properties (including methods), while extending those 
+properties in your brand new object. That’s all quite abstract so let’s 
+work through an example.
+We’ll start with a prototype for a dog object. Here’s what it might 
+look like:
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+Contains properties 
+useful to every dog.
+Contains behavior we'd 
+like to use in all dogs 
+that we create.
+Here's a prototype for dogs. This is an 
+object that contains properties and 
+methods that all dogs might need.
+The prototype doesn't include name, breed 
+or weight because those will be unique to 
+each dog, and supplied by the real dogs 
+that inherit from the prototype.
+So now that we have a good dog prototype, we can create dog 
+objects that inherit properties from that prototype. Our dog 
+objects will also extend the prototype properties with dog-specific 
+properties or behaviors. For example, we know we’ll be adding a 
+name, breed and weight to each dog.
+You’ll see that if  any of  these dogs needs to bark, run or wag 
+their tails, they can rely on the prototype for those behaviors, 
+because they inherit them from the prototype. So, let’s create a 
+few dog objects so you can see how this all works.
+When an object inherits from 
+another, it gains access to all its 
+methods and properties. 
+
+570        Chapter    13
+dog inheritance
+Fido only needs to 
+contain the name, 
+breed and weight.
+Same with Fluffy.
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+Read this dashed line 
+as “inherits from.”
+And so on for 
+each dog we 
+create.
+Inheriting from a prototype
+First, we need to create object diagrams for the Fido, Fluffy and Spot dog objects and have them 
+inherit from the new dog prototype. We’ll show inheritance by drawing a set of  dashed lines from 
+the dog instances to the prototype. And remember, we put only the methods and properties that are 
+common to all dogs in the dog prototype, because all the dogs will inherit them. All the properties 
+specific to an actual dog, like the dog’s name, go into the dog instances, because they are different 
+for each dog.
+Here we have three dog 
+objects that inherit from the 
+dog prototype. The prototype 
+contains properties (including 
+methods) shared by all the 
+dogs. The dogs themselves 
+contain the properties 
+specific to each dog: a name, 
+breed and weight.
+name: “Fluffy”
+breed: “Poodle”
+weight: 30
+Dog
+name: “Spot”
+breed: “Chihuahua”
+weight: 10
+Dog
+name: “Fido”
+breed: “Mixed”
+weight: 38
+Dog
+Properties and methods 
+common to all dogs are here.
+
+you are here 4        571
+using prototypes
+How inheritance works
+How do we make dogs bark if  the bark method isn’t in the individual dog 
+instances, but rather is in the prototype? That’s where inheritance comes in.

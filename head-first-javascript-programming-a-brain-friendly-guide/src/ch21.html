@@ -1,0 +1,80 @@
+<section class="chapter" id="ch21" data-ch="21" data-title="Hiểu về Object, Phương thức, Từ khóa this và Nhập môn DOM">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 21</span>
+    <h1>Understanding Objects, Methods, the this Keyword, and Introduction to the DOM <span class="vi">Hiểu về Object, Phương thức, Từ khóa this và Nhập môn DOM</span></h1>
+    <p class="chapter-lede">Làm chủ cách đóng gói dữ liệu và hành vi vào Object thông qua phương thức, từ khóa this, và cách JavaScript kết nối trực tiếp với trang web qua Document Object Model (DOM).</p>
+    <div class="chapter-meta">
+      <span class="pill">2 bài học</span>
+      <span class="pill">2 labs</span>
+      <span class="pill">2 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch21-t1" data-num="21.1" data-short="Object Methods & This">
+    <div class="topic-theory-card">
+      <span class="eyebrow">NGUYÊN LÝ CỐT LÕI</span>
+    <h2>Đóng gói hành vi vào Object và quyền năng của this</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Object không chỉ lưu dữ liệu mà còn chứa hàm (method), sử dụng từ khóa this để tự tham chiếu.</p>
+    <div class="prose">
+      <p>Khi xây dựng các hệ thống phức tạp như giỏ hàng tại Tiki hay hệ thống đặt xe của Grab, việc quản lý rời rạc các biến là thảm họa kiến trúc. Giải pháp là gom nhóm dữ liệu và hàm xử lý vào <dfn data-term="object">Object</dfn>. Khi một hàm nằm bên trong object, nó được gọi là method. Để method truy cập được dữ liệu của chính object đó mà không bị phụ thuộc vào biến bên ngoài, ta bắt buộc phải dùng từ khóa <dfn data-term="this">this</dfn>.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Hệ thống quản lý tài xế XanhSM định nghĩa mỗi xe là một Object chứa thông số định vị và phương thức updateLocation(). Bên trong phương thức, this.lat và this.lng cập nhật tọa độ GPS theo thời gian thực.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch21-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Mô phỏng Car Object</strong>
+        — Thực thi method start() và drive() sử dụng this.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch21-t2" data-num="21.2" data-short="Introduction to DOM">
+    <div class="topic-theory-card">
+      <span class="eyebrow">KIẾN TRÚC TRÌNH DUYỆT</span>
+    <h2>Giao tiếp với trang web qua DOM (Document Object Model)</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Trình duyệt chuyển đổi HTML thành cây Object gọi là DOM để JavaScript có thể đọc và ghi.</p>
+    <div class="prose">
+      <p>Mã JavaScript chạy độc lập với markup HTML cho đến khi xuất hiện <dfn data-term="dom">DOM (Document Object Model)</dfn>. Khi trang web được tải, trình duyệt phân tích cú pháp HTML và dựng lên một cấu trúc cây các object. Object toàn cục <dfn data-term="document">document</dfn> là điểm neo để truy xuất mọi thành phần giao diện thông qua các phương thức như getElementById.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Khi Flash Sale trên Shopee đếm ngược từng giây, script JS liên tục gọi DOM để cập nhật text của thẻ HTML hiển thị thời gian còn lại mà không cần tải lại trang.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch21-w2">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>DOM Selector Lab</strong>
+        — Thực hành đổi innerHTML của một phần tử bằng JS.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch21-review" data-num="21.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>Chương này lột tả bản chất của Object trong JavaScript không chỉ là tập hợp các cặp khóa-giá trị (key-value) tĩnh mà là các thực thể sống động chứa cả dữ liệu (properties) và hành vi (methods). Chúng ta học cách sử dụng từ khóa 'this' như một con trỏ ngữ cảnh để phương thức bên trong object có thể truy cập chính xác thuộc tính của nó mà không phụ thuộc vào biến toàn cục. Đồng thời, chương mở ra chương mới về DOM (Document Object Model) - cấu trúc cây dữ liệu đại diện cho trang HTML, cho phép mã nguồn JavaScript thao tác, thay đổi nội dung trang web động như cách các hệ thống lớn cập nhật giao diện thời gian thực.</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 1:</strong> Từ khóa 'this' bên trong một method của object trỏ tới cái gì?</p>
+        <ol><li>Trỏ tới cửa sổ toàn cục (window)</li><li>Trỏ tới chính object chứa method đó</li><li>Trỏ tới một biến ngẫu nhiên</li><li>Trỏ tới file HTML gốc</li></ol>
+        <p class="explain">Trong ngữ cảnh của một method thuộc object, 'this' tham chiếu trực tiếp đến object gọi phương thức đó tại thời điểm thực thi.</p>
+      </div>
+
+      <div class="q" data-answer="2">
+        <p class="q-text"><strong>Câu 2:</strong> Phương thức nào dùng để lấy một phần tử trên trang HTML thông qua định danh ID?</p>
+        <ol><li>document.getElementByClass</li><li>document.querySelectorId</li><li>document.getElementById</li><li>document.getHtmlElement</li></ol>
+        <p class="explain">document.getElementById() là phương thức chuẩn của DOM để tìm kiếm chính xác phần tử dựa trên thuộc tính id.</p>
+      </div></div>
+  </article>
+</section>

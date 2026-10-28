@@ -1,0 +1,663 @@
+1.  Start by creating a document node at the top.
+2.  Next, take the top level element of your HTML 
+page, in our case the <html> element, call it 
+the current element and add it as a child of the 
+document.
+3.  For each element nested in the current element, 
+add that element as a child of the current 
+element in the DOM.
+ 
+4.  Return to (3) for each element you just added, 
+and repeat until you are out of elements.
+How to bake your very own DOM
+Let’s take some markup and create a DOM for it. Here’s a simple 
+recipe for doing that:
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>My blog</title>
+  <script src="blog.js"></script>
+</head>
+<body>
+  <h1>My blog</h1>
+  <div id="entry1">
+    <h2>Great day bird watching</h2>
+    <p>
+      Today I saw three ducks!
+      I named them
+      Huey, Louie, and Dewey.
+    </p>
+    <p>
+      I took a couple of photos...
+    </p>
+  </div>
+</body>
+</html> 
+document
+document
+html
+document
+headbody
+html
+We’ve alre ady fully 
+baked this DOM for you. 
+See the inished DOM on 
+the ne xt page.
+
+you are here 4        235
+interacting with your web page 
+document is always at the top. 
+document is a special part of 
+the tree that you can use in 
+JavaScript to get access to the 
+entire DOM. 
+These are like the 
+branches of the tree.
+These are like the leaves 
+of the tree (because there 
+are no elements inside them, 
+just text).
+document
+head
+titlescript
+body
+h1
+metadiv id=”entry1”
+h2pp
+document is also like the root 
+of an upside down tree.
+My blog
+Great 
+day bird 
+watching
+Today 
+I saw 
+three...
+I took a 
+couple of 
+photos...
+The DOM includes the content of the page as well as the 
+elements. (We don’t always show all the text content when 
+we draw the DOM, but it’s there).
+My blog
+html
+A first taste of the DOM
+If  you follow the recipe for creating a DOM you’ll end up with a structure like 
+the one below. Every DOM has a document object at the top and then a tree 
+complete with branches and leaf  nodes for each element in the HTML markup.  
+Let’s take a closer look.
+Now that we have a 
+DOM we can examine or 
+alter it in any way we want.
+We compare this structure to a 
+tree because a “tree” is a data 
+structure that comes from 
+computer science, and because 
+it looks like an upside down 
+tree, with the root at the top 
+and the leaves at the bottom.
+
+236        Chapter    6
+exercise for making a dom
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Movies</title>
+  </head>
+  <body>
+    <h1>Movie Showtimes</h1>
+    <h2 id="movie1">Plan 9 from Outer Space</h2>
+    <p>Playing at 3:00pm, 7:00pm. 
+      <span>
+        Special showing tonight at <em>midnight</em>!
+      </span>
+    </p>
+    <h2 id="movie2">Forbidden Planet</h2>
+    <p>Playing at 5:00pm, 9:00pm.</p>
+  </body>
+</html>
+Your job is to act like 
+you’re the browser. You 
+need to parse the HTML 
+and build your very own 
+DOM from it. Go ahead 
+and parse the HTML to 
+the right, and draw your 
+DOM below. We’ve already 
+started it for you.
+BE the Browser
+Draw your DOM here.
+document
+html
+Check your answer with 
+our solution at the end 
+of the chapter before 
+you go on.
+
+you are here 4        237
+interacting with your web page 
+Or, how two totally different technologies hooked up.
+HTML and JavaScript are from different planets for sure. 
+The proof? HTML’s DNA is made of declarative markup 
+that allows you to describe a set of nested elements that 
+make up your pages. JavaScript, on the other hand, is 
+made of pure algorithmic genetic material, meant for 
+describing computations.
+Are they so far apart they can’t even communicate? Of 
+course not, because they have something in common: the 
+DOM. Through the DOM, JavaScript can communicate 
+with your page, and vice versa. There are a few ways to 
+make this happen, but for now let’s concentrate on one—
+it’s a little wormhole of sorts that allows JavaScript to get 
+access to any element in your page. That wormhole is 
+getElementById.
+
+238        Chapter    6
+using getelementbyid to get an element
+Let’s start with a DOM.  Here’s a simple DOM; it’s got a few HTML paragraphs, each with 
+an id identifying it as the green, red or blue planet. Each paragraph has some text as well. Of 
+course there’s a <head> element too, but we’ve left the details out to keep things simpler.
+Now let’s use JavaScript to make things more interesting.  Let’s say we want to change 
+the greenplanet’s text from “All is well” to “Red Alert: hit by phaser fire!” Down the road you 
+might want to do something like this based on a user’s actions, or even based on data from a 
+web service. We’ll get to all that; for now let’s just get the greenplanet’s text updated. To do that 
+we need the element with the id “greenplanet”. Here’s some code that does that:
+document.getElementById("greenplanet");
+Here we’re asking the document to 
+get us an element by finding the 
+element that matches the given id.
+The document represents the 
+entire page in your browser and 
+contains the complete DOM, so 
+we can ask it to do things like 
+find an element with a specific id.
+p
+getElementById(“greenplanet”) returns 
+the paragraph element corresponding 
+to “greenplanet”...
+...and then the 
+JavaScript code 
+can do all sorts 
+of interesting 
+things with it.
+body
+p id =”greenplanet”p id =”redplanet”p id =”blueplanet”
+All is 
+well
+Nothing to 
+report
+All systems 
+A-OK
+head
+html
+document
+
+you are here 4        239
+interacting with your web page 
+Once getElementById gives you an element, you’re ready do something with it  
+(like change its text to “Red Alert: hit by phaser fire!”). To do that, we typically assign the 
+element to a variable so we can refer to the element thoughout our code. Let’s do that 
+and then change the text:
+var planet = document.getElementById("greenplanet");  
+   
+planet.innerHTML = "Red Alert: hit by phaser fire!";
+Here’s our call to getElementById, 
+which seeks out the “greenplanet” 
+element and returns it.
+We’re assigning the element to a 
+variable named planet.
+And in our code we can now just 
+use the variable planet to refer 
+to our element.
+We change the content of the greenplanet 
+element to our new text... which results in 
+the DOM (and your page) being updated 
+with the new text.
+Red Alert: hit by 
+phaser ire!
+body
+p id =”greenplanet”p id =”redplanet”p id =”blueplanet”
+Nothing to 
+report
+All systems 
+A-OK
+head
+html
+document
+We can use the 
+innerHTML property of 
+our planet element to 
+change the content of 
+the element.
+We’ll talk more about 
+properties of elements 
+shortly...
+Any changes to the DOM are reflected in the 
+browser’s rendering of the page, so you’ll see the 
+paragraph change to contain the new content!
+
+240        Chapter    6
+how getelementbyid works
+So, what did we just do? Let’s step through it in a little more detail. We’re using the 
+document object to get access to the DOM from our code. The document object 
+is a built-in object that comes with a bunch of  properties and methods, including 
+getElementById, which we can use to grab an element from the DOM. The 
+getElementById method takes an id and returns the element that has that id. 
+Now in the past you’ve probably used ids to select and style elements with CSS. 
+But here, what we’re doing is using an id to grab an element—the <p> element 
+with the id “greenplanet”—from the DOM. 
+Once we have the right element, we 
+can modify it. We’ll get to that in just 
+a moment; for now, let’s focus on how 
+getElementById works by tracing 
+through these steps:
+Getting an element with getElementById
+var planet = document.getElementById("greenplanet");  
+2
+3
+You found me! I’m the <p> 
+element with the “greenplanet” 
+id. Just tell me what you need 
+to do.
+p
+Browser here, I’m 
+reading the page and 
+creating a DOM of it.
+1
+body
+p id =”greenplanet”
+p id =”redplanet”
+p id =”blueplanet”
+All is 
+well
+Nothing to 
+report
+All systems 
+A-OK
+head
+html
+document
+Here’s our call to getElementById.
+And we’re looking for the element 
+with an id of “greenplanet”.
+We’ll assign the element that 
+is returned to the planet 
+variable for later use.
+We’re using document to get 
+access to the DOM.
+JavaScript code 
+here, I’m looking for an 
+element in the DOM with 
+an id of “greenplanet”.
+Follow the steps 1, 2, 3.
+
+you are here 4        241
+interacting with your web page 
+Get the content (text or HTML).
+Read an attribute.
+Change the content.
+Add an attribute.
+Change an attribute.
+Remove an attribute.
+Things you can do with an 
+element object.
+When you grab an element from the DOM using getElementById, what you get is 
+an element object, which you can use to read, change or replace the element’s content and 
+attributes. And here’s the magic: when you change an element, you change what is displayed 
+in your page as well.
+But, first things first. Let’s take another look at the element object we just grabbed from 
+the DOM. We know that this element object represents the <p> element in our page that 
+has the id “greenplanet” and that the text content in the element is “All is well”. Just like 
+other kinds of  JavaScript objects, an element object has properties and methods. In the 
+case of  an element object, we can use these properties and methods to read and change 
+the element. Here are a few things you can do with element objects:
+What, exactly, am I getting from the DOM?
+div
+body
+em
+p
+What we want to do with our <p> element—which, remember, is the <p> element with 
+the id “greenplanet”—is change the content “All is well” to “Red Alert: hit by phaser 
+fire!”. We’ve got the element object stashed in the planet variable in our code; let’s use 
+that to modify one of  its properties, innerHTML:
+var planet = document.getElementById("greenplanet");  
+planet.innerHTML = "Red Alert: hit by phaser fire!";
+The planet variable contains an element 
+object-the element object that is the 
+“greenplanet” <p> element.
+We can use the innerHTML property of the element 
+object to change the content of the element!
+
+242        Chapter    6
+using innerhtml
+Finding your inner HTML
+Red Alert: hit by 
+phaser fire! 
+ JavaScript console
+All is well 
+JavaScript console
+And the web page 
+changes too!
+The innerHTML property is an important property that we can use to read or 
+replace the content of  an element. If  you look at the value of  innerHTML then 
+you’ll see the content contained within the element, not including the HTML 
+element tags. The “withIN” is why it’s called “inner” HTML. Let’s try a little 
+experiment. We’ll try displaying the content of  the planet element object in the 
+console by logging the innerHTML property. Here’s what we get:
+var planet = document.getElementById("greenplanet");   
+console.log(planet.innerHTML);
+We’re just passing the planet.innerHTML 
+property to console.log to log to the console.
+The content of the innerHTML property is 
+just a string, so it displays just like any other 
+string in the console.
+Now let’s try changing the value of  the innerHTML property. When we 
+do this, we’re changing the content of  the “greenplanet” <p> element in 
+the page, so you’ll see your page change too!
+var planet = document.getElementById("greenplanet"); 
+planet.innerHTML = "Red Alert: hit by phaser fire!"; 
+console.log(planet.innerHTML);
+Now we’re changing the content of the element 
+by setting its innerHTML property to the string 
+“Red Alert: hit by phaser fire!” 
+So when we log the value of the 
+innerHTML property to the 
+console we see the new value.
+
+you are here 4        243
+interacting with your web page 
+Hey, sit down; take a quick break. You might be saying to yourself, “Wait, I remember 
+something about ids and classes but I don’t remember the specifics, and don’t they have 
+something to do with CSS anyway?” No, problem, let’s just have a quick refresher, get some 
+context, and we’ll have you back on your way in no time...
+Let’s look at an example:
+<div id="menu">
+ ...
+</div>
+And once we have that, we can select it with CSS to style it. Like this:
+div#menu {
+    background-color: #aaa;
+}
+And we can access this element through its id in JavaScript too:
+We’re giving this <div> a unique id of 
+“menu”.  It should be the only element in 
+your page with the id “menu”. 
+div#menu selects the <div> 
+with the id menu, so we can 
+apply style to that element, 
+and only that element.
+div#menu 
+is an id 
+selector.
+<h3 class="drink">Strawberry Blast</h3>
+<h3 class="drink">Lemon Ice</h3>
+Both <h3> elements are in the 
+class “drink”. A class is like a 
+group; you can have multiple 
+elements in the same group.
+Don’t forget, there’s another way to label your elements: with classes.  Classes give us 
+a way to label a set of  elements, like this:
+With HTML, ids give us a way to uniquely identify an element, and, once an 
+element is unique, we can use that to select it with CSS for styling. And, as you’ve 
+seen, we can get an element by its id in JavaScript as well.
+A Quick Refresher
+var myMenu = document.getElementById("menu"); 
+And we can select elements by classes too, both in CSS and JavaScript. We’ll see how 
+to make use of  classes with JavaScript in a bit. And, by the way, if  this reminder isn’t 
+quite enough, check out Chapter 7 of  Head First HTML and CSS, or your favorite 
+HTML & CSS reference guide.
+
+244        Chapter    6
+changing the dom
+Red Alert: hit by 
+phaser ire!
+body
+p id =”greenplanet”p id =”redplanet”p id =”blueplanet”
+Nothing to 
+report
+All systems 
+A-OK
+head
+html
+document
+Any changes to the DOM are reflected in the 
+browser’s rendering of the page, so you’ll see the 
+paragraph change to contain the new content!
+So, what exactly happens when you change the content of  an element using innerHTML?  
+What you’re doing is changing actual content of  your web page, on the fly. And when you 
+change the content in the DOM, you’ll see that change immediately in your web page, too.
+What happens when you change the DOM
+All is 
+well
+body
+p id =”greenplanet”p id =”redplanet”p id =”blueplanet”
+Nothing to 
+report
+All systems 
+A-OK
+head
+html
+document
+This is the element whose 
+content we’re going to change...
+The web page you see and the 
+DOM behind the scenes before 
+you change the content with 
+innerHTML...
+... and the web page you see and 
+the DOM behind the scenes 
+after you change the content 
+with innerHTML.
+Before...
+... and after.
+
+you are here 4        245
+interacting with your web page 
+Q:
+ What happens if I use document.
+getElementById and pass in an id that doesn’t exist?
+A: If you try to get an element from the DOM by id, 
+and that id doesn’t exist in an element, then the call to 
+getElementById returns a null value. Testing for null is 
+a good idea when you use getElementById to ensure 
+that the element is there before you try to access its 
+properties. We’ll talk more about null in the next chapter.
+Q:
+ Can we use document.getElementById to get 
+elements by class as well—for instance, say I have a 
+bunch of elements in the class “planets”?
+A: No, but you’re thinking along the right lines. You 
+can only use getElementById with an id. But there is 
+another DOM method named getElementsByClassName 
+that you can use to get elements by class name. 
+With this method, what you get back is a collection 
+of elements that belong to the class (because 
+multiple elements can be in the same class). Another 
+method that returns a collection of elements is 
+getElementsByTagName, which returns all elements 
+that match the tag name you specify. We’ll see 
+getElementsByTagName a little later in the book and 
+see how to handle the collection of elements it returns.
+Q:
+ What exactly is an element object anyway?
+A: Great question. An element object is the browser’s 
+internal representation of what you type into your HTML 
+file, like <p>some text</p>. When the browser loads and 
+parses your HTML file, it creates an element object for 
+every element in your page, and adds all those element 
+objects to the DOM. So the DOM is really just a big 
+tree of element objects. And, keep in mind that, just like 
+other objects, element objects can have properties, like 
+innerHTML, and methods, too. We’ll explore a few more 
+of the properties and methods of element objects later 
+in the book. 
+Q:
+ I would have expected a property named 
+“content” or maybe “html” in the element object. 
+Why is it called innerHTML instead?
+A: We agree, it’s kind of a weird name. The 
+innerHTML property represents all the content contained 
+in your element, including other nested elements (like 
+a paragraph might include <em> and <img> elements 
+in addition to the text in the paragraph). In other words, 
+it’s the HTML that’s “INside” your element. Is there an 
+outerHTML property? Yes! And that property gets you 
+all the HTML inside the element, as well as the element 
+itself. In practice you won’t see outerHTML used very 
+often, but you will see innerHTML used frequently to 
+update the content of elements.
+Q:
+ So by assigning something to innerHTML 
+I can replace the content of any element with 
+something else. What if I used innerHTML to change, 
+say, the <body> element’s content?
+A: Right, innerHTML gives you a convenient way to 
+replace the content of an element. And, yes, you could 
+use it to replace the content of the <body> element, 
+which would result in your entire page being replaced 
+with something new. 
+
+246        Chapter    6
+Here’s a DOM with a secret message 
+hidden in it. Evaluate the code below to 
+reveal the secret! The answer is upside 
+down on this page.
+document.getElementById("e7")
+document.getElementById("e8")
+document.getElementById("e16")
+document.getElementById("e9")
+document.getElementById("e18")
+document.getElementById("e13")
+document.getElementById("e12")
+document.getElementById("e2")
+Write the element each line of code 
+selects, as well as the content of the 
+element to reveal the secret message!
+but
+strong id=”e13”
+The
+It ain’t
+document
+html
+has come
+h1 id=”e1”
+p
+h2 id=”e3”
+div id=”e4”
+p id=”e5”
+p id=”e10”
+braggin’
+back
+it up!
+I’m
+not
+funny
+I do
+ul
+li id=”e15”
+li id=”e16”
+li id=”e17”
+li id=”e18”
+li id=”e19”
+Please
+turn
+the
+pages
+one at a time!
+a lot
+em id=”e12”
+strong id=”e14”
+laugh
+span id=”e6”
+if
+span id=”e7”
+you
+span id=”e8”
+can
+p
+time
+time id=”e2”
+div id=”e11”
+p id=”e9”
+Secret Message
+title
+meta
+script
+body
+head
+Answer: “you can turn back pages but not time”
+
+you are here 4        247
+interacting with your web page 
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Planets</title>
+  <script>
+    var planet = document.getElementById("greenplanet");
+    planet.innerHTML = "Red Alert: hit by phaser fire!";
+  </script>
+</head>
+<body>
+  <h1>Green Planet</h1>
+  <p id="greenplanet">All is well</p>
+  <h1>Red Planet</h1>
+  <p id="redplanet">Nothing to report</p>
+  <h1>Blue Planet</h1>
+  <p id="blueplanet">All systems A-OK</p>
+</body>
+</html>
+A test drive around the planets
+Okay, you know how to use document.getElementById to get access 
+to an element, and how to use innerHTML to change the content of  that 
+element. Let’s do it for real, now.
+Here’s the HTML for the planets. We’ve got a <script> element in the 
+<head> where we’ll put the code, and three paragraphs for the green, red, 
+and blue planets. If  you haven’t already, go ahead and type in the HTML 
+and the JavaScript to update the DOM:
+Here's our script 
+element with the code.
+Here’s the <p> element 
+you’re going to change 
+with JavaScript.
+After you’ve got it typed in, go ahead and load the page 
+into your browser and see the DOM magic happen on the 
+green planet.
+UH OH! 
+Houston, we’ve got a 
+problem, the green planet still 
+shows “All is well”. What’s wrong?
+Just like you saw before, we’re 
+getting the <p> element with 
+the id “greenplanet” and 
+changing its content. 
+
+248        Chapter    6
+thinking about why the code doesn’t work
+Oh yeah, we forgot to mention one thing.
+When you’re dealing with the DOM it’s important to 
+execute your code only after the page is fully loaded. If  
+you don’t, there’s a good chance the DOM won’t be 
+created by the time your code executes.  
+Let’s think about what just happened: we put code in 
+the <head> of  the page, so it begins executing before 
+the browser even sees the rest of  the page. That’s a big 
+problem because that paragraph element with an id of  
+“greenplanet” doesn’t exist, yet.
+So what happens exactly? The call to 
+getElementById returns null instead of  the element 
+we want, causing an error, and the browser, being the 
+good sport that it is,  just keeps moving and renders 
+the page anyway, but without the change to the green 
+planet’s content.
+How do we fix this? Well, we could move the code to 
+the bottom of  the <body>, but there’s actually a more 
+foolproof  way to make sure this code runs at the right 
+time; a way to tell the browser “run my code after 
+you’ve fully loaded in the page and created the DOM.” 
+Let’s see how to do that next.
+I’ve triple-checked my 
+markup and code, and this just

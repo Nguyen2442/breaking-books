@@ -1,0 +1,80 @@
+<section class="chapter" id="ch4" data-ch="4" data-title="Nhập Môn JavaScript: Thổi Hồn Động Cho Trang Web">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 4</span>
+    <h1>A Quick Dip Into JavaScript <span class="vi">Nhập Môn JavaScript: Thổi Hồn Động Cho Trang Web</span></h1>
+    <p class="chapter-lede">Khám phá cách đưa JavaScript vào trang web để chuyển đổi từ nội dung tĩnh (HTML/CSS) sang ứng dụng tương tác động giàu tính toán.</p>
+    <div class="chapter-meta">
+      <span class="pill">2 bài học</span>
+      <span class="pill">2 labs</span>
+      <span class="pill">2 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch4-t1" data-num="4.1" data-short="Hệ sinh thái Web">
+    <div class="topic-theory-card">
+      <span class="eyebrow">NGUYÊN LÝ CỐT LÕI</span>
+    <h2>Vai trò của JavaScript trong Web Ecosystem</h2>
+    <p class="tldr"><strong>TL;DR:</strong> JavaScript bổ sung hành vi tương tác động vào cấu trúc HTML và giao diện CSS.</p>
+    <div class="prose">
+      <p>Trong khi <dfn data-term="HTML">HTML</dfn> định nghĩa nội dung và cấu trúc, <dfn data-term="CSS">CSS</dfn> định hình phong cách trình bày, thì <dfn data-term="JavaScript">JavaScript</dfn> chịu trách nhiệm xử lý logic, tính toán và phản hồi lại thao tác của người dùng. Trình duyệt đóng vai trò là môi trường thực thi (runtime environment), tự động nạp, phân tích cú pháp và chạy mã ngay khi gặp thẻ <script>.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Các hệ thống như Tiki hay Lazada dùng JavaScript để tải dữ liệu sản phẩm không cần reload trang (AJAX/Fetch), tối ưu trải nghiệm người dùng.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch4-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Browser Execution Pipeline</strong>
+        — Mô phỏng quá trình Browser tải, phân tích và thực thi mã JavaScript.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch4-t2" data-num="4.2" data-short="Biến và Kiểu dữ liệu">
+    <div class="topic-theory-card">
+      <span class="eyebrow">QUẢN LÝ DỮ LIỆU</span>
+    <h2>Lưu trữ trạng thái với Biến (Variables)</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Sử dụng từ khóa var để khai báo biến lưu trữ số, chuỗi ký tự và giá trị luận lý.</p>
+    <div class="prose">
+      <p>Mỗi biến trong <dfn data-term="JavaScript">JavaScript</dfn> được khởi tạo bắt buộc bằng từ khóa <dfn data-term="var">var</dfn> để lưu trữ các giá trị cơ bản như kiểu số (<dfn data-term="Number">Number</dfn>), chuỗi (<dfn data-term="String">String</dfn>), hoặc giá trị đúng/sai (<dfn data-term="Boolean">Boolean</dfn>). Quy tắc đặt tên biến yêu cầu bắt đầu bằng chữ cái, dấu gạch dưới hoặc ký tự đô-la.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Hệ thống ví điện tử MoMo dùng biến để lưu trạng thái phiên đăng nhập và số dư tài khoản tạm thời trên client trước khi đồng bộ với server.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch4-w2">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Variable Scope & Declaration Lab</strong>
+        — Thực hành khai báo biến và gán giá trị hợp lệ.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch4-review" data-num="4.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>Chương này giới thiệu nền tảng cơ bản của JavaScript trong hệ sinh thái web, đặt cạnh HTML (cấu trúc) và CSS (trình bày). JavaScript chịu trách nhiệm mang lại hành vi và tính toán động cho trang web. Khác với các ngôn ngữ biên dịch truyền thống (như C++ hay Java), JavaScript hiện đại sử dụng cơ chế biên dịch tức thời (JIT compilation) ngay trong trình duyệt, mang lại tốc độ thực thi cực cao mà vẫn giữ được sự linh hoạt của ngôn ngữ kịch bản. Nội dung bao gồm cách nhúng mã qua thẻ <script>, quy tắc khai báo biến, sử dụng các kiểu dữ liệu cơ bản (numbers, strings, booleans), và tránh xung đột từ khóa dự trữ.</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="2">
+        <p class="q-text"><strong>Câu 1:</strong> Từ khóa nào bắt buộc phải dùng khi khai báo biến theo chuẩn cơ bản trong chương này?</p>
+        <ol><li>let</li><li>variable</li><li>var</li><li>v</li></ol>
+        <p class="explain">Trong chương này, sách giới thiệu từ khóa var để khai báo biến cho mọi giá trị số, chuỗi hay boolean.</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 2:</strong> JavaScript khác biệt gì so với các ngôn ngữ biên dịch truyền thống như C++?</p>
+        <ol><li>Phải biên dịch thành file nhị phân trước khi chạy</li><li>Trình duyệt đọc và thực thi trực tiếp mã thông qua kỹ thuật biên dịch tối ưu hóa tức thời</li><li>Không thể chạy trên trình duyệt</li><li>Chỉ dùng để trang trí giao diện</li></ol>
+        <p class="explain">JavaScript ban đầu là ngôn ngữ kịch bản thông dịch nhưng các trình duyệt hiện đại đã áp dụng kỹ thuật biên dịch on-the-fly giúp tối ưu hóa hiệu năng.</p>
+      </div></div>
+  </article>
+</section>

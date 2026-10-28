@@ -1,0 +1,666 @@
+[Object object]
+
+you are here 4        609
+using prototypes
+DANGER ZONE
+Once you start overriding properties and methods, it’s easy to get a 
+little carried away. It’s especially important to be careful when overriding 
+properties and methods in built-in objects, because you don’t want to 
+change the behavior of other code that might rely on these properties to 
+do certain things. 
+So if you’re thinking of overriding properties in Object, read this Safety 
+Guide irst. Otherwise, you might end up blowing up your code in 
+unexpected ways. (Translation: you’ll have bugs that are really hard to 
+track down.)
+Do not override
+Here are the properties in Object you don’t want to override:
+OKAY to Override
+Here are the properties in Object that you can override now 
+that you know your way around prototypes, and know how to 
+override safely:
+constructor
+hasOwnProperty
+isPrototypeOf
+propertyIsEnumerable
+toString
+toLocaleString
+valueOf
+The constructor property points to the 
+constructor function connected to the prototype.
+isPrototypeOf is a method you can use to find out 
+if an object is a prototype of another object.
+You know what the hasOwnProperty method does.
+The propertyIsEnumerable method checks to 
+see if a property can be accessed by iterating 
+through all the properties of an object.
+toLocaleString is a method, like toString, that converts an object 
+to a string. This method is designed to be overridden to provide a 
+localized string (say, for your country/language) about an object.
+valueOf is another method designed to be overridden. By 
+default it just gives you the object you call it on. But you can 
+override that to return another value instead if you want.
+
+610        Chapter    13
+extending built-in behavior
+You already know that by adding methods to a prototype, you can add new 
+functionality to all instances of  that prototype. This applies not only to your 
+own objects, but also to built-in objects. 
+Take the String object for instance—you’ve used String methods like 
+substring in your code, but what if  you want to add your own method 
+so that any instance of  String could make use of  it? We can use the same 
+technique of  extending objects through the prototype on Strings too.
+Let’s say we want to extend the String prototype with a method, cliche, that 
+returns true if  the string contains a known cliché. Here’s how we’d do that:
+Remember that while we 
+usually think of strings as 
+primitive types, they also have 
+an object form. JavaScript 
+takes care of converting a 
+string to an object whenever 
+necessary. 
+String.prototype.cliche = function() {
+    var cliche = ["lock and load","touch base", "open the kimono"];
+    for (var i = 0; i < cliche.length; i++) {
+        var index = this.indexOf(cliche[i]);
+        if (index >= 0) {
+            return true;
+        }
+    }
+    return false;
+};
+Now let’s write some code to test the method:
+var sentences = ["I'll send my car around to pick you up.",
+                 "Let's touch base in the morning and see where we are",
+                 "We don't want to open the kimono, we just want to inform them."];
+for (var i = 0; i < sentences.length; i++) {
+    var phrase = sentences[i];
+    if (phrase.cliche()) {
+        console.log("CLICHE ALERT: " + phrase);
+    }
+}
+Here we're adding a method, 
+cliche, to the String prototype.
+We define offending 
+phrases to look for.
+And then we use the String's indexOf 
+function to see if the string matches 
+any of the clichés. If it does we 
+immediately return true.
+Note that 
+this is the string on 
+which we call the method cliche.
+To test let's create some sentences, 
+including a couple that use clichés.
+Each sentence is a string, so 
+we can call its cliche method.
+If true is returned, we know 
+we have a cliché in the string.
+Notice that we’re not creating a string using 
+the String constructor and new. JavaScript is 
+converting each string to a String object behind 
+the scenes for us, when we call the cliche method.
+Using inheritance to your advantage... 
+by extending a built-in object
+
+you are here 4        611
+using prototypes
+v
+Test driving the cliche machine
+‘
+Get the code into a HTML file, open your browser and load it up. 
+Check your console and you should see this output:
+JavaScript console
+CLICHE ALERT: Let's touch base in the morning 
+and see where we are 
+CLICHE ALERT: We don't want to open the kimono, 
+we just want to inform them.
+Works great. If only we could 
+convince Corporate America 
+to install this code!
+Your turn. Write a method, palindrome, that returns true if a string reads the same 
+forwards and backwards. (Just one word, don’t worry about palindrome phrases.) Add the 
+method to the String.prototype and test. Check your answer at the end of the chapter. 
+ 
+       
+Be careful when you extend built-in 
+objects like String with your own 
+methods.
+Make sure the name you choose for your method 
+doesn’t conflict with an existing method in the 
+object. And if you link to other code, be aware of other custom 
+extensions that code may have (and again, watch for name 
+clashes). And finally, some built-in objects aren’t designed to 
+be extended (like Array). So do your homework before you 
+start adding methods to built-in objects.
+
+612        Chapter    13
+everything is an object
+Grand Unified Theory of Everything
+JavaScript
+Congratulations. You’ve taken on the task of  learning an entirely 
+new programming language (maybe your first language) and you’ve 
+done it. Assuming you’ve made it this far, you now know more 
+JavaScript than pretty much everyone.
+More seriously, if  you’ve made it this far in the book, you are well on 
+your way to becoming a JavaScript expert. Now all you need is more 
+experience designing and coding web applications (or any kind of  
+JavaScript application for that matter).
+We're using the logic that about 5.9 
+billion people don't know JavaScript at all, 
+and so those who do are pretty much a 
+rounding error, which means you know more 
+JavaScript than just about anyone.
+Better living through objects
+When you’re learning a complex topic like JavaScript, it’s hard to see 
+the forest for the trees. But, once you understand most of  JavaScript, it’s 
+easier to step back and check out the forest.
+When you’re learning JavaScript, you learn about pieces of  it at a time: you 
+learn about primitives (that can, at any moment, be used like an object), 
+arrays (which kinda act like objects at times), functions (which, oddly, have 
+properties and methods like objects), constructors (which feel like part 
+function, part object) and well... objects themselves. It all seems rather 
+complex.
+Well, with the knowledge you have now, you can sit back, relax, take a 
+cleansing breath, and meditate on the mantra “everything is an object.”
+Because you see, everything is an object—oh, sure we have a few primitives, 
+like booleans, numbers and strings, but we already know that we can treat 
+those as objects anytime we need to. We have some built-in types too, like 
+Date, Math and RegEx, but those are just objects too. Even arrays are 
+objects, and as you saw, the only reason they look different is because 
+JavaScript provides some nice “syntactic sugar” we can use to make creating 
+and accessing objects easier. And of  course we have objects themselves, 
+with the simplicity of  object literals and the power of  the prototypal object 
+system.
+But what about functions? Are they really objects? Let’s find out:
+Everything is an 
+object...Everything is 
+an object...Everything 
+is an object...
+function meditate() {
+    console.log("Everything is an object...");
+}
+alert(meditate instanceof Object);
+
+you are here 4        613
+using prototypes
+So it’s true: functions are just objects. But, really, this shouldn’t 
+be a big surprise at this point. After all we can assign functions to 
+variables (like objects), pass them as arguments (like objects), return 
+them from functions (like objects), and we’ve even seen they have 
+properties, like this one:
+It's true! Functions are objects too.
+Dog.constructor
+Remember this 
+is a function.
+And this is a 
+property.
+And there’s nothing stopping you from adding your own properties to  
+a function should that come in handy. And, by the way, just to bring it 
+all full circle, have you considered that a method is just a property in 
+an object that is set to an anonymous function expression?
+Putting it all together
+What’s next?
+Now that you’ve got all the fundamentals down, it’s time 
+to take it all further. Now you’re ready to really put your 
+experience to use with the browser and its programming 
+interfaces. You can do that by picking up Head First 
+HTML5 Programming, which will take you through how to 
+add geolocation, canvas drawing capabilities, local storage, 
+web workers and more into your applications. But before 
+you put this book down, be sure to read the appendix for 
+a great list of  other topics to explore.
+This is a rapidly evolving topic, so before you go looking for 
+Head First HTML5 Programming, hit  
+http://wickedlysmart.com/javascript for our latest 
+recommendations and any updates and revisions for this book.
+Be sure to visit http://wickedlysmart.
+com/javascript for follow-up materials 
+for this book and, as your next mission, 
+should you accept it...
+A lot of  JavaScript’s power and flexibility comes from the interplay between 
+how we use functions and objects, and the fact that we can treat them as 
+first class values. If  you think about the powerful programming concepts 
+we’ve studied—constructors, closures, creating objects with behavior that 
+we can reuse and extend, parameterizing the behavior of  functions, and so 
+on—all these techniques have relied on your understanding of  advanced 
+objects and functions.
+Well, now you’re in a position to take this all even further...
+
+614        Chapter    13
+chapter summary
+ JavaScript’s object system uses 
+prototypal inheritance.
+ When you create an instance of an object 
+from a constructor, the instance has its 
+own customized properties and a copy of 
+the methods in the constructor.
+ If you add properties to a constructor’s 
+prototype, all instances created from that 
+constructor inherit those properties. 
+ Putting properties in a prototype can 
+reduce runtime code duplication in objects.
+ To   override properties in the prototype, 
+simply add the property to an instance.
+ A constructor function comes with a 
+default prototype that you can access 
+with the function’s prototype property.
+ You can assign your own object to the 
+prototype property of a constructor 
+function.
+ If you use your own prototype object, 
+make sure you set the constructor function 
+correctly to the constructor property for 
+consistency.
+ If you add properties to a prototype after 
+you’ve created instances that inherit from 
+it, all the instances will immediately inherit 
+the new properties.
+ Use the hasOwnProperty method on an 
+instance to ind out if a property is deined 
+in the instance.
+ The method call can be used to invoke a 
+function and specify the object to be used 
+as this in the body of the function.
+ Object is the object that all prototypes and 
+instances ultimately inherit from.
+ Object has properties and methods 
+that all objects inherit, like toString and 
+hasOwnProperty.
+ You can override or add properties to built-
+in objects like Object and String, but take 
+care when doing so as your changes can 
+have far-ranging effects.
+ In JavaScript, almost everything is an 
+object, including functions, arrays, many 
+built-in objects, and all the custom objects 
+you make yourself. 
+Congratulations 
+from all of us for 
+finishing the book!
+You did it! It’s the 
+end of the book!
+Ey Ey Matey, well done!
+Nice! We couldn’t have done 
+it without you!
+Woohoo! You nailed it!
+Right on! Nice Job!
+You’re ready to 
+take on some real 
+coding now!
+Totally awesome job!
+
+you are here 4        615
+using prototypes
+Code Magnets Solution
+We had an object diagram on the fridge, and then someone came and messed it up. Can you 
+help put it back together? To reassemble it, we need two instances of the robot prototype. 
+One is Robby, created in 1956, owned by Dr. Morbius, has an on/off switch and runs to 
+Starbucks for coffee. We’ve also got Rosie, created in 1962, who cleans house and is owned by 
+George Jetson. Good luck (oh, and there might be some extra magnets below)!
+Here’s our solution:
+maker: "ObjectsRUs"
+Robot Prototype
+speak()
+makeCoffee()
+blinkLights()
+function speak() {
+  // code to speak
+}
+function 
+makeCoffee() {
+  // starbucks
+}
+function 
+makeCoffee() {
+  // code 4 coffee
+}
+function 
+cleanHouse() {
+  // code 4 clean
+}
+Here’s the 
+prototype your 
+robots can 
+inherit from.
+name: "Robby"
+Robot
+owner: Dr. Morbius
+year: 1956
+makeCoffee()
+onOffSwitch: true
+name: "Rosie"
+Robot
+year: 1962
+owner: George Jetson
+cleanHouse()
+function 
+blinkLights() {
+  // code 4 lights
+}
+
+616        Chapter    13
+exercise solutions
+v
+function Robot(name, year, owner) {
+    this.name = name;
+    this.year = year;
+    this.owner = owner;
+}
+Robot.prototype.maker = "ObjectsRUs";
+Robot.prototype.speak = function() {
+    alert("Warning warning!!");
+};
+Robot.prototype.makeCoffee = function() {
+    alert("Making coffee");
+};
+Robot.prototype.blinkLights = function() {
+    alert("Blink blink!");
+};
+var robby = new Robot("Robby", 1956, "Dr. Morbius");
+var rosie = new Robot("Rosie", 1962, "George Jetson");
+robby.onOffSwitch = true;
+robby.makeCoffee = function() {
+    alert("Fetching a coffee from Starbucks.");
+};
+rosie.cleanHouse = function() {
+    alert("Cleaning! Spic and Span soon...");
+};
+console.log(robby.name + " was made by " + robby.maker +
+            " in " + robby.year + " and is owned by " + robby.owner);
+robby.makeCoffee();
+robby.blinkLights();
+console.log(rosie.name + " was made by " + rosie.maker +
+            " in " + rosie.year + " and is owned by " + rosie.owner);
+rosie.cleanHouse();
+Remember our object diagram for the Robby and Rosie robots? We’re going to implement that 
+now. We’ve already written a Robot constructor for you along with some test code. Your job is to 
+set up the robot prototype and to implement the two robots. Make sure you run them through the 
+test code. Here’s our solution.
+Here, we’re adding a custom 
+property to Robby, as well as a 
+custom method for making coffee 
+(by going to Starbucks).
+Here we’re setting up the prototype 
+with a maker property...
+Here’s the basic Robot 
+constructor.
+We create our robots, 
+Robby and Rosie here.
+...and three methods that are 
+shared by all robots.
+And Rosie also gets a custom method 
+to clean the house (why do the girl 
+robots have to clean?)
+JavaScript console
+Robby was made by ObjectsRUs in 1956 
+and is owned by Dr. Morbius
+Rosie was made by ObjectsRUs in 1962 
+and is owned by George Jetson
+Here’s our output 
+(plus some alerts 
+we're not showing).
+
+you are here 4        617
+using prototypes
+v
+Robby and Rosie are being used in a Robot game. You’ll find the code for them below. In this 
+game, whenever a player reaches level 42, a new robot capability is unlocked: the laser beam 
+capability. Finish the code below so that at level 42 both Robby and Rosie get their laser beams. 
+Here’s our solution.
+function Game() {
+    this.level = 0;
+}
+Game.prototype.play = function() {
+    // player plays game here
+    this.level++;
+    console.log("Welcome to level " + this.level);
+    this.unlock();
+}
+Game.prototype.unlock = function() {
+    if (this.level === 42) {
+        Robot.prototype.deployLaser = function () {
+            console.log(this.name +  " is blasting you with laser beams.");
+        }   
+    }   
+}
+function Robot(name, year, owner) {
+    this.name = name;
+    this.year = year;
+    this.owner = owner;
+}
+var game = new Game();
+var robby = new Robot("Robby", 1956, "Dr. Morbius");
+var rosie = new Robot("Rosie", 1962, "George Jetson");
+while (game.level < 42) {
+     game.play();
+}
+robby.deployLaser();
+rosie.deployLaser();
+A sample of our 
+output. When you 
+finish your code, give 
+it a play and see which 
+robot wins and gets to 
+blast its laser beams!
+JavaScript console
+Welcome to level 1
+Welcome to level 2
+Welcome to level 3 
+ ...
+Welcome to level 41
+Welcome to level 42
+Rosie is blasting you with 
+laser beams.
+Here’s the trick to this game: when you 
+reach level 42, a new method is added 
+to the prototype. That means all robots 
+inherit the ability to deploy lasers!
+We call unlock each time we play the game but no 
+power is unlocked until the level reaches 42.
+
+618        Chapter    13
+exercise solutions
+v
+We’ve added a new capability to our robots, Robby and Rosie: they can now report when they 
+have an error through the reportError method. Trace the code below, paying particular attention 
+to where this method gets its error information, and to whether it’s coming from the prototype of 
+the robot instance.
+Here’s our solution.
+function Robot(name, year, owner) {
+    this.name = name;
+    this.year = year;
+    this.owner = owner;
+}
+Robot.prototype.maker = "ObjectsRUs";
+Robot.prototype.errorMessage = "All systems go.";
+Robot.prototype.reportError = function() {
+    console.log(this.name + " says " + this.errorMessage);
+};
+Robot.prototype.spillWater = function() {
+    this.errorMessage = "I appear to have a short circuit!";
+};
+var robby = new Robot("Robby", 1956, "Dr. Morbius");
+var rosie = new Robot("Rosie", 1962, "George Jetson");
+rosie.reportError();
+robby.reportError();
+robby.spillWater();
+rosie.reportError();
+robby.reportError();
+console.log(robby.hasOwnProperty("errorMessage"));
+console.log(rosie.hasOwnProperty("errorMessage"));
+true
+false
+We call the spillWater method on Robby, so 
+Robby gets his own errorMessage property, 
+which overrides the property in the prototype.
+But we never call spillWater on Rosie, so she 
+inherits the property in the prototype.
+The spillWater method assigns a 
+new value to this.errorMessage, 
+which will override the 
+property in the prototype 
+in any robot that calls this 
+method.
+The reportError method 
+only uses the value of 
+errorMessage, so it doesn’t 
+override the property.
+
+you are here 4        619
+using prototypes
+Code Magnets Solution
+We had another object diagram on the fridge, and then someone came and messed it up. 
+Again!! Can you help put it back together? To reassemble it we need a new line of Space Robots 
+that inherit properties from Robots. These new Space Robots override the Robot’s speaking 
+functionality, and extend Robots with piloting functionality and a new property, homePlanet.  
+Here’s our solution.
+function speak() {
+  // code to speak
+}
+maker: "ObjectsRUs"
+Robot Prototype
+speak()
+makeCoffee()
+blinkLights()
+function 
+makeCoffee() {
+  // code 4 coffee
+}
+function 
+blinklights() {
+  // code 4 lights
+}
+name: "Robby"
+year: 1956
+owner: "Dr. Morbius"
+Robot
+name: "Rosie"
+year: 1962
+owner: "George Jetson"
+Robot
+name: "C3PO"
+year: 1977
+owner: "L. Skywalker"
+homePlanet: "Tatooine" 
+Space Robot
+name: "Simon"
+year: 2009
+owner: "Carla Diana"
+homePlanet: "Earth"
+Space Robot
+Space Robot Prototype
+speak()
+pilot()
+function speak() {
+  // code to speak 
+  // in space
+}
+function  
+pilot() {
+  // code to pilot 
+  // spaceship
+}
+The Space Robot 
+prototype inherits (and 
+extends) the Robot 
+prototype. We add 
+two methods to this 
+prototype, speak and 
+pilot, so all robots will 
+inherit these methods.
+And the Space Robot 
+instances inherit from 
+the Space Robot 
+prototype. They inherit 
+the speak and pilot 
+methods, and we add 
+a custom homePlanet 
+property to each 
+instance.
+
+620        Chapter    13
+exercise solutions
+v
+Your turn. Add a SpaceRobot line of robots to the ObjectsRUs line of robots. These robots should 
+of course be able to do everything that robots can do, plus some extra behavior for space robots. 
+We’ve started the code below, so finish it up and then test it. Here’s our solution.
+function SpaceRobot(name, year, owner, homePlanet) {
+    this.name =  name;
+    this.year = year;
+    this.owner = owner;
+    this.homePlanet = homePlanet;
+}
+SpaceRobot.prototype = new Robot();
+SpaceRobot.prototype.speak = function() {
+    alert(this.name + " says Sir, If I may venture an opinion...");
+};
+SpaceRobot.prototype.pilot = function() {
+    alert(this.name + " says Thrusters? Are they important?");
+};
+var c3po = new SpaceRobot("C3PO", 1977, "Luke Skywalker", "Tatooine");
+c3po.speak();
+c3po.pilot();
+console.log(c3po.name + " was made by " + c3po.maker);
+var simon = new SpaceRobot("Simon", 2009, "Carla Diana", "Earth");
+simon.makeCoffee();
+simon.blinkLights();
+simon.speak();
+We want the SpaceRobot prototype to inherit from 
+the Robot prototype, so we assign a Robot instance to 
+the SpaceRobot constructor's prototype property.
+The SpaceRobot constructor is similar to 
+the Robot constructor, except we have 
+an extra homePlanet property for the 
+SpaceRobot instances.
+These two 
+methods are 
+added to the 
+prototype.
+JavaScript console
+C3PO was made by ObjectsRUs 
+Here's our output 
+(plus some alerts 
+we're not showing).
+
+you are here 4        621
+using prototypes
+v
+String.prototype.palindrome = function() {
+    var len = this.length-1;
+    for (var i = 0; i <= len; i++) {
+        if (this.charAt(i) !== this.charAt(len-i)) {
+            return false;
+        }
+        if (i === (len-i)) {
+            return true;
+        }
+    }
+    return true;
+};
+var phrases = ["eve", "kayak", "mom", "wow", "Not a palindrome"];
+for (var i = 0; i < phrases.length; i++) {
+    var phrase = phrases[i];
+    if (phrase.palindrome()) {
+        console.log("'" + phrase + "' is a palindrome");
+    } else {
+        console.log("'" + phrase + "' is NOT a palindrome");
+    }
+}
+Your turn. Write a method, palindrome, that returns true if a string reads the 
+same forward and backward. Add the method to the String.prototype and test. 
+Here’s our solution (for one word palindromes only).
+String.prototype.palindrome = function() {
+    var r = this.split("").reverse().join("");
+    return (r === this.valueOf());
+}
+Super Advanced Solution
+First we get the length of the string.
+Then we iterate over each character 
+in the string, and test to see if 
+the character at i is the same as 
+the character at len-i (i.e., the 
+character at the other end).
+If they’re not equal we 
+return false because we 
+don’t have a palindrome.
+If we get to where i is in the middle of the

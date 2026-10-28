@@ -1,0 +1,713 @@
+2. An object gets ________ with its methods. 
+6. The method log is a property in the _________ object. 
+8. this is a _______, not a regular variable.
+10. To access the property of an object we use ____ 
+notation. 
+11. _______ can have local variables and parameters, 
+just like regular functions can. 
+13. We used a ______ property to represent the make of 
+a car object. 
+14. The ______ method affects the state of the car object, 
+by adding to the amount of fuel in the car. 
+ 
+ 
+DOWN
+1. The fiat wouldn’t start because we weren’t using 
+______ to access the started property. 
+3. Object references are passed by ______ to functions, 
+just like primitive variables.
+4. When you assign an object to a variable, the variable 
+contains a _______ to the object. 
+5. We usually use one _______ for property names. 
+7. The name and value of a property in an object are 
+separated by a _____.
+9. Don’t forget to use a _____ after each property value 
+except the last one.
+12. Car and dog objects can have both _____ and 
+behavior.
+
+you are here 4        219
+understanding objects
+,,,,,,,`
+We’ve started making a table of property names and values for a car. Can you 
+help complete it? Here’s our solution:
+{ 
+    __________ : ______________,
+    __________ : ______________,
+    __________ : ______________,
+    __________ : ______________,
+    __________ : ______________,
+    __________ : ______________,
+    __________ : ______________,
+    __________ : ______________,
+    __________ : ______________
+};
+model
+make
+“Chevy”
+Put your answers here.
+Feel free to expand 
+the list to include 
+your own properties.
+Put your property 
+names here.
+And put the corresponding  
+values over here.
+year
+color
+passengers
+convertible
+mileage
+“Bel Air”
+1957
+false
+We’re using strings, 
+booleans and numbers 
+where appropriate.
+“red”
+accessories
+“Fuzzy Dice”
+whitewalls
+true
+2
+1021
+var eightBall = { index: 0,  
+                  advice: ["yes", "no", "maybe", "not a chance"],
+                  shake: function() { 
+                             this.index = this.index + 1;
+                            if (this.index  >= this.advice.length) {
+                               this.index = 0;
+                            }
+                 },
+                 look: function() {
+                            return this.advice[this.index];
+                 }
+                                                 
+};   
+eightBall.shake(); 
+console.log(eightBall.look());
+Use your new this skills to help us finish this code.  Here’s our solution.
+JavaScript console
+no
+maybe
+not a chance
+Repeat this sequence several times to 
+test your code.
+
+220        Chapter    5
+exercise solution
+Its mileage is 12,892.
+You don’t have to be stuck with just one object. The real power of objects (as you’ll see soon 
+enough) is having lots of objects and writing code that can operate on whatever object you give 
+it. Try your hand at creating another object from scratch... another car object. Go ahead and 
+work out the code for your second object. Here’s our solution.
+var cadi = { 
+    make: "GM",
+    model: "Cadillac",
+    year: 1955,
+    color: "tan",
+    passengers: 5,
+    convertible: false,
+    mileage: 12892
+};
+Here are the 
+properties for the 
+Cadillac.
+This is a 1955 GM Cadillac.
+We’ll call this a tan color.
+It’s not a convertible, 
+and it can hold five 
+passengers (It’s got a 
+nice big bucket seat in 
+the back).
+
+you are here 4        221
+understanding objects
+The dog 
+object.
+var dog = {
+    name: _________
+    _________: 20.2
+    age: ________
+    ________: "mixed",
+    activity: ____________
+};
+var bark;
+if (_____________ > 20) {
+   bark = "WOOF WOOF";
+} else {
+   bark = "woof woof";
+}
+var speak = __________ + " says " + ________ + " when he wants to " + ______________;
+console.log(speak);
+  name: "Fido"
+ weight: 20.2
+age: 4
+ breed: "mixed"
+  activity: "fetch balls"
+Object Magnets Solution
+Practice your object creating and dot notation skills by completing 
+the code below with the fridge magnets. Be careful, some extra 
+magnets got mixed in! Here's our solution.
+dog.weight
+dog.bark
+bark
+dog.name
+dog.activity
+Fido
+age
+breed
+"fetch balls"
+,
+,
+,
+4
+20.2
+weight
+,
+Leftover magnets
+Fido is hoping you get 
+all his properties right.
+"Fido"
+
+222        Chapter    5
+exercise solution
+Your turn. Here are three more car objects; what is the result of passing 
+each car to the prequal function? Work the answer by hand, and then 
+write the code to check your answers. Here’s our solution:
+var cadi = { 
+    make: "GM",
+    model: "Cadillac",
+    year: 1955,
+    color: "tan",
+    passengers: 5,
+    convertible: false,
+    mileage: 12892
+};
+prequal(cadi);
+var chevy = { 
+    make: "Chevy",
+    model: "Bel Air",
+    year: 1957, 
+    color: "red",
+    passengers: 2,
+    convertible: false,
+    mileage: 1021
+};
+prequal(chevy);
+var fiat = { 
+    make: "Fiat",
+    model: "500",
+    year: 1957, 
+    color: "Medium Blue",
+    passengers: 2,
+    convertible: false,
+    mileage: 88000
+};
+prequal(fiat);
+Write the 
+value of 
+prequal here.
+false
+false
+true
+
+you are here 4        223
+understanding objects
+function getSecret(file, secretPassword) {
+    _______.opened = _______.opened + 1;
+    if (secretPassword == _______.password) {
+        return ______.contents;
+    }
+    else {
+        return "Invalid password! No secret for you.";
+    }
+}
+function setSecret(file, secretPassword, secret) {
+    if (secretPassword == _______.password) {
+        ______.opened = 0;
+        ______.contents = secret;
+    }
+}
+var superSecretFile = {
+    level: "classified",
+    opened: 0,
+    password: 2,
+    contents: "Dr. Evel's next meeting is in Detroit."
+};
+var secret = getSecret(_______________, _____);
+console.log(secret);
+setSecret(_________________, _____, "Dr. Evel's next meeting is in Philadelphia.");
+secret = getSecret(_______________, _____);
+console.log(secret);
+filefile
+file
+file
+file
+file
+file
+superSecretFile2
+superSecretFile2
+2superSecretFile
+The superSecretFile object is passed into 
+the getSecret function, and gets the 
+parameter name file. So we need to make 
+sure we use the object name, file and dot 
+notation to access the object's properties, 
+like opened, and password.
+Same here.
+We can  pass the supserSecretFile 
+object to the getSecret and 
+setSecret functions.
+You’ve been given a super secret file and two functions that allow access to get and 
+set the contents of the file, but only if you have the right password. The first function, 
+getSecret, returns the contents of the file if the password is correct, and logs each 
+attempt to access the file. The second function, setSecret, updates the contents of 
+the file, and resets the access tracking back to 0. It’s your job to fill in the blanks below 
+to complete the JavaScript, and test your functions. Here’s our solution.
+
+224        Chapter    5
+exercise solution
+var song = {
+    name: "Walk This Way",
+    artist: "Run-D.M.C.",
+    minutes: 4,
+    seconds: 3,
+    genre: "80s",
+    playing: false,
+    play: function() {
+        if (!this.playing) {
+            this.playing = true;
+            console.log("Playing " 
+                + this.name + " by " + this.artist);
+        } 
+    },
+    pause: function() {
+        if (this.playing) {
+            this.playing = false;
+        }
+    }
+};
+this
+ song.play();
+this
+ song.pause();
+Below, you’ll find JavaScript code 
+with some mistakes in it. Your job 
+is to play like you’re the 
+browser and find the 
+errors in the code. Here’s 
+our solution.
+BE the Browser Solution
+We were missing a this here.
+And missing the playing 
+property name here.
+We need to use this to access 
+both these properties, too.
+Again here, we need this to access the playing property.
+We don't use this outside of a method; we call 
+an object using the object’s variable name. 
+
+you are here 4        225
+understanding objects
+It’s time to get the whole fleet up and running. Add the drive method to each car object. When 
+you’ve done that, add the code to start, drive and stop each of them. Here’s our solution.
+var cadi = {
+    make: "GM",
+    model: "Cadillac",
+    year: 1955,
+    color: "tan",
+    passengers: 5,
+    convertible: false,
+    mileage: 12892,
+    started: false,
+    start: function() {
+        this.started = true;
+    },
+    stop: function() {
+        this.started = false;
+    },
+    drive: function() {
+        if (this.started) {
+            alert(this.make + " " +
+                  this.model + " goes zoom zoom!");
+        } else {
+            alert("You need to start the engine first.");
+        }
+    }
+};
+var chevy = {
+    make: "Chevy",
+    model: "Bel Air",
+    year: 1957,
+    color: "red",
+    passengers: 2,
+    convertible: false,
+    mileage: 1021,
+    started: false,
+    start: function() {
+        this.started = true;
+    },
+    stop: function() {
+        this.started = false;
+    },
+    drive: function() {
+        if (this.started) {
+            alert(this.make + " " +
+                  this.model + " goes zoom zoom!");
+        } else {
+            alert("You need to start the engine first.");
+        }
+    }
+};
+var taxi = {
+    make: "Webville Motors",
+    model: "Taxi",
+    year: 1955,
+    color: "yellow",
+    passengers: 4,
+    convertible: false,
+    mileage: 281341,
+    started: false,
+    start: function() {
+        this.started = true;
+    },
+    stop: function() {
+        this.started = false;
+    },
+    drive: function() {
+        if (this.started) {
+            alert(this.make + " " +
+                  this.model + " goes zoom zoom!");
+        } else {
+            alert("You need to start the engine first.");
+        }
+    }
+};
+cadi.start();
+cadi.drive();
+cadi.stop();
+chevy.start();
+chevy.drive();
+chevy.stop();
+taxi.start();
+taxi.drive();
+taxi.stop();
+Make sure you add a 
+comma after any new 
+properties you add.
+We copied and pasted the 
+code into each object, so 
+every car has the same 
+properties and methods.
+Now we can start, drive 
+and stop each of the 
+cars, using the same 
+method names.
+
+226        Chapter    5
+exercise solution
+var fiat = {
+    make: "Fiat",
+    model: "500",
+    year: 1957,
+    color: "Medium Blue",
+    passengers: 2,
+    convertible: false,
+    mileage: 88000,
+    fuel: 0,
+    started: false,
+    start: function() {
+        if (this.fuel == 0) {
+            alert("The car is on empty, fill up before starting!");
+        } else {
+            this.started = true;
+        }
+    },    
+    stop: function() {
+        this.started = false;
+    },    
+    drive: function() {
+        if (this.started) {
+            if (this.fuel > 0) {
+                alert(this.make + " " +
+                    this.model + " goes zoom zoom!");
+                this.fuel = this.fuel - 1;
+            } else {
+                alert("Uh oh, out of fuel.");
+                this.stop();
+            }   
+        } else {
+            alert("You need to start the engine first.");
+        }
+    },
+    addFuel: function(amount) {
+        this.fuel = this.fuel + amount;
+    }
+};
+We still have some more work to do to fully integrate the fuel property into the car. For instance, 
+should you really be able to start the car if there’s no fuel?  Help us integrate the fuel property 
+into this code by checking the fuel level before the car is started. If there’s no fuel, and the start 
+method is called, let the driver know with a handy alert, like "The car is on empty, fill 
+up before starting!" Rewrite the start method below, and then add it to your code and 
+test it. Check your answer at the end of the chapter before you go on. Here’s our solution.
+
+you are here 4        227
+understanding objects
+JavaScript cross Solution
+How about a crossword object? It’s got lots of clue 
+properties that will help objects stick in your brain.
+T
+1
+
+B
+2
+E
+
+A
+
+3
+IOR
+4
+
+5
+I
+AEC
+6
+ONSOLE
+LFC
+7
+R
+U
+K
+8
+EY
+
+ORD
+C
+9
+ERL
+D
+10
+OTM
+11
+ET
+
+ODS
+12
+MNNT
+MCM
+13
+A
+K
+E
+A
+14
+DDFUELT
+E
+
+this is a new chapter     229
+6  interacting with your web page
+Getting to know the DOM
+You’ve come a long way with JavaScript.  In fact you’ve evolved 
+from a newbie to a scripter to, well, a programmer. But, there's something 
+missing. To really begin leveraging your JavaScript skills you need to know how 
+to interact with the web page your code lives in. Only by doing that are you going 
+to be able to write pages that are dynamic, pages that react, that respond, that 
+update themselves after they’ve been loaded. So how do you interact with the 
+page? By using the DOM, otherwise known as the document object model. In 
+this chapter we’re going to break down the DOM and see just how we can use it, 
+along with JavaScript, to teach your page a few new tricks.
+Hold on there cowboy. 
+If you wanna get to know 
+me, then you need to know 
+your way around my document 
+object model...
+
+230        Chapter    6
+reviewing the crack the code challenge
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Dr. Evel's Secret Code Page</title>
+  </head>
+  <body>
+    <p id="code1">The eagle is in the</p>
+    <p id="code2">The fox is in the</p>
+    <p id="code3">snuck into the garden last night.</p>
+    <p id="code4">They said it would rain</p>
+    <p id="code5">Does the red robin crow at</p>
+    <p id="code6">Where can I find Mr.</p>
+    <p id="code7">I told the boys to bring tea and</p>
+    <p id="code8">Where's my dough? The cake won't</p>
+    <p id="code9">My watch stopped at</p>
+    <p id="code10">barking, can't fly without umbrella.</p>
+    <p id="code11">The green canary flies at</p>
+    <p id="code12">The oyster owns a fine</p>
+    <script src="code.js"></script>
+  </body>
+</html>
+Yo u were given some HTML with code in an external file, captured from 
+Dr. Evel’s web site, that looked like this:
+In our last chapter, we left you with a little 
+challenge.  The “crack the code challenge.”
+Here’s the 
+JavaScript....
+var access =
+  document.getElementById("code9");
+var code = access.innerHTML;
+code = code + " midnight";
+alert(code);
+And you needed to figure out Dr. Evel’s passcode using your deductive 
+powers on this code. 
+Notice that each paragraph 
+is identified by an id.
+Here’s the HTML.
+document is a global object.
+And getElementById is a method.
+And look, we have 
+dot notation, 
+this looks like 
+an object with 
+an innerHTML 
+property.
+Make sure you get the case right 
+on the letters in the method name 
+getElementById, otherwise it 
+won’t work!
+
+you are here 4        231
+interacting with your web page 
+So what does the code do?
+var access =
+  document.getElementById("code9");
+var code = access.innerHTML;
+code = code + " midnight";
+alert(code);
+Next we take that element (that is, the element with the id “code9”) and 
+we use its innerHTML property to get its content, which we assign to 
+the variable code.
+Let’s walk through this code to see how Dr Evel is generating his passcodes. After we break 
+down each step you’ll start to see how this all works:
+Dr. Evel’s code adds the string “ midnight” to the end of string contained 
+in code, which is “My watch stopped at”. Then, the page creates an alert 
+with the passcode contained in the variable code.
+<p id="code9">My watch stopped at</p>
+Get the element that has 
+an id of “code9”. That 
+would be this element...
+var access =
+  document.getElementById("code9");
+var code = access.innerHTML;
+code = code + " midnight";
+alert(code);
+The element with id “code9” is a 
+paragraph element and that element’s 
+content (or rather its “innerHTML”) is 
+the text “My watch stopped at”. 
+var access =
+  document.getElementById("code9");
+var code = access.innerHTML;
+code = code + " midnight";
+alert(code);
+So we add “ midnight” to “My watch 
+stopped at” to get “My watch stopped 
+at midnight” and then put up an alert 
+to display this code.
+1
+2
+First, the code sets the variable access to the result of calling the document object’s 
+getElementById method and passing it “code9”. What gets returned is an element object.
+3
+We'll learn all about 
+document and element 
+objects in this chapter.
+
+232        Chapter    6
+how the crack the code challenge works
+So, what did we just do? Well, we had some JavaScript that reached into the 
+page (otherwise known as the document), grabbed an element (the one with 
+the id equal to "code9"), took that element’s content (which is "My watch 
+stopped at"), slapped a " midnight" on the end, and then displayed the 
+result as a passcode.
+A quick recap
+The eagle is in the
+The fox is in the
+snuck into the garden last night.
+They said it would rain
+Does the red robin crow at
+Where can I find Mr.
+I told the boys to bring tea and
+Where's my dough? The cake won't
+My watch stopped at
+barking, can't fly without umbrella.
+The green canary flies at
+The oyster owns a fine
+Dr. Evel’s page contains all the possible 
+passcodes, each in a paragraph element 
+labeled with an HTML id.
+1
+Behind the scenes JavaScript grabs 
+the element with the id="code9"
+2
+And takes the content of that 
+element, adds " midnight" to it, 
+and displays an alert.
+3
+"My watch stopped at" + " midnight"
+The Browser
+<p id="code9">My watch stopped at</p>
+Now, more power to Dr. Evel and his JavaScript skills, and we wish him the best 
+in his security schemes, but what is important here is to notice that the web page 
+is a living, breathing data structure that your JavaScript can interact with—you can 
+access and read the content of  the elements in your page. You can also go the 
+other way, and use JavaScript to change the content or structure of  your  page. 
+To do all that, let’s step back for a moment and understand better how JavaScript 
+and HTML work together.
+
+you are here 4        233
+interacting with your web page 
+How JavaScript really interacts with your page
+JavaScript and HTML are two different things. HTML is markup and JavaScript is code. 
+So how do they interact? It all happens through a representation of  your page, called 
+the document object model, or the DOM for short. Where does the DOM come from? It’s 
+created when the browser loads your page. Here’s how:
+We call this the 
+Document Object Model...
+html
+head
+titlescript
+body
+h1ph2
+em
+Your browser
+When you load a page into the 
+browser, not only does the browser 
+parse the HTML and then render it 
+to the display, it also creates a set of 
+objects that represent your markup.  
+These objects are stored in the DOM.
+Your JavaScript can interact with the 
+DOM to get access to the elements 
+and the content in them. JavaScript 
+can also use the DOM to create or 
+remove elements.
+...or DOM, for short.
+1
+2
+When JavaScript 
+modifies the DOM, the 
+browser updates the 
+page dynamically, so 
+you see new content on 
+your page.
+3
+
+234        Chapter    6
+making a dom
+Ingredients
+One well-formed HTML5 page
+One modern web browser, pre-heated and  
+ready to go
+Instructions

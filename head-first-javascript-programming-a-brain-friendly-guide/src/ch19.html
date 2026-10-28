@@ -1,0 +1,74 @@
+<section class="chapter" id="ch19" data-ch="19" data-title="Hành vi đối tượng và từ khóa this trong JavaScript">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 19</span>
+    <h1>Object Behavior and the 'this' Keyword in JavaScript <span class="vi">Hành vi đối tượng và từ khóa this trong JavaScript</span></h1>
+    <p class="chapter-lede">Chuyển dịch từ việc lưu trữ dữ liệu tĩnh sang xây dựng đối tượng có hành vi động thông qua methods và từ khóa this.</p>
+    <div class="chapter-meta">
+      <span class="pill">2 bài học</span>
+      <span class="pill">2 labs</span>
+      <span class="pill">1 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch19-t1" data-num="19.1" data-short="Methods">
+    <div class="topic-theory-card">
+      <span class="eyebrow">NGUYÊN LÝ CỐT LÕI</span>
+    <h2>Thêm hành vi cho đối tượng thông qua Methods</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Đối tượng không chỉ lưu dữ liệu mà còn thực hiện hành động bằng cách chứa các hàm gọi là methods.</p>
+    <div class="prose">
+      <p>Trong lập trình hướng đối tượng cơ bản, đối tượng phản ánh các thực thể trong đời thực có cả trạng thái và hành vi. Bằng cách gán một định nghĩa hàm vào một thuộc tính của đối tượng, ta tạo ra một <dfn data-term="method">method</dfn>. Khi gọi method này, ta sử dụng cú pháp dấu chấm quen thuộc.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Hệ thống đặt món của The Coffee House sử dụng các đối tượng Order chứa cả dữ liệu món ăn và method tính tiền giảm giá, giúp logic xử lý nghiệp vụ được đóng gói gọn gàng.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch19-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Lab Method</strong>
+        — Thêm phương thức drive vào đối tượng ô tô.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch19-t2" data-num="19.2" data-short="The this Keyword">
+    <div class="topic-theory-card">
+      <span class="eyebrow">NGUYÊN LÝ CỐT LÕI</span>
+    <h2>Giải quyết bài toán ngữ cảnh với từ khóa this</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Từ khóa this là con trỏ kỹ thuật giúp method biết chính xác nó đang thao tác trên đối tượng nào.</p>
+    <div class="prose">
+      <p>Khi một method muốn truy cập thuộc tính của chính đối tượng chứa nó, JavaScript không tự động hiểu nếu không có sự chỉ dẫn. Từ khóa <dfn data-term="this">this</dfn> sinh ra để giải quyết vấn đề này bằng cách tham chiếu trực tiếp đến đối tượng gọi hàm tại thời điểm thực thi.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Trong ứng dụng gọi xe của XanhSM, mỗi đối tượng xe cần gọi method cập nhật GPS sử dụng this để chắc chắn dữ liệu tọa độ gửi về server khớp chính xác với xe đó.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch19-w2">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Lab This Keyword</strong>
+        — Sửa lỗi ReferenceError bằng cách thêm từ khóa this.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch19-review" data-num="19.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>Trong chương này, chúng ta vượt qua giới hạn của các đối tượng chỉ chứa dữ liệu để tiến tới mô hình hóa các đối tượng có hành vi (methods) giống như thực tế. Vấn đề cốt lõi xuất hiện khi các phương thức muốn truy cập vào trạng thái bên trong của chính đối tượng đó, nhưng lại không thể tự động nhận biết ngữ cảnh nếu thiếu chỉ dẫn rõ ràng. Giải pháp kỹ thuật là sử dụng từ khóa 'this' để trỏ trực tiếp đến ngữ cảnh đối tượng gọi hàm tại thời điểm thực thi (runtime execution context). Trade-off lớn nhất ở đây là 'this' trong JavaScript không bị ràng buộc tại thời điểm định nghĩa (lexical) theo cách thông thường, mà phụ thuộc hoàn toàn vào cách phương thức được gọi, dễ dẫn đến lỗi tham chiếu nếu tách rời hàm khỏi đối tượng. Không nên lạm dụng các hàm lồng nhau phức tạp mà không quản lý ngữ cảnh của 'this' cẩn thận.</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 1:</strong> Giá trị của từ khóa 'this' bên trong một phương thức đối tượng được xác định khi nào?</p>
+        <ol><li>Khi đối tượng được khai báo lần đầu</li><li>Khi phương thức được gọi thực thi</li><li>Khi trình biên dịch quét qua mã nguồn</li><li>Khi hàm được truyền đi như một callback</li></ol>
+        <p class="explain">Giá trị của this phụ thuộc hoàn toàn vào ngữ cảnh gọi hàm (runtime), tức là thời điểm phương thức được kích hoạt bằng cú pháp object.method().</p>
+      </div></div>
+  </article>
+</section>

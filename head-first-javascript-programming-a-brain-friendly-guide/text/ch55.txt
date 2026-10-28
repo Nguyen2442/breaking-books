@@ -1,0 +1,483 @@
+string, or we get to the end of the loop, we 
+return true because we’ve got a palindrome.
+Here are some 
+words to test.
+We just iterate through 
+each word in the array 
+and call the palindrome 
+method on it. If we get 
+back true, then we have 
+a palindrome.
+Here, we first split the string into an array 
+of letters, with each letter being one item 
+in the array. We then reverse the array and 
+join all the letters back up into a string. If 
+the original string’s value equals the new string, 
+we’ve got a palindrome. Note, we have to use 
+valueOf here, because 
+this
+ is an object, not 
+a string primitive like r, so if we don’t, we’d 
+be comparing a string to an object, and they 
+wouldn’t be equal even if 
+this
+ is a palindrome.
+
+622        Chapter    13
+Wouldn’t it be 
+dreamy if this were the end of 
+the book? If there were no bullet 
+points or puzzles or JavaScript 
+listings or anything else? But that’s 
+probably just a fantasy...
+Congratulations!
+You made it to the end.
+Of course, there’s still an appendix.
+And the index.
+And the colophon.
+And then there’s the website...
+There’s no escape, really.
+
+this is a new chapter     623
+Appendix: leftovers
+The top ten topics       
+        (we didn’t cover)
+We’ve covered a lot of  ground, and you’re almost 
+finished with this book.  We’ll miss you, but before we let you go, 
+we wouldn’t feel right about sending you out into the world without a little 
+more preparation. We can’t possibly fit everything you’ll need to know into this 
+relatively small chapter. Actually, we did originally include everything you need to 
+know about JavaScript Programming (not already covered by the other chapters), 
+by reducing the type point size to .00004. It all fit, but nobody could read it. So we 
+threw most of it away, and kept the best bits for this Top Ten appendix.
+This really is the end of the book. Except for the index, of course (a must-read!).
+
+624      Appendix
+a very brief intro to jquery
+#1 jQuery
+jQuery is a JavaScript library that is aimed at reducing and simplifying much of  the 
+JavaScript code and syntax that is needed to work with the DOM and add visual 
+effects to your pages. jQuery is an enormously popular library that is widely used and 
+expandable through its plug-in model. 
+Now, there’s nothing you can do in jQuery that you can’t do with JavaScript (as we said, 
+jQuery is just a JavaScript library); however, it does have the power to reduce the amount 
+of  code you need to write. 
+jQuery’s popularity speaks for itself, although it can take some getting used to if  you are 
+new to it. Let’s check out a few things you can do in jQuery and we encourage you to 
+take a closer look if  you think it might be for you.
+For starters, remember all the window.onload functions we wrote in this book? Like:
+A working knowledge of 
+jQuery is a good skill these 
+days on the job front and for 
+understanding others’ code.
+    window.onload = function() {
+        alert("the page is loaded!");
+    }
+Here’s the same thing using jQuery:
+    $(document).ready(function() {
+        alert("the page is loaded!");
+    }); 
+Or you can shorten this even more, to:
+    $(function() {
+        alert("the page is loaded!");
+    });
+Just like our version, when the document 
+is ready, invoke my function.
+This is cool, but as you can see 
+it takes a little getting used to 
+at first. No worries, it becomes 
+second-nature fast.
+So what about getting elements from the DOM? That’s where jQuery shines. 
+Let’s say you have an <a> element in your page with an id of  “buynow” and 
+you want to assign a click handler to the click event on that element (like we’ve 
+done a few times in this book). Here’s how you do that:
+    $(function() {
+       $("#buynow").click(function() {
+           alert("I want to buy now!");
+       });
+    });
+So what's going on here? First we're setting up a function 
+that is called when the page is loaded.
+Next we're grabbing the element with 
+a “buynow” id (notice jQuery uses CSS 
+syntax for selecting elements).
+And then we're calling a jQuery method, click, 
+on the result to set the onclick handler.
+
+you are here 4        625
+leftovers
+That’s really just the beginning; we can just as easily set the click handler on 
+every <a> element in the page:
+    $(function() {
+       $("a").click(function() {
+           alert("I want to buy now!");
+       });
+    });
+To do that, all we need to do is 
+use the tag name. 
+Compare this to the code you’d 
+write to do this if we were using 
+JavaScript without jQuery.
+Or, we can do things that are much more complex:
+     $(function() {
+        $("#playlist > li").addClass("favorite");
+     });
+Like find all the <li> elements 
+that are children of the element 
+with an id of playlist.
+And then add the class “favorite" 
+to all the elements.
+Actually this is jQuery just getting warmed up; jQuery can do 
+things much more sophisticated than this.
+There’s a whole ’nother side of  jQuery that allows you to do interesting interface 
+transformations on your elements, like this:
+$(function() {
+    $("#specialoffer").click(function() {
+        $(this).fadeOut(800, function() {
+            $(this).fadeIn(400);
+        });
+    });
+});
+This makes the element with an id of 
+specialoffer fade out and then fade back 
+in at different rates.
+As you can see, there’s a lot you can do with jQuery, and we haven’t even talked about how 
+we can use jQuery to talk to web services, or all the plug-ins that work with jQuery. If  you’re 
+interested, the best thing you can do is point your browser to http://jquery.com/ and check 
+out the tutorials and documentation there.
+And, check out Head First jQuery too!
+
+626      Appendix
+the document object
+#2 Doing more with the DOM
+We’ve touched on some of  the things you can do with the DOM in this book, but there’s 
+a lot more to learn. The objects that represent the document in your page—that is, the 
+document object, and the various element objects—are chock full of  properties and 
+methods you can use to interact with and manipulate your page.
+You already know how to use document.getElementById and  
+document.getElementsByTagName to get elements from the page. The document object 
+has these other methods you can use to get elements, too:
+document.getElementsByClassName
+document.getElementsByName
+document.querySelector
+document.querySelectorAll
+Pass this method the name of a class, 
+and you’ll get back all elements that 
+have that class, as a NodeList.
+This method retrieves elements that 
+have a name attribute with a value that 
+matches the name you pass it.
+This method takes a selector (just like a CSS selector) 
+and returns the first element that matches.
+This method also takes a selector, but returns all the 
+elements that match, as a NodeList.
+Here’s how you’d use document.querySelector to match a list item element with the 
+class “song” that’s nested in a <ul> element with the id “playlist”:
+var li = document.querySelector("#playlist .song");
+This says match the element with the 
+id playlist, and then match the first 
+element with the class song.
+Notice how this selector is just 
+like one you’d write in CSS?
+What if  you want to add new elements to your page from your code? You can use a 
+combination of  document object methods and element methods to do that, like this:
+var newItem = document.createElement("li");
+newItem.innerHTML = "Your Random Heart";
+var ul = document.getElementById("playlist");
+ul.appendChild(newItem);
+There’s a lot more you can do with the DOM using JavaScript. For a good 
+introduction, check out Head First HTML5 Programming.
+ul
+lili
+First, we create a new <li> 
+element, and set its content 
+to a string.
+Then we get the <ul> element 
+we want to add the new <li> 
+to (as a child element), and 
+append the <li> to the <ul>. 
+
+you are here 4        627
+leftovers
+#3 The Window Object
+You’ve heard of  the DOM, but you should know there’s also a BOM, or Browser Object Model. It’s 
+not really an official standard, but all browsers support it through the window object.  You’ve seen the 
+window object in passing when we’ve used the window.onload property, and you’ll remember we 
+can assign an event handler to this property that is triggered when the browser has fully loaded a page. 
+You’ve also seen the window object when we’ve used the alert and prompt methods, even though 
+it might not have been obvious. The reason it wasn’t obvious is that window is the object that acts as 
+the global namespace. When you declare any kind of  global variable or define a global function, it is 
+stored as a property in the window object. So for every call we made to alert, we could have instead 
+called window.alert, because it’s the same thing.
+Another place you’ve used the window object without knowing it is when you’ve used the document 
+object to do things like get elements from the DOM with document.getElementById. The 
+document object is a property of  window, so we could write window.document.getElementById. 
+But, just like with alert, we don’t have to, because window is the global object, and it is the default 
+object for all the properties and methods we use from it.
+In addition to being the global object, and supplying the onload property and the alert and 
+prompt methods, the window object supplies other interesting browser-based properties and 
+methods. For instance, it’s common to make use of  the width and height of  the browser window 
+to tailor a web page experience to the size of  the browser. You can access these values like this:
+ 
+Check out the W3C documentation
+*
+ for more on the window object. Here are a few common 
+methods and properties:
+Use these properties to get the browser window’s 
+width and height in pixels. Note that older browsers 
+don’t always expose these properties.
+window.close()
+window.setTimeout()
+window.setInterval()
+window.print()
+window.confirm()
+window.history
+window.location
+This method closes the browser window.
+You already know these methods; 
+they’re supplied by the window object.
+Initiates printing the page to your printer.
+This method is similar to prompt, only it gives the 
+user the choice of an Okay or Cancel button.
+This property is an object containing the browsing history.
+This property is the URL of the current page. You can also set this 
+property to direct the browser to load a new page.
+window.innerWidth
+window.innerHeight
+* http://www.w3.org/html/wg/drafts/html/CR/browsers.html#the-window-object
+
+628      Appendix
+the arguments object
+#4 Arguments
+An object named arguments is available in every function when that function is called. You 
+won’t ever see this object in the parameter list, but it is available nevertheless every time a 
+function is called, in the variable arguments.
+The arguments object contains every argument passed to your function, and it can be 
+accessed in an array-like manner. You can use arguments to create a function that accepts 
+a variable number of  arguments, or create a function that does different things depending 
+on the number of  arguments passed to it. Let’s see how arguments works with this code:
+function printArgs() {
+    for (var i = 0; i < arguments.length; i++) {
+        console.log(arguments[i]);
+    }
+}
+printArgs("one", 2, 1+2, "four");
+JavaScript console
+one
+2
+3
+four
+We're not going to define any formal parameters 
+for now. We'll just use the arguments object.
+And we can access each argument 
+using array notation.
+Here we call printArgs with four arguments.
+While arguments looks just like an array, it is not actually an array; it’s an object. It has a 
+length property, and you can iterate over it and access items in it using bracket notation, 
+but that’s where the similarity with an array ends. Also, note that you can use both 
+parameters and the arguments object in the same function. Let’s write one more piece of  
+code to see how a function with a variable number of  arguments might be written:
+Like an array, arguments has a length property.
+function emote(kind) {
+    if (kind === "silence") {
+        console.log("Player sits in silence");
+    } else if (kind === "says") {
+        console.log("Player says: '" + arguments[1] + "'");
+    } 
+}
+emote("silence");
+emote("says", "Stand back!");
+We can define parameters like normal. In this case, using 
+a parameter helps indicate how to use this function.
+If the first argument is “silence” then we don’t expect 
+another. If the first argument is “says”, then we use 
+arguments[1] to get the second argument.
+JavaScript console
+Player sits in silence
+Player says: 'Stand back!' 
+
+you are here 4        629
+leftovers
+#5 Handling exceptions
+JavaScript is a fairly forgiving language, but now and then things go wrong—
+wrong enough that the browser can’t continue executing your code. When that 
+happens, your page stops working, and if  you look in the console you’re likely to 
+see an error. Let’s take a look at an example of  some code that causes an error. 
+Start by creating a simple HTML page with a single element in the body:
+window.onload = function() {
+    try {
+        var message = document.getElementById("messge");
+        message.innerHTML = "Here's the message!";
+    } catch (error) {
+        console.log("Error! " + error.message);
+    }
+};
+window.onload = function() {
+    var message = document.getElementById("messge");
+    message.innerHTML = "Here's the message!";
+};
+JavaScript console
+Uncaught TypeError: Cannot set 
+property 'innerHTML' of null 
+Now, add the following JavaScript:
+<div id="message"></div>
+Load the page in your browser, make sure the console is open, and 
+you’ll get an error. Can you see what went wrong? We mistyped the id 
+of  the <div> element, so when your code tries to retrieve that <div> 
+element it fails, and the variable message is null. And you can’t access 
+the innerHTML property of  null. 
+When you get an error that causes your code to stop executing like this 
+one does, it’s called an exception. JavaScript has a mechanism, called 
+try/catch, that you can use to watch for exceptions and catch them when they happen. The 
+idea is that if  you can catch one of  these exceptions, rather than your code just stopping, you 
+can take an alternative action (try something else, offer the user a different experience, etc.).
+Try/catch
+The way you use try/catch is like this: you put the code you want to try in the try block, and 
+then you write a catch block that contains code that will be executed in case anything goes 
+wrong with the code in the try block. The catch keyword is followed by parentheses that 
+contain a variable name (that acts a lot like a function parameter). If  something goes wrong 
+and an exception is caught, the variable will be assigned to a value related to the exception, 
+often an Error object. Here’s how you use a try/catch statement:
+We moved our code into a try block.
+Here, we’re trying to set the 
+innerHTML property of message 
+(which is null) to a string.
+If the code in the try block causes an 
+exception, then this line of code is executed. 
+All we’re doing is displaying the message 
+property of the error object in the console. 
+Then execution continues with the line following 
+the try/catch.
+Depending on the error, you could do 
+something much smarter here.
+We’re making an error in this code. 
+Can you see what we did wrong?
+
+630      Appendix
+using addeventlistener
+#6 Adding event handlers with addEventListener
+In this book, we used object properties to assign event handlers to events. For instance, when 
+we wanted to handle the load event, we assigned an event handler to the window.onload 
+property. And when we wanted to handle a button click, we assigned an event handler to that 
+button’s onclick property.  
+This is a convenient way of  assigning event handlers. But sometimes, you might need a more 
+general way of  assigning event handlers. For instance, if  you want to assign multiple handlers 
+for one event type, you can’t do that if  you use a property like onload. But you can with a 
+method named addEventListener: 
+window.onload = function() {
+    var div = document.getElementById("clickme");
+    div.addEventListener("click", handleClick, false); 
+};  
+function handleClick(e) {
+    var target = e.target;;  
+    alert("You clicked on " + target.id);
+    target.removeEventListener("click", handleClick, false);
+}
+window.addEventListener("load", init, false);
+function init() {
+   // page has loaded
+}
+We call addEventListener on 
+window to register a handler 
+for the load event.
+And we pass it three 
+arguments: the name of the 
+event, “load”, as a string...
+...a reference to the handler 
+function for the event... 
+...and a flag indicating if we want 
+to bubble the event up (we’ll explain 
+bubble in a moment).
+So the init function is called 
+when the load event happens.
+You can assign a second load event handler to window simply by calling addEventListener again, 
+passing a different event handler function reference as the second argument. This is handy if  you 
+want to split your initialization code into two separate functions, but remember—you won’t know 
+which handler will be called first, so keep that in mind as you’re designing your code.
+The third argument to addEventListener determines if  the event is “bubbled up” to parent 
+elements. This doesn’t make a difference for the load event (because the window object is at the top 
+level), but if  you have, say, a <span> element nested inside a <div> element, and you click on the 
+<span> but want the <div> to receive the event, then you can set bubble to true instead of  false.
+It’s totally fine to mix and match using the event properties, like onload, with addEventListener. 
+Also, if  you add an event handler with addEventListener, you can remove it later with 
+removeEventListener, like this:
+We’re using the onload property to assign 
+the load event handler for window.
+And using addEventListener to assign the 
+event handler for the <div>’s click event.
+When you click the <div>, we 
+remove the event handler from 
+the div with removeEventListener.
+
+you are here 4        631
+leftovers
+Event handling in IE8 and older
+We’ve handled a few different kinds of  events in this book—mouse clicks, load events, key 
+presses, and more—and hopefully you’ve been using a modern browser and the code has 
+worked for you. However, if  you are writing a web page that handles events (and what web 
+page doesn’t?) and you’re concerned that some of  the people in your audience may be 
+using versions of  Internet Explorer (IE) that are version 8 or older, you need to be aware of  
+an issue with event handling. 
+Unfortunately, IE handled events differently from other browsers until IE9. You could use 
+properties like onclick and onload to set event handlers across all browsers, however, the 
+way that older IE browsers handle the event object is different. In addition, if  you happen to 
+be using the standardized addEventListener method, IE didn’t support this method until 
+IE9 and later. Here are the main issues to be aware of:
+ IE8 and older browsers do support most of  the “on” properties you can use to assign 
+event handlers.
+ IE8 and older browsers use a method named attachEvent instead of  the 
+addEventListener method.
+ When an event is triggered and your event handler is called, instead of  passing an 
+event object to the handler, IE8 and older store the event object in the window object.
+So, if  you want to be sure that your code works across all browsers, including IE8 and older 
+browsers, then you can manage these differences like this:
+window.onload = function() {
+    var div = document.getElementById("clickme");
+    if (div.addEventListener) {
+        div.addEventListener("click", handleClick, false);
+    } else if (div.attachEvent) {
+        div.attachEvent("onclick", handleClick);
+    }   
+};  
+function handleClick(e) {
+    var evt = e || window.event;
+    var target;
+    if (evt.target) {
+        target = evt.target;
+    } else {
+        target = evt.srcElement;
+    }   
+    alert("You clicked on " + target.id);
+}
+IE8 supports the onload property 
+for the load event so this is okay.
+If you use the addEventListener 
+method to add an event handler, 
+you need to check to make sure 
+the method exists...
+...and if it doesn’t, use the attachEvent method 
+instead. Notice attachEvent doesn’t have a third 
+argument, and uses “onclick” for the event name.
+If the event object is passed, then you know you’re 
+dealing with IE9+ or another browser. Otherwise, you 
+have to get the event object from the window.
+If the event object is the modern one, the element 
+that triggered the event will be in the target 
+property, like normal. But if this is IE8 or older, this 
+element will be in the srcElement property.
+
+632      Appendix
+matching strings with regular expressions
+#7 Regular Expressions
+The RegExp constructor
+var areaCode = new RegExp(/[0-9]{3}/);
+var phoneNumber = new RegExp(/^\d{3}-?\d{4}$/);
+Remember this from Chair Wars back in Chapter 7? 
+This was Amy’s winning code.
+You’ve seen the RegExp object in passing in this book—“RegExp” stands for regular 
+expression, which is, formally, a grammar for describing patterns in text. For instance, 
+using a regular expression, you could write an expression that matches all text that starts 
+with “t” and ends with “e” , with at least one “a” and no more than two “u”s in between.
+Regular expressions can get complex fast. In fact, regular expressions can almost 
+seem like an alien language when you first try to read them. But you can get started 
+with simple regular expressions fairly quickly, and if  you like them, check out a good

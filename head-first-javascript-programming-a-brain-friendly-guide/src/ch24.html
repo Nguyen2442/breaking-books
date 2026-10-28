@@ -1,0 +1,50 @@
+<section class="chapter" id="ch24" data-ch="24" data-title="Hệ thống kiểu dữ liệu JavaScript: Primitive, Object, Undefined, Null và NaN">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 24</span>
+    <h1>JavaScript Types, Equality, and Conversion: Mastering Primitives, Undefined, Null, and NaN <span class="vi">Hệ thống kiểu dữ liệu JavaScript: Primitive, Object, Undefined, Null và NaN</span></h1>
+    <p class="chapter-lede">Giải mã các góc khuất trong hệ thống kiểu dữ liệu của JavaScript, từ lỗi kinh điển của NaN đến bản chất thực sự của undefined và null.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học</span>
+      <span class="pill">1 labs</span>
+      <span class="pill">1 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch24-t1" data-num="7.1" data-short="Undefined vs Null">
+    <div class="topic-theory-card">
+      <span class="eyebrow">KIẾN TRÚC DỮ LIỆU</span>
+    <h2>Phân định rạch ròi Undefined và Null</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Undefined là chưa khởi tạo, Null là cố tình gán không có đối tượng.</p>
+    <div class="prose">
+      <p>Trong kiến trúc phần mềm, việc phân biệt <dfn data-term="undefined">undefined</dfn> và <dfn data-term="null">null</dfn> giúp tối ưu hóa việc quản lý trạng thái bộ nhớ. Undefined xuất hiện tự nhiên khi biến chưa được cấp giá trị hoặc thuộc tính không tồn tại. Ngược lại, null là giá trị chủ động được gán bởi lập trình viên để biểu thị sự vắng mặt có chủ ý của một đối tượng.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Hệ thống quản lý kho của Thế Giới Di Động sử dụng null để đánh dấu các sản phẩm tạm ngưng kinh doanh không có trong danh mục, phân biệt với các biến chưa tải xong dữ liệu (undefined).</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch7-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Null Check Lab</strong>
+        — Thực hành kiểm tra an toàn DOM trả về null.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch24-review" data-num="24.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>JavaScript sở hữu một hệ thống kiểu dữ liệu linh hoạt nhưng đầy rẫy cạm bẫy lịch sử. Để vận hành các hệ thống lớn an toàn, kỹ sư buộc phải nắm vững bản chất của kiểu nguyên thủy (Primitive) và kiểu tham chiếu (Object). Chương này mổ xẻ 3 giá trị dị biệt: undefined (biến chưa khởi tạo), null (đại diện cho đối tượng trống/không tồn tại, trả về type 'object' do lỗi lịch sử), và NaN (Not-a-Number nhưng lại mang kiểu 'number', duy nhất trong JS không bằng chính nó). Việc kiểm tra lỗi type đòi hỏi các hàm chuyên dụng như isNaN() thay vì toán tử so sánh thông thường. Hiểu sâu các cơ chế này giúp loại bỏ hoàn toàn các lỗi runtime khó đỡ trong các ứng dụng web quy mô lớn.</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 1:</strong> Kết quả của phép so sánh NaN === NaN là gì?</p>
+        <ol><li>true</li><li>false</li><li>undefined</li><li>TypeError</li></ol>
+        <p class="explain">NaN là giá trị duy nhất trong JavaScript không bằng chính nó theo chuẩn IEEE floating point, do đó NaN === NaN luôn trả về false.</p>
+      </div></div>
+  </article>
+</section>

@@ -1,0 +1,557 @@
+a RETURN key press:
+function handleKeyPress(e) {
+   var fireButton = document.getElementById("fireButton");
+   if (e.keyCode === 13) {
+      fireButton.click();
+      return false;
+   }
+}
+Add a new handler. This one handles key 
+press events from the HTML input field.
+function init() {
+   var fireButton = document.getElementById("fireButton");
+   fireButton.onclick = handleFireButton;
+   var guessInput = document.getElementById("guessInput");
+   guessInput.onkeypress = handleKeyPress;
+}
+Update your init function and add the handleKeyPress function anywhere 
+in your code. Reload and let the game play begin!
+Here's the key press handler. It's 
+called whenever you press a key in 
+the form input in the page.
+The browser passes an event object 
+to the handler. This object has info 
+about which key was pressed.
+If you press the RETURN key, the 
+event's keyCode property will be set to 
+13. If that's the case, then we want to 
+cause the Fire! button to act like it 
+was clicked. We can do that by calling 
+the fireButton's click method (basically 
+tricking it into thinking it was clicked).
+And we return false so the 
+form doesn't do anything else 
+(like try to submit itself).
+
+362        Chapter    8
+planning positions for the ships
+What’s left? Oh yeah, darn it, 
+those hardcoded ships!
+A
+B
+C
+D
+E
+F
+G
+0 1 2 3 4 5 6 
+Ship
+Ship
+Ship
+Ship
+Each ship needs to go 
+in a location where it 
+doesn’t overlap the 
+other ships.
+We’ve got room 
+for a ship here.
+Ships can be 
+placed vertically 
+or horizontally.
+And another here.
+But this isn’t going to work, we’ve got 
+an overlap or collision with an existing 
+ship. We’ll have to rethink this ship.
+Okay, here’s a third position 
+for a ship that works.
+At this point you’ve got a pretty amazing browser-based game created 
+from a little HTML, some images, and roughly 100 lines of  code. But, 
+the one aspect of  this game that is a little unsatisfying is that the ships 
+are always in the same location. You still need to write the code to 
+generate random locations for the ships every time we start a new game 
+(otherwise, it’ll be a pretty boring game). 
+Now, before we start, we want to let you know that we’re going to cover 
+this code at a slightly faster clip—you’re getting to the point where you 
+can read and understand code better, and there aren’t a lot of  new 
+things in this code. So, let’s get started. Here’s what we need to consider:
+
+you are here 4        363
+bringing it all together
+Add the new ship's locations 
+to the ships array.
+Generate a random direction 
+(vertical or horizontal) 
+for the new ship.
+Generate a random 
+location for the new ship.
+Loop for the number of 
+ships we want to create.
+Test to see if the new ship's 
+locations collide with any 
+existing ship's locations.
+Code Magnets
+An algorithm to generate ships is all scrambled up on the fridge. Can you put the 
+magnets back in the right places to produce a working algorithm? Check your 
+answer at the end of the chapter before you go on. 
+An algorithm is just a fancy 
+word for a sequence of steps 
+that solve a problem.
+
+364        Chapter    8
+methods to place the ships
+How to place ships
+There are two things you need to consider when placing ships on the game board. The 
+first is that ships can be oriented either vertically or horizontally. The second is that ships 
+don’t overlap on the board. The bulk of  the code we’re about to write handles these two 
+constraints. Now, as we said, we’re not going to go through the code in gory detail, but 
+you have everything you need to work through it, and if  you spend enough time with the 
+code you’ll understand each part in detail. There’s nothing in it that you haven’t already 
+encountered so far in the book (with one exception that we’ll talk about). So let’s dive in...
+We’re going to organize the code into three methods that are part of  the model object:
+generateShipLocations: function() {
+    var locations;
+    for (var i = 0; i < this.numShips; i++) {
+        do {
+            locations = this.generateShip();
+        } while (this.collision(locations));
+        this.ships[i].locations = locations;
+    }
+},
+The generateShipLocations function
+For each ship we want to 
+generate locations for.
+We generate a new set of locations...
+... and check to see if those locations 
+overlap with any existing ships on the 
+board. If they do, then we need to try 
+again. So keep generating new locations 
+until there's no collision.
+Once we have locations that work, we 
+assign the locations to the ship’s locations 
+property in the model.ships array.
+We’re using 
+a do while 
+loop here!
+ generateShipLocations: This is the master method. It creates a ships array in 
+the model for you, with the number of  ships in the model’s numShips property.
+ generateShip: This method creates a single ship, located somewhere on the board. 
+The locations may or may not overlap other ships.
+ collision: This method takes a single ship and makes sure it doesn’t overlap with a 
+ship already on the board.
+Let’s get started with the generateShipLocations method. This method iterates, creating 
+ships, until it has filled the model’s ships array with enough ships. Each time it generates a 
+new ship (which it does using the generateShip method), it uses the collision method 
+to make sure there are no overlaps. If  there is an overlap, it throws that ship away and keeps 
+trying.
+One thing to note in this code is that we’re using a new iterator, the do while loop. The do 
+while loop works almost exactly like while, except that you first execute the statements in 
+the body, and then check the condition. You’ll find certain logic conditions, while rare, work 
+better with do while than with the while statement.
+We’re adding this method to the model object.
+
+you are here 4        365
+bringing it all together
+generateShip: function() {
+    var direction = Math.floor(Math.random() * 2);
+    var row, col;
+    if (direction === 1) {
+        // Generate a starting location for a horizontal ship
+    } else {
+        // Generate a starting location for a vertical ship
+    }
+    
+    var newShipLocations = [];
+    for (var i = 0; i < this.shipLength; i++) {
+        if (direction === 1) {
+            // add location to array for new horizontal ship
+        } else {
+            // add location to array for new vertical ship
+        }
+    }
+    return newShipLocations;
+},
+Writing the generateShip method
+The generateShip method creates an array with random locations for one 
+ship without worrying about overlap with other ships on the board. We’ll go 
+through this method in a couple of  steps. The first step is to randomly pick a 
+direction for the ship: will it be horizontal or vertical? We’re going to determine 
+this with a random number. If  the number is 1, then the ship is horizontal; 
+if  it’s 0, then the ship is vertical. We’ll use our friends the Math.random and 
+Math.floor methods to do this as we’ve done before:
+We use Math.random to generate a 
+number between 0 and 1, and multiply 
+the result by 2, to get a number 
+between 0 and 2 (not including 2). 
+We then turn that into a 0 or a 1 
+using Math.floor.
+Generating a 
+random 0 or 1 
+is kind of like 
+tossing a coin.
+We’re saying that if the 
+direction is a 1, that means 
+we’ll create a horizontal ship...
+... and if direction is 0, that 
+means we’ll create a vertical ship.
+For the new ship locations, we’ll start with an 
+empty array, and add the locations one by one.
+First, we’ll create a starting location, like row = 0 and 
+column = 3, for the new ship. Depending on the direction, we 
+need different rules to create the starting location (you’ll 
+see why in just a sec). 
+We’ll loop for the number 
+of locations in a ship...
+... and add a new location 
+to the newShipLocations 
+array each time through the 
+loop. Again we need slightly 
+different code to generate 
+a location depending on the 
+direction of the ship. 
+We’ll be filling in the rest of this 
+code starting on the next page...
+Once we’ve generated all the 
+locations, we return the array.
+This method also is added to the model object.
+
+366        Chapter    8
+computing positions for the ships
+Generate the starting location for the new ship
+row = Math.floor(Math.random() * this.boardSize);
+col = Math.floor(Math.random() * (this.boardSize - 3));
+Now that you know how the ship is oriented, you can generate the locations for the 
+ship. First, we’ll generate the starting location (the first position for the ship) and then 
+the rest of  the locations will just be the next two columns (if  the ship is horizontal) or 
+the next two rows (if  it’s vertical).  
+To do this we need to generate two random numbers—a row and a column—for 
+the starting location of  the ship. The numbers both have to be between 0 and 6, so 
+the ship will fit on the game board. But remember, if  the ship is going to be placed 
+horizontally, then the starting column must be between 0 and 4, so that we have room 
+for the rest of  the ship:
+A horizontal ship can be located in any row...
+... but the first column must 
+leave room for the other two 
+locations of the ship.
+So we subtract 3 from the 
+boardSize (7), so the starting 
+column is always between 0 and 
+4. (Remember, boardSize is a 
+property of the model.)
+row = Math.floor(Math.random() * (this.boardSize - 3));
+col = Math.floor(Math.random() * this.boardSize);
+And, likewise, if  the ship is going to be placed vertically, then 
+the starting row must be between 0 and 4, so that we have 
+room for the rest of  the ship:
+A vertical ship must start at row 0-4 to leave room for 
+the next two locations...
+... but can be located in any column.
+
+you are here 4        367
+bringing it all together
+generateShip: function() {
+    var direction = Math.floor(Math.random() * 2);
+    var row, col;
+    if (direction === 1) { 
+        row = Math.floor(Math.random() * this.boardSize);
+        col = Math.floor(Math.random() * (this.boardSize - this.shipLength));
+    } else { 
+        row = Math.floor(Math.random() * (this.boardSize - this.shipLength));
+        col = Math.floor(Math.random() * this.boardSize);
+    }
+    var newShipLocations = [];
+    for (var i = 0; i < this.shipLength; i++) {
+        if (direction === 1) {
+            newShipLocations.push(row + "" + (col + i));
+        } else {
+            newShipLocations.push((row + i) + "" + col);
+        }
+    }
+    return newShipLocations;
+},
+Completing the generateShip method
+Plugging that code in, now all we have to do is make sure we add the starting location 
+along with the next two locations to the newShipLocations array.
+Here’s the code to generate a starting 
+location for the ship on the board.
+We replaced 3 (from the previous 
+page) with this.shipLength to 
+generalize the code, so we can use it 
+for any ship length.
+This is the code for a horizontal ship. 
+Let’s break it down...
+We’re pushing a new 
+location onto the 
+newShipLocations array.
+That location is a string 
+made up of the row (the 
+starting row we just 
+computed above)...
+... and the column + i. The first time through the 
+loop, i is 0, so it’s just the starting column. The 
+second time, it’s the next column over, and the 
+third, the next column over again. So we’ll get 
+something like “01”, “02”, “03” in the array.
+Here, we use parentheses to make sure i is 
+added to col before it’s converted to a string.
+Same thing here only 
+for a vertical ship.
+So now, we’re increasing the 
+row instead of the column, 
+adding i to the row each 
+time through the loop.
+For a vertical ship, we’ll get something 
+like “31”, “41”, “51” in the array.
+Once we’ve filled the array 
+with the ship’s locations, we 
+return it to the calling method, 
+generateShipLocations.
+Remember, when we add a string 
+and a number, + is concatenation 
+not addition, so we get a string.
+
+368        Chapter    8
+the collision method
+collision: function(locations) {
+    for (var i = 0; i < this.numShips; i++) {
+        var ship = model.ships[i];
+        for (var j = 0; j < locations.length; j++) {
+            if (ship.locations.indexOf(locations[j]) >= 0) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+Avoiding a collision!
+The collision method takes a ship and checks to see if  any of  the locations 
+overlap—or collide—with any of  the existing ships already on the board.
+We’ve implemented this using two nested for loops. The outer loop iterates over all 
+the ships in the model (in the model.ships property). The inner loop iterates over 
+all the new ship’s locations in the locations array, and checks to see if  any of  those 
+locations is already taken by an existing ship on the board.
+locations is an array of 
+locations for a new ship we’d 
+like to place on the board.
+For each ship already on the board...
+...check to see if any of the locations 
+in the new ship’s locations array are in 
+an existing ship’s locations array.
+We’re using indexOf to check if the 
+location already exists in a ship, so if the 
+index is greater than or equal to 0, we 
+know it matched an existing location, so we 
+return true (meaning, we found a collision). 
+Returning from inside a loop 
+that’s inside another loop 
+stops the iteration of both 
+loops immediately, exiting the 
+function and returning true.
+If we get here and haven’t returned, 
+then we never found a match for any 
+of the locations we were checking, so we 
+return false (there was no collision).
+In this code, we have two loops: an outer loop to iterate over all the ships 
+in the model, and an inner loop to iterate over each of the locations we’re 
+checking for a collision. For the outer loop, we used the loop variable i, 
+and for the inner loop, we used the loop variable j. Why did we use two 
+different loop variable names?
+Look back at page 364 to see 
+where we call the collision method.
+
+you are here 4        369
+bringing it all together
+function init() {
+    var fireButton = document.getElementById("fireButton");
+    fireButton.onclick = handleFireButton;
+    var guessInput = document.getElementById("guessInput");
+    guessInput.onkeypress = handleKeyPress;
+    model.generateShipLocations();
+}
+var model = {
+    boardSize: 7,
+    numShips: 3,
+    shipLength: 3,
+    shipsSunk: 0,
+    ships: [ { locations: ["06", "16", "26"], hits: ["", "", ""] },
+             { locations: ["24", "34", "44"], hits: ["", "", ""] },
+             { locations: ["10", "11", "12"], hits: ["", "", ""] } ],
+    ships: [ { locations: [0, 0, 0], hits: ["", "", ""] },
+             { locations: [0, 0, 0], hits: ["", "", ""] },
+             { locations: [0, 0, 0], hits: ["", "", ""] } ],
+    fire: function(guess) { ... },
+    isSunk: function(ship) { ... },
+    generateShipLocations: function() { ... },
+    generateShip: function() { ... },
+    collision: function(locations) { ... }
+};
+Two final changes
+We’ve written all the code we need to generate random locations for the ships; now 
+all we have to do is integrate it.  Make these two final changes to your code, and then 
+take your new Battleship game for a test drive!
+Remove the hardcoded 
+ship locations...
+... and replace 
+them with arrays 
+initialized with 0's 
+instead. 
+And of course, add the call 
+to generate the ship locations, 
+which will fill in those empty 
+arrays in the model.
+We’re calling model.generateShipLocations 
+from the init function so it happens right 
+when you load the game, before you start 
+playing. That way all the ships will have 
+locations ready to go when you start playing.
+Don’t forget you can download the complete code for 
+the Battleship game at http://wickedlysmart.com/hfjs.
+
+370        Chapter    8
+testing the battleship game
+A Final Test Drive
+This is the FINAL test drive of the real game, with 
+random ship locations. Make sure you’ve got all the 
+code added to “battleship.js”, reload “battleship.html” 
+in your browser, and play the game! Give it a good run 
+through. Play it a few times, reloading the page each 
+time to generate new ship locations for each new game.
+A0
+Oh, and how to cheat!
+To cheat, open up the developer 
+console, and type model.ships. 
+Press return and you should see the 
+three ship objects containing the 
+locations and hits arrays. Now you 
+have the inside scoop on where the 
+ships are sitting in the game board. 
+But, you didn’t hear this from us!
+JavaScript console
+> model.ships
+[ Object,                Object,                Object ]
+  hits: Array[3],        hits: Array[3],        hits: Array[3]    
+  locations: Array[3],   locations: Array[3],   locations: Array[3] 
+     0: "63"                0: "20"                0: "60"
+     1: "64"                1: "21"                1: "61"
+     2: "65"                2: "22"                2: "62"
+Beat the computer every time.
+
+you are here 4        371
+bringing it all together
+Congrats, It’s Startup Time!
+You’ve just built a great web 
+application, all in 150 (or so) lines of  
+code and some HTML & CSS. Like 
+we said, the code is yours. Now all 
+that’s standing between you and your 
+venture capital is a real business plan. 
+But then again, who ever let that stand in 
+their way!?
+So now, after all the hard work, you 
+can relax and play a few rounds of  
+Battleship. Pretty darn engaging, 
+right? 
+Oh, but we’re just getting 
+started. With a little more 
+JavaScript horse power we’re 
+going to be able to take on 
+apps that rival those written in 
+native code.
+For now, we’ve been through a lot of  
+code in this chapter. Get some good 
+food and plenty of  rest to let it all 
+sink in. But before you do that, you’ve 
+got some bullet points to review and 
+a crossword puzzle to do. Don’t skip 
+them; repetition is what really drives 
+the learning home!
+
+372        Chapter    8
+quality assurance
+QA Notes
+Found a bug, I think. When I get a hit on a ship, if 
+I re-enter that board location again, it results 
+another hit at the same spot. Try it, you’ll see!
+So, is this a bug? Or the correct behavior? 
+Assuming it’s a bug, how would you fix it? Write 
+your notes here:
+
+you are here 4        373
+bringing it all together
+ We use HTML to build the structure of 
+the Battleship game, CSS to style it, and 
+JavaScript to create the behavior.
+ The id of each <td> element in the table is 
+used to update the image of the element to 
+indicate a HIT or a MISS.
+ The form uses an input with type “button”. 
+We attach an event handler to the button so 
+we can know in the code when a player has 
+entered a guess.
+ To get a value from a form input text element, 
+use the element’s value property.
+ CSS positioning can be used to position 
+elements precisely in a web page.
+ We organized the code using three objects: a 
+model, a view, and a controller.
+ Each object in the game has one primary 
+responsibility. 
+ The responsibility of the model is to store the 
+state of the game and implement logic that 
+modiies that state.
+ The responsibility of the view is to update the 
+display when the state in the model changes.
+ The responsibility of the controller is to glue 
+the game together, to make sure the player’s 
+guess is sent to the model to update the 
+state, and to check to see when the game is 
+complete.
+ By designing the game with objects that 
+each have a separate responsibility, we 
+can build and test each part of the game 
+independently.
+ To make it easier to create and test the 
+model, we initially hardcoded the locations 
+of the ships. After ensuring the model was 
+working, we replaced these hardcoded 
+locations with random locations generated 
+by code.
+ We used properties in the model, like 
+numShips and shipLength, so we don’t 
+hardcode values in the methods that we 
+might want to change later. 
+ Arrays have an indexOf method that is 
+similar to the string indexOf method. The 
+array indexOf method takes a value, and 
+returns the index of that value if it exists in 
+the array, or -1 if it does not.
+ With chaining, you can string together 
+object references (using the dot operator), 
+thus combining statements and eliminating 
+temporary variables.
+ The do while loop is similar to the while loop, 
+except that the condition is checked after 
+the statements in the body of the loop have 
+executed once. 
+ Quality assurance (QA) is an important part 
+of developing your code. QA requires testing 
+not just valid input, but invalid input as well.
+
+374        Chapter    8
+javascript crossword
+JavaScript cross
+Your brain is frying from the coding challenges in this 
+chapter. Do the crossword to get that inal sizzle.
+1
+2
+3
+45
+67
+89
+10
+11
+121314
+15
+16
+17
+18
+ACROSS

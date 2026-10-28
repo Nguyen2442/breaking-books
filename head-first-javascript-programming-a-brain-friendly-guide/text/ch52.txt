@@ -1,0 +1,708 @@
+sitting property.
+2
+So we look in the 
+prototype and see 
+that sitting is false.
+3
+We set this.sitting to true. 
+This adds a new sitting 
+property to Spot, and 
+assigns it the value true.
+function bark() {
+  // code to bark
+}
+function bark() {
+  // code to bark
+}
+function bark() {
+  // code to bark
+}
+function sit() {
+  // code to sit
+}
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+sit()
+sitting: false
+name: “Spot”
+breed: “Chihuahua”
+weight: 10
+Dog
+bark()
+4
+We call spot.sit for the 
+second time. Spot now has a 
+sitting property, set to true.
+function bark() {
+  // code to bark
+}
+function bark() {
+  // code to bark
+}
+function bark() {
+  // code to bark
+}
+function sit() {
+  // code to sit
+}
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+sit()
+sitting: false
+name: “Spot”
+breed: “Chihuahua”
+weight: 10
+sitting: true
+Dog
+bark()
+One more time: how the sitting property works
+Let’s make sure we’ve got this down, because if  you go too fast on this implementation you might 
+miss the key details. Here’s the key: the first time we get the value of  sitting, we’re getting it from 
+the prototype. But then when we set sitting to true, that happens in the object instance, not the 
+prototype. And after that property has been added to the object instance, every subsequent time we 
+get the value of  sitting, we’re getting it from the object instance because it is overriding the value 
+in the prototype. Let’s step through it one more time:
+Step through the sequence 
+below (make sure to follow 
+1, 2, 3, 4), starting here.
+
+586        Chapter    13
+using hasownproperty
+While we’re talking about 
+properties, is there a way in my 
+code to determine if I’m using a 
+property that’s in the instance or in 
+the prototype?
+Yes, there is. You can use the hasOwnProperty method that 
+every object has. The hasOwnProperty method returns true if  
+a property is defined in an object instance. If  it’s not, but you can 
+access that property, then you can assume the property must be 
+defined in the object’s prototype.
+Let’s try it on fido and spot. First, we know that the species 
+property is implemented only in the dog prototype, and neither 
+spot nor fido has overridden this property. So if  we call the 
+hasOwnProperty method and pass in the property name, “species”, 
+as a string, we get back false for both:
+spot.hasOwnProperty("species");
+fido.hasOwnProperty("species");
+spot.hasOwnProperty("sitting");
+spot.sitting = true;
+spot.hasOwnProperty("sitting");
+fido.hasOwnProperty("sitting");
+Both of these return the value 
+false because species is defined 
+in the prototype, not the object 
+instances spot and fido.
+Now let’s try it for the sitting property. We know that the sitting 
+property is defined in the prototype and initialized to false. So 
+we assign the value true to spot.sitting, which overrides the 
+sitting property in the prototype and defines sitting in the spot 
+instance. Then we’ll ask both spot and fido if  they have their own 
+sitting property defined:
+This call to hasOwnProperty 
+returns true, because spot now 
+has his own sitting property.
+But this call to hasOwnProperty returns false, because 
+the fido instance does not have a sitting property. 
+That means the sitting property that fido uses is 
+defined only in the prototype, and inherited by fido.
+When we first check to see if Spot has 
+his own sitting property we get false.
+Then we set spot.sitting to 
+true, adding this property to 
+the spot instance.
+
+you are here 4        587
+using prototypes
+v
+We’ve added a new capability to our robots, Robby and Rosie: they can now report when they 
+have an error through the reportError method. Trace the code below, paying particular attention 
+to where this method gets its error information, and to whether it’s coming from the prototype of 
+the robot instance.
+Below give the output of this code:
+function Robot(name, year, owner) {
+    this.name = name;
+    this.year = year;
+    this.owner = owner;
+}
+Robot.prototype.maker = "ObjectsRUs";
+Robot.prototype.errorMessage = "All systems go.";
+Robot.prototype.reportError = function() {
+    console.log(this.name + " says " + this.errorMessage);
+};
+Robot.prototype.spillWater = function() {
+    this.errorMessage = "I appear to have a short circuit!";
+};
+var robby = new Robot("Robby", 1956, "Dr. Morbius");
+var rosie = new Robot("Rosie", 1962, "George Jetson");
+rosie.reportError();
+robby.reportError();
+robby.spillWater();
+rosie.reportError();
+robby.reportError();
+console.log(robby.hasOwnProperty("errorMessage"));
+console.log(rosie.hasOwnProperty("errorMessage"));
+Does Robby have his own 
+errorMessage property?
+Does Rosie? 
+
+588        Chapter    13
+webville kennel club needs you
+Best Dog     
+        in Show
+All your hard work in this chapter has already paid off. The Webville Kennel Club saw 
+your work on the dog objects and they immediately knew they’d found the right person to 
+implement their dog show simulator. The only thing is they need you to update the Dog 
+constructor to make show dogs. After all, show dogs aren’t ordinary dogs—they don’t 
+just run, they gait. They don’t go through the trash, they show a tendency towards scent 
+articles; they don’t beg for treats, they show a desire for bait.
+More specifically, here’s what they’re looking for:
+Wonderful work on the Dog 
+constructor! We’d love to get you 
+engaged on our dog show simulator. 
+Show dogs are a little different, so 
+they need additional methods (see below).
+Thanks!  -Webville Kennel Club
+stack() - otherwise known as stand at attention.
+gait() - this is like running. The method takes a string 
+argument of “walk”, “trot”, “pace”, or “gallop”.
+bait() - give the dog a treat.
+groom() - doggie shampoo time.
+
+you are here 4        589
+using prototypes
+If we add all these new 
+methods into our existing Dog 
+constructor then all dogs will be 
+able to do these things. But, that’s 
+not what we intended.
+We could 
+add the show dog 
+methods just to the 
+show dog instances, 
+but then we’re back 
+to all the problems we 
+uncovered at the 
+beginning of 
+the chapter.
+So how are we going to design this? Clearly we’d like to make use of  our existing 
+dog code. After all, that’s why Webville Kennel came to us in the first place. But 
+how? Let’s get some thoughts on the ways we could approach this:
+How to approach the design of the show dogs
+But if we create 
+our ShowDog constructor 
+from scratch then we’ll end 
+up reimplementing all the basic 
+methods: bark, run, sit...
+
+590        Chapter    13
+conversation about prototypes
+Guys, relax. You can have 
+more than one prototype 
+with JavaScript.
+Joe: More than one prototype? What does that even mean?
+Judy: Think about it like your own inheritance.
+Joe: What inheritance? If  I had an inheritance I wouldn’t be working here!  Just 
+kidding...
+Judy: Well, you don’t just inherit qualities from your parents, right? You inherit a 
+little from your grandparents and your great-grandparents and so on.
+Joe: Yeah, got that.
+Judy: Well, with JavaScript you can set up a chain of  prototypes that your object 
+inherits from.
+Frank: An example might help.
+Judy: Say you have a bird prototype that knows how to do all things most birds 
+do, like fly.
+Frank: Easy enough, that’s like our dog prototype.
+Judy: Now say you need to implement a whole set of  ducks—mallards, red-headed 
+ducks...
+Frank: ...don’t forget the black-bellied-whistling duck.
+Judy: Why, thank you Frank.
+Frank: No problem. I was just reading about all those ducks in that Head First Design 
+Patterns book.
+Judy: Okay, but ducks are a different kind of  bird. They swim, and we don’t want to 
+put that into the bird prototype. But with JavaScript we can create a duck prototype that 
+inherits from the bird prototype.
+Joe: So let me see if  I have this right.  We’d have a Duck constuctor that points to a duck 
+prototype. But that prototype—that is the duck prototype—would itself  point to the bird 
+prototype?
+Frank: Whoa, shift back into first gear.
+Judy: Think of  it like this, Frank.  Say you create a duck and you call its fly method. 
+What happens if  you look in the duck and there’s no such method? You look in the duck 
+prototype, still no fly method. So you look at the prototype the duck inherits from, bird, 
+and you find fly there.
+Joe: And, if  we call swim, then we look in the duck instance, nothing there. We look in 
+the duck prototype, and we find it.
+Judy: Right... so we’re not just reusing the behavior of  the duck prototype, we’re 
+following a chain up to the bird prototype, when necessary, to use that as well.
+Joe: That sounds perfect for extending our dog prototype into a show dog. Let see what 
+we can do with this.
+
+you are here 4        591
+using prototypes
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+name: “Spot”
+breed: “Chihuahua”
+weight: 10
+Dog
+name: “Fluffy”
+breed: “Poodle”
+weight: 30
+Dog
+name: “Fido”
+breed: “Mixed”
+weight: 38
+Dog
+name: “Scotty”
+breed: “Scottish Terrier”
+weight: 15
+handler: “Cookie”
+ShowDog
+We still have our original 
+dog prototype.
+But we also want to have show dogs, 
+and they’re special. They’re dogs, 
+but they have a bunch of behaviors 
+that regular dogs don’t.
+league: “Webville”
+ShowDog Prototype
+stack()
+bait()
+gait()
+groom()
+And then we’ll create some real 
+instances of ShowDog, like this 
+Scottish Terrier.
+And we can still have all the instances 
+that we need. These inherit directly 
+from the dog prototype.
+Setting up a chain of prototypes
+Let’s start thinking in terms of  a chain of  prototypes. Rather than having an instance that 
+inherits properties from just one prototype, there might be a chain of  one or more 
+prototypes your instance can inherit from. It’s not that big a logical step from the way we’ve 
+been thinking about this already. 
+Let’s say we want a show dog prototype for our show dogs, and we want that prototype to 
+rely on our original dog prototype for the bark, run, and wag methods. Let’s set that up to 
+get a feel for how it all works together:
+This prototype contains all the 
+general dog things every dog has: a 
+species property, and methods to 
+bark, run and wag its tail.
+Or so their 
+handlers say...
+Our new show dog 
+prototype.
+Notice that ShowDog now contains all 
+the instance-specific properties, like 
+name, breed, weight and handler.
+To keep this diagram simple we’ve 
+omitted the functions associated 
+with each method.
+Oh, and this is a REAL handler, with a 
+leash and all that, not to be confused 
+with an event handler.
+
+592        Chapter    13
+the prototype chain
+We ’ve set up the prototype chain for the show dogs, so let’s see how inheritance works in this 
+context. Check out the properties and methods at the bottom of  the page, and then trace them 
+up the prototype chain to the object where they are defined.
+How inheritance works in a prototype chain
+scotty.bark();
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+name: “Scotty”
+breed: “Scottish Terrier”
+weight: 15
+handler: “Cookie”
+ShowDog
+league: “Webville”
+ShowDog Prototype
+stack()
+bait()
+groom()
+gait()
+function bark() {
+  // code to bark
+}
+function run() {
+  // code to bark
+}
+function wag() {
+  // code to bark
+}
+function stack() {
+  // code to bark
+}
+function bait() {
+  // code to bark
+}
+function gait() {
+  // code to bark
+}
+function groom() {
+  // code to bark
+}
+scotty.stack();
+scotty.name;
+scotty.league;
+scotty.species;
+Test each of these 
+methods and properties to 
+see where each is found in 
+the prototype chain.
+NOT HERENOT HERENOT HEREHERENOT HERE
+NOT HERENOT HERE
+HERE
+HERE
+HERE
+HERE
+Scotty’s name is 
+in the ShowDog 
+instance.
+The stack method and the 
+league property are inherited 
+from the ShowDog prototype.
+The bark method and 
+the species property are 
+inherited from the original 
+Dog prototype.
+Follow each property up the prototype 
+chain to see where it lives. 
+If you don’t find it in the instance, then it must be inherited 
+from the ShowDog prototype, or from the Dog prototype.
+Dog Prototype
+ShowDog Prototype
+ShowDog Instance
+
+you are here 4        593
+using prototypes
+Code Magnets
+We had another object diagram on the fridge, and then someone came and messed it up. 
+Again!! Can you help put it back together? To reassemble it we need a new line of Space Robots 
+that inherit properties from Robots. These new Space Robots override the Robot’s speaking 
+functionality, and extend Robots with piloting functionality and a new property, homePlanet. 
+Good luck (there might be some extra magnets below)!
+Build the object diagram here.
+maker: "ObjectsRUs"
+Robot Prototype
+speak()
+makeCoffee()
+blinkLights()
+function  
+speak() {
+  // code to speak
+}
+function speak() {
+  // code to speak 
+  // in space
+}
+function  
+pilot() {
+  // code to pilot 
+  // spaceship
+}
+homePlanet: "Earth"
+year: 1977
+year: 2009
+homePlanet: "Tatooine"
+pilot()
+Here’s the 
+prototype for 
+Robots.
+speak()
+Space Robot Prototype
+name: "Robby"
+year: 1956
+owner: "Dr. Morbius"
+Robot
+name: "C3PO"
+year: 1977
+owner: "L. Skywalker"
+Space Robot
+name: "Simon"
+year: 2009
+owner: "Carla Diana"
+Space Robot
+function 
+makeCoffee() {
+  // code 4 coffee
+}
+function 
+blinklights() {
+  // code 4 lights
+}
+name: "Rosie"
+year: 1962
+owner: "George Jetson"
+Robot
+And here's the 
+prototype for the 
+Space Robots.
+
+594        Chapter    13
+creating a prototype chain
+We have a dog 
+prototype, and a bunch 
+of dogs that inherit 
+from it.
+We want a show dog prototype, that 
+inherits from the dog prototype... 
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+name: “Spot”
+breed: “Chihuahua”
+weight: 10
+Dog
+name: “Fluffy”
+breed: “Poodle”
+weight: 30
+Dog
+name: “Fido”
+breed: “Mixed”
+weight: 38
+Dog
+league: “Webville”
+ShowDog Prototype
+stack()
+bait()
+gait()
+groom()
+name: “Scotty”
+breed: “Scottish Terrier”
+weight: 15
+handler: “Cookie”
+ShowDog
+And a show dog instance that inherits 
+from the show dog prototype.
+This is what 
+we’re going for.
+When we created the dog prototype we didn’t have to do anything—there was 
+already an empty object supplied by the Dog constructor’s prototype property. 
+So we took that and added the properties and methods we wanted our dog 
+instances to inherit.
+But with the show dog prototype we have more work to do because we need a 
+prototype object that inherits from another prototype (the dog prototype). To do 
+that we’re going to have to create an object that inherits from the dog prototype 
+and then explicitly wire things up ourselves. 
+Right now we have a dog prototype and a bunch of  dog instances that inherit 
+from that prototype. And what we want is a show dog prototype (that inherits 
+from dog prototype), and a bunch of  show dog instances that inherit from the 
+show dog prototype.
+Setting this up will take a few steps, so we’ll take it one at a time.
+Creating the show dog prototype
+
+you are here 4        595
+using prototypes
+First, we need an object that inherits from 
+the dog prototype
+We’ve established that the show dog prototype is an object that inherits from 
+the dog prototype. But, what’s the best way to create an object that inherits 
+from the dog prototype? Well, it’s something you’ve already been doing as 
+you’ve created instances of  dog. Remember? Like this:
+var aDog = new Dog();
+So this code creates an object that inherits from the dog prototype. We know 
+this because it’s exactly the same as how we created all our dog instances, 
+except this time, we didn’t supply any arguments to the constructor. That’s 
+because at the moment, we don’t care about the specifics of  the dog; we just 
+need the dog to inherit from the dog prototype.
+We’ve created a new dog instance. It 
+doesn’t have a name, breed or weight, 
+but we know it inherits from the dog 
+prototype, because it’s a dog.
+Now, what we really need is a show dog prototype. Like our dog instance, that’s 
+just an object that inherits from the dog prototype. So let’s see how we can use 
+our empty dog instance to make the show dog prototype we need.
+We’ll talk about what happened to the 
+constructor arguments in a minute...
+To create an object that inherits from 
+the dog prototype, we just use new 
+with the Dog constructor.
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+name: “Spot”
+breed: “Chihuahua”
+weight: 10
+Dog
+name: “Fluffy”
+breed: “Poodle”
+weight: 30
+Dog
+name: “Fido”
+breed: “Mixed”
+weight: 38
+Dog
+Dog
+aDog
+
+596        Chapter    13
+using an object as a prototype
+ShowDog.prototype = new Dog();
+Next, turning our dog instance into a 
+show dog prototype
+Okay, so we have a dog instance, but how do we make that our show dog prototype object? 
+We do this by assigning the dog instance to the prototype property of  our ShowDog 
+constructor. Oh wait; we don’t have a ShowDog constructor yet... so let’s make one:
+function ShowDog(name, breed, weight, handler) {
+    this.name = name;
+    this.breed = breed;
+    this.weight = weight;
+    this.handler = handler;
+}
+Now that we have a constructor, we can set its prototype property to a new dog instance:
+So, let’s think about where we are: we have a ShowDog constructor, with which we can 
+make show dog instances, and we now have a show dog prototype, which is a dog instance. 
+Let’s make sure our object diagram accurately reflects the roles these objects are playing 
+by changing the label “Dog” to “ShowDog Prototype”. But keep in mind, the show dog 
+prototype is still a dog instance.
+Now that we’ve got a ShowDog constructor and we’ve set up the show dog prototype object, 
+we need to go back and fill in some details. We’ll take a closer look at the constructor, and 
+we’ve also got some properties and methods to add to the prototype so our show dogs have 
+the additional show dog behavior we want them to have.
+This constructor takes 
+everything we need to be a 
+dog (name, breed, weight), and 
+to be a show dog (a handler).
+We could have used our dog instance created on 
+the previous page, but we can skip the variable 
+assignment and just assign the new dog straight 
+to the prototype property instead.
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+Dog
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+ShowDog Prototype
+We’re changing the name 
+in our diagram from Dog 
+to ShowDog Prototype.
+
+you are here 4        597
+using prototypes
+We’ve got the show dog prototype set up (which at the moment is just an empty 
+instance of  dog). Now, it’s time to fill it with properties and behaviors that will make 
+it look more like a show dog prototype.
+Here are some properties and methods that are specific to show dogs we can add:
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+league: “Webville”
+ShowDog Prototype
+stack()
+bait()
+gait()
+groom()
+Now it’s time to fill in the prototype
+function ShowDog(name, breed, weight, handler) {
+    this.name = name;
+    this.breed = breed;
+    this.weight = weight;
+    this.handler = handler;
+}
+ShowDog.prototype = new Dog();
+Showdog.prototype.league = "Webville";
+ShowDog.prototype.stack = function() { 
+       console.log("Stack");
+};
+ShowDog.prototype.bait = function() {
+       console.log("Bait");
+};
+ShowDog.prototype.gait = function(kind) {
+       console.log(kind + "ing");
+};
+ShowDog.prototype.groom = function() {
+       console.log("Groom");
+};
+We say that our show dog prototype 
+“extends” the dog prototype. It inherits 
+properties from the dog prototype and 
+extends it with new ones.
+Here are all the methods 
+we need for show dogs. 
+We’ll just keep them 
+simple for now.
+All our show dogs are in 
+the Webville league, so 
+we'll add this property to 
+the prototype.
+Remember, the ShowDog constructor looks a lot like 
+the Dog constructor. A show dog needs a name, breed, 
+weight, plus one extra property, a handler (the person 
+who handles the show dog). These will end up being 
+defined in the show dog instance.
+With these additions our show dog prototype is starting to look like a show dog.  
+Let’s update our object diagram again, and then it’s probably time to do a big 
+test run of  the show dogs. We’re guessing Webville Kennel is going to be pretty 
+excited to see these in action.
+We’re adding all these 
+properties to the show dog 
+prototype so all show dogs 
+inherit them.
+This is where 
+we’re taking the 
+dog instance 
+that is acting 
+as the show dog 
+prototype, and 
+we’re adding new 
+properties and 
+methods.
+
+598        Chapter    13
+creating a show dog
+function ShowDog(name, breed, weight, handler) {
+    this.name = name;
+    this.breed = breed;
+    this.weight = weight;
+    this.handler = handler;
+}
+ShowDog.prototype = new Dog();
+Showdog.prototype.league = "Webville";
+ShowDog.prototype.stack = function() { 
+       console.log("Stack");
+};
+ShowDog.prototype.bait = function() {
+       console.log("Bait");
+};
+ShowDog.prototype.gait = function(kind) {
+       console.log(kind + "ing");
+};
+ShowDog.prototype.groom = function() {
+       console.log("Groom");
+};
+var scotty = new ShowDog("Scotty", "Scottish Terrier", 15, "Cookie");
+Creating a show dog instance
+Now we just have one more thing to do: create an instance of  
+ShowDog. This instance will inherit show dog properties and 
+methods from our show dog prototype, and because our show dog 
+prototype is an instance of  Dog, the show dog will also inherit all 
+its doggy behavior and properties from the dog prototype, so he’ll 
+be able to bark and run and wag with the rest of  the dogs.
+Here’s all the code so far, and the code to create the instance:
+And here’s our show dog instance. It

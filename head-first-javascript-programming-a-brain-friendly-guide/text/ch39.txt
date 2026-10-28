@@ -1,0 +1,781 @@
+1. Use this property of the event object to know when an event 
+happened.
+3. When you click your mouse, you’ll generate a _______ event.
+8. Events are handled ______________. 
+12. 5000 milliseconds is _______ seconds.
+13. Use this method to get multiple elements from the DOM using 
+a tag name. 
+14. A function designed to react to an event is called an event 
+_______. 
+15. The setTimeout method is used to create a ______ event.
+16. The browser has only one _________ of control. 
+17. The browser can only execute one event __________ at a 
+time. 
+19. The event object for a mouseover event has this property for 
+the X position of the mouse. 
+20. The event _______ is passed to an event handler for DOM 
+events. 
+21. To pass an argument to a time event handler, pass it as the 
+________ argument to setTimeout. 
+ 
+ 
+ 
+ 
+ 
+DOWN
+1. You’ll generate this event if you touch your touch screen device.
+2. zero.jpg is the ________. 
+4. When you begin programming with events,
+you might feel like you’re not in _________
+any more. 
+5. JavaScript allows you to pass a _______ to
+a function. 
+6. If too many events happen close together,
+the browser stores the events in an event
+________. 
+7. Events are generated for lots of things, but
+not for baking __________. 
+9. To make a time event happen over and over, use _________. 
+10. The window ______ property is for handling a page loaded 
+event. 
+11. _____ is super ticklish.
+14. To assign an event handler for a time event,
+pass the _______ to setTimeout as the first
+argument.
+15. How you know which image was clicked on in
+the image game.
+18. A program with code to handle events is not
+this.
+
+you are here 4        421
+asynchronous coding
+Pick two of the events above. If the browser could notify 
+your code when these events occurred, what cool or 
+interesting code might you write?
+Let’s take an event that notifies us when a user submits a form. 
+If we’re notified of this event, then we could get all the data 
+the user filled into the form and check to make sure it’s valid (e.g. 
+the user put something that looks like a phone number into a phone 
+number field, or filled out the required fields). Once we’ve done 
+that check, then we could submit the form to the server.
+How about the mouse movement event? If we’re notified whenever 
+a user moves the mouse, then we could create a drawing application 
+right in the browser.
+If we’re notified when the user scrolls down the page, we could do 
+interesting things like reveal an image as they scroll down.
+
+422        Chapter    9
+exercise solutions
+Below, you’ll find the image game code. Your job is to play like 
+you’re the browser and to figure out what you need to do after each 
+event. After you’ve done the exercise look at the end of the 
+chapter to see if you got everything. Here’s our solution.
+BE the Browser Solution
+window.onload = init;
+function init() {
+    var image = document.getElementById("zero");
+    image.onclick = showAnswer;
+}
+function showAnswer() {
+    var image = document.getElementById("zero");
+    image.src = "zero.jpg";
+}
+First define the functions init and showAnswer
+Set load handler to init
+load handler, init, is called
+we get the image with id “zero”
+set image’s click handler to showAnswer
+showAnswer is called
+we get the image with id “zero”
+we set the src attribute to “zero.jpg”
+When page is 
+being loaded...
+When page load 
+event occurs...
+When image 
+click event 
+occurs...
+
+you are here 4        423
+asynchronous coding
+I hold the object on which the event occurred. I 
+can be different kinds of  objects, but most often 
+I’m an element object.
+You’ve already seen that the event object (for DOM events) has properties that give you more 
+information about the event that just happened. Below you’ll find other properties that the 
+event object can have. Match each event object property to what it does.
+I’m a string, like “click” or “load”, that tells you 
+what just happened.
+Want to know when your event happened? I’m 
+the property for you.
+I’ll tell you what key the user just pressed. 
+Want to know how far from the left side of  the 
+browser window the user clicked? Use me.
+Want to know how far from the top of  the 
+browser window the user clicked? Use me.
+Using a touch device? Then use me to find out 
+how many fingers are touching the screen.
+target
+type
+timeStamp
+keyCode
+clientX
+clientY
+touches
+SOlUTion
+Note: timeStamp is not supported 
+in older versions of IE.
+
+424        Chapter    9
+exercise solutions
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Pirates Booty</title>
+  <script>
+       window.onload = init;
+       function init() {
+           var map = document.getElementById("map");
+           _________________________________________
+       }
+ 
+       function showCoords(eventObj) {
+           var map = document.getElementById("coords");
+           ________________________
+           ________________________
+           map.innerHTML = "Map coordinates: " 
+                                  + x + ", " + y;
+       }
+  </script>
+</head>
+<body>
+       <img id="map" src="map.jpg">
+       <p id="coords">Move mouse to find coordinates...</p>
+</body>
+</html>
+Ahoy matey! You’ve got a treasure map in your possession and we 
+need your help in determining the coordinates of the treasure. To do 
+that you’re going to write a bit of code that displays the coordinates on 
+the map as you pass the mouse over the map.  
+Blimey! The code is below. So far it includes the map in the page and 
+creates a paragraph element to display the coordinates. You need to 
+make all the event-based code works. Good luck. We don’t want to see 
+you go to Davy Jones’ locker anytime soon... And here’s our solution.
+map.onmousemove = showCoords;
+var x = eventObj.clientX;
+var y = eventObj.clientY;
+When we put our mouse right over 
+the X, we got the coordinates:
+200, 190
+
+you are here 4        425
+asynchronous coding
+var tick = true;
+function ticker() {
+    if (tick) {
+        console.log("Tick");
+        tick = false;
+    } else {
+        console.log("Tock");
+        tick = true;
+    }
+}
+setInterval(ticker, 1000);
+Take a look at the code below and see if you can figure out what 
+setInterval does. It’s similar to setTimeout, but with a slight twist. 
+Here’s our solution:
+Here’s the output.
+JavaScript console
+Tick
+Tock
+Tick
+Tock
+Tick
+Tock
+Tick
+Tock
+Here’s the code.
+Your analysis goes here.
+Just like setTimeout, setInterval also takes an event handler function as its first 
+argument and a time duration as its second argument. 
+But unlike setTimeout, setInterval executes the event handler multiple times... in fact 
+it keeps going. Forever! (Actually, you can tell it to stop, see below). In this example, 
+every 1000 milliseconds (1 second), setInterval calls the ticker handler. The ticker 
+handler is checking the value of the tick variable to determine whether to display “Tick” 
+or “Tock” in the console. 
+So setInterval generates an event when the timer expires, and then restarts the timer.
+var t = setInterval(ticker, 1000);
+clearInterval(t);
+To stop an interval timer, save the result 
+of calling setInterval in a variable...
+...and then pass that to clearInterval 
+later, when you want to stop the timer.
+
+426        Chapter    9
+exercise solutions
+Rework your code so that you can reveal and reblur an image by 
+passing your mouse over and out of the image elements. Be sure to 
+test your code. Here’s our solution:
+    window.onload = function() {
+        var images = document.getElementsByTagName("img");
+        for (var i = 0; i < images.length; i++) {
+            images[i].onclick = showAnswer;
+            images[i].onmouseover = showAnswer;
+            images[i].onmouseout = reblur;
+        }
+    };
+    function showAnswer(eventObj) {
+        var image = eventObj.target;
+        var name = image.id;
+        name = name + ".jpg";
+        image.src = name;
+        setTimeout(reblur, 2000, image);
+    }
+    function reblur(eventObj) {
+        var image = eventObj.target;
+        var name = image.id;
+        name = name + "blur.jpg";
+        image.src = name;
+    }
+First, we remove the assignment of the 
+event handler to the onclick property.
+Then we add the showAnswer 
+event handler to the onmouseover 
+property of the image...
+And now we're going to use reblur 
+as the handler for the mouseout 
+event (instead of as a timer event 
+handler). So we assign reblur to the 
+onmouseout property of the image.
+We won't use the timer anymore to reblur the 
+image; instead, we'll reblur it when the user 
+moves the mouse out of the image element.
+Now we're using reblur as an event handler for 
+the mouseout event, so to get the correct 
+image to reblur, we have to use the event 
+object. Just like in showAnswer, we'll use the 
+target property to get the image object. Once 
+we have that, the rest of reblur is the same.
+
+you are here 4        427
+asynchronous coding
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Don't resize me, I'm ticklish!</title>
+<script>
+    function resize() {
+        var element = document.getElementById("display");
+        element.innerHTML = element.innerHTML + " that tickles!";
+    }
+</script>
+</head>
+<body>
+<p id="display">
+    Whatever you do, don’t resize this window! I'm warning you!
+</p>
+<script>
+    window.onresize = resize;
+</script>
+</body>
+</html>
+With the image game complete, Judy wrote some 
+code to review in the weekly team meeting. In fact, 
+she started a little contest, awarding the first person 
+to describe what the code does with lunch. Who wins? 
+Jim, Joe, Frank? Or you?
+We set up the resize event in the script at the 
+bottom of the page. Remember, this script won't run 
+until the page is fully loaded, so that makes sure we 
+don't set up the event handler too early.
+When you resize the browser window, the resize 
+event handler is called, which updates the page by 
+adding new text content (“ that tickles”) to the 
+“display” paragraph.
+The event we’re interested in is the resize event, so we 
+set up a handler function (named resize), and assign it 
+to the onresize property of the window.
+Our event handler is named resize. When it’s called, it just 
+adds some text to the paragraph with the id “display”.
+
+428        Chapter    9
+exercise solutions
+T
+1
+IMESTAM
+2
+P
+OO
+C
+3
+LIC
+
+4
+UF
+5
+N
+ACUQ
+6
+A
+C
+7
+A
+8
+S
+9
+YNC
+
+RONOUSLY
+OESSCEI
+OTATTUS
+
+O
+10
+J
+11
+ISAF
+12
+IVEA
+ININRO
+G
+13
+ETELEMENTSBYTAGNAME
+SOE
+
+14
+ANDLERT
+15
+IME
+T
+16
+
+READVA
+N
+
+17
+ANDL
+18
+ER
+DLIG
+LNE
+C
+19
+LIENTXO
+20
+BJECT
+RA
+T
+21
+
+IRD
+JavaScript cross Solution
+Practice your event reaction time by doing this 
+crossword. Here’s our solution.
+
+this is a new chapter     429
+Liberated functions
+10  first class functions
+Know functions, then rock.   Every art, craft, and discipline has a key 
+principle that separates the intermediate players from the rock star virtuosos—when 
+it comes to JavaScript, it’s truly understanding functions that makes the difference. 
+Functions are fundamental to JavaScript, and many of the techniques we use to 
+design and organize code depend on advanced knowledge and use of functions. The 
+path to learning functions at this level is an interesting and often mind-bending one, 
+so get ready... This chapter is going to be a bit like Willy Wonka giving a tour of the 
+chocolate factory—you’re going to encounter some wild, wacky and wonderful things 
+as you learn more about JavaScript functions.
+Now that we 
+really know functions 
+we’re on easy street... days at 
+the country club...
+We’ll spare you the 
+singing Oompa Loompas.
+I think those functions 
+have done something to 
+your brains. We’re actually 
+in the middle of an empty 
+field, and I’m your neighbor 
+wearing a waiter costume.
+
+430        Chapter    10
+intro to function expressions
+Serious Coding
+A function reference is exactly 
+what it sounds like: a reference 
+that refers to a function. You can use a 
+function reference to invoke a function 
+or, as you’ll see, you can assign them to 
+variables, store them in objects, and pass 
+them to or return them from functions 
+(just like object references).
+The mysterious double life of the function keyword
+So far we’ve been declaring functions like this:
+quack
+function quack(num) { 
+   for (var i = 0; i < num; i++) {
+      console.log("Quack!");
+   }
+}
+quack(3);
+There are no surprises here, but let’s get our terminology 
+down: formally, the first statement above is a function declaration, 
+which creates a function that has a name—in this case 
+quack—that can be used to reference and invoke the function. 
+So far so good, but the story gets more mysterious because, as 
+you saw at the end of  the last chapter, there’s another way to 
+use the function keyword:
+var fly = function(num) { 
+   for (var i = 0; i < num; i++) {
+      console.log("Flying!");
+   }
+};
+fly(3);
+Now when we use the function keyword this way—that is, 
+within a statement, like an assignment statement—we call this 
+a function expression. Notice that, unlike the function declaration, 
+this function doesn’t have a name. Also, the expression results 
+in a value that is then assigned to the variable fly. What is that 
+value? Well, we’re assigning it to the variable fly and then later 
+invoking it, so it must be a reference to a function.
+A standard function 
+declaration with the function 
+keyword, a name, a parameter 
+and a block of code.
+This doesn’t look so standard: the function 
+doesn’t have a name, and it’s on the right 
+hand side of an assignment to a variable.
+And we can invoke this function by using its name followed 
+by parentheses that enclose any needed arguments.
+We can invoke this function too, this 
+time by using the variable fly.
+function quack(num) { 
+  for (var i = 0; i < num; i++) {
+    console.log("Quack!");
+  }
+}
+
+you are here 4        431
+first class functions
+Function declarations versus function expressions
+Whether you use a function declaration or a function expression you get the same thing: a function. 
+So what’s the difference? Is the declaration just more convenient, or is there something about 
+function expressions that makes them useful? Or are these just two ways to do the same thing?
+At first glance, it might appear as if  there isn’t a big difference between function declarations and 
+function expressions. But, actually, there is something fundamentally different about the two, and to 
+understand that difference we need to start by looking at how your code is treated by the browser at 
+runtime. So let’s drop in on the browser as it parses and evaluates the code in your page:
+The browser.
+Ah, great. This page 
+has some code to process.
+var migrating = true;
+var fly = 
+function
+(num) { 
+   for (var i = 0; i < num; i++) {
+      console.log("Flying!");
+   }
+};
+function
+ quack(num) { 
+   for (var i = 0; i < num; i++) {
+      console.log("Quack!");
+   }
+}
+if (migrating) {
+    quack(4);
+    fly(4);
+}
+The first thing I 
+always do is scan the code 
+for function declarations. 
+This variable declaration isn’t a 
+function declaration, so let’s keep 
+moving and ignore it for now.
+Next we have a 
+function expression in 
+a statement. That’s 
+not a declaration... 
+let’s keep moving.
+Ah, here’s a function 
+declaration. We need 
+to deal with that. 
+Let’s do that on the 
+next page....
+After we deal with the declaration 
+above, we also won’t care about 
+this code because there aren’t any 
+function declarations here.
+
+432        Chapter    10
+how a function declaration is parsed
+var migrating = true;
+var fly = 
+function
+(num) { 
+   for (var i = 0; i < num; i++) {
+      console.log("Flying!");
+   }
+};
+function
+ quack(num) { 
+   for (var i = 0; i < num; i++) {
+      console.log("Quack!");
+   }
+}
+if (migrating) {
+    quack(4);
+    fly(4);
+}
+quack
+Here’s our function 
+stored away for later 
+use, such as when the 
+function gets invoked.
+function quack(num) { 
+ for (var i = 0; i < num; i++) {
+    console.log(“Quack!”);
+ }
+}
+function quack(num) { 
+   for (var i = 0; i < num; i++) {
+      console.log("Quack!");
+   }
+}
+And, the function has 
+a name, quack, so I’ll set up a 
+variable named quack to hold 
+the function reference.
+I’m going to grab the function and 
+stash it away so I can retrieve it 
+later when the function is invoked.
+Ok, we’ve got a 
+function declaration, we 
+handle those before we do 
+anything else...
+Parsing the function declaration
+When the browser parses your page—before it evaluates any code—it’s 
+looking for function declarations. When the browser finds one, it creates 
+a function and assigns the resulting reference to a variable with the same 
+name as the function. Like this:
+Here’s the function 
+declaration in this code. 
+Let’s see what the 
+browser’s going to do 
+with it...
+
+you are here 4        433
+first class functions
+What’s next? The browser executes the code
+Now that all the function declarations have been taken care of, the browser 
+goes back up to the top of  your code and starts executing it, top to bottom. 
+Let’s check in on the browser at that point in the execution:
+We start with a simple 
+variable assignment. We’ve 
+seen how to do this kind 
+of thing before.
+function(num) { 
+ for (var i = 0; i < num; i++) {
+    console.log("Flying!");
+ }
+}
+Looks like 
+we’re going 
+to need 
+a variable 
+named fly. 
+Just like 
+before, we 
+store the 
+function 
+away for 
+later use.
+Now I’ll just assign 
+that function to the 
+fly variable.
+Now we take the 
+reference to the 
+function and assign it 
+to the variable fly. 
+And because this is a 
+function expression I need to 
+create a reference to this new 
+function.
+And on the right 
+hand side I’ve got a function 
+expression. I’m going to grab the 
+function and stash it away so I can retrieve it 
+later when the function is invoked.
+Next, I see we’ve got 
+another new variable, fly. 
+Let me create that...
+var migrating = true;
+var fly = 
+function
+(num) { 
+   for (var i = 0; i < num; i++) {
+      console.log("Flying!");
+   }
+};
+function
+ quack(num) { 
+   for (var i = 0; i < num; i++) {
+      console.log("Quack!");
+   }
+}
+if (migrating) {
+    quack(4);
+    fly(4);
+}
+Looks 
+like I’ve got 
+a variable named 
+migrating to create, 
+with the initial value 
+true.
+true
+migrating
+fly
+fly
+
+434        Chapter    10
+invoking a function
+Moving on... The conditional
+Once the fly variable has been taken care of, the 
+browser moves on. The next statement is the function 
+declaration for quack, which was dealt with in the 
+first pass through the code, so the browser skips the 
+declaration and moves on to the conditional statement. 
+Let’s follow along...
+quack(4);
+function quack(num) { 
+ for (var i = 0; i < num; i++) {
+    console.log("Quack!");
+ }
+}
+function quack(num) { 
+   for (var i = 0; i < num; i++) {
+      console.log("Quack!");
+   }
+}
+... and execute the code in the body 
+of the function, which prints “Quack!” 
+four times to the console log.
+4
+Here’s the function created by the 
+function declaration for quack.
+To invoke the function, we 
+pass a copy of the argument 
+value to the parameter...
+...and then execute the 
+body of the function.
+Remember, the quack 
+variable is a reference to the 
+function I stashed away earlier... 
+Let’s see, the 
+variable migrating is true, so I 
+need to execute the body of the if 
+statement. Inside it looks like there’s a 
+call to quack. I know it’s a function call 
+because we’re using the function name, 
+quack, followed by parentheses.
+There’s an argument in the 
+function call, so I’ll pass 
+that into the function...
+var migrating = true;
+var fly = 
+function
+(num) { 
+   for (i = 0; i < num; i++) {
+      console.log("Flying!");
+   }
+};
+function
+ quack(num) { 
+   for (i = 0; i < num; i++) {
+      console.log("Quack!");
+   }
+}
+if (migrating) {
+    quack(4);
+    fly(4);
+}
+var migrating = true;
+var fly = 
+function
+(num) { 
+   for (i = 0; i < num; i++) {
+      console.log("Flying!");
+   }
+};
+function
+ quack(num) { 
+   for (i = 0; i < num; i++) {
+      console.log("Quack!");
+   }
+}
+if (migrating) {
+    quack(4);
+    fly(4);
+}
+Been there, done 
+that, moving on...
+quack
+
+you are here 4        435
+first class functions
+And finishing up...
+var migrating = true;
+var fly = 
+function
+(num) { 
+   for (var i = 0; i < num; i++) {
+      console.log("Flying!");
+   }
+};
+function
+ quack(num) { 
+   for (var i = 0; i < num; i++) {
+      console.log("Quack!");
+   }
+}
+if (migrating) {
+    quack(4);
+    fly(4);
+}
+All that’s left is to invoke the fly function created by the 
+function expression. Let’s see how the browser handles this:
+fly(4);
+function(num) { 
+ for (vari = 0; i < num; i++) {
+    console.log("Flying!");
+ }
+}
+function(num) { 
+   for (var i = 0; i < num; i++) {
+      console.log("Flying!");
+   }
+}
+Then I’ll execute the code in the body 
+of the function, which prints “Flying!” 
+four times to the console log.
+4
+Here’s the 
+function 
+referenced by 
+the fly variable.
+To invoke the function, we 
+pass a copy of the argument 
+value to the parameter...
+...and then execute the 
+body of the function.
+Remember the fly 
+variable is a reference to the 
+function I stashed away earlier... 
+Hey look, another function 
+call. I know it’s a function call 
+because we’re using the variable 
+name, fly, followed by parentheses.
+There’s an argument in the 
+function call, so I’ll pass

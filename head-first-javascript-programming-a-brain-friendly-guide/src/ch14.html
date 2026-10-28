@@ -1,0 +1,80 @@
+<section class="chapter" id="ch14" data-ch="14" data-title="Kiến trúc Mảng Dữ liệu và Vòng lặp Tối ưu trong JavaScript">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 14</span>
+    <h1>JavaScript Arrays and Iteration Architecture <span class="vi">Kiến trúc Mảng Dữ liệu và Vòng lặp Tối ưu trong JavaScript</span></h1>
+    <p class="chapter-lede">Làm chủ cấu trúc dữ liệu mảng (Array) và các kỹ thuật lặp (While, For) để xử lý tập dữ liệu lớn hiệu quả.</p>
+    <div class="chapter-meta">
+      <span class="pill">2 bài học</span>
+      <span class="pill">2 labs</span>
+      <span class="pill">2 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch14-t1" data-num="14.1" data-short="Arrays & Indexing">
+    <div class="topic-theory-card">
+      <span class="eyebrow">NGUYÊN LÝ CỐT LÕI</span>
+    <h2>Cấu trúc Mảng và Chỉ số trong JavaScript</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Mảng lưu trữ danh sách dữ liệu có thứ tự, truy xuất bằng chỉ số bắt đầu từ 0.</p>
+    <div class="prose">
+      <p>Mảng trong JavaScript là tập hợp các giá trị không bắt buộc phải cùng kiểu dữ liệu. Việc truy xuất phần tử dựa trên <dfn data-term="index">chỉ số (index)</dfn> bắt đầu từ 0. Tuy nhiên, việc trộn lẫn các kiểu dữ liệu (ví dụ số và chuỗi) đòi hỏi cơ chế kiểm tra kiểu nghiêm ngặt để tránh lỗi logic khi thực hiện các phép toán so sánh.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Hệ thống quản lý kho của The Coffee House hoặc Highlands Coffee lưu trữ danh sách nguyên liệu dạng mảng. Nếu mảng chứa dữ liệu hỗn hợp (vừa số lượng vừa chuỗi tên), hệ thống tính toán tổng tồn kho sẽ gặp sự cố crash nếu không validate kiểu dữ liệu.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch14-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Array Index Simulation</strong>
+        — Kiểm tra kết quả khi truy cập index ngoài giới hạn.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch14-t2" data-num="14.2" data-short="Iteration Patterns">
+    <div class="topic-theory-card">
+      <span class="eyebrow">KIẾN TRÚC TỐI ƯU</span>
+    <h2>Duyệt Mảng: While và For Loop</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Vòng lặp for là chuẩn mực tối ưu để duyệt mảng có kích thước cố định.</p>
+    <div class="prose">
+      <p>Khi xử lý tập dữ liệu lớn như điểm số kiểm tra chất lượng sản phẩm (ví dụ bài toán Bubbles-R-Us), việc duyệt qua từng phần tử đòi hỏi cấu trúc <dfn data-term="iteration">lặp (iteration)</dfn>. Trong khi vòng lặp while linh hoạt với mọi loại điều kiện, vòng lặp for loại bỏ hoàn toàn rủi ro quên tăng biến đếm nhờ gom nhóm logic vào một khối.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Các cổng thanh toán như MoMo hay ZaloPay khi xử lý hàng loạt giao dịch trong giờ cao điểm phải duyệt qua danh sách trạng thái mã giao dịch. Sử dụng vòng lặp chuẩn giúp tối ưu hóa CPU cycles và giảm thiểu độ trễ phản hồi.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch14-w2">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Loop Refactoring Lab</strong>
+        — Chuyển đổi vòng lặp while thành for loop an toàn.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch14-review" data-num="14.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>Chương này mổ xẻ cấu trúc dữ liệu mảng (Array) trong JavaScript, từ cách khởi tạo, truy xuất phần tử qua chỉ số (index), xử lý mảng rỗng, cho đến việc quản lý bộ nhớ và các bẫy kiểu dữ liệu (mixed types). Trọng tâm kỹ thuật là giải quyết bài toán duyệt mảng (iteration) quy mô lớn – từ cấu trúc vòng lặp while truyền thống đến cú pháp vòng lặp for tối ưu hóa và toán tử tăng/giảm (++, --). Kiến trúc sư cần nắm vững cách sử dụng thuộc tính length để truy xuất phần tử cuối cùng an toàn và tránh rò rỉ bộ nhớ hoặc lỗi undefined khi vượt quá biên mảng (out-of-bounds).</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="2">
+        <p class="q-text"><strong>Câu 1:</strong> Kết quả khi truy cập một mảng a = [10, 20, 30] tại vị trí a[5] là gì?</p>
+        <ol><li>30</li><li>Lỗi cú pháp (SyntaxError)</li><li>undefined</li><li>0</li></ol>
+        <p class="explain">Truy cập mảng với chỉ số vượt quá giới hạn (out-of-bounds) trong JavaScript không gây lỗi chết chương trình mà trả về giá trị undefined.</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 2:</strong> Cách nào sau đây là tối ưu nhất để lấy phần tử cuối cùng của mảng myArray?</p>
+        <ol><li>myArray[myArray.length]</li><li>myArray[myArray.length - 1]</li><li>myArray.last()</li><li>myArray[myArray.end]</li></ol>
+        <p class="explain">Do chỉ số mảng bắt đầu từ 0, vị trí của phần tử cuối cùng luôn bằng chiều dài mảng trừ đi 1 (length - 1).</p>
+      </div></div>
+  </article>
+</section>

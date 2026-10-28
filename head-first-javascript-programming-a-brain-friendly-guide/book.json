@@ -1,0 +1,131 @@
+{
+  "id": "head-first-javascript-programming-a-brain-friendly-guide",
+  "title": "Head First JavaScript Programming",
+  "subtitle": "A Brain-Friendly Guide",
+  "author": "Eric Freeman & Elisabeth Robson",
+  "coverUrl": "/covers/head-first-javascript-programming-a-brain-friendly-guide.jpg",
+  "edition": "704 trang · O'Reilly Media",
+  "description": "Sổ tay đọc tương tác làm chủ JavaScript toàn diện: từ cú pháp nền tảng, tư duy giải thuật, DOM & Sự kiện bất đồng bộ, đến hàm bậc cao Closures và Hướng đối tượng Prototype.",
+  "sourcePdfs": [
+    "Head First JavaScript Programming A Brain-Friendly Guide.pdf"
+  ],
+  "chapters": [
+    {
+      "n": 1,
+      "num": 1,
+      "id": "ch1",
+      "en": "A Quick Dip into JavaScript: Getting Your Feet Wet",
+      "vi": "Mở đầu với JavaScript: Làm quen với ngôn ngữ của Web",
+      "src": "PDF",
+      "wordCount": 4200
+    },
+    {
+      "n": 2,
+      "num": 2,
+      "id": "ch2",
+      "en": "Writing Real Code: Going Further",
+      "vi": "Viết mã thực chiến: Bước ra khỏi vùng an toàn",
+      "src": "PDF",
+      "wordCount": 4500
+    },
+    {
+      "n": 3,
+      "num": 3,
+      "id": "ch3",
+      "en": "Introducing Functions: Getting Functional",
+      "vi": "Làm chủ hàm: Tư duy lập trình hàm",
+      "src": "PDF",
+      "wordCount": 4300
+    },
+    {
+      "n": 4,
+      "num": 4,
+      "id": "ch4",
+      "en": "Putting Some Order in Your Data: Arrays",
+      "vi": "Tổ chức dữ liệu: Mảng và giải thuật",
+      "src": "PDF",
+      "wordCount": 4100
+    },
+    {
+      "n": 5,
+      "num": 5,
+      "id": "ch5",
+      "en": "Understanding Objects: A Trip to Objectville",
+      "vi": "Thế giới hướng đối tượng: Bản chất của Objects",
+      "src": "PDF",
+      "wordCount": 4600
+    },
+    {
+      "n": 6,
+      "num": 6,
+      "id": "ch6",
+      "en": "Interacting with Your Web Page: Getting to Know the DOM",
+      "vi": "Tương tác trang web: Chinh phục DOM",
+      "src": "PDF",
+      "wordCount": 4800
+    },
+    {
+      "n": 7,
+      "num": 7,
+      "id": "ch7",
+      "en": "Types, Equality, Conversion: Serious Types",
+      "vi": "Bản chất kiểu dữ liệu: Ép kiểu và so sánh nghiêm ngặt",
+      "src": "PDF",
+      "wordCount": 4400
+    },
+    {
+      "n": 8,
+      "num": 8,
+      "id": "ch8",
+      "en": "Bringing It All Together: Building an App",
+      "vi": "Ghép nối toàn diện: Xây dựng game Battleship",
+      "src": "PDF",
+      "wordCount": 5100
+    },
+    {
+      "n": 9,
+      "num": 9,
+      "id": "ch9",
+      "en": "Handling Events: Asynchronous Coding",
+      "vi": "Xử lý sự kiện: Lập trình bất đồng bộ trên Web",
+      "src": "PDF",
+      "wordCount": 4700
+    },
+    {
+      "n": 10,
+      "num": 10,
+      "id": "ch10",
+      "en": "Liberated Functions: First-Class Functions",
+      "vi": "Hàm giải phóng: First-Class Functions & Callbacks",
+      "src": "PDF",
+      "wordCount": 4300
+    },
+    {
+      "n": 11,
+      "num": 11,
+      "id": "ch11",
+      "en": "Serious Functions: Closures and Higher-Order Functions",
+      "vi": "Hàm chuyên sâu: Closures và Hàm bậc cao",
+      "src": "PDF",
+      "wordCount": 4900
+    },
+    {
+      "n": 12,
+      "num": 12,
+      "id": "ch12",
+      "en": "Creating Objects: Advanced Object Construction",
+      "vi": "Khởi tạo đối tượng: Constructors & Prototypes",
+      "src": "PDF",
+      "wordCount": 4600
+    },
+    {
+      "n": 13,
+      "num": 13,
+      "id": "ch13",
+      "en": "Extra Strength Objects: Using Prototypes",
+      "vi": "Kế thừa nguyên mẫu: Prototype Inheritance Chuyên sâu",
+      "src": "PDF",
+      "wordCount": 4800
+    }
+  ]
+}

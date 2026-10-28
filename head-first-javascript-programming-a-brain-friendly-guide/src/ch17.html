@@ -1,0 +1,80 @@
+<section class="chapter" id="ch17" data-ch="17" data-title="Kiến trúc Mảng Dữ Liệu và Bản Chất Đối Tượng trong JavaScript">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 17</span>
+    <h1>Arrays and Objects Fundamentals <span class="vi">Kiến trúc Mảng Dữ Liệu và Bản Chất Đối Tượng trong JavaScript</span></h1>
+    <p class="chapter-lede">Làm chủ cấu trúc dữ liệu tuyến tính (Array) và chuyển dịch tư duy từ lập trình thủ tục sang Lập trình Hướng Đối tượng (OOP) trong JavaScript.</p>
+    <div class="chapter-meta">
+      <span class="pill">2 bài học</span>
+      <span class="pill">2 labs</span>
+      <span class="pill">2 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch17-t1" data-num="17.1" data-short="Mảng & Index">
+    <div class="topic-theory-card">
+      <span class="eyebrow">NGUYÊN LÝ CỐT LÕI</span>
+    <h2>Cấu trúc Tuyến tính và Chỉ số Mảng</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Mảng lưu trữ tập hợp giá trị theo thứ tự, truy xuất thông qua chỉ số nguyên bắt đầu từ số 0.</p>
+    <div class="prose">
+      <p>Trong JavaScript, <dfn data-term="Array">Array</dfn> là cấu trúc dữ liệu tuyến tính lưu trữ các giá trị liên tiếp. Mỗi phần tử trong mảng được định danh bằng một <dfn data-term="Index">Index</dfn> số nguyên, bắt đầu từ 0. Việc tính toán phần tử cuối cùng luôn tuân theo công thức <code>length - 1</code>.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại hệ thống lớn</div>
+      <p>Hệ thống định vị xe của Grab/XanhSM lưu trữ tọa độ GPS gần nhất của tài xế trong một mảng tuần tự để quét và tính toán khoảng cách cực nhanh bằng thuật toán O(n).</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch17-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Array Index Lab</strong>
+        — Thực hành tính toán index cuối cùng của mảng sản phẩm.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch17-t2" data-num="17.2" data-short="Bản chất OOP">
+    <div class="topic-theory-card">
+      <span class="eyebrow">KIẾN TRÚC ĐỐI TƯỢNG</span>
+    <h2>Chuyển dịch từ Lập trình Thủ tục sang Hướng Đối tượng</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Đối tượng (Object) giúp gom nhóm dữ liệu và hành vi liên quan lại với nhau dưới dạng cặp key-value.</p>
+    <div class="prose">
+      <p>Lập trình thủ tục tách rời dữ liệu và hàm xử lý. <dfn data-term="Object-Oriented Programming">OOP</dfn> gói gọn trạng thái và hành vi vào một thực thể duy nhất, giúp mô hình hóa thế giới thực chính xác hơn. Đối tượng JavaScript được tạo ra bằng cặp dấu ngoặc nhọn <code>{}</code> chứa danh sách các thuộc tính dạng <code>key: value</code>.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại MoMo/ZaloPay</div>
+      <p>Khi xử lý giao dịch ví điện tử, thông tin một giao dịch được đóng gói thành một Object chứa các property: transactionId, amount, timestamp, status, giúp dễ dàng truyền tải qua mạng (JSON API).</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch17-w2">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Object Builder</strong>
+        — Thực hành khai báo đối tượng xe hơi với các kiểu dữ liệu khác nhau.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch17-review" data-num="17.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>Chương này bóc tách bản chất của mảng (array) từ cách truy xuất phần tử qua chỉ số (index), xử lý mảng bằng vòng lặp while/for, cho đến bước nhảy vọt tư duy sang Lập trình Hướng Đối tượng (OOP). Thay vì quản lý hàng loạt biến rời rạc, đối tượng (object) đóng gói cả trạng thái (state) và dữ liệu vào một khối duy nhất thông qua cặp key-value và dot notation. Đây là nền tảng cốt lõi để xây dựng các ứng dụng JavaScript phức tạp, từ xử lý giỏ hàng thương mại điện tử đến quản lý state hệ thống.</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 1:</strong> Thuộc tính nào dùng để biết khi nào vòng lặp duyệt qua mảng nên dừng lại?</p>
+        <ol><li>size</li><li>length</li><li>count</li><li>index</li></ol>
+        <p class="explain">Thuộc tính .length trả về tổng số phần tử của mảng, được dùng làm điều kiện biên cho vòng lặp (i < array.length).</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 2:</strong> Đâu là cách đúng để thêm một thuộc tính mới 'needsWashing' vào đối tượng fiat đã tồn tại?</p>
+        <ol><li>fiat(needsWashing) = true;</li><li>fiat.needsWashing = true;</li><li>add fiat.needsWashing = true;</li><li>fiat->needsWashing = true;</li></ol>
+        <p class="explain">Sử dụng Dot Notation (fiat.needsWashing = true;) để gán giá trị mới. Nếu thuộc tính chưa tồn tại, JavaScript sẽ tự động tạo mới.</p>
+      </div></div>
+  </article>
+</section>

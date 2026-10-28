@@ -1,0 +1,103 @@
+Any message will do for 
+simple testing...
+After all that, reload the page in your browser and check out the 
+updates to the display.
+The “tap tap” message is 
+displayed up here at the 
+top left of the view.
+And the hits and misses we 
+displayed using the view object 
+are displayed in the game board.
+Check each one to make sure 
+it’s in the right spot. 
+One of the benefits 
+of breaking up the 
+code into objects 
+and giving each 
+object only one 
+responsibility is 
+that we can test 
+each object to make 
+sure it’s doing its 
+job correctly.
+
+336        Chapter    8
+planning the model
+The Model
+With the view object out of  the way, let’s move on to the model. The model is where we 
+keep the state of  the game. The model often also holds some logic relating to how the state 
+changes. In this case the state includes the location of  the ships, the ship locations that have 
+been hit, and how many ships have been sunk. The only logic we’re going to need (for now) 
+is determining when a player’s guess has hit a ship and then marking that ship with a hit.
+Here’s what the model object is going to look like:
+Model
+ships: The ship locations and hits.
+shipsSunk: How many ships 
+have been sunk.
+fire: A method to fire on a ship and 
+figure out if the shot is a hit or miss.
+These are all 
+properties that hold 
+the current state of 
+the game.
+And this is a method that 
+handles firing upon the ships.
+When the state of  the game changes—that is, when you hit a ship, or miss—then the view 
+needs to update the display.  To do this, the model needs to talk to the view, and luckily we 
+have a few methods the model can use to do that. We’ll get our game logic set first in the 
+model, then we’ll add code to update the view.
+How the model interacts with the view
+Model
+View
+Hey View, you need 
+to update. The user just 
+hit a ship at location “B0”.
+view.displayHit(“10”)
+Got it, thanks! I’ll 
+take care of updating 
+the display to reflect 
+that.
+The model notifies the view of a 
+change in state, so the view can 
+take care of updating the display.
+numShips: The number of ships 
+in the game.
+shipLength: The number of 
+locations in each ship.
+boardSize: The size of the grid 
+for the board.
+
+you are here 4        337
+bringing it all together
+A
+B
+C
+D
+E
+F
+G
+0 1 2 3 4 5 6 
+Ship3
+Ship2
+Ship1
+Each ship takes up three 
+cells on the 2D board.
+This ship sits at locations 
+“B0”, “C0”, “D0”.
+Here’s another ship at 
+D2 through  D4.
+We also need to be able to 
+keep track of hits. Each 
+ship has three locations, so 
+we need to store three hits 
+for each ship too.
+You’re gonna need a bigger boat... and game board
+Before we start writing model code, we need to think about how to represent the state of  
+the ships in the model. Back in Chapter 2 in the simple Battleship game, we had a single 
+ship that sat on a 1x7 game board. Now things are a little more complex: we have three 
+ships on a 7x7 board. Here’s how it looks now:
+Given how we’ve described the new game board above, how would you 
+represent the ships in the  model (just the locations, we’ll worry about 
+hits later). Check off the best solution below.
+ ❏Use nine variables for the ship locations, 
+similar to the way we handled the ships in

@@ -1,0 +1,498 @@
+all of  the objects. 
+Now if  you’re saying “Great, we’re reusing code!”... not 
+so fast. Sure, we’re reusing it, but we’re doing that by 
+copying it, not just once, but many times! What happens 
+now if  we want drive to work differently? Then you’ve 
+got to redo the code in every single car.  Not good. Not 
+only is that a waste, it can be error prone. 
+But you’re identifying a problem even larger than simple 
+copying and pasting; we’re assuming that just because 
+we put the same properties in all our objects, that makes 
+them all car objects.  What if  you accidentally leave out 
+the mileage property from one of  the objects—is it still 
+a car?
+These are all real problems with our code so far, and 
+we’re going to tackle all these questions in an upcoming 
+chapter on advanced objects where we’ll talk about some 
+techniques for properly reusing the code in your objects. 
+It seems like we’re duplicating code 
+with all the copying and pasting of the 
+methods to the various car objects. 
+Isn’t there a better way?
+
+you are here 4        209
+understanding objects
+I was also wondering if someone 
+handed me an object, is there a way to  
+know what all its properties are?
+One thing you can do is iterate through 
+an object’s properties. To do that you can use 
+a form of  iteration we haven’t seen yet called for in. 
+The for in iterator steps through every property in 
+an object in an arbitrary order. Here’s how you could 
+display all the properties of  the chevy object:
+for (var prop in chevy) {
+    console.log(prop + ": " + chevy[prop]);
+}
+for in steps through the object's 
+properties one at time, assigning each 
+one in turn to the variable prop.
+You can use prop as a way to access the 
+property using bracket notation.
+This brings up another topic: there’s another way to 
+access properties. Did you catch the alternative syntax we just used to 
+access the properties of  the chevy object? As it turns out, you’ve got two options 
+when accessing a property of  an object. You already know dot notation:
+chevy.color
+But there’s another way: bracket notation, which looks like this:
+chevy["color"]
+The thing to know about both of  these forms, is they are equivalent and do the same thing. The only difference 
+you need to know about is the bracket notation sometimes allows a little more flexibility because you can make the 
+property name an expression like this:
+We just use the object name followed by a 
+dot and a property name.
+Here we use the object name followed by brackets 
+that enclose a property name in quotes.
+chevy["co" + "lor"]
+As long as the expression evaluates to a property 
+name represented by a string, you can put any 
+expression you want inside the backets.
+JavaScript console
+    make: Chevy
+    model: Bel Air
+    year: 1957
+    color: red
+    passengers: 2
+    convertible: false
+    mileage: 1021
+Looks a bit like how we 
+access array items.
+
+210        Chapter    5
+behavior and state
+var fiat = {
+    make: "Fiat",
+    model: "500",
+    // other properties go here, we're saving some paper...
+    started: false,
+    fuel: 0,
+    start: function() {
+        this.started = true;
+    },     
+    stop: function() {
+        this.started = false;
+    },    
+    drive: function() {
+       if (this.started) {
+         alert(this.make + " " + this.model + " goes zoom zoom!");
+       } else {
+         alert("You need to start the engine first.");
+       }
+    },
+    addFuel: function(amount) {
+        this.fuel = this.fuel + amount;
+    }
+};
+How behavior affects state... 
+Adding some Gas-o-line
+Objects contain state and behavior. An object’s properties allow us to keep state about the 
+object—like its fuel level, its current temperature or, say, the current song that is playing 
+on the radio. An object’s methods allow us to have behavior—like starting a car, turning 
+up the heat or fast-forwarding the playback of  a song. Have you also noticed these two 
+interact? Like, we can’t start a car if  it doesn’t have fuel, and the amount of  fuel should 
+get reduced as we drive the car. Kinda like real life, right?
+Let’s play with this concept a little more by giving our car some fuel, and then we can 
+start to add interesting behavior. To add fuel, we’ll add a new property, fuel, and a new 
+method, addFuel. The addFuel method will have a parameter, amount, which we’ll 
+use to increase the amount of  fuel in the fuel property. So, add these properties to the 
+fiat object:
+We’ve added a new property, fuel, to hold 
+the amount of fuel in the car. The car 
+will begin life on empty.
+Let’s also add a method, addFuel, to add fuel to the 
+car. We can add as much fuel as we like by specifying 
+the amount when we call the method.
+Remember, fuel is an object property, 
+so we need the 
+this
+ keyword...
+But amount is a function parameter, 
+so we don’t need 
+this
+ to use it.
+
+you are here 4        211
+understanding objects
+var fiat = {
+    // other properties and methods here...
+    drive: function() {
+        if (this.started) {
+            if (this.fuel > 0) {
+                alert(this.make + " " +
+                    this.model + " goes zoom zoom!");
+               this.fuel = this.fuel - 1;
+            } else {
+                alert("Uh oh, out of fuel.");
+                this.stop();
+            } 
+        } else {
+            alert("You need to start the engine first.");
+        }
+    },
+    addFuel: function(amount) {
+        this.fuel = this.fuel + amount;
+    }
+};
+Go ahead and update your code, and take it for a spin! 
+Here’s what we got with the following test code:
+Gas up for a test drive
+Now let’s affect the behavior with the state
+So now that we have fuel, we can start to implement some interesting behaviors. For 
+instance, if  there’s no fuel, we shouldn’t be able to drive the car! So, let’s start by tweaking 
+the drive method a bit to check the fuel level to make sure we’ve got some, and then we’ll 
+subtract one from fuel each time the car is driven. Here’s the code to do that:
+Now we can check to make sure there’s 
+fuel before we drive the car. And, if we 
+can drive the car, we should reduce the 
+amount of fuel left each time we drive.
+If there’s no fuel left, we display a 
+message and stop the engine. To drive 
+the car again, you’ll have to add fuel 
+and restart the car.
+fiat.start();
+fiat.drive();
+fiat.addFuel(2);
+fiat.start();
+fiat.drive();
+fiat.drive();
+fiat.drive();
+fiat.stop();
+First, we tried to drive it with no 
+fuel, so then we added some fuel 
+and drove it until we ran out of 
+fuel again! Try adding your own 
+test code and make sure it works 
+like you think it should.
+
+212        Chapter    5
+exercise in integrating fuel
+We still have some more work to do to fully integrate the fuel property into the car. For instance, 
+should you be able to start the car if there’s no fuel? Check out the start method:
+It certainly looks like we can.
+Help us integrate the fuel property into this code by checking the fuel level before the car is 
+started. If there’s no fuel, and the start method is called, let the driver know with a handy alert, 
+like "The car is on empty, fill up before starting!" Rewrite your start method 
+below, and then add it to your code and test it. Check your answer at the end of the chapter 
+before you go on.
+    start: function() {
+          this.started = true;
+    }  
+Take a look at all the fiat car code. Are there other places you could use the 
+fuel property to alter the car’s behavior (or create behavior to modify the fuel 
+property)? Jot down your ideas below.
+Your code 
+here.
+
+you are here 4        213
+understanding objects
+You’ve made it through the first objects chapter and you’re ready to move forward. 
+Remember how you began with JavaScript? You were thinking of  the world in 
+terms of  low-level numbers and strings and statements and conditionals and for 
+loops and so on. Look how far you’ve come. You’re starting to think at a higher 
+level, and in terms of  objects and methods. Just look at this code:
+With objects the future’s 
+so bright we really DO have 
+to wear shades...
+Congrats on your first objects!
+fiat.addFuel(2);
+fiat.start();
+fiat.drive();
+fiat.stop();
+It’s so much easier to understand what’s going on in this code, because it describes 
+the world as a set of  objects with state and behavior.
+And this is just the beginning. You can take it so much further, and we will. Now 
+that you know about objects we’re going to keep developing your skills to write 
+truly object-oriented code using even more features of  JavaScript and quite a few 
+best practices (which become oh-so-important with objects).
+There’s one more thing you should know, before you leave this chapter...
+
+214        Chapter    5
+even more objects
+Console
+Math
+Window
+Document
+Date
+You’ve already seen how to use the Math 
+object to generate random numbers. It 
+can do a lot more than that!
+Use the Date object to 
+manipulate dates and times.
+All these objects are 
+provided with JavaScript.
+You’ll find all these objects provided 
+by your browser. They’re the key to 
+writing browser-based apps!
+You’ve been using the 
+console object’s log 
+method to display 
+messages in the console.
+Window provides 
+some key browser-
+related properties 
+and methods your 
+code can use.
+Now that you know a bit about objects, a whole new world is going to open up for you because 
+JavaScript provides you with lots of  objects (for doing math computations, manipulating strings 
+and creating dates and times, to name a few) that you can use in your own code. JavaScript also 
+provides some really key objects that you need to write code for the browser (and we’re going to 
+take a look at one of  those objects in the next chapter). For now, take a second to get acquainted 
+with a few more of  these objects, and we’ll touch on these throughout the rest of  the book:
+Guess what? There are objects all around you!  
+(and they’ll make your life easier)
+We’ll be using the document 
+object in the next chapter 
+to write to your web page 
+from your code.
+RegExpJSON
+With JSON you can 
+exchange JavaScript objects 
+with other applications.
+This object 
+lets you find 
+patterns in 
+strings.
+
+you are here 4        215
+understanding objects
+Head First: Welcome Object, it’s been a fascinating chapter. 
+It’s a real head-spinner thinking about code as objects.
+Object: Oh, well... we’ve only just begun.
+Head First: How so?
+Object:  An object is a set of  properties, right? Some of  those 
+properties are used to keep the state of  the object, and some 
+are actually functions—or rather, methods—that give an object 
+behavior.
+Head First: I’m with you so far. I hadn’t actually thought 
+about the methods being properties too, but I guess they are just 
+another name and value, if  you can call a function a value?
+Object: Oh you can! Believe me, you can. In fact, that’s a huge 
+insight, whether you realize it or not. Hold on to that thought; 
+I’m guessing there’s a lot in store for you on that topic. 
+Head First: But you were saying...
+Object: So, you’ve looked at these objects with their properties 
+and you’ve created lots of  them, like a bunch of  different types 
+of  cars.
+Head First: Right...
+Object: But it was very ad hoc. The real power comes when 
+you can create a template of  sorts, something that can basically 
+stamp out uniform objects for you. 
+Head First: Oh, you mean objects that all have the same type?
+Object: Sort of... as you’ll see the concept of  type is an 
+interesting one in JavaScript. But you’re on the right track. You’ll 
+see that you have real power when you can start to write code 
+that deals with objects of  the same kind. Like you could write 
+code that deals with vehicles and you wouldn’t have to care if  
+they are bicycles, cars or buses. That’s power.
+Head First: It certainly sounds interesting. What else do we 
+need to know to do that?
+Object: Well, you have to understand objects a little better, and 
+you need a way to create objects of  the same kind.
+Head First: We just did that, didn’t we?  All those cars?
+Object: They’re sort of  the same kind by convention, because 
+you happened to write code that creates cars that look alike. In 
+other words, they have the same properties and methods.
+Head First: Right, and in fact we talked a little about how 
+we are replicating code across all those objects, which is not 
+necessarily a good thing in terms of  maintaining that code.
+Object: The next step is to learn how to create objects that 
+really are all guaranteed to be the same, and that make use of  
+the same code—code that’s all in one place. That’s getting into 
+how to design object-oriented code. And you’re pretty much 
+ready for that now that you know the basics.
+Head First: I’m sure our readers are happy to hear that!
+Object: But there are a few more things about objects to be 
+aware of.
+Head First: Oh?
+Object: There are many objects already out there in the wild 
+that you can use in your code.
+Head First: Oh? I hadn’t noticed, where?
+Object: How about console.log. What do you think 
+console is?
+Head First: Based on this discussion, I’m guessing it’s an 
+object?
+Object: BINGO.  And log?
+Head First: A property... err, a method?
+Object: BINGO again. And what about alert?
+Head First: I haven’t a clue.
+Object: It has to do with an object, but we’ll save that for a bit 
+later.
+Head First: Well, you’ve certainly given us a lot to think about 
+Object, and I’m hoping you’ll join us again.
+Object: I’m sure we can make that work.
+Head First: Great! Until next time then.
+The Object Exposed
+This week’s interview:
+In Object’s own words...
+
+216        Chapter    5
+In his quest for world domination, Dr. Evel has accidentally exposed an internal web page with the 
+current passcode to his operation. With the passcode we can inally get the upper hand. Of course, 
+as soon as Dr. Evel discovered the page was live on the Internet, he quickly took it down. Luckily, our 
+agents made a record of the page. The only problem is, our agents don’t know HTML or JavaScript. 
+Can you help igure out the access code using the code below?  Keep in mind, if you are wrong, it 
+could be quite costly to Queen and Country.
+Crack the Code Challenge
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Dr. Evel's Secret Code Page</title>
+  </head>
+  <body>
+    <p id="code1">The eagle is in the</p>
+    <p id="code2">The fox is in the</p>
+    <p id="code3">snuck into the garden last night.</p>
+    <p id="code4">They said it would rain</p>
+    <p id="code5">Does the red robin crow at</p>
+    <p id="code6">Where can I find Mr.</p>
+    <p id="code7">I told the boys to bring tea and</p>
+    <p id="code8">Where's my dough? The cake won't</p>
+    <p id="code9">My watch stopped at</p>
+    <p id="code10">barking, can't fly without umbrella.</p>
+    <p id="code11">The green canary flies at</p>
+    <p id="code12">The oyster owns a fine</p>
+    <script src="code.js"></script>
+  </body>
+</html>
+Here’s the JavaScript.
+Top Secret
+var access =
+  document.getElementById("code9");
+var code = access.innerHTML;
+code = code + " midnight";
+alert(code);
+What pass code will 
+you see in the alert?
+Write your answer in the 
+alert dialog box below.
+Here’s the HTML. 
+The above JavaScript code 
+is being included here.
+Looks like this code is using 
+a document object.
+
+you are here 4        217
+understanding objects
+ An object is a collection of properties.
+ To access a property, use dot notation: the 
+name of the variable containing the object, 
+then a period, then the name of the property.
+ You can add new properties to an object 
+at any time, by assigning a value to a new 
+property name.
+ You can also delete properties from objects, 
+using the delete operator.
+ Unlike variables that contain primitive 
+values, like strings, numbers, and booleans, 
+a variable can’t actually contain an object. 
+Instead, it contains a reference to an object. 
+We say that objects are “reference variables”. 
+ When you pass an object to a function, the 
+function gets a copy of the reference to the 
+object, not a copy of the object itself. So, if 
+you change the value of one of the object’s 
+properties, it changes the value in the original 
+object.
+ Object properties can contain functions. 
+When a function is in an object, we call it a 
+method.
+ You call a method by using the dot 
+notation: the object name, a period, and the 
+property name of the method, followed by 
+parentheses.
+ A method is just like a function except that it 
+is in an object.
+ You can pass arguments to methods, just like 
+you can to regular functions.
+ When you call an object’s method, the 
+keyword this refers to the object whose 
+method you are calling.
+ To access an object’s properties in an 
+object’s method, you must use dot notation, 
+with this in place of the object’s name.
+ In object-oriented programming, we think in 
+terms of objects rather than procedures. 
+ An object has both state and behavior. State 
+can affect behavior, and behavior can affect 
+state. 
+ Objects encapsulate, or hide, the complexity 
+of the state and behavior in that object.
+ A well-designed object has methods that 
+abstract the details of how to get work done 
+with the object, so you don’t have to worry 
+about it.
+ Along with the objects you create, JavaScript 
+has many built-in objects that you can use. 
+We’ll be using many of these built-in objects 
+throughout the rest of the book.
+If you skipped the last page, go back and do the 
+challenge. It is vitally important to Chapter Six!
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Dr. Evel's Secret Code Page</title>
+  </head>
+  <body>
+    <p id="code1">The eagle is in the</p>
+    <p id="code2">The fox is in the</p>
+    <p id="code3">snuck into the garden last night.</p>
+    <p id="code4">They said it would rain</p>
+    <p id="code5">Does the red robin crow at</p>
+    <p id="code6">Where can I find Mr.</p>
+    <p id="code7">I told the boys to bring tea and</p>
+    <p id="code8">Where's my dough? The cake won't</p>
+    <p id="code9">My watch stopped at</p>
+    <p id="code10">barking, can't fly without umbrella.</p>
+    <p id="code11">The green canary flies at</p>
+    <p id="code12">The oyster owns a fine</p>
+    <script src="code.js"></script>
+  </body>
+</html>
+Here’s the JavaScript.
+Top Secret
+var access =
+  document.getElementById("code9");
+var code = access.innerHTML;
+code = code + " midnight";
+alert(code);
+What pass code 
+will you see in 
+the alert?
+Write your answer 
+in the alert dialog 
+box below.
+Here’s the HTML. 
+The above JavaScript 
+code is being 
+included here.
+Looks like this code is using 
+a document object.
+
+218        Chapter    5
+javascript crossword
+JavaScript cross
+How about a crossword object? It’s got lots of clue 
+properties that will help objects stick in your brain.
+1
+2345
+6
+7
+8
+9
+101112
+13
+14
+AcrossDown
+ACROSS

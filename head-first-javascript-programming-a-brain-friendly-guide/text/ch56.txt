@@ -1,0 +1,688 @@
+reference on the topic.
+/[0-9]{3}/
+This says match any of the numbers in 
+the range 0-9. [ ] mean you’re specifying 
+a range of letters or numbers.
+And this says that we want to match 
+three of the previous character. In 
+other words we want to match three 
+numbers in the range 0-9.
+The argument to the RegExp 
+constructor is the search 
+pattern. How do you read 
+these two search patterns?
+/ marks the beginning of 
+the regular expression.
+/ marks the end of 
+the regular expression.
+The whole thing matches any three 
+digit string, like “201” or “503”.
+"201"
+Like this...
+Let’s take a look at a couple of  regular expressions. To create a regular expression, 
+pass a search pattern to the RegExp constructor, between two slashes, like this:
+The key to understanding regular expressions is learning how to read the 
+search patterns. These search patterns are the most complex part of  regular 
+expressions, so we’ll work through the two examples here, and you’ll have to 
+explore the rest on your own.
+
+you are here 4        633
+leftovers
+var amyHome = "555-1212";
+To use a regular expression, you first need a string to search:
+var result = amyHome.match(phoneNumber);
+Then, you match the regular expression to the string by calling 
+the match method on the string, and passing the regular 
+expression object as an argument:
+Using a RegExp object
+The result is an array containing any parts of  the string that 
+matched. If  the result is null, then nothing in the string matched 
+the regular expression:
+/^\d{3}-?\d{4}$/
+\d means 
+match any 
+one digit 
+number.
+And we 
+want to 
+match 
+three of 
+them.
+Next, 
+match 
+zero 
+or one 
+dashes.
+^ means 
+match 
+at the 
+beginning of 
+the string.
+$ means 
+match at 
+the end of 
+the string.
+Again, 
+match 
+any one 
+digit 
+number.
+And we 
+want to 
+match 
+four of 
+them.
+/ marks the 
+beginning of 
+the regular 
+expression.
+/ marks 
+the end of 
+the regular 
+expression.
+"555-1212"
+"5551212"
+The whole thing 
+matches a seven-
+digit phone number 
+with or without 
+a dash.
+or
+var invalid = "5556-1212";
+var result2 = invalid.match(phoneNumber);
+The value in result is [“555-1212”], 
+because in this case, the entire string 
+in the variable amyHome matched.
+The value in result2 is null because no part 
+the string in the variable invalid matched 
+our regular expression search pattern.
+Once you’ve got a regular expression, like phoneNumber, you can 
+just keep using it to match as many strings as you like.
+
+634      Appendix
+recursive functions
+#8 Recursion
+When you give a function a name it allows you to do something quite interesting: call that 
+function from within the function. We call this recursion, or a recursive function call. 
+Now why would you need such a thing? Well, some problems are inherently recursive. 
+Here’s one from mathematics: an algorithm to compute the Fibonacci number series. The 
+Fibonacci number series is:
+    0, 1, 1, 2 , 3, 5, 8, 13, 21, 34, 55, 89, 144... and so on.
+To compute a Fibonacci number we start by assuming:
+    Fibonacci of 0 is 1
+    Fibonacci of 1 is 1
+and then to compute any other number in the series we simply add together the two 
+previous numbers in the series. So:
+    Fibonacci of 2 is Fibonacci of 1 + Fibonacci of 0 = 2
+    Fibonacci of 3 is Fibonacci of 2 + Fibonacci of 1 = 3
+    Fibonacci of 4 is Fibonacci of 3 + Fibonacci of 2 = 5 
+ 
+and so on... The algorithm to compute Fibonacci numbers is inherently recursive because 
+you compute the next number using the results of  the previous two Fibonacci numbers.
+We can make a recursive function to compute Fibonacci numbers like this: to compute the 
+Fibonacci of  the number n, we call the Fibonacci function with the argument n-1 and call 
+the Fibonacci function with the argument n-2, and then add the results together.
+Let’s do that in code. We’ll start by handling the cases of  0 and 1:
+function ibonacci(n) {
+    if (n === 0) return 1;
+    if (n === 1) return 1;
+}
+We start with a function that accepts n, 
+the number in the series we're after.
+Then we know that if the number is either 0 
+or 1, we return 1. This is known as the base 
+case of the function, because it doesn't make 
+any recursive calls.
+These are the base cases—that is, the cases that don’t rely on previous Fibonacci numbers to 
+compute—and it is usually good to write them first. From there you can think like this: “To 
+compute a Fibonacci number n, I return the result of  adding the Fibonacci of  n-1 and the 
+Fibonacci of  n-2.
+Let’s do that...
+
+you are here 4        635
+leftovers
+function ibonacci(n) {
+    if (n === 0) return 1;
+    if (n === 1) return 1;
+    return (ibonacci(n-1) + ibonacci(n-2));
+}
+Now if n isn’t 0 or 1, we just need to 
+compute the Fibonacci by adding together 
+the Fibonacci of n-1 and n-2.
+This looks a little like magic if  you’ve never seen recursion before, but this does 
+compute Fibonacci numbers. Let’s clean the code up a little, and test it:
+function ibonacci(n) {
+    if (n === 0 || n === 1) {
+        return 1;
+    } else {
+        return (ibonacci(n-1) + ibonacci(n-2));
+    }
+}
+for (var i = 0; i < 10; i++) {
+    console.log("The ibonacci of " + i + " is " + ibonacci(i));
+}
+Same code, just written a little better.
+JavaScript console
+The fibonacci of 0 is 1
+The fibonacci of 1 is 1
+The fibonacci of 2 is 2
+The fibonacci of 3 is 3
+The fibonacci of 4 is 5
+The fibonacci of 5 is 8
+The fibonacci of 6 is 13
+The fibonacci of 7 is 21
+The fibonacci of 8 is 34
+The fibonacci of 9 is 55 
+And some test code.
+ 
+       
+Make sure you have a base case.
+If 
+recursive code never reaches a base 
+case where the computation ends, it will 
+run forever, like an infinite loop. In other 
+words, the function will continue calling 
+itself over and over, consuming resources until your 
+browser can’t take it anymore. So if you write recursive 
+code and your page isn’t responding, figure out how to 
+make sure you’re getting to the base case.
+
+636      Appendix
+a very brief intro to JSON
+#9 JSON
+Not only is JavaScript the programming language of  the Web, it’s becoming a common 
+interchange format for storing and transmitting objects. JSON is an acronym for “JavaScript 
+Object Notation” and is a format that allows you to represent a JavaScript object as a string—a 
+string that can be stored and transmitted:
+var fido = {
+    name: "Fido",
+    breed: "Mixed",
+    weight: 38
+};
+var fidoString = JSON.stringify(fido);
+var fidoString = '{ "name": "Fido", "breed": "Mixed", "weight": 38 }';
+A JSON string.
+Notice that we're using single quotes around the 
+JSON string. We have to use single quotes because the 
+string contains double quotes, so JavaScript will get 
+confused otherwise. This way, JavaScript knows this 
+is one long string that contains other strings.
+Now, the cool thing about JSON is we can take strings like this and turn them into objects. The 
+way we do it is with a couple of  methods supplied by JavaScript JSON object: JSON.parse and 
+JSON.stringify. We’ll use the parse method to parse the fidoString above and turn it 
+into a real dog (well, a JavaScript object anyway):
+Look familiar? It should. 
+This string looks a lot like 
+the fido object we worked 
+with earlier in the book...
+var fido = JSON.parse(fidoString);
+fido
+{ name: "Fido",
+  breed: "Mixed",
+  weight: 38 }
+We call the parse method 
+of the JSON object, 
+passing the string above, 
+and we get back...
+...a real JavaScript object. We 
+store the reference to the 
+object in the variable fido.
+And you can go the other way, too. If  you have an object, fido, and you want to 
+turn it into a string, you just call the JSON.stringify method, like this:
+Here, we're taking a 
+JavaScript object...
+...and turning it into a string.
+Note that the JSON format doesn’t work with methods (so you can’t include, say, a 
+bark method in your JSON string), but it does work with all the primitive types, as 
+well as objects and arrays.
+Notice that we’re 
+using the JSON 
+object here. JSON is 
+both the name of a 
+string format and an 
+object in JavaScript.
+
+you are here 4        637
+leftovers
+        637
+#10 Server-side JavaScript
+In this book we’ve focused on the browser and client-side programming, but 
+there’s a whole world of  server-side programming where you can now use 
+your JavaScript skills. Server-side programming is typically required for the 
+kinds of  web and cloud services you use on the Internet. If  you want to 
+create Webville Taco’s new online order system, or you think the next big 
+idea is the anti-social network, you’ll need to write code that lives and 
+runs in the cloud (on a server on the Internet).
+Node.js is the JavaScript server-side technology of  choice these days, 
+and it includes its own runtime environment and set of  libraries 
+(in the same way client-side JavaScript uses the browser’s libraries). 
+And like the browser, Node.js runs JavaScript in a single-threaded 
+model where only one thread of  execution can happen at a time.  
+This leads to a programing model similar to the browser that is 
+based on asynchronous events and an event loop.
+As an example, the method below starts up a web server listening 
+for incoming web requests. It takes a handler that is responsible for 
+handling those requests when they occur. Notice that the convention 
+for setting up the event handler for incoming requests is to pass an 
+anonymous function to the createServer method.
+http.createServer(function(request, response) {
+  response.writeHead(200, {"Content-Type": "text/plain"});
+  response.write("Hello World");
+  response.end();
+}).listen(8888);
+Of  course, there is much more to explain and to work through to understand 
+how Node.js works. But, given your knowledge of  objects and functions you 
+are well positioned to take this on. Also, explaining Node.js requires at least an 
+entire book of  its own, but you’ll also find many online tutorials, articles and 
+demonstrations at http://nodejs.org.
+The http.createServer Node.js 
+library method takes a handler 
+in the form of an anonymous 
+function as an argument.
+The anonymous function is 
+responsible for taking care 
+of requests. It responds to 
+incoming requests by sending 
+back the string “Hello World”.
+Client-side code executes 
+on the client-that is, on 
+your computer.
+Server-side code 
+executes on a server on 
+the Internet.
+request
+
+you are here 4        639
+All interior layouts were designed by Eric Freeman and Elisabeth Robson.  
+Kathy Sierra and Bert Bates created the look & feel of the Head First series. The book was produced using 
+Adobe InDesign CS5.5 and Adobe Photoshop CS5.5. The book was typeset using Uncle Stinky, Mister Frisky 
+(you think we’re kidding), Ann Satellite, Baskerville, Comic Sans, Myriad Pro, Skippy Sharp, Savoye LET, 
+Jokerman LET, Courier New and Woodrow typefaces. 
+Interior design and production was done exclusively on Apple Macintoshes—a Mac Pro, an iMac, a Macbook Pro, 
+and two MacBook Airs to be precise.  
+Writing locations were primarily Bainbridge Island, Washington; Austin, Texas; Port of Ness, Scotland; Seaside, 
+Florida.
+Sonic environment during writing included BT, Daft Punk, Muse, The Fixx, Depeche Mode, Adam & the Ants, 
+Men without Hats, Sleep Research Lab, Dousk, Uh Huh Her, Art of Noise, deadmau5 & Kaskade, David Bowie, 
+Cheap Trick, The Who, Blank & Jones, Chris Isaak, Roy Orbison, Elvis, John Lennon, George Harrison, Amy 
+Macdonald, Schiller, Sia, Sigur Ros, Tom Waits, OMD, Phillip Glass, Muse, Eno, Krishna Das, Mike Oldield, 
+Devo, Steve Roach, Beyman Brothers, Harry and the Potters, and the soundtracks for Frozen, Harry Potter, 
+Back to the Future and Pleasantville. 
+Colophon
+
+this is the index     641
+Index
+Symbols
+$ (dollar sign)
+beginning JavaScript variable names  13
+function in jQuery  624
+0 (zero), as falsey value  292
+&& (AND) operator  55, 62–63, 74
+* (asterisk) operator, as multiplication arithmetic operator  
+15, 286
+: (colon), separating property name and property value  
+179
+, (comma), separating object properties  177, 179
+{ } (curly braces)
+enclosing object properties  177, 179
+in body of  function  97
+in code block  17
+matching in code  59
+using with object literals  177, 522
+. (dot notation)
+accessing object properties  181, 209, 230
+using with reference variables  186
+using with this object  202
+= (equal sign) operator, assigning values to variables using  
+11, 16, 275
+== (equality) operator
+as comparison operator  16, 55, 275–285, 311, 459
+vs. === operator  289
+=== (strict equality) operator
+as comparison operator  55, 280–285, 311
+vs. == operator  289
+// (forward slashes), beginning comments in JavaScript  
+13
+/ (forward slash) operator, as division arithmetic operator  
+15, 286
+> (greater than) operator  16, 55, 459
+>= (greater than or equal to) operator  16, 55
+< (less than) operator  55, 459
+<= (less than or equal to) operator  55
+- (minus sign) operator
+as unary operator  287
+using as arithmetic operator with string and number  
+286–287, 312
+!= (not equal to) operator  16, 55
+! (NOT) operator  55
+|| (OR) operator  54, 55, 62–63, 74
+() (parentheses)
+in calling functions  68, 430, 439
+in parameters  97
++ (plus sign)
+as arithmetic operator  286–287, 312
+in concatenating strings  15, 133, 142, 354
+-- (post-decrement operator)  146–147
+++ (post-increment operator)  146–147
+“ “ (quotation marks, double)
+surrounding character strings in JavaScript  13
+using around property name  179
+; (semicolon), ending statements in JavaScript  11, 13
+[ ] (square brackets)
+accessing properties using  209
+in arrays  127, 129, 550
+!== (strict not equal to) operator  281
+_ (underscore), beginning JavaScript variable names  13
+A
+action attributes  328
+activities, about doing  xxxiii
+addEventListener method  630
+alert function
+communicating with users using  25–26, 42, 46
+determining hits and misses in simplified Battleship 
+game  59–60, 76
+
+642        Index
+the index
+alt attribute  256
+AND (&&) operator  55, 62–63, 74
+anonymous functions
+about  , 475–476, 482, xx–xxi
+accessing properties using  509, 518
+assigning to method in constructors  530–532, 557
+creating  477–478, 512–513
+making code tighter  479
+passing functions to functions  482, 486, 514
+readability of   480
+API-specific events  413
+applications. See also Battleship game, advanced; Battleship 
+game, simplified
+coding JavaScript  29–35
+creating interactive  319
+JavaScript in  5
+web pages as  9
+arguments, function
+about  85
+identifying  91, 105, 119, 120
+mixing up order of   97
+objects as  192
+passing  88–89, 92–94
+using pass-by-value  92–93
+vs. parameters  90
+arguments object  628
+array constructor object  549–551
+array literal syntax  550
+arrays
+about  , xiii–xv
+abstracting code into functions  157–162
+accessing item in  129
+arranging code exercise  139, 168
+Auto-O-Matic app (example)  195–197
+creating
+empty  151
+most effective bubble solution code  164–165, 171
+with values  128
+Cubicle Conversation on  148–149, 170
+declaring variables in  152
+empty  134, 153–154, 365, 367, 549–550
+for determining hits in advanced Battleship game  
+344–345
+for hits and ship locations in advanced Battleship 
+game  338
+for loop in  140–142, 144–145, 147, 169
+indices in  129, 134, 152, 163
+initializing counter  140
+iterating over  138, 140
+length property in  130
+literals in  151–152
+number of  levels deep to nest objects  348
+number of  things in  134
+order of  items in  134
+Phrase-o-Matic app (example)  131–133
+populating playlist items using  253, 262
+reusing code in  156
+sparse  152
+test drive  143, 147, 155
+undefined values and  268
+updating value in  129
+value types in  134
+while loop in  17–21
+array sort method  457–463, 472–473
+asterisk (*) operator, as multiplication arithmetic operator  
+15, 286
+asynchronous coding
+about events  383
+alt attribute  256
+event handlers
+about  383
+adding using addEventListener  630
+assigning to properties  407
+callbacks and  250
+creating  385–386
+in advanced Battleship game  358–359, 361
+kinds of   252
+onload  249
+timerHandler  407
+using setInterval function  410, 425
+using setTimeout function  407–413
+Event object in DOM  399–402, 423
+events  404
+exercise on notification of  events  382, 421
+interview with browser about events  403
+reacting to events
+about  387
+adding images to image guessing game  393–397
+assigning click handlers  396–397
+assigning handler to onclick property  390–391, 
+393–398
+
+you are here 4        643
+the index
+creating image guessing game  388–392, 411–414, 
+422, 426
+exercise on  415, 427
+asynchronous coding event handlers
+event handlers
+creating closure with  503–507
+attributes
+action  328
+alt  256
+class  255
+getting with getAttribute  256
+not in element  256
+setting with code  254
+setting with setAttribute  255
+Auto-O-Matic app (example)  195–197
+B
+background CSS property  326
+background image
+cells in  322
+creating HTML page  320–321
+Battleship game, advanced
+about  , xvii–xix
+cheating at  369
+controller object
+about  329
+counting guesses and iring shot  355–356
+determining end of  game  356
+developing parseGuess function  351–354
+implementing  349–357
+passing input to  360
+processing player’s guess  350–354
+testing  357
+creating HTML page
+about  320
+adding CSS  324–326
+background  320–321
+placing hits and misses  326
+table  322
+using hit and miss classes  327, 375
+designing game  329–330, 376
+event handler to fire button  359
+generating random locations for ships  362–368, 380
+getting players guess  358–361
+keeping track of  ships  337
+model object
+about  329, 336
+determining hits  344–345
+determining if  ship is sunk  346
+ire method in  342
+implementing  341–348
+interacting with view  336
+looking for hits  343
+notifying view of  hits or misses  347
+parseGuess function asking about size of  board  
+353
+representation of  ships in  338–340, 378–379
+representing state of  ships in  337, 377
+testing  348
+QA in  370–371
+starting location of  ships  366
+testing  370
+toolkit for building  319
+view object
+about  329
+implementing  329, 331–334
+interacting with model  336
+notifying of  hits or misses  347
+testing  335
+Battleship game, simplified
+about  44
+adding hit detection code  56–57, 77
+adding HTML to link code  45–46
+assigning random ship locations  66–68
+checking if  ship sank  57
+checking users guess  54
+designing  45–46
+displaying stats to user  58
+doing quality assurance  61, 69–70
+finding errors in code  68
+procedural design in  329
+pseudocode
+determining hits and misses  59–60, 76
+determining variables using  50
+implementing loop using  51
+translating into JavaScript code  52
+working through  47–48, 73
+behavior and state, in objects  210–212, 226
+block of  code  17, 23
+
+644        Index
+the index
+<body> element
+about  4
+adding code on HTML page to  32
+replacing element content with innerHTML property  
+245
+body, function
+declaring variables within  97
+parameters in  84–85
+BOM (Browser Object Model)  627
+boolean expressions
+true and false values  13, 15–16, 291–293, 313
+using to make decisions  22
+boolean operators
+being verbose in specifying conditionals using  65, 74
+comparison vs. logical  71
+guide to  55
+writing complex statements using  62–64, 74–75
+booleans
+about  11, 23
+as objects  296
+as primitive types  266
+using == operator with other types  277–278, 281
+Browser Object Model (BOM)  627
+browsers
+conditional statements handled by  434
+events  404
+executing code  433
+function declarations handled by  431–433, 436, 465, 
+483
+function expressions handled by  434–436, 465
+handling events  383, 403. See also handling events
+loading and executing JavaScript in  3
+loading code into  31
+objects provided by  214
+opening console  28
+parsing HTML and building DOM  236, 261
+recommended  xxvi
+running JavaScript in  xxxii
+setting up Event object in IE8 and older  399
+setting up event objects in IE8 and older  631
+tailoring size of  window to web page  627
+browser wars  6
+built-in functions  71, 91, 119
+built-in objects  548–551, 608–610
+C
+callbacks. See also event handlers
+  250
+calling (invoking) functions
+about  85–86, 492–493
+browsers handling function declarations and expres-
+sions  431–437
+exercise for  117
+parentheses  in  68, 430, 439
+recursive functions  634–635
+variables referring to functions in  436
+with arguments  90, 430
+call method  603–604
+camel case in multi-word variable names  13
+Cascading Style Sheets (CSS). See CSS (Cascading Style 
+Sheets)
+case sensitivity in JavaScript  12
+catch/try, handling exceptions using  629
+cells, in table of  advanced Battleship game  322
+chaining  345, 348
+chain of  prototypes
+inheritance in  592
+setting up  591
+characters, in JavaScript  297
+character strings, quoting in JavaScript  13
+charAt method  297
+classes
+class attribute  255
+hit and miss classes for advanced Battleship game  
+326–327, 375
+labeling set of  elements with  243
+classic object-oriented programming  564
+clear code, writing  12
+cliche method  610
+click events  407, 419, 624
+click handlers, assigning  396–397
+close() method  627
+closures
+about  493, 495–497
+actual environment in  502
+
+you are here 4        645
+the index
+creating with event handler  503–507
+exercise for creating  500, 514–515
+passing function expression as argument to create  501
+using to implement magic counters  498–499
+Coda, as HTML editor  31
+code. See also Battleship game, advanced; Battleship game, 
+simplified; writing JavaScript
+analyzing  80, 116
+browser executing  433
+compiling  5
+duplicating code in objects  208
+finding errors in
+exercise  14, 39, 203, 224
+using console  68
+using console.log function  25, 27
+for JavaScript application  29–35
+functions and reusing  83–88
+guide to hygiene of   111
+loading into browser  31
+moving JavaScript from HTML page to file  33–34
+recursive  635
+refactoring  156, 159
+reusing  , 71, 79, xii
+code block  17, 23
+code file
+linking external file from HTML page <body> ele-
+ment  32
+linking from HTML page <head> element  32
+collision method  364, 368
+colon (:), separating property name and property value

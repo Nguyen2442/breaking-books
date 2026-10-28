@@ -1,0 +1,74 @@
+<section class="chapter" id="ch10" data-ch="10" data-title="Hàm (Functions) và Đóng gói Logic trong JavaScript">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 10</span>
+    <h1>Introducing Functions and Code Encapsulation <span class="vi">Hàm (Functions) và Đóng gói Logic trong JavaScript</span></h1>
+    <p class="chapter-lede">Hàm chuyển đổi lập trình viên từ dạng viết kịch bản tuyến tính sang xây dựng hệ thống mô-đun tái sử dụng cao.</p>
+    <div class="chapter-meta">
+      <span class="pill">2 bài học</span>
+      <span class="pill">2 labs</span>
+      <span class="pill">1 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch10-t1" data-num="3.1" data-short="Vấn đề code lặp">
+    <div class="topic-theory-card">
+      <span class="eyebrow">KIẾN TRÚC CODE DƯ THỪA</span>
+    <h2>Hiểm họa từ việc lặp lại mã nguồn</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Code lặp giống như bom hẹn giờ cho việc bảo trì phần mềm.</p>
+    <div class="prose">
+      <p>Khi viết ứng dụng xử lý danh sách đối tượng (ví dụ kiểm tra cân nặng của chó hoặc lọc giá sản phẩm), việc sao chép đoạn mã điều kiện cho từng trường hợp dẫn đến <dfn data-term="code-redundancy">mã nguồn dư thừa</dfn>. Khi nghiệp vụ thay đổi, kỹ sư phải sửa ở mọi nơi xuất hiện đoạn code đó, dễ dẫn đến bỏ sót và phát sinh bug.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Hệ thống quản lý đơn hàng của Grab khi tính toán cước phí cho hàng ngàn tài xế không thể viết tách rời cho từng cuốc xe mà phải gom chung vào một hàm tính toán logic lõi.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch3-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Phân tích mã nguồn</strong>
+        — Kiểm tra các khối lệnh trùng lặp để chuẩn bị refactor.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch10-t2" data-num="3.2" data-short="Cấu trúc hàm">
+    <div class="topic-theory-card">
+      <span class="eyebrow">CƠ CHẾ HOẠT ĐỘNG CỦA HÀM</span>
+    <h2>Đóng gói logic với Function, Parameter và Argument</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Hàm gom nhóm logic và nhận dữ liệu động qua tham số.</p>
+    <div class="prose">
+      <p>Định nghĩa hàm bắt đầu bằng từ khóa <dfn data-term="function">function</dfn>, theo sau là tên hàm và các <dfn data-term="parameters">tham số</dfn> đặt trong ngoặc đơn. Toàn bộ câu lệnh thực thi nằm trong thân hàm (function body). Khi gọi hàm, các <dfn data-term="arguments">đối số</dfn> được gán vào tham số tương ứng.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Hệ thống thanh toán MoMo sử dụng hàm xử lý giao dịch nhận vào số tiền và mã ví, chạy xuyên suốt cho mọi giao dịch QR code tại cửa hàng tiện lợi.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch3-w2">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Mô phỏng thực thi hàm</strong>
+        — Theo dõi cách gán argument vào parameter trong stack thực thi.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch10-review" data-num="10.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>Trong các chương trước, việc lặp lại các khối code kiểm tra (như logic sủa của chó hoặc kiểm tra giá) gây ra sự dư thừa mã nguồn (code redundancy) và tạo ra thảm họa bảo trì khi nghiệp vụ thay đổi. Chương này giới thiệu Functions (Hàm) như một cơ chế đóng gói logic. Bằng cách định nghĩa hàm với từ khóa function, nhận các tham số (parameters) và truyền đối số (arguments) khi gọi (invoke), lập trình viên gom nhóm toàn bộ logic vào một nơi duy nhất. Điều này giúp loại bỏ code lặp, tăng tính dễ đọc, dễ kiểm thử và triệt tiêu các lỗi phát sinh do phải sửa đổi code ở nhiều nơi trong ứng dụng lớn.</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 1:</strong> Thuật ngữ nào dùng để chỉ giá trị được truyền vào hàm khi gọi hàm?</p>
+        <ol><li>Parameter</li><li>Argument</li><li>Variable</li><li>Property</li></ol>
+        <p class="explain">Argument là giá trị thực tế truyền vào khi gọi hàm, trong khi Parameter là biến định nghĩa trong hàm.</p>
+      </div></div>
+  </article>
+</section>

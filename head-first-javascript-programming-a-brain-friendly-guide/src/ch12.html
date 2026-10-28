@@ -1,0 +1,50 @@
+<section class="chapter" id="ch12" data-ch="12" data-title="Quản Lý Vòng Đời Biến, Scope và Kỹ Thuật Viết Code JavaScript Sạch">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 12</span>
+    <h1>Variable Lifetimes, Scope, and Code Hygiene <span class="vi">Quản Lý Vòng Đời Biến, Scope và Kỹ Thuật Viết Code JavaScript Sạch</span></h1>
+    <p class="chapter-lede">Kiểm soát tường minh scope biến và hoisting giúp loại bỏ bug ngầm trong hệ thống JavaScript quy mô lớn.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học</span>
+      <span class="pill">1 labs</span>
+      <span class="pill">1 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch12-t1" data-num="12.1" data-short="Vòng đời biến">
+    <div class="topic-theory-card">
+      <span class="eyebrow">NGUYÊN LÝ CỐT LÕI</span>
+    <h2>Global vs Local Variables: Vòng đời và Tác động kiến trúc</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Biến toàn cục sống suốt vòng đời trang web, biến local tự hủy khi hàm kết thúc.</p>
+    <div class="prose">
+      <p>Vấn đề lớn nhất trong các ứng dụng web cồng kềnh là quản lý trạng thái qua các <dfn data-term="Scope">scope</dfn>. Biến global tồn tại từ khi file script được nạp cho đến khi reload trang, dễ dẫn đến hiện tượng ô nhiễm bộ nhớ và xung đột tên. Trong khi đó, biến local có vòng đời ngắn ngủi, được tạo khi hàm chạy và bị hủy ngay khi hàm trả về kết quả.</p><p>Giải pháp kỹ thuật là tuân thủ nghiêm ngặt quy tắc cô lập dữ liệu. Chỉ sử dụng global khi thực sự cần thiết (như cấu hình ứng dụng), và ép mọi dữ liệu nghiệp vụ vào scope của hàm thông qua <dfn data-term="Parameters">parameters</dfn> và <dfn data-term="Local Variables">local variables</dfn>.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Tại các hệ thống thương mại điện tử như Shopee hay Tiki, việc để lọt biến global trong các script tracking hoặc widget quảng cáo bên thứ ba có thể làm crash toàn bộ luồng xử lý giỏ hàng của người dùng.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch12-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Scope Visualizer</strong>
+        — Công cụ mô phỏng vùng nhìn thấy của biến global và local trong bộ nhớ.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch12-review" data-num="12.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>Chương này mổ xẻ vòng đời của biến (global và local) và cách JavaScript xử lý scope. Vấn đề cốt lõi là việc lạm dụng biến toàn cục (global variables) hoặc quên từ khóa khai báo (như var/let) dẫn đến ô nhiễm scope (scope pollution), ghi đè giá trị ngoài ý muốn và bug cực khó debug khi tích hợp nhiều thư viện bên thứ ba. Giải pháp kiến trúc là tuân thủ nguyên tắc 'Code Hygiene' (vệ sinh mã nguồn): hạn chế tối đa biến toàn cục, đặt toàn bộ biến global lên đầu file, khai báo tường minh biến local ngay đầu hàm và tận dụng cơ chế hoisting của JavaScript. Trade-offs duy nhất là cần tuân thủ kỷ luật code nghiêm ngặt hơn, nhưng đánh đổi lại là mã nguồn dễ bảo trì, dễ scale và loại bỏ hoàn toàn các lỗi xung đột biến trong hệ thống phức tạp.</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 1:</strong> Điều gì xảy ra với giá trị của biến global khi người dùng reload lại trang web?</p>
+        <ol><li>Biến global được giữ nguyên giá trị cũ trong bộ nhớ cache.</li><li>Biến global bị hủy hoàn toàn và được tái tạo lại từ đầu.</li><li>Biến global được chuyển sang trạng thái local.</li><li>Trình duyệt báo lỗi cú pháp.</li></ol>
+        <p class="explain">Reload trang đồng nghĩa với việc reset toàn bộ ngữ cảnh thực thi, mọi biến global bị hủy và khởi tạo lại từ đầu.</p>
+      </div></div>
+  </article>
+</section>

@@ -1,0 +1,711 @@
+4. A function declaration nested in another function has 
+_______ scope.
+6. When we tried to call fly before it was defined, we got 
+this kind of error. 
+9. wingFlapper is a _________ function. 
+12. We often use setTimeout to create a timer for making 
+______. 
+13. A function expression assigned to a variable at the 
+top level of your code has ________ scope.
+14. To get a raise, you should understand how _______ 
+work. 
+16. A _____ variable is one that’s not defined in the local 
+scope.
+17. We changed the value of doneMessage to _____ in 
+the closure. 
+18. An environment that provides values for all free 
+variables ________ a function. 
+ 
+DOWN
+1. ______ is always right. 
+2. ____ changed his shirt between pages.
+3. Movie the word “derezzed” was used in.
+5. An ___________ function is a function
+expression that has no name.
+7. A function with an ________ attached to it
+is called a closure.
+8. A function expression evaluates to a function
+_________.
+10. We passed a function ___________ to set
+the cookie alarm. 
+11. Parameters are _______ variables, so
+they’re included in the environment where variables are 
+defined. 
+15. _________ scope means you can understand the 
+scope of your variables by reading the structure of your 
+code. 
+
+512        Chapter    11
+exercise solutions
+There are a few opportunities in the code below to make the code 
+more concise by using anonymous functions. Go ahead and rework 
+the code to use anonymous functions wherever possible. You can 
+scratch out the old code and write in new code where needed. Oh, 
+and one more task: circle any anonymous functions that are already 
+being used in the code. Here’s our solution.
+window.onload = init;
+var cookies = {
+    instructions: "Preheat oven to 350...",
+    bake: function(time) {
+              console.log("Baking the cookies.");
+              setTimeout(done, time);
+          }
+};
+function init() {
+    var button = document.getElementById("bake");
+    button.onclick = handleButton;
+}
+function handleButton() {
+    console.log("Time to bake the cookies.");
+    cookies.bake(2500);
+}
+function done() {
+    alert("Cookies are ready, take them out to cool.");
+    console.log("Cooling the cookies.");
+    var cool = function() {
+        alert("Cookies are cool, time to eat!");
+    };
+    setTimeout(cool, 1000);
+}
+
+you are here 4        513
+anonymous functions, scope and closures
+window.onload = function() {
+    var button = document.getElementById("bake");
+    button.onclick = function() {
+        console.log("Time to bake the cookies.");
+        cookies.bake(2500);
+    };
+};
+var cookies = {
+    instructions: "Preheat oven to 350...",
+    bake: function(time) {
+              console.log("Baking the cookies.");
+              setTimeout(done, time);
+          }
+}; 
+function done() {
+    alert("Cookies are ready, take them out to cool.");
+    console.log("Cooling the cookies.");
+    var cool = function() {
+        alert("Cookies are cool, time to eat!");
+    };
+    setTimeout(cool, 1000);
+}
+We reworked the code to create two anonymous 
+function expressions, one for the init function, 
+and one for the handleButton function. 
+Now we assign a function expression 
+to the window.onload property... 
+...and assign a function 
+expression to the button.
+onclick property.
+setTimeout(function() {
+    alert("Cookies are cool, time to eat!");
+}, 1000);
+Extra credit for you if you 
+figured out you can pass the cool 
+function directly to setTimeout, 
+like this:
+
+514        Chapter    11
+exercise solutions
+Let’s make sure you have the syntax down for passing anonymous function expressions 
+to other functions. Convert this code from one that uses a variable (in this case vaccine) 
+as a parameter to one that uses an anonymous function. Here’s our solution.
+administer(patient, function(dosage) { 
+    if (dosage > 0) {
+        inject(dosage);
+    }
+}, time);
+Notice that it’s totally fine 
+to use more than one line for 
+a function expression that’s 
+used as an argument. But 
+watch your syntax; it’s easy 
+to make a mistake!
+makePassword(password) {
+    return function guess(passwordGuess) {
+        return (passwordGuess === password);
+    };
+}
+var tryGuess = makePassword("secret");
+console.log("Guessing 'nope': " + tryGuess("nope"));
+console.log("Guessing 'secret': " + tryGuess("secret"));
+It’s your turn. Try creating the following closures. We realize this is not an easy task at first, 
+so refer to the answer if you need to. The important thing is to work your way through these 
+examples, and get to the point where you fully understand them. 
+Here are our solutions:
+First up for 10pts: makePassword takes a password as an argument and returns a function 
+that accepts a password guess and returns true if the guess matches the password 
+(sometimes you need to read these closure descriptions a few times to get them):
+The solutions continue on the next page...
+Notice here we’re using a named function 
+expression! We don’t have to, but it’s handy 
+as a way to refer to the name of the inner 
+function. But also notice we must invoke the 
+returned function using tryGuess (not guess).
+The function that’s returned 
+from makePassword is a closure 
+with an environment containing 
+the free variable password.
+We pass in the value “secret” 
+to makePassword, so this is 
+the value that’s stored in 
+the closure’s environment.
+And when we invoke tryGuess, we compare 
+the word we pass in (“nope” or “secret”) 
+with the value for password in the 
+environment for tryGuess.
+
+you are here 4        515
+anonymous functions, scope and closures
+It’s your turn. Try creating the following closures. We realize this is not an easy task at first, 
+so refer to the answer if you need to. The important thing is to work your way through these 
+examples, and get to the point where you fully understand them.
+Here are our solutions (continued):
+Next up for 20pts: the multN function takes a number (call it n) and returns a function.  That 
+function itself takes a number, multiplies it by n and returns the result.
+function multN(n) {
+    return function multBy(m) {
+        return n*m;
+    };
+}
+var multBy3 = multN(3);
+console.log("Multiplying 2: " + multBy3(2));
+console.log("Multiplying 3: " + multBy3(3));
+function makeCounter() {
+    var count = 0;
+    return {
+        increment: function() {
+            count++;
+            return count;
+        }
+    };
+}
+var counter = makeCounter();
+console.log(counter.increment());
+console.log(counter.increment());
+console.log(counter.increment());
+The function that’s returned from 
+multN is a closure with an environment 
+containing the free variable n.
+So we invoke multN(3) and get 
+back a function that multiplies any 
+number you give it by 3.
+This is similar to our previous makeCounter 
+function, except now we’re returning an 
+object with an increment method, instead 
+of returning a function directly.
+The increment method has a free variable, 
+count. So, increment is a closure with an 
+environment containing the variable count.
+Now, we call makeCounter and get back an 
+object with a method (that is a closure).
+We invoke the method in the usual way, and 
+when we do, the method references the 
+variable count in its environment.
+Last up for 30 pts:  This is a modification of the counter we just created. makeCounter 
+takes no arguments, but defines a count variable. It then creates and returns an object 
+with one method, increment. This method increments the count variable and returns it.
+
+516        Chapter    11
+exercise solutions
+Use your knowledge of functions and variables 
+and check off the true statements below. Here’s 
+our solution:
+ ❏The handler variable holds a function 
+reference.
+ ❏When we assign handler to window.onload, 
+we’re assigning it a function reference.
+ ❏The only reason the handler variable exists is 
+to assign it to window.onload. 
+ ❏We’ll never use handler again as it’s code 
+that is meant to run only when the page first 
+loads.
+ ❏Invoking onload handlers twice is not a great 
+idea—doing so could cause issues given 
+these handlers usually do some initialization 
+for the entire page.
+ ❏Function expressions create function 
+references.
+ ❏Did we mention that when we assign 
+handler to window.onload, we’re assigning it 
+a function reference?
+Here’s your task: (1) find all the free variables in the code below and circle them. A free 
+variable is one that isn't defined in the local scope. (2) Pick one of the environments on 
+the right that closes the function. By that we mean that it provides values for all the free 
+variables. Here’s our solution.
+function justSayin(phrase) {
+    var ending = "";
+    if (beingFunny) {
+       ending = " -- I'm just sayin!";
+    } else if (notSoMuch) {
+       ending = " -- Not so much.";
+    }
+    alert(phrase + ending);
+}
+Pick one of these that 
+closes the function.
+Circle the free variables in this 
+code. Free variables are not 
+defined in the local scope.
+beingFunny = true;
+notSoMuch = false;
+inConversationWith = "Paul";
+beingFunny = true;
+justSayin = false;
+oocoder = true;
+notSoMuch = true;
+phrase = "Do do da";
+band = "Police";
+This environment 
+closes the two free 
+variables beingFunny 
+and notSoMuch
+
+you are here 4        517
+anonymous functions, scope and closures
+We need a closures expert and we’ve heard that’s you!  Now you know how closures work, can you 
+figure out why both specimens below evaluate to 008? To figure it out, write any variables that are 
+captured in the environments for the functions below. Note that it’s perfectly fine for an environment 
+to be empty. Here’s our solution.
+EXTREME JAVASCRIPT ChALLENGE
+var secret = "007";
+function getSecret() {
+    var secret = "008";
+    function getValue() {
+        return secret;
+    }
+    return getValue();
+}
+getSecret();
+Specimen #1
+var secret = "007";
+function getSecret() {
+    var secret = "008";
+    function getValue() {
+        return secret;
+    }
+    return getValue;
+}
+var getValueFun = getSecret();
+getValueFun();
+Specimen #2
+soluton
+Environment
+Environment
+...so it's captured in the environment for 
+getValue. But we don't return getValue from 
+getSecret, so we never see the closure outside 
+the context in which it was created.
+secret = "008"
+...and here, we do create a closure that's returned 
+from getSecret. So when we invoke getValueFun 
+(getValue) in a different context (the global scope), 
+we use the value of secret in the environment.
+secret is a free 
+variable in getValue... 
+secret = "008"
+secret is a free 
+variable in getValue... 
+
+518        Chapter    11
+exercise solutions
+Here’s our solution for this brain twister!
+(function(food) {
+    if (food === "cookies") {
+        alert("More please");
+    } else if (food === "cake") {
+        alert("Yum yum");
+    }
+ })("cookies");
+Your task is to figure out not just what it computes, but how it 
+computes. To do that, go in reverse, that is, take out the anonymous 
+function, assign it to a variable, and then replace the previous 
+function with the variable. Is the code more obvious now? So what 
+does it do?
+var eat = function(food) {
+    if (food === "cookies") {
+        alert("More please");
+    } else if (food === "cake") {
+        alert("Yum yum");
+    }
+};
+(eat)("cookies");
+Here’s the function, extracted. 
+We just called it eat. You could 
+have made this a function 
+declaration if you preferred.
+And what we’re doing is calling eat on “cookies”. 
+But what are the extra parentheses for?
+Here’s the deal. Remember how a function declaration starts 
+with the word function followed by a name? And remember 
+how a function expression needs to be inside a statement? 
+Well, if you don’t use parentheses around the function 
+expression, the JavaScript interpreter wants this to be a 
+declaration rather than a function expression. But we don’t 
+need the parentheses to call eat, so you can remove them.
+So all this code did was to inline a 
+function expression and then immediately 
+invoke it with some arguments.
+Oh, and it returns “More please”.
+You would write this as 
+eat(“cookies”) of course, 
+but we’re showing how to 
+substitute eat for the 
+function expression above. 
+
+you are here 4        519
+anonymous functions, scope and closures
+J
+1
+UJ
+2
+T
+3
+DORL
+4
+OCA
+5
+L
+T
+6
+YPEE
+7
+RROR
+8
+N
+NN
+9
+ESTE
+10
+DO
+VFXNL
+11
+IEPYO
+RRRMC
+C
+12
+OO
+
+IESEG
+13
+LOBAL
+NNSUL
+MC
+14
+L
+15
+OSURES
+EF
+16
+REEI
+NXO
+17
+UC
+
+TIN
+C
+A
+C
+18
+LOSES
+JavaScript cross Solution
+
+this is a new chapter     521
+Creating objects
+12  advanced object construction
+So far we’ve been crafting objects by hand.  For each object, 
+we’ve used an object literal to specify each and every property. That’s okay on a 
+small scale, but for serious code we need something better. That’s where object 
+constructors come in. With constructors we can create objects much more easily, 
+and we can create objects that all adhere to the same design blueprint—meaning 
+we can use constructors to ensure each object has the same properties and 
+includes the same methods.  And with constructors we can write object code that is 
+much more concise and a lot less error prone when we’re creating lots of objects. 
+So, let’s get started and after this chapter you’ll be talking constructors just like you 
+grew up in Objectville.
+
+522        Chapter    12
+using object literals
+var taxi = { 
+    make: "Webville Motors",
+    model: "Taxi",
+    year: 1955,
+    color: "yellow",
+    passengers: 4,
+    convertible: false,
+    mileage: 281341,    
+    started: false,
+    start: function() { this.started = true;},
+    stop: function() { this.started = false;},
+    drive: function {
+         // drive code here
+    }
+};
+Creating objects with object literals
+So far in this book, you’ve been using object literals to create objects. With an 
+object literal, you create an object by writing it out... well, literally. Like this:
+With an object literal you type 
+out each part of the object 
+within curly braces. When you’re 
+done, the result is an actual 
+JavaScript object, which you 
+typically assign to a variable for 
+later use.
+Object literals give you a convenient way to create objects anywhere in your code, 
+but when you need to create lots of  objects—say a whole fleet of  taxis—you 
+wouldn’t want to type in a hundred different object literals now would you?
+Think about creating a fleet of taxi objects. What other issues might using object literals cause?
+Tired fingers from a lot of typing!
+The code for the start, stop and drive 
+methods would have to be duplicated over 
+and over.
+Can you ensure that each taxi has the 
+same properties? What if you make a 
+mistake or typo, or leave out a property?
+What if you decide to add or delete a 
+property (or to change the way start 
+or stop work)? You’d have to make the 
+change in all the taxis.
+A lot of object literals means a lot of code. 
+Isn’t that going to lead to slow download 
+times for the browser?
+Who needs taxis when we have Uber?
+
+you are here 4        523
+advanced object construction
+var taxi = { 
+    make: "Webville Motors",
+    model: "Taxi",
+    year: 1955,
+    color: "yellow",
+    passengers: 4,
+    convertible: false,
+    mileage: 281341,    
+    started: false,
+    start: function() {
+         this.started = true;
+    },
+    stop: function() {
+         this.started = false;
+    }
+    drive: function {
+         // drive code here
+    }
+};
+var tbird = { 
+    make: "Ford",
+    model: "Thunderbird",
+    year: 1957,
+    passengers: 4,
+    convertible: true,
+,    started: false,
+    oilLevel: 1.0,
+    start: function() {
+         if (oilLevel > .75) {
+            this.started = true;
+         }
+    },
+    stop: function() {
+         this.started = false;
+    },
+    drive: function() {
+         // drive code here
+    }
+};
+var rocketCar = { 
+    make: "Galaxy",
+    model: "4000",
+    year: 2001,
+    color: "white",
+    passengers: 6,
+    convertible: false,
+    mileage: 60191919,
+,    started: false,
+    start: function() {
+         this.started = true;
+    },
+    stop: function() {
+         this.started = false;
+    },
+    drive: function() {
+         // drive code here
+    },
+    
+    thrust: function(amount) {
+         // code for thrust
+    }
+};
+var toyCar = { 
+    make: "Mattel",
+    model: "PeeWee",
+    color: "blue",
+    type: "wind up",
+    price: "2.99"
+};
+Using conventions for objects
+The other thing we’ve been doing, so far, is creating objects by convention. 
+For example, we’ve been putting properties and methods together and 
+saying “it’s a car!” or “it’s a dog!”, but the only thing that makes two 
+such objects cars (or dogs) is that we’ve followed our own conventions. 
+Now, this technique might work on a small scale but it’s problematic 
+when we have lots of  objects, or even lots of  developers working in the 
+same code who might not fully know or follow the conventions.
+But don’t take our word for it. Take a look at some of  the objects we’ve 
+seen earlier in the book, which we’ve been told are cars:
+This definitely looks like the cars 
+we've been dealing with. It has all the 
+same properties and methods.
+The tbird looks like a great car, 
+but we’re not seeing some of the 
+basic properties it needs, like 
+mileage or color. It also seems to 
+have a few extra properties. That 
+could be a problem...
+Okay, this looks a lot like our 
+other car objects...but wait. This 
+has a rocket thruster. Hmm, not 
+sure this is really a car.
+Wait, this 
+might be a car 
+but it looks 
+nothing like 
+our other cars. 
+It does have 
+a make, model 
+and color, but 
+this looks like 
+a toy, not a 
+car. What’s this 
+doing here?
+
+524        Chapter    12
+If only I could find a way to 
+create objects that all share the same 
+basic structure. That way all my objects would 
+look the same by having all the right properties and 
+all my methods would be defined in one place. It 
+would be something like a cookie cutter that just 
+stamps out copies of the object for me. That would 
+be dreamy. But I know it’s just a fantasy...
+
+you are here 4        525
+advanced object construction
+Introducing Object Constructors
+Object constructors, or “constructors” for short, are your path to better 
+object creation. Think of  a constructor like a little factory that can 
+create an endless number of  similar objects.  
+In terms of  code, a constructor is quite similar to a function that 
+returns an object: you define it once and invoke it every time you 
+want to create a new object. But as you’ll see there’s a little extra 
+that goes into a constructor.
+The best way to see how constructors work is to create one. Let’s 
+revisit our old friend, the dog object, from earlier in the book and 
+write a constructor to create as many dogs as we need. Here’s a 
+version of  the dog object we’ve used before, with a name, a breed 
+and a weight. 
+Dog
+name
+breed
+weight
+var dog = {
+    name: "Fido",
+    breed: "Mixed",
+    weight: 38
+};
+But we don’t want just a Fido dog, we want a way to create any dog that has 
+a name, a breed and a weight. And, again, to do that we’re going to write 
+some code that looks like a function, with a dash of  object syntax thrown in.
+With that introduction, you must be a bit curious—go ahead and turn the 
+page and let’s get these constructors figured out and working for us.
+I personally ind 
+constructors quite 
+Frankensteinian. They’re a 
+mix of parts from functions 
+and objects. Could anything 
+be more wonderful?
+Now, if  we were going to define such a dog with an object 
+literal, it would look like this:
+Just a simple dog object created 
+by an object literal. Now we 
+need to figure out how to 
+create a lot of these puppies.
+Object constructors 
+and functions are 
+closely related. Keep 
+that in mind as 
+you’re learning how 
+to write and use 
+constructors.
+You’ll see why on 
+the next page.
+
+526        Chapter    12
+creating a constructor
+How to create a Constructor
+Using constructors is a two-step process: first we define a constructor, and then 
+we use it to create objects. Let’s first focus on creating a constructor.
+What we want is a constructor that we can use to create dogs, and, more 
+specifically, dogs with names, breeds and weights. So, we’re going to define a 
+function, called the constructor, that knows how to create dogs. Like this:
+function Dog(name, breed, weight) {
+    this.name = name;
+    this.breed = breed;
+    this.weight = weight;
+}
+A constructor 
+function looks 
+just like a regular 
+function. 
+The parameters of the 
+function match the 
+properties we want to supply 
+for each individual dog.
+The property names 
+and parameter names 
+don’t have to be 
+the same, but they 
+often are—again, by 
+convention.
+But notice that we give the name 
+of the constructor function a capital 
+letter. This isn’t required; but everyone 
+does it as a convention.
+,,,,,,,`
+We need your help. We’ve been using object literals to create ducks. Given what you 
+learned above, can you write a constructor to create ducks for us? You’ll find one of our 
+object literals below to base your constructor on:
+var duck = {
+    type: "redheaded",
+    canFly: true
+}
+Write a constructor 
+for creating ducks.
+This part feels more like an object because 
+we’re assigning each parameter to what 
+looks like a property. 
+Hmm, we’re not using local variables like in most 
+functions. Instead we’re using the 
+this
+ keyword, and 
+we’ve only used that inside objects so far.
+P.S. We know you haven’t fully figured out how this all 
+works yet, so for now concentrate on the syntax.
+Here’s an example 
+duck object literal.
+Hang on; we’ll look at how we use the 
+constructor next and then all this is going 
+to fall into place and make more sense.
+Notice that 
+this constructor 
+function doesn't 
+return anything.
+
+you are here 4        527
+advanced object construction
+How to use a Constructor
+We said using a constructor is a two-step process: first we create a constructor, then we 
+use it. Well, we’ve created a Dog constructor, so let’s use it. Here’s how we do that:
+var fido = new Dog("Fido", "Mixed", 38);

@@ -1,0 +1,623 @@
+var addi = 3 + "4";
+When we have a string added to a number, 
+we get concatenation, not addition.
+Same here... we get “43".
+The result variable is set 
+to “34" (not 7).
+var plusi = "4" + 3;
+What about the other arithmetic operators?
+When it comes the other arithmetic operators—like multiplication, division and subtraction—
+JavaScript prefers to treat those as arithmetic operations, not string operations.
+If  you put the string first and then use the + operator with a number, the same thing 
+happens: the number is converted to a string and the two are joined by concatenation.
+var multi = 3 * "4";
+Here, JavaScript converts the 
+string “4” to the number 4, and 
+multiplies it by 3, resulting in 12.
+var divi = 80 / "10";
+
+you are here 4        287
+types, equality, conversion and all that jazz
+Q:
+ Is + always interpreted as string concatenation when one 
+of the operands is a string?
+A: Yes. However, because + has what is called left-to-right 
+associativity, if you have a situation like this: 
+ 
+   var order = 1 + 2 + " pizzas"; 
+ 
+you’ll get “3 pizzas”, not "12 pizzas" because, moving left to right, 1 
+is added to 2 first (and both are numbers), which results in 3. Next 
+we add 3 and a string, so 3 is converted to a string and concatenated 
+with "pizza". To make sure you get the results you want, you can 
+always use parentheses to force an operator to be evaluated first: 
+ 
+   var order = (1 + 2) + " pizzas"; 
+ 
+ensures you’ll get 3 pizzas, and  
+ 
+   var order = 1 + (2 + " pizzas"); 
+ 
+ensures you’ll get 12 pizzas.
+Q:
+ Is that it? Or are there more conversions?
+A: There are some other places where conversion happens. For 
+instance, the unary operator - (to make a negative number) will turn 
+-true into -1. And concatenating a boolean with a string will create a 
+string (like true + “ love” is “true love”). These cases are fairly rare, 
+and we’ve personally never needed these in practice, but now you 
+know they exist.
+Q:
+ So if I want JavaScript to convert a string into a number to 
+add it to another number, how would I do that?
+A: There’s a function that does this named Number (yes, it has a 
+uppercase N). Use it like this: 
+ 
+   var num = 3 + Number("4"); 
+ 
+This statement results in num being assigned the value 7. The 
+Number function takes an argument, and if possible, creates a 
+number from it. If the argument can’t be converted to a number, 
+Number returns.... wait for it..... NaN.
+Time to test that conversion knowledge. For each expression below, write the result in the blank 
+next to it. We’ve done one for you. Check your answers at the end of the chapter before you go on.
+Infinity - "1"
+"42" + 42
+2 + "1 1"
+99 + 101
+"1" - "1"
+console.log("Result: " + 10/2)
+3 + " bananas " + 2 + " apples"
+“4242”
+
+288        Chapter    7
+object equality
+One thing we haven’t really 
+talked about is how equality relates 
+to objects. For instance, what does it 
+mean for objects to be equal?
+We’re glad you’re thinking about it.  When 
+it comes to object equality there’s a simple answer and 
+there’s a long, deep answer. The simple answer tackles 
+the question: is this object equal to that object? That 
+is, if  I have two variables referencing objects, do they 
+point to precisely the same object? We’ll walk through 
+that on the next page. The complex question involves 
+object types, and the question of  how two objects 
+might or might not be the same type. We’ve seen that 
+we can create objects that look like the same type, say 
+two cars, but how do we know they really are? It’s an 
+important question, and one we’re going to tackle head 
+on in a later chapter.
+
+you are here 4        289
+types, equality, conversion and all that jazz
+How to determine if two objects are equal
+Your first question might be: are we talking about == or ===? Here’s the good 
+news: if  you’re comparing two objects, it doesn’t matter! That is, if  both operands are 
+objects, then you can use either == or === because they work in exactly the 
+same way. Here’s what happens when you test two objects for equality:
+When we test equality of two object variables, 
+we compare the references to those objects
+This reference...
+... is NOT equal to 
+this reference. They 
+are two different 
+references.
+Two references are equal only if they reference 
+the same object
+The only way a test for equality between two variables 
+containing object references returns true is when the two 
+references point to the same object.
+Remember, variables hold references to objects, and so whenever 
+we compare two objects, we’re comparing object references.
+if (var1 === var2) {
+    // wow, these are the same object!
+}
+var2
+var1
+if (var1 === var3) {
+    // wow, these are the same object!
+}
+This reference...
+... is equal to this reference. They are 
+equal and the same object!
+var3
+var2
+var1
+Not in this case!
+Finally, two object 
+references that are equal.
+Notice, it doesn’t matter 
+what’s in these objects. If the 
+references aren’t the same, 
+then the objects aren’t equal.
+
+290        Chapter    7
+exercise in equality
+Earl, from 
+Earl’s Autos. 
+function findCarInLot(car) {
+    for (var i = 0; i < lot.length; i++) {
+        if (car === lot[i]) {
+            return i;
+        }
+    }
+    return -1;
+}
+var chevy = {
+    make: "Chevy", 
+    model: "Bel Air"
+};
+var taxi = {
+    make: "Webville Motors", 
+    model: "Taxi"
+};
+var fiat1 = {
+    make: "Fiat", 
+    model: "500"
+};
+var fiat2 = {
+    make: "Fiat", 
+    model: "500"
+};
+var lot = [chevy, taxi, fiat1, fiat2];
+var loc1 = findCarInLot(fiat2);
+var loc2 = findCarInLot(taxi);
+var loc3 = findCarInLot(chevy);
+var loc4 = findCarInLot(fiat1);
+Here's a little code that helps find cars in Earl’s Autos parking lot. Trace 
+through this code and write the values of loc1 through loc4 below.
+Your answers here.
+
+you are here 4        291
+types, equality, conversion and all that jazz
+var testThis;
+if (testThis) {
+   // do something
+}
+var element = document.getElementById("elementThatDoesntExist");
+if (element) {
+   // do something
+}
+if (0) {
+   // do another thing
+}
+if ("") {
+   // does code here ever get evaluated? Place your bets.
+}
+if (NaN) {
+   // Hmm, what's NaN doing in a boolean test?
+}
+The truthy is out there...
+Okay that’s weird, we know this variable will 
+be undefined in the conditional test. Does this 
+work? Is this legal JavaScript? (Answer: yes.)
+Here the value of element is null. 
+What's that going to do?
+We're testing 0?
+Now we're doing a conditional test on an 
+empty string. Anyone want to place bets?
+Wait, now we're using NaN in a boolean condition? 
+What's that going to evaluate to?
+That’s right, we said truthy not truth. We’ll say falsey too. What on earth 
+are we talking about? Well, some languages are rather precise about 
+true and false. JavaScript, not so much.  In fact, JavaScript is kind of  
+loose about true and false. How is it loose? Well, there are values in 
+JavaScript that aren’t true or false, but that are nevertheless treated 
+as true or false in a conditional. We call these values truthy and falsey 
+precisely because they aren’t technically true or false, but they behave 
+like they are (again, inside a conditional). 
+Now here’s the secret to understanding truthy and falsey: concentrate on 
+knowing what is falsey, and then everything else you can consider truthy. Let’s look 
+at some examples of  using these falsey values in a conditional:
+Some people 
+write it “falsy.”
+
+292        Chapter    7
+truthy and falsey
+if ([]) {
+   // this will happen
+}
+var element = document.getElementById("elementThatDoesExist");
+if (element) {
+   // so will this
+}
+if (1) {
+   // gonna happen
+}
+var string = "mercy me";
+if (string) {
+   // this will happen too
+}
+What JavaScript considers falsey
+Again, the secret to learning what is truthy and what is falsey is to 
+learn what’s falsey, and then consider everything else truthy. 
+There are five falsey values in JavaScript: 
+undefined is falsey.
+null is falsey.
+0 is falsey.
+The empty string is falsey.
+So, every conditional test on the previous page evaluated to 
+false. Did we mention every other value is truthy (except for 
+false, of  course)? Here are some examples of  truthy values:
+To remember which values 
+are truthy and which 
+are falsey, just memorize 
+the five falsey values—
+undefined, null, 0, "” and 
+NaN—and remember that 
+everything else is truthy.
+This is an array. It's not undefined, null, 
+zero, “” or NaN. It has to be true!
+This time we have an actual element object. 
+That's not falsy either, so it's truthy.
+Only the number 0 is falsey, all others are truthy.
+Only the empty string is falsey, 
+all other strings are truthy.
+NaN is falsey.
+
+you are here 4        293
+types, equality, conversion and all that jazz
+Time for a quick lie detector test. Figure out how many lies the perp tells, and 
+whether the perp is guilty as charged, by determining which values are truthy 
+and which values are falsey. Check your answer at the end of the chapter before 
+you go on. And of course feel free to try these out in the browser yourself.
+function lieDetectorTest() {
+    var lies = 0;
+    var stolenDiamond = { };
+    if (stolenDiamond) {
+        console.log("You stole the diamond");
+        lies++;
+    }
+    var car = {
+        keysInPocket: null
+    };
+    if (car.keysInPocket) {
+        console.log("Uh oh, guess you stole the car!");
+        lies++;
+    }
+    if (car.emptyGasTank) {
+        console.log("You drove the car after you stole it!");
+        lies++;
+    }
+    var foundYouAtTheCrimeScene = [ ];
+    if (foundYouAtTheCrimeScene) {
+        console.log("A sure sign of guilt");
+        lies++;
+    }
+    if (foundYouAtTheCrimeScene[0]) {
+        console.log("Caught with a stolen item!");
+        lies++;
+    }
+    var yourName = " ";
+    if (yourName) {
+        console.log("Guess you lied about your name");
+        lies++;
+    }
+    return lies;
+}
+var numberOfLies = lieDetectorTest();
+console.log("You told " + numberOfLies + " lies!");
+if (numberOfLies >= 3) {
+    console.log("Guilty as charged");
+}
+A string with one space.
+
+294        Chapter    7
+all about strings
+The Secret Life of Strings
+Types always belong to one of  two camps: they’re either a primitive type or an 
+object. Primitives live out fairly simple lives, while objects keep state and have 
+behavior (or said another way, have properties and methods). Right?
+Well, actually, while all that is true, it’s not the whole story. As it turns out, 
+strings are a little more mysterious. Check out this code:
+What do you think this code does? Do you see anything 
+odd about this code, especially given what we know 
+about primitive types?
+var text = "YOU SHOULD NEVER SHOUT WHEN TYPING";
+var presentableText = text.toLowerCase();
+if (presentableText.length > 0) {
+     alert(presentableText);
+}
+   var emot = "XOxxOO";
+   var hugs = 0;
+   var kisses = 0;
+   
+   emot = emot.trim();
+   emot = emot.toUpperCase();
+   for(var i = 0; i < emot.length ; i++) {
+       if (emot.charAt(i) === "X") {
+          hugs++;
+       } else if (emot.charAt(i) == "O") {
+          kisses++;
+       }
+   }
+This looks like a normal, primitive string.
+Wait a sec, calling a method on a string?
+More methods?
+And a string with a property?
+
+you are here 4        295
+types, equality, conversion and all that jazz
+How a string can look like a primitive 
+and an object
+How does a string masquerade as both a primitive and an object? Because 
+JavaScript supports both. That is, with JavaScript you can create a string that 
+is a primitive, and you can also create one that is an object (which supports 
+lots of  useful string manipulation methods). Now, we’ve never talked about 
+how to create a string that is an object, and in most cases you don’t need to 
+explicitly do it yourself, because the JavaScript interpreter will create string 
+objects for you, as needed.
+Now, where and why might it do that? Let’s look at the life of  a string:
+   var name = "Jenny";
+   var phone = "867-5309";
+   var fact = "This is a prime number";
+   var songName = phone + "/" + name;
+   var index = phone.indexOf("-");
+   if (fact.substring(10, 15) === "prime") {
+       alert(fact);
+   }
+Here we've created three 
+primitive strings and 
+assigned them to variables.
+And here we're just 
+concatenating some 
+strings together to create 
+another primitive string.
+Here we're using a method. This 
+is where, behind the scenes, 
+JavaScript temporarily converts 
+phone to a string object.
+Same here, the fact string 
+is temporarily converted to 
+an object to support the 
+substring method.
+And, we're using 
+fact again, but this 
+time there is no 
+need for an object, 
+so it's back to being 
+a boring primitive.
+BORING PRIMITIVE
+OBJECT WITH SUPER POWERS
+
+296        Chapter    7
+questions about strings
+This seems very 
+confusing. My string is being 
+converted back and forth between 
+a primitive and object? How am I 
+supposed to keep track of all this?
+You don’t need to. In general you can just think of  your 
+strings as objects that have lots of  great methods to help you 
+manipulate the text in your strings. JavaScript will take care 
+of  all the details. So, look at it this way: you now have a better 
+understanding of  what is under the covers of  JavaScript, but in 
+your day to day coding most developers just rely on JavaScript to 
+do the right thing (and it does).
+Q:
+ Just making sure, do I ever have 
+to keep track of where my string is a 
+primitive and where it’s an object?
+A: Most of the time, no. The JavaScript 
+interpreter will handle all the conversion for 
+you. You just write your code, assuming a 
+string supports the object properties and 
+methods, and things will work as expected. 
+Q:
+ Why does JavaScript support a 
+string as both a primitive and an object?
+A: Think about it this way: you get the 
+efficiency of the simple string primitive 
+type as long as you are doing basic string 
+operations like comparison, concatenation, 
+writing string to the DOM, and so on. But 
+if you need to do more sophisticated string 
+processing, then you have the string object 
+quickly at your disposal.
+Q:
+ Given an arbitary string, how do I 
+know if it is an object or primitive? 
+A: A string is always a primitive unless 
+you create it in a special way using an 
+object constructor. We’ll talk about object 
+constructors later. And you can always use 
+the typeof operator on your variable to see if 
+it is of type string or object.
+Q:
+ Can other primitives act like 
+objects?
+A: Yes, numbers and booleans can also 
+act like objects at times. However, neither of 
+these has nearly as many useful properties 
+as strings do, so you won’t find you’ll use 
+this feature nearly as often as you do with 
+strings. And remember, this all happens for 
+you behind the scenes, so you don’t really 
+have to think about it much. Just use a 
+property if you need to and let JavaScript 
+handle the temporary conversion for you.
+Q:
+ How can I know all the methods 
+and properties that are available for 
+String objects?
+A: That’s where a good reference comes 
+in handy. There are lots of online references 
+that are helpful, and if you want a book, 
+JavaScript: The Definitive Guide has a 
+reference guide with information about every 
+string property and method in JavaScript. 
+Google works pretty well too. 
+
+you are here 4        297
+types, equality, conversion and all that jazz
+Given that we’re in the middle of  talking about strings and you’ve 
+just discovered that strings also support methods, let’s take a little 
+break from talking about weirdo types and look at a few of  the 
+more common string methods you might want to use. A few string 
+methods get used over and over, and it is highly worth your time to 
+get to know them.  So on with the tour.
+A five-minute tour of string 
+methods (and properties)
+A little pep talk: we could pull you aside 
+and write an entire chapter on every 
+method and property that strings 
+support. Not only would that make this 
+book 40 lbs and 2000 pages long, but 
+at this point, you really don’t need it—
+you already get the basics of methods 
+and objects, and all you need is a good 
+reference if you really want to dive 
+into the details of string processing.
+the length property
+the charAt method
+The length property holds the number of characters in the string. It’s quite handy 
+for iterating through the characters of the string.
+The charAt method takes an integer number between zero and the length of the string 
+(minus one), and returns a string containing the single character at that position of 
+the string. Think of the string a bit like an array, with each character at an index of the 
+string, with the indices starting at 0 (just like an array). If you give it an index that is 
+greater than or equal to the length of the string, it returns the empty string.
+   var input = "jenny@wickedlysmart.com";
+   for(var i = 0; i < input.length; i++) {
+       if (input.charAt(i) === "@") {
+              console.log("There's an @ sign at index " + i);
+ 
+       }
+   }
+Note that JavaScript doesn’t have a character 
+type. So characters are returned as new strings 
+containing one character.
+We use the length property 
+to iterate over each 
+character in the string.
+And the charAt method to get 
+the character at a particular 
+index in the string.
+a   
+charAt(0) 
+is “a”.
+charAt(5) 
+is “f”.
+b c
+d
+e
+f
+JavaScript console
+There's an @ sign at index 5
+
+298        Chapter    7
+the indexOf method
+This
+ method takes a string as an argument and returns the index of the first 
+character of the first occurrence of that argument in the string.
+the indexOf method
+var phrase = "the cat in the hat";
+var index = phrase.indexOf("cat");
+console.log("there's a cat sitting at index " + index);
+JavaScript console
+There's a cat sitting at index 4
+Here's the string we're going to 
+call indexOf on.
+And our goal is to find the first 
+occurence of “cat" in phrase.
+The index of the first cat is returned.
+index = phrase.indexOf("the", 5);
+console.log("there's a the sitting at index " + index);
+You can also add a second argument, which is 
+the starting index for the search.
+JavaScript console
+There's a the sitting at index 11
+index = phrase.indexOf("dog");
+console.log("there's a dog sitting at index " + index);
+JavaScript console
+There's a dog sitting at index -1
+Note if the string can't be found, then -1 is 
+returned as the index.
+Because we're starting the search at index 5, 
+we're skipping the first “the" and finding the 
+second “the” at index 11.
+
+you are here 4        299
+types, equality, conversion and all that jazz
+the substring method
+Give the substring method two indices, and it will extract and return the string 
+contained within them.
+var data = "name|phone|address";
+var val = data.substring(5, 10);
+console.log("Substring is " + val);
+You can omit the second index and substring will extract a string that starts at the 
+first index and then continues until the end of the original string.
+JavaScript console
+Substring is phone
+Here's the string we're going to 
+call substring on.
+We'd like the string from index 
+5 and up to (but not including) 
+10 returned.
+We get back a new string with the 
+characters from index 5 to 10.
+val = data.substring(5);
+console.log("Substring is now " + val);
+JavaScript console
+Substring is now phone|address
+the split method
+The split method takes a character that acts as a delimiter, and breaks the string into 
+parts based on the delimiter.
+var data = "name|phone|address";
+var vals = data.split("|");
+console.log("Split array is ", vals);
+JavaScript console
+Split array is ["name", "phone", "address"] 
+Split uses the delimiter to 
+break the original string into 
+pieces, which are returned in 
+an array.
+Notice here we’re passing two 
+arguments to console.log separated 
+by a comma. This way, the vals array 
+doesn’t get converted to a string 
+before it’s displayed in the console.
+
+300        Chapter    7
+string methods
+There’s really no end to learning all 
+the things you can do with strings. 
+Here are a few more methods 
+available to you. Just get a  
+passing familiarity right now, and 
+when you really need them you 
+can look up the details...
+substring
+match
+toUpperCase
+replace
+concat
+slice
+lastIndexOf
+trim
+toLowerCase
+String
+Soup
+Returns a string with 
+all uppercase characters 
+changed to lowercase.
+Returns a new string 
+that has part of the 
+original string removed.
+Returns a portion 
+of a string.
+Removes whitespace from 
+around the string. Handy 
+when processing user input.
+Searches for matches in a 
+string using regular expressions.
+Returns a string with 
+all lowercase characters 
+changed to uppercase.
+Joins strings together.
+Finds substrings and replaces 
+them with another string.
+Just  like indexOf, but 
+finds the last, not the

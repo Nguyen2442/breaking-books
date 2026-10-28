@@ -1,0 +1,110 @@
+<section class="chapter" id="ch23" data-ch="23" data-title="Tương tác DOM, Vòng đời tải trang và Cơ chế Callback">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 23</span>
+    <h1>Interacting with the DOM, Page Lifecycle, and Callbacks <span class="vi">Tương tác DOM, Vòng đời tải trang và Cơ chế Callback</span></h1>
+    <p class="chapter-lede">Kiểm soát thời điểm thực thi mã lệnh và thao tác trực tiếp cây DOM để biến trang web tĩnh thành ứng dụng tương tác thời gian thực.</p>
+    <div class="chapter-meta">
+      <span class="pill">3 bài học</span>
+      <span class="pill">3 labs</span>
+      <span class="pill">3 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch23-t1" data-num="23.1" data-short="Vấn đề tải DOM">
+    <div class="topic-theory-card">
+      <span class="eyebrow">KIẾN TRÚC TRÌNH DUYỆT</span>
+    <h2>Nguyên nhân lỗi Null Reference khi khởi động ứng dụng</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Mã lệnh chạy trước khi HTML được parse xong sẽ dẫn đến lỗi truy xuất phần tử không tồn tại.</p>
+    <div class="prose">
+      <p>Khi trình duyệt đọc tài liệu HTML từ trên xuống dưới, nó xây dựng <dfn data-term="DOM">Document Object Model</dfn> theo từng bước. Nếu thẻ <script> nằm ở phần <head> và cố gắng truy xuất một phần tử ở <body> thông qua <dfn data-term="getElementById">document.getElementById</dfn>, kết quả trả về sẽ là <dfn data-term="null">null</dfn> vì phần tử đó chưa được tạo ra trong bộ nhớ.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Tại các cổng thanh toán như MoMo hay ZaloPay, việc tải các script SDK bên thứ ba vào phần head mà không quản lý thứ tự thực thi sẽ gây nghẽn luồng render và lỗi tương tác người dùng nghiêm trọng trên các thiết bị cấu hình thấp.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch23-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Mô phỏng Trình tự Tải DOM</strong>
+        — Sơ đồ luồng phân tích cú pháp HTML đến khi kích hoạt sự kiện load.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch23-t2" data-num="23.2" data-short="Cơ chế Callback & onload">
+    <div class="topic-theory-card">
+      <span class="eyebrow">DESIGN PATTERN</span>
+    <h2>Sử dụng window.onload để trì hoãn thực thi an toàn</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Gán hàm khởi tạo vào window.onload để đảm bảo DOM đã sẵn sàng.</p>
+    <div class="prose">
+      <p>Kỹ thuật sử dụng <dfn data-term="callback">callback function</dfn> thông qua thuộc tính <dfn data-term="window.onload">window.onload</dfn> cho phép lập trình viên thông báo cho trình duyệt: 'Hãy gọi hàm này ngay khi toàn bộ trang web và tài nguyên đã được tải xong'. Đây là nền tảng của lập trình hướng sự kiện trong JavaScript.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Hệ thống đặt xe Grab/XanhSM áp dụng triệt để mô hình hướng sự kiện bất đồng bộ này để khởi tạo bản đồ và định vị GPS ngay khi DOM bản đồ nền load thành công.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch23-w2">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Trình diễn Callback</strong>
+        — Mô phỏng quá trình trình duyệt gọi lại hàm init.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch23-t3" data-num="23.3" data-short="Thao tác Thuộc tính DOM">
+    <div class="topic-theory-card">
+      <span class="eyebrow">THỰC THI GIAO DIỆN</span>
+    <h2>Quản lý trạng thái giao diện với setAttribute và getAttribute</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Đọc và ghi thuộc tính HTML động để thay đổi style và hành vi phần tử.</p>
+    <div class="prose">
+      <p>Sau khi có tham chiếu đến phần tử thông qua <dfn data-term="DOM Element">Element Object</dfn>, bạn có thể sử dụng <dfn data-term="setAttribute">setAttribute("class", "redtext")</dfn> để tiêm các lớp CSS động, hoặc dùng <dfn data-term="getAttribute">getAttribute</dfn> để kiểm tra giá trị hiện tại, luôn nhớ kiểm tra giá trị trả về có bằng null hay không.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Trang thương mại điện tử Tiki sử dụng các hàm setAttribute động để chuyển đổi trạng thái nút 'Thêm vào giỏ hàng' sang 'Đã hết hàng' ngay khi nhận được tín hiệu WebSocket từ máy chủ.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch23-w3">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Lab Thuộc tính DOM</strong>
+        — Thực hành thay đổi thuộc tính class và đọc giá trị alt của hình ảnh.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch23-review" data-num="23.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>Phần lớn lỗi 'Uncaught TypeError: Cannot set property 'innerHTML' of null' xảy ra khi script chạy trước khi trình duyệt kịp dựng cây DOM xong. Để giải quyết dứt điểm vấn đề này, kiến trúc sư cần nắm vững vòng đời tải trang (page lifecycle) và sử dụng cơ chế event handler thông qua thuộc tính window.onload. Bằng cách bao bọc logic khởi tạo trong hàm init và gán nó làm callback cho window.onload, mã lệnh JavaScript chỉ thực thi khi cấu trúc HTML đã sẵn sàng trong bộ nhớ trình duyệt. Hơn thế nữa, đối tượng document cung cấp các phương thức getElementById, setAttribute, và getAttribute để đọc/ghi nội dung cũng như thay đổi thuộc tính của phần tử (như thêm class CSS động để đổi màu, cập nhật trạng thái). Hiểu rõ các thao tác này là bước đệm cốt lõi để xây dựng các giao diện người dùng động hiệu quả, giảm thiểu tình trạng nghẽn cổ chai render và tránh sập ứng dụng do truy xuất phần tử DOM chưa tồn tại.</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 1:</strong> Phương thức document.getElementById trả về giá trị gì khi id không tồn tại trong DOM?</p>
+        <ol><li>undefined</li><li>null</li><li>false</li><li>Exception</li></ol>
+        <p class="explain">Khi không tìm thấy phần tử khớp với id, phương thức trả về null. Do đó cần thực hiện kiểm tra null trước khi gọi các thuộc tính như innerHTML.</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 2:</strong> Cách viết nào đúng để đăng ký hàm init chạy sau khi trang tải xong?</p>
+        <ol><li>window.onload = init();</li><li>window.onload = init;</li><li>window.onload(init);</li><li>window.load = init;</li></ol>
+        <p class="explain">Phải gán tham chiếu hàm (init) cho thuộc tính window.onload mà không có dấu ngoặc tròn, tránh việc gọi hàm ngay lập tức khi định nghĩa.</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 3:</strong> Phương thức nào dùng để lấy giá trị của một thuộc tính trên phần tử DOM?</p>
+        <ol><li>getProperty()</li><li>getAttribute()</li><li>fetchAttribute()</li><li>property()</li></ol>
+        <p class="explain">getAttribute nhận vào tên thuộc tính và trả về giá trị của nó, hoặc trả về null nếu thuộc tính đó không tồn tại trên phần tử.</p>
+      </div></div>
+  </article>
+</section>

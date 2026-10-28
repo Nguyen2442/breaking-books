@@ -1,0 +1,676 @@
+inherits from the show dog prototype, 
+which inherits from the dog prototype. 
+Just what we wanted. If you go back 
+and look at page 592, you’ll see we’ve 
+completed the prototype chain.
+Here’s our new show dog, scotty.
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+ShowDog Prototype
+stack()
+bait()
+gait()
+groom()
+league: “Webville”
+name: “Spot”
+breed: “Chihuahua”
+weight: 10
+Dog
+name: “Fluffy”
+breed: “Poodle”
+weight: 30
+Dog
+name: “Fido”
+breed: “Mixed”
+weight: 38
+Dog
+name: “Scotty”
+breed: “Scottish Terrier”
+weight: 15
+handler: “Cookie”
+ShowDog
+
+you are here 4        599
+using prototypes
+Test drive the show dog
+scotty.stack();
+scotty.bark();
+console.log(scotty.league);
+console.log(scotty.species);
+Take all your the code on the previous page, and add to it the quality 
+assurance code below, just to give scotty a good testing. Hey, and 
+while you’re at it, add a few dogs of  your own and test them:
+JavaScript console
+Stack
+Scotty says Yip! 
+Webville
+Canine 
+v
+Your turn. Add a SpaceRobot line of robots to the ObjectsRUs line of robots. These robots should 
+of course be able to do everything that robots can do, plus some extra behavior for space robots. 
+We’ve started the code below, so finish it up and then test it. Check your answer at the end of the 
+chapter before moving on.
+function SpaceRobot(name, year, owner, homePlanet) {
+    
+}
+SpaceRobot.prototype = new ____________;
+___________________.speak = function() {
+    alert(this.name + " says Sir, If I may venture an opinion...");
+};
+___________________.pilot = function() {
+    alert(this.name + " says Thrusters? Are they important?");
+};
+var c3po = new SpaceRobot("C3PO", 1977, "Luke Skywalker", "Tatooine");
+c3po.speak();
+c3po.pilot();
+console.log(c3po.name + " was made by " + c3po.maker);
+var simon = new SpaceRobot("Simon", 2009, "Carla Diana", "Earth");
+simon.makeCoffee();
+simon.blinkLights();
+simon.speak();
+Here’s what we got.
+
+600        Chapter    13
+exercise for testing object constructors
+Let’s take a closer look at all these dogs we’re creating. We’ve tested Fido 
+before and we know he’s truly a dog. But let’s see if he’s a show dog as 
+well (we don’t think he should be). And what about Scotty? We figure he 
+should be a show dog for sure, but is he a dog too? We're not sure. And 
+we’ll test Fido and Scotty’s constructors while we’re at it...
+var fido = new Dog("Fido", "Mixed", 38);
+if (fido instanceof Dog) {
+    console.log("Fido is a Dog");
+}
+if (fido instanceof ShowDog) {
+    console.log("Fido is a ShowDog");
+}
+var scotty = new ShowDog("Scotty", "Scottish Terrier", 15, "Cookie");
+if (scotty instanceof Dog) {
+    console.log("Scotty is a Dog");
+}
+if (scotty instanceof ShowDog) {
+    console.log("Scotty is a ShowDog");
+}
+console.log("Fido constructor is " + fido.constructor);
+console.log("Scotty constructor is " + scotty.constructor);
+Run this code and provide 
+your output below.
+Your output goes here:
+You'll find our output on 
+the next page.
+JavaScript console
+
+you are here 4        601
+using prototypes
+Examining the exercise results
+Here’s the output from that last test run:
+JavaScript console
+Fido is a Dog 
+Scotty is a Dog 
+Scotty is a ShowDog 
+Fido constructor is function Dog...
+Scotty constructor is function Dog...
+Fido is a dog, which we 
+expected, and we don’t see 
+that Fido is a show dog, so 
+he must not be one. That 
+makes sense too.
+And Scotty is both a dog 
+and a show dog, which 
+makes sense. But how does 
+instanceof know that?
+Hmm, this looks weird. Both 
+Fido and Scotty show they were 
+created by the dog constructor. 
+But we used the show dog 
+constructor to create Scotty...
+Let’s think about these results for a minute. First, Fido is apparently just a dog and 
+not a show dog—actually, that is totally what we thought would happen; after all, 
+Fido was created with the Dog constructor, which has nothing to do with show dogs.
+Next, Scotty is a dog and a show dog. That makes sense too, but how did this 
+happen? Well, instanceof doesn’t just look at what kind of  object you are, it also 
+takes into account all the objects you inherit from. So, Scotty was created as a show 
+dog, but a show dog inherits from a dog, so Scotty is a dog too.
+Next up, Fido has a Dog constuctor, and that makes sense, because that is how we 
+created him.
+And finally, Scotty has a Dog constructor too. That doesn’t make sense, because 
+Scotty was created by the ShowDog constructor. What’s going on here? Well, first 
+let’s think about where this constructor comes from: we’re looking at the  
+scotty.constructor property, and this is something we’ve never setup. So we 
+must be inheriting it from the dog prototype (again, because we haven’t explicitly set 
+it up for a show dog). 
+So why is this happening? Honestly, it’s a loose end that we need to cleanup. You see, 
+if  we don’t take care of  setting the show dog prototype’s constructor property, no 
+one else will. Now, keep in mind everything is working fine without it; but not setting 
+it could lead to confusion if  you or someone else tries to use  
+scotty.constructor expecting to get show dog.  
+But don’t worry, we’ll fix it.
+JavaScript console
+Fido is a Dog 
+Scotty is a Dog 
+Scotty is a ShowDog 
+Fido constructor is function Dog...
+Scotty  constructor is function Dog...
+JavaScript console
+Fido is a Dog 
+Scotty is a Dog 
+Scotty is a ShowDog 
+Fido constructor is function Dog...
+Scotty  constructor is function Dog...
+JavaScript console
+Fido is a Dog 
+Scotty is a Dog 
+Scotty is a ShowDog 
+Fido constructor is function Dog...
+Scotty  constructor is function Dog...
+JavaScript console
+Fido is a Dog 
+Scotty is a Dog 
+Scotty is a ShowDog 
+Fido constructor is function Dog...
+Scotty  constructor is function Dog...
+
+602        Chapter    13
+cleaning up the code
+A final cleanup of show dogs
+Our code is just about ready to ship to Webville Kennel, but we need to 
+make one final pass to polish it. There are two small issues to clean up. 
+The first, we’ve already seen: that instances of  ShowDog don’t have 
+their constructor property set correctly. They’re inheriting the Dog 
+constructor property. Now, just to be clear, all our code works fine as 
+is, but setting the right constructor on our objects is a best practice, 
+and some day another developer may end up with your code and be 
+confused when they examine a show dog object.
+To fix the constructor property, we need to make sure it is set up 
+correctly in the show dog prototype. That way, when a show dog is 
+constructed it will inherit the right constructor property. Here’s how we 
+do that:
+function ShowDog(name, breed, weight, handler) {
+    this.name = name;
+    this.breed = breed;
+    this.weight = weight;
+    this.handler = handler;
+}
+ShowDog.prototype = new Dog();
+ShowDog.prototype.constructor = ShowDog;
+Here we're taking the show dog prototype and 
+explicitly setting its constructor property to 
+the ShowDog constructor.
+That's all you need to do. When we check Scotty 
+again he should have the correct constructor 
+property, as should all other show dogs.
+Remember this is a best practice, without it 
+your code still works as expected.
+Quickly rerun the tests from the previous exercise and make sure your 
+Scotty show dog instance has the correct constructor.
+JavaScript console
+Fido is a Dog 
+Scotty is a Dog 
+Scotty is a ShowDog 
+Fido constructor is function Dog...
+Scotty constructor is function ShowDog...
+Here's what we got. Note that Scotty's 
+constructor is now ShowDog.
+Note that we didn’t have to do this for the dog 
+prototype because it came with the constructor 
+property set up correctly by default.
+
+you are here 4        603
+using prototypes
+function ShowDog(name, breed, weight, handler) {
+    this.name = name;
+    this.breed = breed;
+    this.weight = weight;
+    this.handler = handler;
+}
+If you didn't notice, this code 
+is replicated from the Dog 
+constructor.
+As you’ve seen in this book, anytime we see duplicated code, the 
+warning bells go off. In this case, the Dog constructor already knows 
+how to do this work, so why not let the constructor do it? Further, 
+while our example has simple code, at times constructors can have 
+complex code to compute initial values for properties, and we don’t 
+want to start reproducing code everytime we create a new constructor 
+that inherits from another prototype. So let’s fix this. We’ll rewrite the 
+code first, and step you through it:
+Dog.call(this, name, breed, weight);
+As you can see we’ve replaced the redundant code in the ShowDog constructor 
+with a call to a method named Dog.call. Here’s how it works: call is a built-
+in method that you can use on any function (and remember Dog is a function). 
+Dog.call invokes the Dog function and passes it the object to use as this, 
+along with all the arguments for the Dog function. Let’s break this down:
+Dog is the 
+function we’re 
+going to call.
+Whatever is in 
+this
+ is used 
+for 
+this
+ in the body of 
+the Dog function.
+The rest of the 
+arguments are 
+just passed to 
+Dog like normal.
+A little more cleanup
+There’s another place we could use some cleanup: in the ShowDog constructor 
+code. Let’s look again at the constructor:
+function ShowDog(name, breed, weight, handler) {
+    Dog.call(this, name, breed, weight);
+    this.handler = handler;
+}
+This bit of code is going to reuse the 
+Dog constructor code to process the 
+name, breed, and weight. 
+But we still need to handle the handler 
+in this code because the Dog constructor 
+doesn't know anything about it.
+With this code we're 
+calling the Dog 
+constructor function 
+but telling it to use our 
+ShowDog instance as 
+this
+, 
+and so the Dog function 
+will set the name, breed 
+and weight properties in 
+our ShowDog object.
+This idea of eliminating duplicate 
+code even has an acronym: DRY. 
+“Don’t Repeat Yourself” as all the 
+cool coders say.
+call is the method of Dog we’re calling. The call 
+method will cause the Dog function to be called. 
+We use the call method instead of just calling Dog 
+directly so we can control what the value of 
+this
+ is.
+
+604        Chapter    13
+using the call method
+function Dog(name, breed, weight) {
+    this.name = name;
+    this.breed = breed;
+    this.weight = weight;
+}
+function ShowDog(name, breed, weight, handler) {
+    Dog.call(this, name, breed, weight);
+    this.handler = handler;
+}
+Stepping through Dog.call
+Using Dog.call to call Dog is a bit tricky to wrap your head around so 
+we’ll walk through it again, starting with the reworked code.
+We’re going to rely on 
+the code from the Dog 
+constructor to handle 
+assigning the name, breed, 
+and weight properties.
+But Dog doesn’t know anything about 
+handler, so we have to take care of 
+that in ShowDog.
+Here’s how to think about how this works. First, we call ShowDog with 
+the new operator. Remember that the new operator makes a new, empty 
+object, and assigns it to the variable this in the body of  ShowDog.
+function ShowDog(name, breed, weight, handler) {
+    Dog.call(this, name, breed, weight);
+    this.handler = handler;
+}
+var scotty = new ShowDog("Scotty", "Scottish Terrier", 15, "Cookie");
+Then, we execute the body of  the ShowDog constructor function. The first 
+thing we do is call Dog, using the call method. That calls Dog, passing in 
+this, and the name, breed, and weight parameters as arguments.
+The 
+this
+ object 
+created by 
+new
+ for 
+ShowDog gets used 
+as 
+this
+ in the body 
+of Dog.
+Once the Dog function completes (and remember, it is not 
+going to return anything because we didn’t call it with new), 
+we complete the code in ShowDog, assigning the value of  
+the parameter handler to the this.handler property. 
+Then, because we used new to call ShowDog, an instance of  
+ShowDog is returned, complete with its name, breed, weight, 
+and handler.
+These three properties 
+are assigned to 
+this
+ by 
+the code in the Dog 
+function.
+We execute the 
+body of Dog as 
+normal, except that 
+this
+ is a ShowDog, 
+not a Dog object.
+this
+name: 
+breed: 
+weight: 
+handler:
+ShowDog
+name: “Scotty”
+breed: “Scottish Terrier”
+weight: 15
+handler: “Cookie”
+ShowDog
+This property is assigned 
+to 
+this
+ by the code in 
+the ShowDog function.
+
+you are here 4        605
+using prototypes
+function ShowDog(name, breed, weight, handler) {
+    Dog.call(this, name, breed, weight);
+    this.handler = handler;
+}
+ShowDog.prototype = new Dog();
+ShowDog.prototype.constructor = ShowDog;
+ShowDog.prototype.league = "Webville";
+ShowDog.prototype.stack = function() {
+    console.log("Stack");
+};
+ShowDog.prototype.bait = function() {
+       console.log("Bait");
+};
+ShowDog.prototype.gait = function(kind) {
+    console.log(kind + "ing");
+};
+ShowDog.prototype.groom = function() {
+    console.log("Groom");
+};
+var fido = new Dog("Fido", "Mixed", 38);
+var fluffy = new Dog("Fluffy", "Poodle", 30);
+var spot = new Dog("Spot", "Chihuahua", 10);
+var scotty = new ShowDog("Scotty", "Scottish Terrier", 15, "Cookie");
+var beatrice = new ShowDog("Beatrice", "Pomeranian", 5, "Hamilton");
+fido.bark();
+fluffy.bark();
+spot.bark();
+scotty.bark();
+beatrice.bark();
+scotty.gait("Walk");
+beatrice.groom();
+The final test drive
+JavaScript console
+Fido says Woof! 
+Fluffy says Woof! 
+Spot says Yip! 
+Scotty says Yip!
+Beatrice says Yip! 
+Walking
+Groom 
+Well done, you’ve created a fantastic design that we’re sure 
+Webville Kennel is going to love. Take all your dogs for one 
+final test run so they can show off  all their doggy capabilities.
+Create some dogs and 
+some show dogs.
+Put them through their 
+paces and make sure they’re 
+all doing the right thing.
+Webville Kennel is 
+going to love this!
+We've brought all the ShowDog code 
+together here. Add this to the file 
+with your Dog code to test it.
+We've added some test code below.
+
+606        Chapter    13
+questions about prototypes
+Q:
+ When we made the dog instance 
+we used for the show dog prototype, 
+we called the Dog constructor with no 
+arguments. Why?
+A: Because all we need from that dog 
+instance is the fact that it inherits from the 
+dog prototype. That dog instance isn’t a 
+specific dog (like Fido or Fluffy); it’s simply 
+a generic dog instance that inherits from 
+the dog prototype. 
+ 
+Also, all the dogs that inherit from the 
+show dog prototype define their own 
+name, breed, and weight. So even if that 
+dog instance did have values for those 
+properties, we’d never see them because 
+the show dog instances will always 
+override them.   
+Q:
+ So what happens to those 
+properties in the dog instance we use 
+for the show dog prototype?
+A: They never get assigned values, so 
+they are all undefined. 
+Q:
+ If we never set the ShowDog’s 
+prototype property to a dog instance, 
+what happens?
+A: Your show dogs will work fine, but 
+they won’t inherit any behavior from the 
+dog prototype. That means they won’t 
+be able to bark, run, or wag, nor will they 
+have the “Canine” species property. Give 
+it a try yourself. Comment out the line of 
+code where we set ShowDog.prototype to 
+new Dog() and then try making Scotty bark. 
+What happens?
+Q:
+ Could I create an object literal 
+and use that as the prototype?
+A: Yes. You can use any object as 
+the prototype for ShowDog. Of course, if 
+you do that, your show dogs won’t inherit 
+anything from the dog prototype. They’ll 
+inherit the properties and methods you put 
+in your object literal instead.
+Q:
+ I accidentally put the line of code 
+to assign ShowDog.prototype to the 
+instance of dog below where I created 
+my scotty instance, and my code didn’t 
+work. Why?
+A: Because when you create scotty 
+(an instance of ShowDog), it gets the 
+prototype that’s assigned to  
+ShowDog.prototype at the time when you 
+create it. So if you don’t assign the dog 
+instance object to the prototype until after 
+you create scotty, then scotty will have a 
+different object as its prototype (the object 
+you get by default with the ShowDog 
+constructor). And that object doesn’t have 
+any of the Dog prototype’s properties. You 
+should assign the show dog prototype first 
+thing after you create the constructor, but 
+before you add anything to the prototype, 
+or create any instances of ShowDog.
+Q:
+ If I change a property in the dog 
+prototype, like changing species from 
+“Canine” to “Feline”, will that affect the 
+show dogs I’ve created?
+A: Yes, anything you change in the 
+prototype will affect any instances that 
+inherit from that prototype in the chain, no 
+matter how many links you have in your 
+chain. 
+Q:
+ Is there a limit to how long my 
+prototype chains can be?
+A: Theoretically, no, but in practice, 
+maybe. The longer your prototype chain, 
+the more work it is to resolve a method 
+or property. That said, runtime systems 
+are often quite good at optimizing these 
+lookups. 
+ 
+In general, you’re not going to need 
+designs that require that many levels of 
+inheritance. If you do, you’ll probably want 
+to take another look at your design.
+Q:
+ What if I have another category 
+of dogs, like competition dogs. Can I 
+create a competition dog prototype that 
+inherits from the same dog prototype 
+as the show dog prototype does?
+A:
+ Yes, you can. You’ll need to create 
+a separate dog instance to act as your 
+competition dog prototype, but once you’ve 
+done that you’ll be good to go. Just follow 
+the same steps we used here to create the 
+show dog prototype.
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+ShowDog Prototype
+stack()
+bait()
+gait()
+groom()
+league: “Webville”
+name: “Scotty”
+breed: “Scottish Terrier”
+weight: 15
+handler: “Cookie”
+ShowDog
+Competition Prototype
+crossDrive()
+awayDrive()
+shedding()
+singling()
+league: “Objectville”
+name: “Ci”
+breed: “Border Collie”
+weight: 28
+handler: “Mark”
+CompetitionDog
+
+you are here 4        607
+using prototypes
+Object
+toString()
+hasOwnProperty()
+// and more
+The chain doesn’t end at dog
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+name: “Scotty”
+breed: “Scottish Terrier”
+weight: 15
+handler: “Cookie”
+ShowDog
+league: “Webville”
+ShowDog Prototype
+stack()
+bait()
+gait()
+groom()
+You’ve already seen a couple of  prototype chains—we 
+have the original dog prototype that our dog objects 
+inherit from, and we have the more specialized show dog 
+instances that inherit first from the show dog prototype, 
+and the dog prototype.
+But in both cases, is dog the end of  the chain? Actually it 
+isn’t, because dog has its own prototype, Object.
+In fact, every prototype chain you ever create will end 
+in Object. That’s because the default prototype for any 
+instance you create (assuming you don’t change it) is 
+Object.
+The prototype chains 
+end with Object.
+What is Object?
+Think of  Object like the primordial object. It’s the object 
+that all objects initially inherit from. And Object implements 
+a few key methods that are a core part of  the JavaScript 
+object system. Many of  these you won’t use on a daily basis, 
+but there are some methods you’ll see commonly used.
+One of  those you’ve already seen in this chapter: 
+hasOwnProperty, which is inherited by every object 
+(again, because every object ultimately inherits from Object).  
+Remember, hasOwnProperty is the method we used earlier 
+to determine if  a property is in an object instance or in one 
+of  its prototypes.
+Another method inherited from Object is the toString 
+method, which is commonly overridden by instances. This 
+method returns a String representation of  any object.  We’ll 
+see in a bit how we can override this method to provide a 
+more accurate description of  our own objects.
+Object is the object 
+from which all objects 
+inherit.
+Object as a prototype
+So whether you realized it or not, every object you’ve ever 
+created has had a prototype, and it’s been Object. You can 
+set an object’s prototype to another kind of  object, like 
+we did with the show dog prototype, but ultimately, all 
+prototype chains eventually lead to Object.
+
+608        Chapter    13
+overriding the tostring method
+If  you’re inheriting  from a built-in object you can override methods in 
+those objects. One common example is the toString method of  Object. 
+All objects inherit from Object, so all objects can use the toString 
+method to get a simple string representation of  any object. For instance, 
+you might use it with console.log to display your object in the console:
+Using inheritance to your advantage... 
+function Robot(name, year, owner) {
+    this.name = name;
+    this.year = year;
+    this.owner = owner;
+}
+var toy = new Robot("Toy", 2013, "Avary");
+console.log(toy.toString());
+As you can see, the toString method doesn’t do a very good job of  
+converting the toy robot into a string. So we can override the toString 
+method and write one that creates a string specifically for Robot objects:
+function Robot(name, year, owner) {
+    // same code here
+}
+Robot.prototype.toString = function() {
+    return this.name + " Robot belonging to " + this.owner;
+};
+var toy = new Robot("Toy", 2013, "Avary");
+console.log(toy.toString());
+JavaScript console
+Toy Robot belonging to Avary
+The toString method we’re 
+inheriting from Object 
+doesn’t do a very good job.
+Much better! Now we’re using 
+our own toString method.
+Notice that the toString method can be invoked even if  you’re 
+not calling it directly yourself. For instance, if  you use the + 
+operator to concatenate a string and an object, JavaScript will 
+use the toString method to convert your object to a string 
+before concatenating it with the other string.
+console.log("Robot is: " + toy);
+The toy object will get converted to a string using toString before it's 
+concatenated. If toy has overridden toString, it will use that method.
+by overriding built-in behavior
+Toy? This Robot’s 
+running an Arduino stack 
+and even controllable with 
+JavaScript!
+JavaScript console

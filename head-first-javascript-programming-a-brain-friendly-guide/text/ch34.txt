@@ -1,0 +1,110 @@
+2. We use the __________ method to set the class of an 
+element.
+4. To add a ship or miss image to the board, we place the 
+image in the ________ of a <td> element. 
+6. The __________ loop executes the statements in its 
+body at least once. 
+8. Modern, interactive web apps use HTML, CSS and 
+_________. 
+10. We represent each ship in the game with an 
+__________. 
+11. The id of a <td> element corresponds to a _____ on 
+the game board.
+12. The responsibility of the collision function is to make 
+sure that ships don’t _________. 
+15. We call the _______ method to ask the model to 
+update the state with the guess. 
+17. Who is responsible for state?
+18. You can cheat and get the answers to
+Battleship using the _______.  
+DOWN
+1. To get the guess from the form input, we added an 
+event ________ for the click event.
+3. Chaining is for _________ references, not just jailbirds. 
+5. The __________ is good at gluing things together. 
+7. To add a “hit” to the game board in the display, we add 
+the ____ class to the corresonding <td> element. 
+9. Arrays have an _________ method too. 
+13. The three objects in our game design are the model, 
+_____, and controller. 
+14. 13 is the keycode for the _______ key. 
+16. The __________ notifies the view when its state 
+changes. 
+
+you are here 4        375
+bringing it all together
+Practice Drills
+.hit {
+    background: transparent url("ship.png") no-repeat center center;
+}
+.miss {
+    background: transparent url("miss.png") no-repeat center center;
+}
+In just a few pages, you’re going to learn how to add the MISS and ship images 
+to the game board with JavaScript. But before we get to the real thing, you need 
+to practice in the HTML simulator. We’ve got two CSS classes set up and ready 
+for you to practice with. Go ahead and add these two rules to your CSS, and 
+then imagine you’ve got ships hidden at the following locations:
+    Ship 1: A6, B6, C6
+    Ship 2: C4, D4, E4
+    Ship 3: B0, B1, B2
+and that the player has entered the following guesses:
+    A0, D4, F5, B2, C5, C6
+You need to add one of the two classes below to the correct cells in the grid (the 
+correct <td> elements in the table) so that your grid shows MISS and a ship in 
+the right places. 
+Make sure you’ve downloaded 
+everything you need, 
+including the two images 
+you’ll need for this exercise.
+Here’s our solution. The right spots for the 
+.hit class are in <td>s with the ids: “00”, “34”, 
+“55”, “12”, “25” and “26”. To add a class to an 
+element, you use the class attribute, like this:
+<td class="miss" id="55">
+After adding the classes in 
+the right spots, your game 
+board should look like this.
+SOLUTION
+
+376        Chapter    8
+exercise solutions
+Here’s a message.  
+Messages will be things like 
+“HIT!”, “You missed.” and 
+“You sank my battleship!”
+Here the display has 
+a MISS placed on 
+the grid.
+And here the display has a 
+ship placed on the grid.
+var view = {
+   // this method takes a string message and displays it  
+   // in the message display area
+   displayMessage: function(msg) {
+       // code to be supplied in a bit!
+   },
+   displayHit: function(location) {
+       // code will go here
+    },
+    displayMiss: function(location) {
+       // code will go here
+    }
+};
+Your methods go here!
+Notice we’re defining an object and 
+assigning it to the variable view.
+It’s time for some object design. We’re going to start with the view object. Now, 
+remember, the view object is responsible for updating the view. Take a look at the 
+view below and see if you can determine the methods we want the view object to 
+implement. Write the declarations for these methods below (just the declarations; 
+we’ll code the bodies of the methods in a bit) along with a comment or two about 
+what each does. Here’s our solution:
+
+you are here 4        377
+bringing it all together
+Given how we’ve described the new game board above, how would you 
+represent the ships in the  model (just the locations, we’ll worry about 
+hits later). Check off the best solution below.
+ ❏Use nine variables for the ship locations, 
+similar to the way we handled the ships in

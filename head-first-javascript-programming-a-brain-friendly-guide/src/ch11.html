@@ -1,0 +1,141 @@
+<section class="chapter" id="ch11" data-ch="11" data-title="Hàm, Tham số, Giá trị Trả về và Biến Cục bộ/Toàn cục">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 11</span>
+    <h1>Functions, Parameters, Return Values, and Scope <span class="vi">Hàm, Tham số, Giá trị Trả về và Biến Cục bộ/Toàn cục</span></h1>
+    <p class="chapter-lede">Làm chủ cơ chế truyền tham số, giá trị trả về và quản lý phạm vi biến (Scope) trong JavaScript.</p>
+    <div class="chapter-meta">
+      <span class="pill">4 bài học</span>
+      <span class="pill">4 labs</span>
+      <span class="pill">3 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch11-t1" data-num="11.1" data-short="Cấu trúc hàm">
+    <div class="topic-theory-card">
+      <span class="eyebrow">NGUYÊN LÝ CỐT LÕI</span>
+    <h2>Giải phẫu một hàm trong JavaScript</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Hàm gồm từ khóa function, tên hàm, danh sách tham số và thân hàm chứa các câu lệnh.</p>
+    <div class="prose">
+      <p>Hàm là khối mã có thể tái sử dụng được thiết kế để thực hiện một tác vụ cụ thể. Cấu trúc chuẩn bao gồm từ khóa <dfn data-term="function">function</dfn>, tiếp theo là tên hàm, danh sách các tham số phân cách bằng dấu phẩy nằm trong ngoặc đơn <code>()</code>, và khối lệnh thực thi nằm trong ngoặc nhọn <code>{}</code>.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Các hệ thống TMĐT như Shopee hay Tiki sử dụng hàng nghìn hàm tiện ích được đóng gói chặt chẽ để tính toán phí vận chuyển, áp mã giảm giá theo thời gian thực mỗi khi người dùng bấm nút thanh toán.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch11-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Anatomy Inspector</strong>
+        — Công cụ phân tích cấu trúc hàm.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch11-t2" data-num="11.2" data-short="Tham số & Đối số">
+    <div class="topic-theory-card">
+      <span class="eyebrow">THỰC CHIẾN KỸ THUẬT</span>
+    <h2>Phân biệt Parameter và Argument</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Parameter là ô chứa định nghĩa, Argument là dữ liệu thực tế được ném vào.</p>
+    <div class="prose">
+      <p>Khi định nghĩa hàm, bạn khai báo các <dfn data-term="parameter">parameter</dfn> để đóng vai trò như các biến cục bộ chờ nhận dữ liệu. Khi gọi hàm, bạn truyền vào các <dfn data-term="argument">argument</dfn> (có thể là giá trị tĩnh, biến, hoặc biểu thức).</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Khi gọi API định vị tài xế tại Grab hoặc XanhSM, hàm xử lý tọa độ nhận các arguments là latitude và longitude được trích xuất từ GPS thiết bị di động của tài xế.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch11-w2">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Parameter vs Argument Mapper</strong>
+        — Mô phỏng ánh xạ giá trị từ argument sang parameter.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch11-t3" data-num="11.3" data-short="Truyền giá trị">
+    <div class="topic-theory-card">
+      <span class="eyebrow">KIẾN TRÚC BÊN DƯỚI</span>
+    <h2>Cơ chế Pass-by-Value</h2>
+    <p class="tldr"><strong>TL;DR:</strong> JavaScript copy giá trị của argument vào parameter, biến gốc hoàn toàn độc lập.</p>
+    <div class="prose">
+      <p>Bản chất của JavaScript là <dfn data-term="pass-by-value">pass-by-value</dfn> (truyền theo giá trị). Khi bạn truyền một biến làm đối số, JavaScript tạo ra một bản sao (copy) của giá trị đó gán cho parameter tương ứng. Mọi phép gán hay thay đổi trên parameter bên trong hàm không làm thay đổi giá trị của biến gốc bên ngoài.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Trong các ứng dụng Fintech như ZaloPay, khi truyền số dư tài khoản vào hàm tính toán khuyến mãi tạm thời, cơ chế pass-by-value bảo vệ số dư gốc không bị ghi đè sai lệch nếu có lỗi logic xảy ra bên trong hàm.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch11-w3">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Pass-by-Value Visualizer</strong>
+        — Mô phỏng ô nhớ khi truyền biến vào hàm.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch11-t4" data-num="11.4" data-short="Phạm vi biến">
+    <div class="topic-theory-card">
+      <span class="eyebrow">QUẢN LÝ BỘ NHỚ</span>
+    <h2>Biến Toàn cục (Global) và Cục bộ (Local)</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Biến ngoài hàm là global (sống mãi), biến trong hàm là local (chết khi hàm thực thi xong).</p>
+    <div class="prose">
+      <p>Phạm vi (<dfn data-term="scope">scope</dfn>) quyết định khả năng hiển thị của biến. Biến khai báo ngoài hàm thuộc phạm vi toàn cục (<dfn data-term="global-scope">global scope</dfn>), truy cập được ở mọi nơi. Biến khai báo trong hàm hoặc tham số thuộc phạm vi cục bộ (<dfn data-term="local-scope">local scope</dfn>), chỉ tồn tại nội bộ trong hàm đó.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại Việt Nam</div>
+      <p>Tại các chuỗi bán lẻ lớn như The Coffee House hoặc Highlands Coffee, việc quản lý biến cục bộ cho từng phiên đặt hàng tại các kiosk tự phục vụ giúp tránh việc ghi đè trạng thái giỏ hàng giữa các khách hàng khác nhau.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch11-w4">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Scope Isolation Lab</strong>
+        — Kiểm tra quyền truy cập biến toàn cục và cục bộ.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch11-review" data-num="11.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>Chương này mổ xẻ cấu trúc và cơ chế hoạt động bên dưới của hàm (Function) trong JavaScript. Trọng tâm cốt lõi là phân biệt rõ ràng giữa Parameter (Tham số khi định nghĩa) và Argument (Đối số khi gọi hàm). JavaScript sử dụng cơ chế Pass-by-Value (Truyền theo giá trị), nghĩa là mọi đối số được truyền vào hàm đều được tạo bản sao riêng biệt, đảm bảo các thay đổi bên trong hàm không làm rò rỉ hay ảnh hưởng đến biến gốc bên ngoài (ngoại trừ các kiểu dữ liệu tham chiếu sẽ xét ở chương sau). Bên cạnh đó, khái niệm Scope (Phạm vi biến) được thiết lập chặt chẽ: biến khai báo ngoài hàm là Global (Toàn cục, sống suốt vòng đời ứng dụng), còn biến khai báo trong hàm hoặc tham số là Local (Cục bộ, chỉ tồn tại và có hiệu lực trong phạm vi hàm đó, tự động giải phóng khi hàm thực thi xong). Việc nắm vững return statement, xử lý thiếu/thừa đối số, và tracing luồng thực thi (flow of execution) là kỹ năng sống còn để viết code dễ bảo trì.</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="0">
+        <p class="q-text"><strong>Câu 1:</strong> Đoạn code sau sẽ in ra kết quả gì?
+
+function doIt(param) {
+    param = 2;
+}
+var test = 1;
+doIt(test);
+console.log(test);</p>
+        <ol><li>1</li><li>2</li><li>undefined</li><li>Error</li></ol>
+        <p class="explain">JavaScript sử dụng cơ chế pass-by-value. Khi truyền biến test vào hàm doIt, giá trị 1 được copy vào param. Thay đổi param = 2 bên trong hàm không ảnh hưởng đến biến test ở phạm vi bên ngoài. Do đó console.log(test) vẫn in ra 1.</p>
+      </div>
+
+      <div class="q" data-answer="2">
+        <p class="q-text"><strong>Câu 2:</strong> Điều gì xảy ra nếu bạn gọi một hàm có 2 tham số nhưng chỉ truyền vào 1 đối số (argument)?</p>
+        <ol><li>JavaScript báo lỗi biên dịch (Syntax Error)</li><li>JavaScript tự động gán giá trị mặc định là 0</li><li>Tham số thiếu sẽ nhận giá trị undefined</li><li>Chương trình bị treo vô hạn</li></ol>
+        <p class="explain">Trong JavaScript, nếu bạn truyền không đủ đối số, các tham số không có giá trị tương ứng sẽ tự động nhận giá trị undefined.</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 3:</strong> Biến được khai báo bên trong một hàm (không dùng từ khóa toàn cục) có phạm vi như thế nào?</p>
+        <ol><li>Global scope - truy cập được ở mọi file script</li><li>Local scope - chỉ truy cập được bên trong hàm đó</li><li>Shared scope - truy cập được bởi tất cả các hàm đồng cấp</li><li>Block scope vĩnh viễn</li></ol>
+        <p class="explain">Biến khai báo bên trong hàm có phạm vi cục bộ (local scope), hoàn toàn bị cô lập và không thể truy cập từ bên ngoài hàm.</p>
+      </div></div>
+  </article>
+</section>

@@ -1,0 +1,553 @@
+form, although you’ll see it used here and there. We’ve used it a bit in this 
+chapter too because it’s an easy way to get started.
+Directly manipulate your document.
+This is the big leagues; this is the way you want to be interacting with your 
+page and users—using JavaScript you can access your actual web page, 
+read & change its content, and even alter its structure and style!  This all 
+happens by making use of your browser’s document object model (more on 
+that later). As you’ll see, this is the best way to communicate with your user. 
+But, using the document object model requires knowledge of how your 
+page is structured and of the programming interface that is used to read 
+and write to the page. We’ll be getting there soon enough. But first, we’ve 
+got some more JavaScript to learn.
+This is what we’re working towards. 
+When you get there you’ll be able to 
+read, alter and manipulate your page 
+in any number of ways.
+The console is a really handy way 
+to help find errors in your code! 
+If you've made a typing mistake, 
+like missing a quote, JavaScript 
+will usually give you an error in the 
+console to help you track it down.
+
+26        Chapter    1
+comparing means of javascript output
+All our methods of communication have come to the party with masks on. Can you 
+help us unmask each one? Match the descriptions on the right to the names on the 
+left. We’ve done one for you.
+document.write
+console.log
+alert
+document object model
+I’ll stop your user in his 
+tracks and deliver a short 
+message. The user has 
+to click on “ok” to go 
+further.
+I can insert a little HTML 
+and text into a document. 
+I’m not the most elegant 
+way to get a message to 
+your users, but I work on 
+every browser.
+Using me you can totally 
+control a web page: get 
+values that a user typed in, 
+alter the HTML or the style, 
+or update the content of 
+your page.
+I’m just here for simple 
+debugging purposes. Use 
+me and I can write out 
+information to a special 
+developer’s console.
+
+you are here 4        27
+a quick dip into javascript
+Take any old string...
+A closer look at console.log
+Let’s take a closer look at how console.log works so we can use it in this 
+chapter to see the output from our code, and throughout the book to inspect 
+the output of  our code and debug it. Remember though, the console is not a 
+browser feature most casual users of  the web will encounter, so you won’t want 
+to use it in the final version of  your web page. Writing to the console log is 
+typically done to troubleshoot as you develop your page. That said, it’s a great 
+way to see what your code is doing while you’re learning the basics of  JavaScript. 
+Here’s how it works:
+var message = "Howdy" + " " + "partner";
+console.log(message);
+...and give it to console.log, and it will be 
+shown in the browser’s console, like this.
+The console contains all the 
+output logged by your code. 
+Q:
+ I get that console.log can be used 
+to output strings, but what exactly is it? I 
+mean why are the “console” and the “log” 
+seperated by a period?
+A:
+ Ah, good point. We’re jumping ahead 
+a bit, but think of the console as an object 
+that does things, console-like things. One 
+of those things is logging, and to tell the 
+console to log for us, we use the syntax 
+“console.log” and pass it our output in 
+between parentheses. Keep that in the  
+ 
+back of your mind; we’re coming back to talk 
+a lot more about objects a little later in the 
+book. For now, you’ve got enough to use 
+console.log.
+Q:
+ Can the console do anything other 
+than just log?
+A: Yes, but typically people just use it to 
+log. There are a few more advanced ways 
+to use log (and console), but they tend to be 
+browser-specific. Note that console is  
+ 
+something all modern browsers supply, but it 
+isn’t part of any formal specification.
+Q:
+ Uh, console looks great, but where 
+do I find it? I’m using it in my code and I 
+don’t see any output!
+A: In most browsers you have to explicitly 
+open the console window. Check out the 
+next page for details.
+
+28        Chapter    1
+using the javascript console
+Opening the console
+Every browser has a slightly different implementation of  the console. And, to make 
+things even more complicated, the way that browsers implement the console changes 
+fairly frequently—not in a huge way, but enough so that by the time you read this, 
+your browser’s console might look a bit different from what we’re showing here.
+So, we’re going to show you how to access the console in the Chrome browser 
+(version 25) on the Mac, and we’ll put instructions on how to access the console in 
+all the major browsers online at http://wickedlysmart.com/hfjsconsole. Once you 
+get the hang of  the console in one browser, it’s fairly easy to figure out how to use it 
+in other browsers too, and we encourage you to try using the console in at least two 
+browsers so you’re familiar with them.
+To access the console in Chrome (on 
+the Mac), use the View > Developer > 
+JavaScript Console menu.
+The console will appear in 
+the bottom part of your 
+browser window.
+Make sure the Console tab is 
+selected in the tab bar along 
+the top of the console.
+You should see any messages you 
+give to console.log in your code 
+displayed in the window here.
+Don’t worry about what these other tabs are for. 
+They’re useful, but the most important one now is 
+Console, so we can see console.log messages from our code.
+
+you are here 4        29
+a quick dip into javascript
+Coding a Serious JavaScript Application 
+Let’s put all these new JavaScript skills and console.log to good 
+use with something practical.  We need some variables, a while 
+statement, some if statements with elses.  Add a little more 
+polish and we’ll have a super-serious business application before 
+you know it. But, before you look at the code, think to yourself  
+how you’d code that classic favorite, “99 bottles of  beer.”
+var word = "bottles";
+var count = 99;
+while (count > 0) {
+    console.log(count + " " + word + " of beer on the wall");
+    console.log(count + " " + word + " of beer,");
+    console.log("Take one down, pass it around,");
+    count = count - 1;
+    if (count > 0) {
+        console.log(count + " " + word + " of beer on the wall.");
+    } else {
+        console.log("No more " + word + " of beer on the wall.");
+    }
+}
+There’s still a little flaw in our code. It runs correctly, 
+but the output isn’t 100% perfect.  See if you can find 
+the flaw, and fix it.
+
+30        Chapter    1
+the script tag
+Shouldn’t we 
+be putting this code in 
+actual web pages so we can see 
+the output? Or are we just going to 
+keep writing answers on paper?
+Good point! Yes, it’s time. Before we 
+got there we wanted to make sure you had 
+enough JavaScript under your belt to make 
+it interesting. That said, you already saw in 
+the beginning of  this chapter that you add 
+JavaScript to your HTML just like you add 
+CSS; that is, you just add it inline with the 
+appropriate <script> tags around it.
+Now, like CSS, you can also place your 
+JavaScript in files that are external to your 
+HTML. 
+Let’s first get this serious business application 
+into a page, and then after we’ve thoroughly 
+tested it, we’ll move the JavaScript out to an 
+external file.
+
+you are here 4        31
+a quick dip into javascript
+A Test Drive
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>My First JavaScript</title>
+  </head>
+  <body>
+    <script>
+    </script>
+  </body>
+</html>
+Type this in.
+Here’s our test run of this code. The code creates 
+the entire lyrics for the 99 bottles of beer song 
+and logs the text to the browser’s console. 
+Here are the  <script> tags. At this point you 
+know that’s where you should put your code. 
+To download all the code and sample files for this book, 
+please visit http://wickedlysmart.com/hfjs.
+Okay, let’s get some code in the browser... follow the instructions below and get your 
+serious business app launched! You’ll see our result below:
+1
+2
+Check out the HTML below; that’s where your JavaScript’s going to go. Go ahead 
+and type in the HTML and then place the JavaScript from two pages back in between 
+the <script> tags. You can use an editor like Notepad (Windows) or TextEdit (Mac), 
+making sure you are in plain text mode. Or, if you have a favorite HTML editor, like 
+Dreamweaver, Coda or WebStorm, you can use that too. 
+Save the file as “index.html”.
+3
+Load the file into your browser. You can either drag the file 
+right on top of your browser window, or use the File > Open 
+(or File > Open File) menu option in your favorite browser.
+4
+You won’t see anything in the web page itself because we’re 
+logging all the output to the console, using console.log. So 
+open up the browser’s console, and congratulate yourself on 
+your serious business application.
+
+32        Chapter    1
+how to add code to your page
+You can place your code inline, 
+in the <head> element. The most 
+common way to add code to your pages is 
+to put a <script> element in the <head>. 
+Sure, it makes your code  easy to find 
+and seems to be a logical place for 
+your code, but it’s not always the 
+best place.  Why? Read on...
+How do I add code to my page? (let me count the ways)
+You already know you can add the <script> element with your JavaScript code to the <head> or 
+<body> of  your page, but there are a couple of  other ways to add your code to a page. Let’s check out all 
+the places you can put JavaScript (and why you might want to put it one place over another):
+Despite evidence 
+to the contrary, I 
+still think the <head> is a 
+great place for code.
+Or, you can add your 
+code inline in the body 
+of the document. To do 
+this, enclose your JavaScript 
+code in the <script> element 
+and place it in the <body> of 
+your page (typically at the end of 
+the body). 
+This is a little better. Why? When 
+your browser loads a page, it loads 
+everything in your page’s <head> 
+before it loads the <body>. So,  if 
+your code is in the <head>, users might 
+have to wait a while to see the page. If 
+the code is loaded after the HTML in the 
+<body>, users will get to see the page 
+content while they wait for the code to 
+load. 
+Still, is there a better way? Read on...
+Or, put your code in its own ile 
+and link to it from the <head>. 
+This is just like linking to a CSS file. The 
+only difference is that you use the 
+src attribute of the <script> tag to 
+specify the URL to your JavaScript 
+file.
+When your code is in an external 
+file, it’s easier to maintain 
+(separately from the HTML) 
+and can be used across 
+multiple pages. But this 
+method still has the drawback 
+that all the code needs to be 
+loaded before the body of the 
+page. Is there a better way? 
+Read on...
+Finally, you can link to 
+an external ile in the 
+body of your page. Ahhh, 
+the best of both worlds. We have a 
+nice, maintainable JavaScript file that 
+can be included in any page, and it’s 
+referenced from the bottom of the body 
+of the page, so it’s only loaded after the 
+body of the page. Not bad.
+Your HTML page
+<head>
+<script>
+  statement; 
+</script>
+<script src=”mycode.js”></script>
+<script>
+  statement; 
+  statement; 
+</script>
+<body>
+<script src=”somecode.js”></script>
+
+you are here 4        33
+a quick dip into javascript
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>My First JavaScript</title>
+  </head>
+  <body>
+    <script>
+      var word = "bottles";
+      var count = 99;
+      while (count > 0) {
+         console.log(count + " " + word + " of beer on the wall");
+         console.log(count + " " + word + " of beer,");
+         console.log("Take one down, pass it around,");
+         count = count - 1;
+         if (count > 0) {
+            console.log(count + " " + word + " of beer on the wall.");
+         } else {
+            console.log("No more " + word + " of beer on the wall.");
+         }
+      }
+    </script>
+  </body>
+</html>
+Going separate ways hurts, but we know we have to do it. It’s time to take your 
+JavaScript and move it into its own file. Here’s how you do that...
+We’re going to have to separate you two
+1
+Now create a new file named “code.js” in your editor, and place the 
+code into it. Then save “code.js”.
+2
+Open index.html and select all the code; that is, everything 
+between the <script> tags. Your selection should look like this:
+Select just the code, not the <script> tags; 
+you won’t need those where you’re going...
+code.js
+
+34        Chapter    1
+external javascript code
+3
+Now we need to place a reference to the “code.js” file in  
+“index.html” so that it’s retrieved and loaded when the page 
+loads. To do that, delete the JavaScript code from “index.html”, 
+but leave the <script> tags. Then add a src attribute to your 
+opening <script> tag to reference “code.js”.
+4
+That’s it, the surgery is complete. Now 
+you need to test it.  Reload your  
+“index.html” page and you should see 
+exactly the same result as before. Note 
+that by using a src=“code.js”, we’re 
+assuming that the code file is in the same 
+directory as the HTML file.
+You should get the same result as 
+before. But now your HTML and 
+JavaScript are in separate files. 
+Doesn’t that just feel cleaner, more 
+manageable, more stress-free already?
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>My First JavaScript</title>
+  </head>
+  <body>
+    <script src="code.js">
+    </script>
+  </body>
+</html>
+Where your code was.
+Use the src attribute of the <script> 
+element to link to your JavaScript file. 
+Believe it or not we still need the ending <script> tag, even if 
+there is no code between the two tags.
+
+you are here 4        35
+a quick dip into javascript
+You know how to use the <script> element to add code to your page, but just 
+to really nail down the topic, let’s review the <script> element to make sure we 
+have every detail covered:
+Anatomy of a Script Element
+<script type="text/javascript" >
+     alert("Hello world!");
+</script>
+The <script> 
+opening tag.
+The type attribute tells the browser you’re writing JavaScript. The thing 
+is, browsers assume you’re using JavaScript if you leave it off. So, we 
+recommend you leave it off, and so do the people who write the standards.
+Don’t forget the right 
+bracket on the opening tag.
+Everything between the script tags 
+must be valid JavaScript.
+You must end the script with a closing 
+</script> tag, always!
+Add a src attribute to specify 
+the URL of the JavaScript file. 
+<script src="myJavaScript.js" >
+</script>
+And when you are referencing a separate JavaScript file from your HTML, you’ll use the 
+<script> element like this:
+Use “.js” as the extension 
+on JavaScript files. 
+When referencing a separate JavaScript 
+file, you don’t put any JavaScript in the 
+content of the <script> element.
+Again, don’t forget the 
+closing </script> tag! You 
+need it even when you’re 
+linking to an external file.
+You can’t use inline and external together.
+If you try throwing some quick code in between those 
+<script> tags when you’re already using a src attribute, it 
+won’t work. You’ll need two separate <script> elements.
+   
+<script src="goodies.js">
+    var = "quick hack";
+  </script>
+WRONG
+
+36        Chapter    1
+interview with javascript
+Head First: Welcome JavaScript. We know you’re super-
+busy out there, working on all those web pages, so we’re 
+glad you could take time out to talk to us.
+JavaScript: No problem. And, I am busier than ever 
+these days; people are using JavaScript on just about every 
+page on the Web nowadays, for everything from simple 
+menu effects to full blown games. It’s nuts!
+Head First: That’s amazing given that just a few years 
+ago, someone said that you were just a “half-baked, 
+wimpy scripting language” and now you’re everywhere.
+JavaScript: Don’t remind me. I’ve come a long way 
+since then, and many great minds have been hard at work 
+making me better.
+Head First: Better how? Seems like your basic language 
+features are about the same...
+JavaScript: Well, I’m better in a couple of  ways. First 
+of  all, I’m lightning fast these days. While I’m considered 
+a scripting language, now my performance is close to that 
+of  native compiled languages.
+Head First: And second?
+JavaScript: My ability to do things in the browser has 
+expanded dramatically. Using the JavaScript libraries 
+available in all modern browsers you can find out your 
+location, play video and audio, paint graphics on your 
+web page and a lot more. But if  you wanna do all that you 
+have to know JavaScript.
+Head First: But back to those criticisms of  you, the 
+language. I’ve heard some not so kind words... I believe 
+the phrase was “hacked up language.”
+JavaScript: I’ll stand on my record. I’m pretty 
+much one of, if  not the most widely used languages in 
+the world. I’ve also fought off  many competitors and 
+won. Remember Java in the browser? Ha, what a joke. 
+VBScript? Ha. JScript? Flash?! Silverlight? I could go on 
+and on. So, tell me, how bad could I be?
+Head First: You’ve been criticized as, well, “simplistic.”
+ 
+JavaScript: Honestly, it’s my greatest strength. The 
+fact that you can fire up a browser, type in a few lines of  
+JavaScript and be off  and running, that’s powerful. And 
+it’s great for beginners too.  I’ve heard some say there’s no 
+better beginning language than JavaScript.
+Head First: But simplicity comes at a cost, no?
+JavaScript: Well that’s the great thing, I’m simple in the 
+sense you can get a quick start. But I’m deep and full of  
+all the latest modern programming constructs.
+Head First: Oh, like what?
+JavaScript: Well, for example, can you say dynamic 
+types, first-class functions and closures?
+Head First: I can say it but I don’t know what they are.
+JavaScript: Figures... that’s okay, if  you stay with the 
+book you will get to know them.
+Head First: Well, give us the gist.
+JavaScript: Let me just say this, JavaScript was built 
+to live in a dynamic web environment, an exciting 
+environment where users interact with a page, where 
+data is coming in on the fly, where many types of  
+events happen, and the language reflects that style of  
+programming. You’ll get it a little more a bit later in the 
+book when you understand JavaScript more.
+Head First: Okay, to hear you tell it, you’re the perfect 
+language. Is that right?
+JavaScript tears up...
+JavaScript: You know, I didn’t grow up within the ivy-
+covered walls of  academia like most languages. I was born 
+into the real world and had to sink or swim very fast in 
+my life. Given that, I’m not perfect; I certainly have a few 
+“bad parts.”
+Head First with a slight Barbara Walters smile: 
+We’ve seen a new side of  you today. I think this merits 
+another interview in the future. Any parting thoughts?
+JavaScript: Don’t judge me by my bad parts, learn the 
+good stuff  and stick with that!
+JavaScript Exposed
+This week’s interview:
+Getting to know JavaScript
+
+you are here 4        37
+a quick dip into javascript
+ JavaScript is used to add behavior 
+to web pages. 
+ Browser engines are much faster at 
+executing JavaScript than they were 
+just a few years ago.
+ Browsers begin executing JavaScript 
+code as soon as they encounter the 
+code in the page.
+ Add JavaScript to your page with the 
+<script> element.
+ You can put your JavaScript inline in 
+the web page, or link to a separate 
+ile containing your JavaScript from 
+your HTML.
+ Use the src attribute in the <script> 
+tag to link to a separate JavaScript 
+ile.
+ HTML declares the structure and 
+content of your page; JavaScript 
+computes values and adds behavior 
+to your page.
+ JavaScript programs are made up of 
+a series of statements.
+ One of the most common JavaScript 
+statements is a variable declaration, 
+which uses the var keyword to 
+declare a new variable and the 
+assignment operator, =, to assign a 
+value to it.
+ There are just a few rules and 
+guidelines for naming JavaScript 
+variables, and it’s important that you 
+follow them.
+ Remember to avoid JavaScript 
+keywords when naming variables.
+ JavaScript expressions compute 
+values.
+ Three common types of expressions 
+are numeric, string and boolean 
+expressions.
+ if/else statements allow you to make 
+decisions in your code.
+ while/for statements allow you to 
+execute code many times by looping.
+ Use console.log instead of alert to

@@ -1,0 +1,540 @@
+Just add “--" to the variable name.
+And why are we telling you this now? Because it’s commonly used with for statements. Let’s clean up our 
+code a little using the post-increment operator...
+Assume myImportantCounter 
+contains a number, like 0.
+
+you are here 4        147
+putting some order in your data
+    var scores = [60, 50, 60, 58, 54, 54, 
+                  58, 50, 52, 54, 48, 69, 
+                  34, 55, 51, 52, 44, 51, 
+                  69, 64, 66, 55, 52, 61, 
+                  46, 31, 57, 52, 44, 18, 
+                  41, 53, 55, 61, 51, 44];
+    for (var i = 0; i < scores.length; i++) {
+        var output = "Bubble solution #" + i + 
+                     " score: " + scores[i];
+        console.log(output);
+    }
+Redoing the for loop with the 
+post-increment operator
+Let’s do a quick rewrite and test to make sure the code works 
+the same as before:
+All we’ve done is update where we 
+increment the loop variable with 
+the post-increment operator.
+Quick test drive
+Time to do a quick test drive to make sure the change to use the 
+post-increment operator works. Save your file, “bubbles.html”, and 
+reload. You should see the same report you saw before.
+The report looks exactly the same.
+JavaScript console
+Bubble solution #0 score: 60
+Bubble solution #1 score: 50
+Bubble solution #2 score: 60
+ ...
+Bubble solution #34 score: 51
+Bubble solution #35 score: 44
+We’re saving a few trees 
+and not showing all the 
+bubble solution scores, but 
+they are all there.
+
+148        Chapter    4
+planning the rest of the report
+Cubicle Conversation 
+Continued...
+Judy: Right, and the first 
+thing we need to do is 
+determine the total number 
+of  bubble tests.  That’s easy; 
+it’s just the length of  the scores 
+array.
+Joe: Oh, right. We’ve got to 
+find the highest score too, and 
+then the solutions that have the 
+highest score.
+Judy: Yeah, that last one is going to be the toughest. Let’s work out 
+finding the highest score first.
+Joe: Sounds like a good place to start.
+Judy: To do that I think we just need to maintain a highest score variable that keeps 
+track as we interate through the array. Here, let me write some pseudocode:
+We’ve got all 
+the bubble solution 
+scores displaying, now we 
+just need to generate the 
+rest of the report.
+Hey, I really need this report to be able to make quick decisions 
+about which bubble solution to produce! Can you get this coded?
+       - Bubbles-R-Us CEO
+Bubbles-R-Us
+Bubble solution #0 score: 60
+Bubble solution #1 score: 50
+Bubble solution #2 score: 60
+Bubbles tests: 36
+Highest bubble score: 69
+Solutions with highest score: #11, #18
+ rest of scores here...
+DECLARE a variable highScore and set to zero.
+FOR: var i=0; i < scores.length; i++
+        DISPLAY the bubble solution score[i]
+        IF scores[i] > highScore 
+           SET highScore = scores[i];
+       END IF
+END FOR
+DISPLAY highScore
+Joe: Oh nice; you did it with just a few lines added to our existing code.
+Judy: Each time through the array we look to see if  the current score is greater than 
+highScore, and if  so, that’s our new high score. Then, after the loop ends we just 
+display the high score.
+Add a variable to hold the high score.
+Check each time through the loop to 
+see if we have a higher score, and if 
+so that's our new high score.
+After the loop we just display the high score.
+
+you are here 4        149
+putting some order in your data
+var scores = [60, 50, 60, 58, 54, 54,
+              58, 50, 52, 54, 48, 69,
+              34, 55, 51, 52, 44, 51,
+              69, 64, 66, 55, 52, 61,
+              46, 31, 57, 52, 44, 18,
+              41, 53, 55, 61, 51, 44];
+var highScore = _____; 
+var output;
+for (var i = 0; i < scores.length; i++) {
+    output = "Bubble solution #" + i + " score: " + scores[i];
+    console.log(output);
+    if (_____________ > highScore) {
+        _____________ = scores[i];
+    }
+}
+console.log("Bubbles tests: " + ____________);
+console.log("Highest bubble score: " + _____________);
+Go ahead and implement the pseudocode on the previous page to find the 
+highest score by filling in the blanks in the code below. Once you’re done, 
+give it a try in the browser by updating the code in “bubbles.html” and 
+reloading the page. Check the results in the console, and fill in the blanks in 
+our console display below with the number of bubble tests and the highest 
+score. Check your answer at the end of the chapter before you go on.
+JavaScript console
+Bubble solution #0 score: 60
+Bubble solution #1 score: 50
+Bubble solution #2 score: 60
+ ...
+Bubble solution #34 score: 51
+Bubble solution #35 score: 44
+Bubbles tests: ________
+Highest bubble score: _______
+Fill in the blanks to complete the code here...
+... and then fill in the blanks showing the 
+output you get in the console. 
+
+150        Chapter    4
+adding the highest score
+Hey, I really need this report to be able to make quick decisions 
+about which bubble solution to produce! Can you get this coded?
+       - Bubbles-R-Us CEO
+Bubbles-R-Us
+Bubble solution #0 score: 60
+Bubble solution #1 score: 50
+Bubble solution #2 score: 60
+Bubbles tests: 36
+Highest bubble score: 69
+Solutions with highest score: 11, 18
+ rest of scores here...
+Hey you guys are almost 
+there! All you’ve got left is collecting 
+up all the solutions with highest score and 
+printing them. Remember, there might be 
+more than one.
+Remember here's 
+what we have left.
+"More than one"...hmmm. When we 
+need to store more than one thing what do 
+we use? An array, of  course. So can we iterate 
+through the scores array looking for only scores 
+that match the highest score, and then add 
+them to an array that we can later display in 
+the report? You bet we can, but to do that we’ll 
+have to learn how to create a brand new, empty 
+array, and then understand how to add new 
+elements to it.
+
+you are here 4        151
+putting some order in your data
+Creating an array from scratch 
+(and adding to it)
+Before we take on finishing this code, let’s get a sense for how to create 
+a new array, and how to add new items to it. You already know how to 
+create an array with values, like this:
+    var genres = ["80s", "90s", "Electronic", "Folk"];
+This is called an array literal, because 
+we're literally writing out what goes 
+in the array.
+But you can also omit the initial items and just create an empty array:
+    var genres = [];
+A new array, all ready to go with no 
+items and a length of zero.
+This is an array literal 
+too, it just doesn’t have 
+anything in it (yet).
+And you already know how to add new values to an array.  To do that you 
+just assign a value to an item at an index, like this:
+    var genres = [];
+    genres[0] = "Rockabilly";
+    genres[1] = "Ambient";
+    var size = genres.length;
+A new array item is created and it 
+holds the string “Rockabilly".
+And a second array item is created 
+that holds the string “Ambient".
+And here size holds the value 2, the 
+length of the array.
+Now when adding new items you have to be careful about which index you’re 
+adding. Otherwise you’ll create a sparse array, which is an array with “holes” in 
+it (like an array with values at 0 and 2, but no value at 1). Having a sparse array 
+isn’t necessarily a bad thing, but it does require special attention. For now, there’s 
+another way to add new items without worrying about the index, and that’s push.  
+Here’s how it works:
+    var genres = [];
+    genres.push("Rockabilly");
+    genres.push("Ambient");
+    var size = genres.length;
+Creates a new item in the next available index (which 
+happens to be 0) and sets its value to “Rockabilly".
+Creates another new item in the next open index 
+(in this case, 1) and sets the value to “Ambient".
+
+152        Chapter    4
+questions about iteration and arrays
+Q:
+ The for statement contains a 
+variable declaration and initialization in 
+the first part of the statement. You said 
+we should put our variable declarations 
+at the top. So, what gives?
+A: Yes, putting your variable 
+declarations at the top (of your file, if they 
+are global, or of your function if they are 
+local) is a good practice. However, there 
+are times when it makes sense to declare 
+a variable right where you’re going to use 
+it, and a for statement is one of those times. 
+Typically, you use a loop variable, like i, 
+just for iterating, and once the loop is done, 
+you’re done with that variable. Now, you 
+might use i later in your code, of course, 
+but typically you won’t. So, in this case, just 
+declaring it right in the for statement keeps 
+things tidy.
+Q:
+ What does the syntax myarray.
+push(value) actually mean?
+A: Well, we’ve been keeping a little 
+secret from you: in JavaScript, an array is 
+actually a special kind of object. As you’ll 
+learn in the next chapter, an object can 
+have functions associated with it that act on 
+the object. So, think of push as a function 
+that can act on myarray. In this case, what 
+that function does is add a new item to 
+the array, the item that you pass as an 
+argument to push. So, if you write 
+    genres.push("Metal"); 
+you’re calling the function push and 
+passing it a string argument, “Metal”. The 
+push function takes that argument and 
+adds it as a new value on the end of the 
+genres array. When you see  
+myarray.push(value) just think, “I’m 
+pushing a new value on the end of my 
+array.”
+Q:
+ Can you say a little more about 
+what a sparse array is?
+A: A sparse array is just an array that 
+has values at only a few indices and no 
+values in between. You can create a sparse 
+array easily, like this: 
+  var sparseArray = [ ]; 
+  sparseArray[0] = true; 
+  spraseArray[100] = true; 
+In this example, the sparseArray has only 
+two values, both true, at indices 0 and 
+100.The values at all the other indices are 
+undefined. The length of the array is 101 
+even though there are only two values.
+Q:
+ Say I have an array of length 10, 
+and I add a new item at index 10000, 
+what happens with indices 10 through 
+9999?
+A: All those array indices get the value 
+undefined. If you remember, undefined 
+is the value assigned to a variable that 
+you haven’t initialized. So, think of this as 
+if you’re creating 9989 variables, but not 
+initializing them. Remember that all those 
+variables take up memory in your computer, 
+even if they don’t have a value, so make 
+sure you have a good reason to create a 
+sparse array.
+Q:
+ So, if I’m iterating through an 
+array, and some of the values are 
+undefined, should I check to make sure 
+before I use them?
+A: If you think your array might be 
+sparse, or even have just one undefined 
+value in it, then yes, you should probably 
+check to make sure that the value at an 
+array index is not undefined before you use 
+it. If all you’re doing is displaying  
+ 
+ 
+the value in the console, then it’s no big 
+deal, but it’s much more likely that you’ll 
+actually want to use that value somehow, 
+perhaps in a calculation of some kind. In 
+that case, if you try to use undefined, you 
+might get an error, or at the very least, 
+some unexpected behavior. To check for 
+undefined, just write: 
+    if (myarray[i] = =  undefined) { 
+    ...  
+  } 
+Notice there are no quotes around 
+undefined (because it’s not a string, it’s a 
+value).
+Q:
+ All the arrays we’ve created so far 
+have been literal. Is there another way to 
+create an array?
+A: Yes. You may have seen the syntax: 
+    var myarray = new Array(3); 
+What this does is create a new array, with 
+three empty spots in it (that is, an array 
+with length 3, but no values yet). Then you 
+can fill them, just like you normally would, 
+by providing values for myarray at indices 0, 
+1, and 2. Until you add values yourself, the 
+values in myarray are undefined. 
+ 
+An array created this way is just the same 
+as an array literal, and in practice, you’ll 
+find yourself using the literal syntax more 
+often, and that’s what we’ll tend to use in 
+the rest of the book. 
+ 
+And don’t worry about the details of the 
+syntax above for now (like “new” and why 
+Array is capitalized); we’ll get to all that 
+later!
+
+you are here 4        153
+putting some order in your data
+Judy: Yes, we’ll start with an empty array to hold the solutions with the 
+highest scores, and add each solution that has that high score one at a time 
+to it as we iterate through the scores array.
+Frank: Great, let’s get started. 
+Judy: But hold on a second... I think we might need a separate loop.
+Frank: We do? Seems like there should be a way to do it in our existing 
+loop.
+Judy: Yup, I’m sure we do. Here’s why. We have to know what the highest 
+score is before we can find all the solutions that have that highest score. So 
+we need two loops: one to find the highest score, which we’ve already 
+written, and then a second one to find all the solutions that have that score.
+Frank:  Oh, I see. And in the second loop, we’ll compare each score to 
+the highest score, and if  it matches, we’ll add the index of  the bubble 
+solution score to the new array we’re creating for the solutions with the 
+highest scores.
+Judy: Exactly! Let’s do it.
+Now that we know how to 
+add items to an array we can finish up 
+this report. We can just create the array 
+of the solutions with the highest score as we 
+iterate through the scores array to find the 
+highest bubble score, right?
+Can you write the loop to find all the scores that match the high score? Give it a 
+shot below before you turn the page to see the solution and give it a test drive.
+var bestSolutions = [];
+for (var i = 0; i < scores.length; i++) {
+}
+Your code here.
+Remember, the variable highScore has the highest 
+score in it; you can use that in the code below.
+Here’s the new array we’ll use to store the bubble 
+solutions with the highest score.
+
+154        Chapter    4
+exercise solution
+var bestSolutions = [];
+for (var i = 0; i < scores.length; i++) {
+    if (scores[i] == highScore) {
+        bestSolutions.push(i);
+    }
+}
+console.log("Solutions with the highest score: " + bestSolutions);
+Again, we're starting by creating a 
+new array that will hold all the bubble 
+solutions that match the highest score.
+Each time through the loop, we 
+compare the score at index i with 
+the highScore and if they are equal, 
+then we add that index to the 
+bestSolutions array using push.
+And finally, we can display the bubble solutions with the highest scores. Notice we’re 
+using console.log to display the bestSolutions array. We could create another loop to 
+display the array items one by one, but, luckily, console.log will do this for us (and, if 
+you look at the output, it also adds commas between the array values!).
+Can you write the loop to find all the scores that match the high score? 
+Here’s our solution. 
+Next, we iterate through the entire 
+scores array, looking for those items 
+with the highest score.
+Take a look at the code in the Sharpen exercise above. What if you woke up and push no longer 
+existed? Could you rewrite this code without using push? Work that code out here:
+
+you are here 4        155
+putting some order in your data
+Test drive the final report
+var scores = [60, 50, 60, 58, 54, 54,
+              58, 50, 52, 54, 48, 69,
+              34, 55, 51, 52, 44, 51,
+              69, 64, 66, 55, 52, 61,
+              46, 31, 57, 52, 44, 18,
+              41, 53, 55, 61, 51, 44];
+var highScore = 0;
+var output;
+for (var i = 0; i < scores.length; i++) {
+    output = "Bubble solution #" + i + " score: " + scores[i];
+    console.log(output);
+    if (scores[i] > highScore) {
+        highScore = scores[i];
+    }
+}
+console.log("Bubbles tests: " + scores.length);
+console.log("Highest bubble score: " + highScore);
+var bestSolutions = [];
+for (var i = 0; i < scores.length; i++) {
+    if (scores[i] == highScore) {
+        bestSolutions.push(i);
+    }
+}
+console.log("Solutions with the highest score: " + bestSolutions);
+Go ahead and add the code to generate the bubble solutions with the highest score to your 
+code in “bubbles.html” and run another test drive. All the JavaScript code is shown below:
+JavaScript console
+Bubble solution #0 score: 60
+Bubble solution #1 score: 50
+ ...
+Bubble solution #34 score: 51
+Bubbles tests: 36
+Highest bubble score: 69
+Solutions with the highest score: 11,18
+And the winners are...
+Bubble solutions #11 and #18 both have a high score of  69! So they are 
+the best bubble solutions in this batch of  test solutions. 
+
+156        Chapter    4
+rethinking the code with functions
+We spent a 
+lot of time in the last 
+chapter talking about functions. 
+How come we’re not using any?
+You're right, we should be. Given 
+you just learned functions, we wanted to get 
+the basics of  arrays out of  the way before 
+employing them. That said, you always want 
+to think about which parts of  your code you 
+can abstract away into a function. Not only 
+that, but say you wanted to reuse, or let others 
+reuse, all the work that went into writing the 
+bubble computations—you’d want to give other 
+developers a nice set of  functions they could 
+work with. 
+Let’s go back to the Bubble Score code and 
+refactor it into a set of  functions. By refactor we 
+mean we’re going to rework how it’s organized, 
+to make it more readable and maintainable, but 
+we’re going to do it without altering what the 
+code does. In other words, when we’re done, 
+the code will do exactly what it does now but 
+it’ll be a lot better organized.
+
+you are here 4        157
+putting some order in your data
+A quick survey of the code...
+Let’s get an overview of  the code we’ve written and figure 
+out which pieces we want to abstract into functions:
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Bubble Factory Test Lab</title>
+  <script>
+    var scores = [60, 50, 60, 58, 54, 54,
+                 58, 50, 52, 54, 48, 69,
+                 34, 55, 51, 52, 44, 51,
+                 69, 64, 66, 55, 52, 61,
+                 46, 31, 57, 52, 44, 18,
+                 41, 53, 55, 61, 51, 44];
+    var highScore = 0;
+    var output;
+    for (var i = 0; i < scores.length; i++) {
+      output = "Bubble solution #" + i + " score: " + scores[i];
+      console.log(output);
+      if (scores[i] > highScore) {
+        highScore = scores[i];
+      }
+    }
+    console.log("Bubbles tests: " + scores.length);
+    console.log("Highest bubble score: " + highScore);
+    var bestSolutions = [];
+    for (var i = 0; i < scores.length; i++) {
+      if (scores[i] == highScore) {
+        bestSolutions.push(i);
+      }
+    }
+    console.log("Solutions with the highest score: " + bestSolutions);
+  </script>
+</head>
+<body> </body>
+</html>
+Here’s the Bubbles-R-Us code.
+We don’t want to declare scores inside the 
+functions that operate on scores because these are 
+going to be different for each use of the functions. 
+Instead, we’ll pass the scores as an argument into 
+the functions, so the functions can use any scores 
+array to generate results.
+We use this first chunk 
+of code to output each 
+score and at the same time 
+compute the highest score in 
+the array. We could put this 
+in a  printAndGetHighScore 
+function.
+And we use this second chunk of code 
+to figure out the best results given 
+a high score. We could put this in a 
+getBestResults function.
+
+158        Chapter    4
+refactoring code with functions
+Writing the printAndGetHighScore function
+We’ve got the code for the printAndGetHighScore function already. It’s just 
+the code we’ve already written, but to make it a function we need to think through 
+what arguments we’re passing it, and if  it returns anything back to us. 
+Now, passing in the scores array seems like a good idea because that way, we can 
+reuse the function on other arrays with bubble scores. And we want to return the 
+high score that we compute in the function, so the code that calls the function can 
+do interesting things with it (and, after all, we’re going to need it to figure out the 
+best solutions).
+Oh, and another thing: often you want your functions to do one thing well. Here 
+we’re doing two things: we’re displaying all the scores in the array and we’re also 
+computing the high score. We might want to consider breaking this into two 
+functions, but given how simple things are right now we’re going to resist the

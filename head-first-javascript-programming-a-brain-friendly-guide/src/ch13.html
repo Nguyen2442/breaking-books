@@ -1,0 +1,50 @@
+<section class="chapter" id="ch13" data-ch="13" data-title="Hàm, Tham số và Cấu trúc Dữ liệu Mảng trong JavaScript">
+  <header class="chapter-head">
+    <span class="chapter-num">CHƯƠNG 13</span>
+    <h1>Functions, Parameters, and Arrays in JavaScript <span class="vi">Hàm, Tham số và Cấu trúc Dữ liệu Mảng trong JavaScript</span></h1>
+    <p class="chapter-lede">Làm chủ cơ chế truyền tham số, phạm vi biến và quản lý tập hợp dữ liệu lớn bằng mảng để tối ưu hóa hiệu năng ứng dụng.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học</span>
+      <span class="pill">1 labs</span>
+      <span class="pill">1 quiz</span>
+    </div>
+  </header>
+
+  <article class="topic" id="ch13-t1" data-num="13.1" data-short="Tham số và Biến cục bộ">
+    <div class="topic-theory-card">
+      <span class="eyebrow">KIẾN TRÚC HÀM</span>
+    <h2>Cơ chế Tham số và Hiện tượng Shadowing</h2>
+    <p class="tldr"><strong>TL;DR:</strong> Tham số hành xử như biến cục bộ nhận bản sao giá trị từ bên ngoài.</p>
+    <div class="prose">
+      <p>Trong JavaScript, khi bạn truyền một biến vào hàm, hệ thống tạo ra một bản sao theo cơ chế <dfn data-term="pass-by-value">pass-by-value</dfn>. Biến cục bộ bên trong hàm có thể gây ra hiện tượng <dfn data-term="shadowing">shadowing</dfn> (che khuất) biến toàn cục nếu trùng tên.</p>
+    </div>
+      <aside class="callout callout-real">
+      <div class="callout-title">Thực chiến tại hệ thống thanh toán MoMo</div>
+      <p>Khi xử lý giao dịch ví điện tử, việc đặt tên tham số trùng với biến số dư toàn cục (global balance) sẽ dẫn đến lỗi shadowing, khiến số dư tài khoản thực tế không bị trừ tiền dù hàm tính toán báo thành công.</p>
+    </aside>
+    </div>
+    <figure class="lab topic-lab-card" data-widget="ch13-w1">
+      <figcaption class="lab-cap">
+        <span class="lab-tag">Interactive Lab</span>
+        <strong>Phân tích Shadowing</strong>
+        — Công cụ debug phạm vi biến.
+      </figcaption>
+    
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+  <article class="topic" id="ch13-review" data-num="13.★" data-short="Tổng kết & Kiểm tra">
+    <span class="eyebrow">TỔNG KẾT CHƯƠNG</span>
+    <h2>Thực hành & Kiểm tra kiến thức</h2>
+    <div class="prose">
+      <p>Chương này đi sâu vào cơ chế cốt lõi của hàm trong JavaScript: cách tham số hoạt động như biến cục bộ nhận bản sao giá trị (pass-by-value), hiện tượng che khuất biến (shadowing), và bẫy lỗi khi dùng lệnh return. Tiếp theo, chương giới thiệu cấu trúc dữ liệu mảng (array) đánh số từ 0 (zero-based indexing) nhằm tổ chức dữ liệu dạng danh sách như giỏ hàng, danh sách bài hát hoặc danh mục sản phẩm, kết hợp với thuộc tính length để kiểm soát kích thước dữ liệu hiệu quả.</p>
+    </div>
+    <div class="quiz"><h3>Kiểm tra kiến thức cốt lõi</h3>
+      <div class="q" data-answer="1">
+        <p class="q-text"><strong>Câu 1:</strong> Thuộc tính nào của mảng trả về tổng số phần tử hiện có?</p>
+        <ol><li>size</li><li>length</li><li>count</li><li>index</li></ol>
+        <p class="explain">Thuộc tính length luôn chứa số lượng phần tử của mảng và lớn hơn chỉ số của phần tử cuối cùng đúng 1 đơn vị.</p>
+      </div></div>
+  </article>
+</section>

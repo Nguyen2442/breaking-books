@@ -1,0 +1,540 @@
+return (!passenger.paid);
+}
+Here’s the function to check to see if a 
+passenger is on the no-fly list. Our no-fly 
+list is simple: everyone except Dr. Evel can 
+fly. We return true if the passenger is Dr. 
+Evel; otherwise, we return false (that is, the 
+passenger is not on the no-fly list).
+And here’s the function to check to see if a 
+passenger has paid. All we do is check the paid 
+property of the passenger. If they have not 
+paid, then we return true.
+Pay attention: this is one passenger (an object) not 
+the array of passengers (an array of objects).
+
+you are here 4        447
+first class functions
+var allCanFly = processPassengers(passengers, checkNoFlyList);
+if (!allCanFly) {
+    console.log("The plane can't take off: we have a passenger on the no-fly-list.");
+}
+var allPaid = processPassengers(passengers, checkNotPaid);
+if (!allPaid) {
+    console.log("The plane can't take off: not everyone has paid.");
+}
+Test drive flight
+Passing a function to a function
+Okay, we’ve got a function that’s ready to accept a function as an argument 
+(processPassengers), and we’ve got two functions that are ready to be passed as 
+arguments to processPassengers (checkNoFlyList and checkNotPaid).
+It’s time to put this all together. Drum roll please...
+Passing a function to a function 
+is easy. We just use the name of 
+the function as the argument.  
+Here, we’re passing the checkNoFlyList 
+function. So processPassengers will 
+check each passenger to see if they are 
+on the no-fly list.
+If any of the passengers are on the no-fly list, we’ll get back 
+false, and we’ll see this message in the console.
+Here, we’re passing the 
+checkNotPaid function. So 
+processPassengers will check each 
+passenger to see if they’ve paid.
+If any of the passengers haven’t paid, we’ll get back 
+false, and we’ll see this message in the console.
+To test drive your code, just add this JavaScript to a 
+basic HTML page, and load it into your browser. 
+JavaScript console
+The plane can't take off: we have a passenger on 
+the no-fly-list. 
+The plane can't take off: not everyone has paid. 
+Well, looks like we won't be 
+taking off after all. We've got 
+problems with our passengers! 
+Good thing we checked...
+First class is 
+always better... I'm talking 
+about functions of course...
+
+448        Chapter    10
+questions about first class functions
+function printPassenger(passenger) {
+}
+processPassengers(passengers, printPassenger);
+Your turn again: write a function that prints a passenger’s name and whether or not they 
+have paid to console.log. Pass your function to processPassengers to test it. We’ve started 
+the code for you below; you just need to finish it up. Check your answer at the end of the 
+chapter before you go on.
+Q:
+  Couldn’t we just put all this code into 
+processPassengers? We could just put all the checks we need 
+into one iteration, so each time through we do all the checks 
+and print the list. Wouldn’t that be more efficient?
+A:
+ If your code is short and simple, yes, that might be a 
+reasonable approach. However, what we’re really after is flexibility. 
+What if, in the future, you are constantly adding new checks (has 
+everyone put their laptop away?) or requirements for your existing 
+functions change? Or the underlying data structure for passengers 
+changes? In these cases, the design we used allows you to make 
+changes or additions in a way that reduces overall complexity and 
+that is less likely to introduce bugs into your code.
+ 
+Q:
+  What exactly are we passing when we pass a function to 
+a function?
+A:
+ We’re passing a reference to the function. Think of that 
+reference like a pointer that points to an internal representation of 
+the function itself. The reference itself can be held in a variable and 
+reassigned to other variables or passed as an argument to a function. 
+And placing parentheses after a function reference causes the 
+function to be invoked.
+Write your code here.
+Your code should 
+print out the list of 
+passengers when you 
+pass the function to 
+processPassengers.
+
+you are here 4        449
+first class functions
+function fun(echo) {
+  console.log(echo);
+}
+function fun(echo) { 
+    console.log(echo);
+};
+Below we’ve created a function and assigned it to the variable fun. 
+Work your way through this code and write the resulting output on this page. 
+Do this with your brain before you attempt it with your computer.
+fun("hello");
+function boo(aFunction) {
+    aFunction("boo");
+}
+boo(fun);
+console.log(fun);
+fun(boo);
+var moreFun = fun;
+moreFun("hello again");
+function echoMaker() {
+    return fun;
+}
+var bigFun = echoMaker();
+bigFun("Is there an echo?");
+Super important: check and understand the answers before moving on!
+Extra credit! (A 
+preview of what’s 
+coming up...)
+fun
+
+450        Chapter    10
+updating the passengers
+Returning functions from functions
+At this point we’ve exercised two of  our first class requirements, 
+assigning functions to variables and passing functions to functions, but 
+we haven’t yet seen an example of  returning a function from a function.
+ ❏You can assign functions to variables.
+ ❏You can pass functions to functions.
+ ❏You can return functions from functions.
+Let’s extend the airline example a bit and explore why and where we 
+might want to return a function from a function. To do that, we’ll add 
+another property to each of  our passengers, the ticket property, which 
+is set to “coach” or “firstclass” depending on the type of  ticket the 
+passenger has purchased:
+We’re doing 
+this now.
+function serveCustomer(passenger) {
+    // get drink order
+    // get dinner order
+    // pick up trash
+}
+var passengers = [  { name: "Jane Doloop", paid: true, ticket: "coach" },
+                    { name: "Dr. Evel", paid: true, ticket: "firstclass" },
+                    { name: "Sue Property", paid: false, ticket: "firstclass" },
+                    { name: "John Funcall", paid: true, ticket: "coach" } ]; 
+With that addition, we’ll write some code that handles the 
+various things a flight attendant needs to do:
+Here are all the things the flight 
+attendant needs to do to serve 
+each passenger.
+Let's start by 
+implementing the 
+drink order.
+Now as you might know, service in first class tends to be a little different 
+from the service in coach. In first class you’re able to order a cocktail or 
+wine, while in coach you’re more likely to be offered a cola or water.
+What I’m 
+offering depends on your 
+class of ticket. First class gets 
+wine or a cocktail; coach gets 
+cola or water.
+At least that’s how it 
+looks in the movies...
+
+you are here 4        451
+first class functions
+Writing the flight attendant drink order code
+Now your first attempt might look like this:
+function serveCustomer(passenger) {
+    if (passenger.ticket === "firstclass") {
+        alert("Would you like a cocktail or wine?");
+    } else {
+        alert("Your choice is cola or water.");
+    }
+    // get dinner order
+    // pick up trash
+}
+If the passenger's ticket is a 
+first class ticket then we issue 
+an alert to ask if they'd like a 
+cocktail or a wine.
+If they have a coach ticket, 
+then ask if they want a cola 
+or water.
+Not bad. For simple code this works well: we’re taking the passenger’s ticket and 
+then displaying an alert based on the type of  ticket they purchased. But let’s 
+think through some potential downsides of  this code. Sure, the code to take a 
+drink order is simple, but what happens to the serveCustomer function if  the 
+problem becomes more complex. For instance, we might start serving three classes 
+of  passengers (firstclass, business and coach. And what about premium economy, 
+that’s four!). What happens if  the drink offerings get more complex? Or what if  the 
+choice of  drinks is based on the location of  the originating or destination airport? 
+If  we have to deal with these complexities then serveCustomer is quickly going 
+to become a large function that is a lot more about managing drinks than serving 
+customers, and when we design functions, a good rule of  thumb is to have them do 
+only one thing, but do it really well.
+Re-read all the potential issues listed in the last two paragraphs on this page. Then, think 
+about what code design would allow us to keep serveCustomer focused, yet also allow for 
+expansion of our drink-serving capability in the future. 
+For instance they 
+typically only serve 
+Maitais to first 
+class on trips to 
+Hawaii (or so we've 
+been told).
+
+452        Chapter    10
+organizing the code to check passengers
+The flight attendant drink order code: a different approach
+Our first pass wasn’t bad, but as you can see this code could be problematic over time as the 
+drink serving code gets more complex. Let’s rework the code a little, as there’s another way 
+we can approach this by placing the logic for the drink orders in a separate function. Doing so 
+allows us to hide away all that logic in one place, and it also gives us a well-defined place to go 
+if  we need to update the drink order code:
+function createDrinkOrder(passenger) {
+    if (passenger.ticket === "firstclass") {
+        alert("Would you like a cocktail or wine?");
+    } else {
+        alert("Your choice is cola or water.");
+    }
+}
+And we'll place all the logic for 
+the drink order here.
+And we'll replace the original, inline 
+logic with a call to createDrinkOrder.
+That’s definitely going to be more readable with a single function call replacing 
+all the inline drink order logic. It’s also conveniently put all the drink order code 
+in one, easy-to-find place. But, before we give this code a test drive, hold on, 
+we’ve just heard about another issue...
+Now this code is no longer 
+polluting the serveCustomer 
+function with a lot of drink 
+order logic.
+Here we're creating a new function 
+createDrinkOrder, which is passed a passenger.
+Now we can revisit the serveCustomer function and remove all the drink order logic, 
+replacing it with a call to this new function.
+function serveCustomer(passenger) {
+    if (passenger.ticket === "firstclass") {
+        alert("Would you like a cocktail or wine?");
+    } else {
+        alert("Your choice is cola or water.");
+    }
+    createDrinkOrder(passenger);
+    // get dinner order
+    // pick up trash
+}
+We're removing the logic from 
+serveCustomer...
+The createDrinkOrder function 
+is passed the passenger that was 
+passed into serveCustomer.
+
+you are here 4        453
+first class functions
+function serveCustomer(passenger) {
+   createDrinkOrder(passenger);
+   // get dinner order
+   createDrinkOrder(passenger);
+   createDrinkOrder(passenger);
+   // show movie
+   createDrinkOrder(passenger);
+   // pick up trash
+}
+We've updated the code to 
+reflect the fact we're calling 
+createDrinkOrder a lot 
+during the flight.
+Now, on the one hand we designed our code well, because adding 
+additional calls to createDrinkOrder works just fine. But, on the 
+other hand, we’re unnecessarily recomputing what kind of  passenger 
+we’re serving in createDrinkOrder every time we take an order.  
+“But it’s only a few lines of  code.” you say? Sure, but this is a simple 
+example in a book. What if  in the real world you had to check the ticket 
+type by communicating with a web service from a mobile device? That 
+gets time consuming and expensive.
+Don’t worry though, because a first class function just rode in on a 
+white horse to save us. You see, by making use of  the capability to 
+return functions from functions we can fix this problem.
+Wait, we need more drinks!
+Stop the presses, we’ve just heard that one drink order is not 
+enough on a flight. In fact, the flight attendants say a typical flight 
+looks more like this:
+Come on 
+guys, a single drink? 
+What is this? Cheap-o-
+Airlines?
+What do you think this code does? Can you come up with some 
+examples of how to use it?
+function addN(n) {
+    var adder = function(x) {
+                   return n + x;
+                };
+    return adder;
+}
+Answer here.
+
+454        Chapter    10
+returning a function from a function
+Taking orders with first class functions
+Now it’s time to wrap your head around how a first class function can help this situation. 
+Here’s the plan: rather than calling createDrinkOrder multiple times per passenger, we’re 
+instead going to call it once, and have it hand us back a function that knows how to do a drink 
+order for that passenger. Then, when we need to take a drink order, we just call that function.
+Let’s start by redefining createDrinkOrder. Now when we call it, it will package up the code 
+to take a drink order into a function and return the function for us to use when we need it.
+function createDrinkOrder(passenger) {
+    var orderFunction;
+    if (passenger.ticket === "firstclass") {
+        orderFunction = function() {
+            alert("Would you like a cocktail or wine?");
+        };
+    } else {
+        orderFunction = function() {
+            alert("Your choice is cola or water.");
+        };
+    }
+    return orderFunction;
+}
+Here's the new createDrinkOrder. It's going to return a 
+function that knows how to take a drink order.
+First, create a 
+variable to hold 
+the function we 
+want to return.
+If the passenger is first 
+class, we create a function 
+that knows how to take a 
+first class order.
+Otherwise create a 
+function to take an 
+coach class order.
+Now let’s rework serveCustomer. We’ll first call createDrinkOrder to get a function 
+that knows how to take the passenger’s order. Then, we’ll use that same function over and 
+over to take a drink order from the passenger.
+function serveCustomer(passenger) {
+   var getDrinkOrderFunction = createDrinkOrder(passenger);
+   getDrinkOrderFunction();
+   // get dinner order
+   getDrinkOrderFunction();
+   getDrinkOrderFunction();
+   // show movie
+   getDrinkOrderFunction();
+   // pick up trash
+}
+And return the function.
+Now, we execute the 
+conditional code to check 
+the passenger’s ticket 
+type only once.
+We use the function we get back 
+from createDrinkOrder whenever 
+we need to get a drink order for 
+this passenger.
+getDrinkOrder now returns a 
+function, which we store in the 
+getDrinkOrderFunction variable.
+
+you are here 4        455
+first class functions
+Test drive flight
+function servePassengers(passengers) {
+    for (var i = 0; i < passengers.length; i++) {
+        serveCustomer(passengers[i]);
+    }
+}
+servePassengers(passengers);
+Let’s test the new code. To do that we need to write a quick function to iterate 
+over all the passengers and call serveCustomer for each passenger. Once you’ve 
+added the code to your file, load it in the browser and take some orders.
+All we’re doing here is iterating over the 
+passengers in the passengers array, and 
+calling serveCustomer on each passenger.
+And of course we need to call 
+servePassengers to get it all going. (Be 
+prepared, there are a lot of alerts!)
+Q:
+  Just to make sure I understand... 
+when we call createDrinkOrder, we get 
+back a function that we have to call again 
+to get the drink order?
+A:
+ That’s right. We first call 
+createDrinkOrder to get back a function, 
+getDrinkOrderFunction, that knows how to 
+ask a passenger for an order, and then we 
+call that function every time we want to take 
+the order. Notice that getDrinkOrderFunction 
+is a lot simpler than createDrinkOrder: all 
+getDrinkOrderFunction does is alert, asking 
+for the passenger’s order. 
+Q:
+  So how does 
+getDrinkOrderFunction know which alert 
+to show?
+A:
+ Because we created it specifically 
+for the passenger based on their ticket. 
+Look back at createDrinkOrder again. The 
+function we’re returning corresponds to the 
+passenger’s ticket type: if the passenger is 
+in first class, then getDrinkOrderFunction 
+is created to show an alert asking for a first 
+class order. But if the passenger is in coach, 
+then getDrinkOrderFunction is created to 
+show an alert asking for a coach order. By 
+returning the correct kind of function for that 
+specific passenger’s ticket type, the ordering 
+function is simple, fast, and easy to call each 
+time we need to take an order.
+Q:
+  This code serves one passenger a 
+drink, shows the movie, etc. Don't flight 
+attendants usually serve a drink to all the 
+passengers and show the movie to all 
+passengers and so on?
+A:
+ See we were testing you! You passed. 
+You’re exactly right; this code applies the 
+entire serveCustomer function to a single 
+passenger at a time. That’s not really how 
+it works in the real world. But, this is meant 
+to be a simple example to demonstrate a 
+complex topic (returning functions), and it’s 
+not perfect. But now that you’ve pointed out 
+our mistake... students, take out a sheet of 
+paper and:
+How would you rework 
+the code to serve drinks, 
+dinner and a movie to 
+all the passengers, and 
+do it without endlessly 
+recomputing their order 
+based on their ticket class?  
+Would you use first class 
+functions?
+
+456        Chapter    10
+exercise for first class functions
+Your job is to add a third class of service to our code. Add “premium economy” class 
+(“premium” for short). Premium economy gets wine in addition to cola or water. Also, 
+implement getDinnerOrderFunction with the following menu:
+Check your answer at the end of the chapter! And don’t forget to test your code.
+Make sure you use first class 
+functions to implement this!
+First class: chicken or pasta
+Premium economy: snack box or cheese plate
+Coach: peanuts or pretzels
+
+you are here 4        457
+first class functions
+var products = [ { name: "Grapefruit", calories: 170, color: "red", sold: 8200 },
+                 { name: "Orange", calories: 160, color: "orange", sold: 12101 },
+                 { name: "Cola", calories: 210, color: "caramel", sold: 25412 },
+                 { name: "Diet Cola", calories: 0, color: "caramel", sold: 43922 },
+                 { name: "Lemon", calories: 200, color: "clear", sold: 14983 },
+                 { name: "Raspberry", calories: 180, color: "pink", sold: 9427 },
+                 { name: "Root Beer", calories: 200, color: "caramel", sold: 9909 },
+                 { name: "Water", calories: 0, color: "clear", sold: 62123 }
+               ];
+Webville Cola
+Webville Cola needs a little help managing the code for 
+their product line. To give them a hand, let’s take a look at 
+the data structure they use to hold the sodas they produce:
+Looks like they're storing their products as an array 
+of objects.  Each object is a product.
+In each product they're storing a name, number of 
+calories, color and number of bottles sold per month.
+We really need some help sorting these 
+products. We need to sort them by every possible 
+property: name, calories, color, sales numbers. Of course 
+we want to get this done as efficiently as we can, and also 
+keep it flexible so we can sort in lots of different ways.
+Webville Cola's analytics guy
+
+458        Chapter    10
+conversation about sorting arrays
+Frank: Hey guys, I got a call from Webville Cola and they 
+need help with their product data. They want to be able to 
+sort their products by any property, like name, bottles sold, 
+soda color, calories per bottle, and so on, but they want it 
+flexible in case they add more properties in the future.
+Joe: How are they storing this data?
+Frank: Oh, each soda is an object in an array, with 
+properties for name, number sold, calories...
+Joe: Got it.
+Frank: My first thought was just to search for a simple sort 
+algorithm and implement it. Webville Cola doesn’t have many 
+products so it just needs to be simple.
+Jim: Oh, I’ve got a simpler way than that, but it requires you 
+use your knowledge of  first class functions.
+Frank: I like hearing simple! But how do first class functions fit in? 
+That sounds complicated to me.
+Jim: Not at all. It’s as easy as writing a function that knows how to compare two 
+values, and then passing that to another function that does the real sorting for you.
+Joe: How does the function we’re writing work exactly?
+Jim: Well, instead of  handling the entire sort, all you need to do is write a function that 
+knows how to compare two values. Say you want to sort by a product property like the 
+number of  bottles sold. You set up a function like this:
+  function compareSold(product1, product2) {
+    // code to compare here
+  }
+We can fill in the details of  the code in a minute, but for now, the key is that once you 
+have this function you just pass it to a sort function and that sort function does the work 
+for you—it just needs you to help it know how to compare things.
+Frank: Wait, where is this sort function?
+Jim: It’s actually a method that you can call on any array.  So you can call the sort 
+method on the products array and pass it this compare function we’re going to 
+write. And, when sort is done, the products array will be sorted by whatever criteria 
+compareSold used to sort the values.
+Joe: So if  I’m sorting how many bottles are sold, those are numbers, so the 
+compareSold function just needs to determine which value is less or greater?
+Jim: Right. Let’s take a closer look at how the array sort works...
+This function needs to 
+take two products and 
+then compare them.
+Jim
+Frank
+Joe
+
+you are here 4        459
+first class functions
+JavaScript arrays provide a sort method that, given a function that 
+knows how to compare two items in the array, sorts the array for you.  
+Here’s the big picture of  how this works and how your comparison 
+function fits in: sort algorithms are well known and widely implemented, 
+and the great thing about them is that sorting code can be reused for 
+just about any set of  items. But there’s one catch: to know how to sort

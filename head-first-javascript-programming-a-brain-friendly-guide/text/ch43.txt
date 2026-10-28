@@ -1,0 +1,590 @@
+functions for each of the other properties in the product object: name, calories, and color. 
+Check the output you see in the console carefully; make sure for each kind of sort, the 
+products are sorted correctly. Here’s our solution.
+function compareName(colaA, colaB) {
+    if (colaA.name > colaB.name) {
+        return 1;
+    } else if (colaA.name === colaB.name) {
+        return 0;
+    } else {
+        return -1;
+    }
+}
+function compareCalories(colaA, colaB) {
+    if (colaA.calories > colaB.calories) {
+        return 1;
+    } else if (colaA.calories === colaB.calories) {
+        return 0;
+    } else {
+        return -1;
+    }
+}
+function compareColor(colaA, colaB) {
+    if (colaA.color > colaB.color) {
+        return 1;
+    } else if (colaA.color === colaB.color) {
+        return 0;
+    } else {
+        return -1;
+    }
+}
+products.sort(compareName);
+console.log("Products sorted by name:");
+printProducts(products);
+products.sort(compareCalories);
+console.log("Products sorted by calories:");
+printProducts(products);
+products.sort(compareColor);
+console.log("Products sorted by color:");
+printProducts(products);
+Here’s our implementation 
+of each compare function.
+For each new 
+compare function, 
+we call sort, and 
+display the results 
+in the console.
+Totally!
+
+this is a new chapter     475
+Serious functions
+11  anonymous functions, scope and closures
+You’ve put functions through their paces, but there’s more 
+to learn.   In this chapter we take it further; we get hard-core. We’re going to show 
+you how to really handle functions. This won’t be a super long chapter, but it will be 
+intense, and at the end you’re going to be more expressive with your JavaScript than 
+you thought possible. You’re also going to be ready to take on a coworker’s code, or 
+jump into an open source JavasScript library, because we’re going to cover some 
+common coding idioms and conventions around functions. And if you’ve never heard of 
+an anonymous function or a closure, boy are you in the right place.
+And if you have heard of a closure, but 
+don’t quite know what it is, you’re even 
+more in the right place!
+I’ve become 200% 
+more expressive 
+since I’ve learned about 
+anonymous functions.
+
+476        Chapter    11
+intro to anonymous functions
+function handler() { alert("Yeah, that page loaded!"); }
+window.onload = handler;
+Here’s a load handler, set up like 
+we’ve always done in the past.
+First we define a function.  
+This function has a name, handler.
+Then we assign the function to the 
+onload property of the window object, 
+using its name, handler.
+And when the page loads, the 
+handler function is invoked.
+You’ve already seen two sides of  functions—you’ve seen the formal, declarative 
+side of  function declarations, and you’ve seen the looser, more expressive side of  
+function expressions. Well, now it’s time to introduce you to another interesting 
+side of  functions: the anonymous side.
+By anonymous we’re referring to functions that don’t have names. How can that 
+happen? Well, when you define a function with a function declaration, your 
+function will definitely have a name. But when you define a function using a function 
+expression, you don’t have to give that function a name. 
+You’re probably saying, sure, that’s an interesting fact, maybe it’s possible, but so 
+what? By using anonymous functions we can often make our code less verbose,  
+more concise, more readable, more efficient, and even more maintainable. 
+So let’s see how to create and use anonymous functions. We’ll start with a piece of  
+code we’ve seen before, and see how an anonymous function might help out:
+Taking a look at the other side of functions...
+Use your knowledge of functions and variables 
+and check off the true statements below.
+ ❏The handler variable holds a function 
+reference.
+ ❏When we assign handler to window.onload, 
+we’re assigning it a function reference.
+ ❏The only reason the handler variable exists is 
+to assign it to window.onload. 
+ ❏We’ll never use handler again as it’s code 
+that is meant to run only when the page first 
+loads.
+ ❏Invoking onload handlers twice is not a great 
+idea—doing so could cause issues given 
+these handlers usually do some initialization 
+for the entire page.
+ ❏Function expressions create function 
+references.
+ ❏Did we mention that when we assign 
+handler to window.onload, we’re assigning it 
+a function reference?
+
+you are here 4        477
+anonymous functions, scope and closures
+window.onload = function() { alert("Yeah, that page loaded!"); };
+Now the handler 
+has been assigned to 
+the window.onload 
+property without 
+the need for an 
+unnecessary name.
+So, we’re creating a function to handle the load event, but we know it’s a “one time” function 
+because the load event only happens once per page load. We can also observe that the window.
+onload property is being assigned a function reference—namely, the function reference in 
+handler. But because handler is a one time function, that name is a bit of  a waste, because 
+all we do is assign the reference in it to the window.onload property.
+Anonymous functions give us a way to clean up this code. An anonymous function is just a 
+function expression without a name that’s used where we’d normally use a function reference. 
+But to make the connection, it helps to see how we use a function expression in code in an 
+anonymous way:
+Much more concise now. We’re assigning 
+the function we need directly to the 
+onload property. We also aren’t creating 
+a function name that might mistakenly 
+be used in other code (after all, handler 
+is a pretty common name!).
+How to use an anonymous function
+function handler
+() { alert("Yeah, that page loaded!"); }
+window.onload = handler
+;
+First remove the handler 
+variable so this becomes a 
+function expression.
+         function() { alert("Yeah, that page loaded!"); }
+window.onload =                                         ;
+Then assign the function 
+expression directly to the 
+window.onload property.
+Look Ma! 
+No names!
+Hint: are they hiding somewhere in your objects?
+Are there places in your previous code that you’ve seen anonymous functions and hadn’t realized it?
+
+478        Chapter    11
+exercise for anonymous functions
+There are a few opportunities in the code below to take advantage of anonymous 
+functions. Go ahead and rework the code to use anonymous functions wherever 
+possible. You can scratch out the old code and write in new code where needed. Oh, and 
+one more task: circle any anonymous functions that are already being used in the code.
+window.onload = init;
+var cookies = {
+    instructions: "Preheat oven to 350...",
+    bake: function(time) {
+              console.log("Baking the cookies.");
+              setTimeout(done, time);
+          }
+};
+function init() {
+    var button = document.getElementById("bake");
+    button.onclick = handleButton;
+}
+function handleButton() {
+    console.log("Time to bake the cookies.");
+    cookies.bake(2500);
+}
+function done() {
+    alert("Cookies are ready, take them out to cool.");
+    console.log("Cooling the cookies.");
+    var cool = function() {
+        alert("Cookies are cool, time to eat!");
+    };
+    setTimeout(cool, 1000);
+}
+
+you are here 4        479
+anonymous functions, scope and closures
+function cookieAlarm() {
+    alert("Time to take the cookies out of the oven");
+};
+setTimeout(cookieAlarm, 600000);
+We need to talk about your verbosity, again
+Okay, we hate to bring it up again because you’ve come a long way with 
+functions—you know how to pass functions around, assign them to variables, pass 
+them to functions, return them from functions—but, well, you’re still being a little 
+more verbose than you have to (you could also say you’re not being as expressive 
+as you could be). Let’s see an example:
+And here we're taking the function and passing it 
+as an argument to setTimeout.
+While this code looks fine, we can make it a bit tighter using anonymous functions.  
+How? Well, think about the cookieAlarm variable in the call to setTimeout. This 
+is a variable that references a function, so when we invoke setTimeout, a function 
+reference is passed. Now, using a variable that references a function is one way to get a 
+function reference, but just like with the window.onload example a couple of  pages 
+back, you can use a function expression too. Let’s rewrite the code with a function 
+expression instead:
+Here's a normal-looking function named 
+cookieAlarm that displays an alert about 
+cookies being done.
+Looks like the cookies will be 
+done in 10 minutes, just sayin'.
+In case you forgot, these are milliseconds, 
+so 1000 * 60 * 10 = 600,000.
+setTimeout(function() { alert("Time to take the cookies out of the oven");}, 600000);
+Now instead of a variable, we're just putting the 
+function, inline, in the call to setTimeout.
+Here's the second 
+argument, after the 
+function expression.
+Pay careful attention to the syntax here. We write 
+the entire function expression, which ends in a right 
+bracket, and then like any argument, we follow it with 
+a comma before adding the next argument.
+We specify the name of the function we’re calling, 
+setTimeout, followed by a parenthesis and then 
+the first argument, a function expression.
+
+480        Chapter    11
+formatting anonymous function expressions
+Who are you 
+trying to kid? That’s a mess. 
+Who wants to read that one long 
+line? And what if the function is 
+long and complicated?
+For a short piece of code, a one liner 
+is just fine. But, beyond that, you’re right, it 
+would be rather silly. But as you know, we can use 
+lots of  whitespace with JavaScript, so we can insert 
+all the spaces and returns we need to make things 
+more readable. Here’s our reformatting of  the 
+setTimeout code on the previous page. 
+setTimeout(function() { 
+               alert("Time to take the cookies out of the oven");
+           }, 600000);
+All we’ve done is insert some whitespace-that 
+is, some spaces and returns here and there.
+We’re glad you raised this 
+issue because the code is a 
+lot more readable this way.
+
+you are here 4        481
+anonymous functions, scope and closures
+Hey, wait a sec, I think I get it. Because a 
+function expression evaluates to a function 
+reference, you can substitute a function 
+expression anywhere you’d expect a 
+reference?
+That’s a mouthful, but you’ve got it.   
+This is really one of  the keys to understanding 
+that functions are first class values. If  your code 
+expects a function reference, then you can 
+always put a function expression in its place—
+because it evaluates to a function reference. 
+As you just saw, if  a function is expected as 
+an argument, no problem, you can pass it a 
+function expression (which, again, evaluates 
+to a reference before it is passed). If  you need 
+to return a function from within a function, 
+same thing—you can just return a function 
+expression.
+
+482        Chapter    11
+questions about anonymous functions
+Q:
+  Using these anonymous functions 
+like this seems really esoteric. Do I really 
+need to know this stuff?
+A:
+ You do. Anonymous function 
+expressions are used frequently in 
+JavaScript code, so if you want to be able 
+to read other people’s code, or understand 
+JavaScript libraries, you’re going to need to 
+know how these work, and how to recognize 
+them when they’re being used. 
+Q:
+  Is using an anonymous function 
+expression really better? I think it just 
+complicates the code and makes the code 
+hard to follow and read.
+A:
+ Give it some time. Over time, you’ll 
+be able to parse code like this more easily 
+when you see it, and there really are lots 
+of cases where this syntax decreases code 
+complexity, makes the code’s intention more 
+clear, and cleans up your code. That said, 
+overuse of this technique can definitely lead 
+to code that is quite hard to understand. But 
+stick with it and it’ll get easier to read and 
+more useful as you get the hang of it. You’re 
+going to encounter lots of code that makes 
+heavy use of anonymous functions, so it’s a 
+good idea to incorporate this technique into 
+your code toolbelt.
+Q:
+  If first class functions are so 
+useful, how come other languages don’t 
+have them?
+A:
+ Ah, but they do (and even the ones 
+that don’t are considering adding them). For 
+instance, languages like Scheme and Scala 
+have fully first class functions like JavaScript 
+does. Other languages, like PHP, Java (in 
+the newest version), C#, and Objective C 
+have some or most of the first class features 
+that JavaScript does. As more people are 
+recognizing the value of having first class 
+functions in a programming language, more 
+languages are supporting them. Each 
+language does it a little differently, however, 
+so be prepared for a variety of approaches 
+as you explore this topic in other languages.
+Let’s make sure you have the syntax down for passing anonymous function expressions 
+to other functions. Convert this code from one that uses a variable (in this case vaccine) 
+as an argument to one that uses an anonymous function expression.
+function vaccine(dosage) {
+    if (dosage > 0) {
+        inject(dosage);
+    }
+}
+administer(patient, vaccine, time);
+Write your version 
+here. And check 
+your answer 
+before moving on!
+
+you are here 4        483
+anonymous functions, scope and closures
+var migrating = true;
+if (migrating) {
+    quack(4);
+    fly(4);
+}
+var fly = function(num) { 
+   for (i = 0; i < num; i++) {
+      console.log("Flying!");
+   }
+};
+function quack(num) { 
+   for (i = 0; i < num; i++) {
+      console.log("Quack!");
+   }
+}
+When is a function defined? It depends...
+There’s one fine point related to functions that we haven’t mentioned yet. Remember that the browser 
+takes two passes through your JavaScript code: in the first pass, all your function declarations are parsed 
+and the functions defined; in the second pass, the browser executes your code top down, which is when 
+function expressions are defined. Because of  this, functions created by declarations are defined before 
+functions that are created using function expressions. And this, in turn, determines where and when 
+you can invoke a function in your code.
+To see what that really means, let’s take a look at a concrete example. Here’s our code from the last 
+chapter, rearranged just a bit. Let’s evaluate it: 
+Notice that 
+we moved this 
+conditional 
+up from the 
+bottom of 
+the code.
+1
+2
+We start at the top of the code and find all the function declarations.
+We found a function declaration. We create the 
+function and assign it to the variable quack.
+4
+We start at the top again, this time evaluating the code.
+3
+We reach the bottom. Only one function declaration was found.
+5
+Create the variable migrating and set it to true.
+6
+The conditional is true, so evaluate the code block.
+7
+Get the function reference from quack and 
+invoke it with the argument 4.
+8
+Get the function reference from fly... oh wait, 
+fly isn’t defined!
+IMPORTANT: Read this 
+by following the order of 
+the numbers. Start at 1, 
+then go to 2, and so on.
+
+484        Chapter    11
+when are functions defined?
+What just happened? Why wasn't fly defined?
+var migrating = true;
+if (migrating) {
+    quack(4);
+    fly(4);
+}
+var fly = function(num) { 
+   for (var i = 0; i < num; i++) {
+      console.log("Flying!");
+   }
+};
+function quack(num) { 
+   for (var i = 0; i < num; i++) {
+      console.log("Quack!");
+   }
+}
+Okay, we know the fly function is undefined when we try to invoke it, but 
+why? After all, quack worked just fine. Well, as you’ve probably guessed by now, 
+unlike quack—which is defined on the first pass through the code because it is 
+a function declaration—the fly function is defined along with the normal top-
+to-bottom evaluation of  the code. Let’s take another look:
+When we evaluate this code to try invoking quack, 
+everything works as expected because quack was 
+defined on the first pass through the code.
+But when we try to execute 
+the call to the fly function, 
+we get an error because we 
+haven’t yet defined fly... 
+JavaScript console
+Quack!
+Quack!
+Quack!
+Quack!
+TypeError: undefined is not a function
+What happens when you try to 
+call a function that’s undefined.
+So what does this all mean? For starters, it means that you can place function 
+declarations anywhere in your code—at the top, at the bottom, in the middle—and 
+invoke them wherever you like. Function declarations create functions that are defined 
+everywhere in your code (this is known as hoisting).
+Function expressions are obviously different because they aren’t defined until they are 
+evaluated. So, even if  you assign the function expression to a global variable, like we did 
+with fly, you can’t use that variable to invoke a function until after it’s been defined.
+Now in this example, both of  our functions have global scope—meaning both functions 
+are visible everywhere in your code once they are defined. But we also need to consider 
+nested functions—that is functions defined within other functions—because it affects the 
+scope of  those functions. Let’s take a look.
+...because fly doesn’t 
+get defined until 
+this statement is 
+evaluated, which is 
+after the call to fly.
+You might see an error like 
+this instead (depending on 
+the browser you’re using): 
+TypeError: Property ‘fly’ 
+of object [object Object] 
+is not a function.
+
+you are here 4        485
+anonymous functions, scope and closures
+How to nest functions
+It’s perfectly legal to define a function within another function, meaning you can use a 
+function declaration or expression inside another function. How does this work? Here’s the 
+short answer: the only difference between a function defined at the top level of  your code and 
+one that’s defined within another function is just a matter of  scope. In other words, placing a 
+function in another function affects where the function is visible within your code.
+To understand this, let’s expand our example a little by adding some nested function 
+declarations and expressions.
+var migrating = true;
+var fly = function(num) { 
+   var sound = "Flying";
+   function wingFlapper() {
+      console.log(sound);
+   }
+   for (var i = 0; i < num; i++) {
+      wingFlapper();
+   }
+};
+function quack(num) { 
+   var sound = "Quack";
+   var quacker = function() {
+      console.log(sound);
+   };
+   for (var i = 0; i < num; i++) {
+      quacker();
+   }
+}
+if (migrating) {
+    quack(4);
+    fly(4);
+}
+We’ve moved this code back to 
+the bottom so we no longer get 
+that error when we call fly.
+Here we’re adding a function 
+declaration with the name 
+wingFlapper inside the fly 
+function expression.
+Here we’re adding a function 
+expression assigned to the 
+quacker variable inside the 
+quack function declaration.
+And here we’re calling it.
+And here we’re calling it.
+In the code above, take a pencil and mark where you think the scope of the 
+fly, quack, wingFlapper and quacker functions are. Also, mark any places you 
+think the functions might be in scope but undefined. 
+
+486        Chapter    11
+function nesting and scope
+How nesting affects scope
+Everything defined at the top level of 
+the code has global scope. So fly and 
+quack are both global variables. 
+wingFlapper is defined by a function 
+declaration in the fly function. So its scope 
+is the entire fly function, and it’s defined 
+throughout the entire fly function body.
+quacker is defined by a function expression in 
+the function quack. So its scope is the entire 
+quack function but it’s defined only after the 
+function expression is evaluated, until the end 
+of the function body.
+Functions defined at the top level of  your code have global scope, 
+whereas functions defined within another function have local 
+scope. Let’s make a pass over this code and look at the scope of  
+each function. While we’re at it, we’ll also look at where each 
+function is defined (or, not undefined, if  you prefer):
+Notice that the rules for when you can refer to a function are 
+the same within a function as they are at the top level. That is, 
+within a function, if  you define a nested function with a declaration, 
+that nested function is defined everywhere within the body of  
+the function. On the other hand, if  you create a nested function 
+using a function expression, then that nested function is defined only 
+after the function expression is evaluated.
+var migrating = true;
+var fly = function(num) { 
+   var sound = "Flying";
+   function wingFlapper() {
+      console.log(sound);
+   }
+   for (var i = 0; i < num; i++) {
+      wingFlapper();
+   }
+};
+function quack(num) { 
+   var sound = "Quack";
+   var quacker = function() {
+      console.log(sound);
+   };
+   for (var i = 0; i < num; i++) {
+      quacker();
+   }
+}
+if (migrating) {
+    quack(4);
+    fly(4);
+}
+quacker is only 
+defined here.
+But remember fly is defined only after 
+this function expression is evaluated.
+Q:
+ When we pass a function expression to 
+another function, that function must get stored in 
+a parameter, and then treated as a local variable 
+in the function we passed it to. Is that right?
+A: That’s exactly right. Passing a function as an 
+argument to another function copies the function 
+reference we’re passing into a parameter variable 
+in the function we’ve called. And just like any other 
+parameter, a parameter holding a function reference 
+is a local variable.
+
+you are here 4        487
+anonymous functions, scope and closures
+var secret = "007";
+function getSecret() {
+    var secret = "008";
+    function getValue() {
+        return secret;
+    }
+    return getValue;
+}
+var getValueFun = getSecret();
+getValueFun();
+Specimen #2
+We need a first class functions expert and we’ve heard that’s you!  Below you’ll find two pieces 
+of code, and we need your help figuring out what this code does. We’re stumped. To us, these look 
+like nearly identical pieces of code, except that one uses a first class function and the other doesn’t.

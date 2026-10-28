@@ -1,0 +1,636 @@
+to access the property in the object.
+
+you are here 4        183
+understanding objects
+The dog 
+object.
+var dog = {
+    name: _________
+    _________: 20.2
+    age: ________
+    ________: "mixed",
+    activity: ____________
+};
+var bark;
+if (_____________ > 20) {
+   bark = "WOOF WOOF";
+} else {
+   bark = "woof woof";
+}
+var speak = __________ + " says " + ________ + " when he wants to " + ____________;
+console.log(speak);
+  name: "Fido"
+ weight: 20.2
+age: 4
+ breed: "mixed"
+  activity: "fetch balls"
+Object Magnets
+dog.weight
+dog.bark
+bark
+dog.name
+dog.activity
+"Fido"
+Fido
+age
+breed
+"fetch balls"
+,
+,
+,
+4
+20.2
+weight
+,
+Use these magnets to 
+complete the code.
+Fido is hoping you get 
+all his properties right.
+This code got all scrambled up on the fridge. Practice your object creating 
+and dot notation skills by getting it all back together. Be careful, some 
+extra magnets might have got mixed in!
+
+184        Chapter    5
+deleting properties
+I see we can add 
+new properties at any time. 
+Can I get rid of them too?
+Yes, you can add or delete properties 
+at any time. As you know, to add a property to 
+an object you simply assign a value to a new property, 
+like this: 
+ 
+and from that point on fido will have a new property 
+dogYears. Easy enough.
+To   delete a property, we use a special keyword, wait 
+for it... delete. You use the delete keyword like 
+this:
+When you delete a property, you’re not just deleting 
+the value of  the property, you’re deleting the property 
+itself. And, if  you try to use fido.dogYears after 
+deleting it, it will evaluate to undefined. 
+The delete expression returns true if  the property 
+was deleted successfully.  delete will return false only 
+if  it can’t delete a property (which could happen for, 
+say, a protected object that belongs to the browser). It 
+will return true even if  the property you’re trying to 
+delete doesn’t exist in the object.
+fido.dogYears = 35;
+delete fido.dogYears;
+
+you are here 4        185
+understanding objects
+Q:
+ How many properties can an object have?
+A: As few or as many as you want. You can have an object 
+with no properties, or you can have an object with hundreds of 
+properties. It’s really up to you.
+Q:
+ How can I create an object with no properties?
+A: Just like you create any object, only leave out all the 
+properties. Like this: 
+     var lookMaNoProps = { };
+Q:
+ I know I just asked how to create an object with no 
+properties, but why would I want to do this?
+A: Well, you might want to start with an entirely empty object 
+and then add your own properties dynamically, depending on the 
+logic of your code. This way of creating an object will become clear 
+as we continue to use objects.
+  var lookMaNoProps = { };
+  lookMaNoProps.age = 10;
+  if (lookMaNoProps.age > 5) {
+    lookMaNoProps.school = "Elementary";
+  } 
+Q:
+ What’s better about an object than just using a bunch 
+of variables? After all, each of the properties in the fiat object 
+could just be its own variable, right?
+A: Objects package up the complexity of your data so that you 
+can focus on the high level design of your code, not the nitty gritty 
+details. Say you want to write a traffic simulator with tens of cars; 
+you’ll want to focus on cars and streetlights and road objects and 
+not hundreds of little variables. Objects also make your life easier 
+because they encapsulate, or hide, the complexity of the state 
+and behavior of your objects so you don’t have to worry about 
+them. How all that works will become much clearer as you gain 
+experience with objects. 
+Q:
+ If I try to add a new property to my object, and the 
+object already has a property with that name, what happens?
+A: If you try to add a new property, like needsWashing, to fiat 
+and fiat already has a property needsWashing, then you’ll be 
+changing the existing value of the property. So if you say: 
+      fiat.needsWashing = true; 
+but fiat already contains a property needsWashing with the value 
+false, then you’re changing the value to true.
+Q:
+ What happens if I try to access a property that doesn’t 
+exist? Like if I said,  
+   if (fiat.make) { ... } 
+but fiat didn’t have a property make?
+A: The result of the expression fiat.make will be undefined if fiat 
+doesn’t have a property named make.  
+Q:
+ What happens if I put a comma after the last property?
+A: In most browsers it won’t cause an error. However, in older 
+versions of some browsers this will cause your JavaScript to halt 
+execution. So, if you want your code to work in as many browsers 
+as possible, keep away from extraneous commas.
+Q:
+ Can I use console.log to display an object in the 
+console?
+A: You can. Just write: 
+              console.log(fiat); 
+in your code, and when you load the page with the console open, 
+you’ll see information about the object displayed in the console.
+JavaScript console
+> console.log(fiat) 
+Object {make: "Fiat", model: "500", year: 1957, 
+color: "Medium Blue", passengers: 2...}
+>
+
+186        Chapter    5
+object references
+You’ve already seen that a variable is like a container and it 
+holds a value. But numbers, strings and booleans are pretty small 
+values. What about objects? Can a variable hold any sized object 
+no matter how many properties you put in it? 
+	Variables don’t actually hold objects.
+	Instead they hold a reference to an object.
+	The reference is like a pointer or an address to the 
+actual object.
+	In other words, a variable doesn’t hold the object 
+itself, but it holds something like a pointer. And, in 
+JavaScript we don’t really know what is inside a 
+reference variable. We do know that whatever it is, it 
+points to our object. 
+       When       we use dot notation, the JavaScript 
+interpreter takes care of  using the reference to get 
+the object and then accesses its properties for us.
+So, you can’t stuff  an object into a variable, but we often think 
+of  it that way. It’s not what happens though—there aren’t giant 
+expandable cups that can grow to the size of  any object.  Instead, 
+an object variable just holds a reference to the object. 
+Here’s another way to look at it: a primitive variable represents 
+the actual value of  the variable while an object variable represents 
+a way to get to the object. In practice you’ll only need to think of  
+objects as, well, objects, like dogs and cars, not as references, but 
+knowing variables contain references to objects will come in handy 
+later (and we’ll see that in just a few pages).
+And also think about this: you use the dot notation (.) on a 
+reference variable to say, “use the reference before the dot to get 
+me the object that has the property after the dot.” (Read that 
+sentence a few times and let it sink in.) For example:
+   car.color;
+means “use the object referenced by the variable car  
+to access the color property.”
+
+
+
+
+
+make: "Chevy"
+model: "Bel Air"
+year: 1957
+color: "red"
+passengers: 2
+convertible: false
+mileage: 1021
+chevy
+Err, excuse 
+me, but I don’t think 
+that’s going to fit in here...
+Ahh, much 
+better. I just need to 
+hold a reference to the 
+object.
+chevy
+make: "Chevy"
+model: "Bel Air"
+year: 1957
+color: "red"
+passengers: 2
+convertible: false
+mileage: 1021
+Behind
+the Scenes
+How does a variable hold an object? 
+Inquiring minds want to know...
+
+you are here 4        187
+understanding objects
+   var x = 3;
+The variable holds the 
+number three.
+3
+var myCar = {...};
+A reference to the Car object 
+goes into the variable.
+The Car object itself does 
+not go into the variable!
+A number 
+primitive value.
+Reference value
+C
+a
+r
+ 
+o
+b
+j
+e
+c
+t
+myCar
+x
+Comparing primitives and objects
+Think of  an object reference as just another variable value, which 
+means that we can put that reference in a cup, just like we can 
+primitive values. With primitive values, the value of  a variable is... 
+the value, like 5, -26.7, “hi”, or false. With reference variables, the 
+value of  the variable is a reference: a value that represents a way to 
+get to a specific object.
+Behind
+the Scenes
+number      string       boolean         reference
+3
+true“hello”
+These are all primitive variables. 
+Each holds the value you stored 
+in the variable.
+This is a reference variable, 
+and holds a value that is a 
+reference to an object.
+Initializing a primitive variable
+Initializing an object (a reference) variable
+When you declare and initialize a primitive, you give it a value, 
+and that value goes right in the cup, like this:
+When you declare and initialize an object, you make the object 
+using object notation, but that object won’t fit in the cup. So what 
+goes in the cup is a reference to the object.
+We don’t know (or care) 
+how the JavaScript 
+interpreter represents 
+object references. 
+We just know we can 
+access an object and 
+its properties using dot 
+notation.
+
+188        Chapter    5
+passing objects to functions
+function prequal(car) {
+    if (car.mileage > 10000) {
+        return false;
+    } else if (car.year > 1960) {
+        return false;
+    }
+    return true;
+}
+You’re going to pass it a car object.
+Just use dot notation on the car 
+parameter to access the mileage and 
+year properties.
+Test each property value against the 
+prequalification criteria.
+If either of the disqualification 
+tests succeeds we return false. 
+Otherwise we return true, meaning 
+we’ve successfully prequalified!
+Doing even more with objects...
+Let’s say you’re looking for a good car for your stay in Webville. Your criteria? 
+How about:
+ ❏Built in 1960 or before.
+ ❏10,000 miles or less.
+You also want to put your new coding skills to work (and make your life easier) 
+so you want to write a function that will “prequalify” cars for you—that is, if  the car meets your 
+criteria then the function returns true; otherwise the car isn’t worth your time and the function 
+returns false. 
+More specifically, you’re going to write a function that takes a car object as a parameter and puts that 
+car through the test, returning a boolean value. Your function is going to work for any car object.
+Let’s give it a shot:
+var taxi = { 
+    make: "Webville Motors",
+    model: "Taxi",
+    year: 1955,
+    color: "yellow",
+    passengers: 4,
+    convertible: false,
+    mileage: 281341
+};
+Now let’s give this function a try. First you need a car object. How about this one:
+What do you think? Should we consider this 
+yellow taxi? Why or why not?
+Here’s the function.
+
+you are here 4        189
+understanding objects
+var taxi = { 
+    make: "Webville Motors",
+    model: "Taxi",
+    year: 1955,
+    color: "yellow",
+    passengers: 4,
+    convertible: false,
+    mileage: 281341
+};
+function prequal(car) {
+    if (car.mileage > 10000) {
+        return false;
+    } else if (car.year > 1960) {
+        return false;
+    }
+    return true;
+}
+var worthALook = prequal(taxi);
+if (worthALook) {
+    console.log("You gotta check out this " + taxi.make + " " + taxi.model);
+} else {
+    console.log("You should really pass on the " + taxi.make + " " + taxi.model);
+}
+JavaScript console
+You should really pass on the Webville Motors Taxi
+Here's what we got... let's quickly trace 
+through the code on the next page to see 
+how the Taxi got rejected...
+Doing some pre-qualification
+We’ve done enough talking about objects. Let’s actually create one and put it through its 
+paces using the prequal function. Grab your favorite, basic HTML page (“prequal.html”) 
+and throw in the code below, load the page and see if  the taxi qualifies:
+Does the taxi cut it?
+
+190        Chapter    5
+how pre-qualification works
+Stepping through pre-qualification
+First we create the taxi object and assign it to the 
+variable taxi. Of course, the taxi variable holds 
+a reference to the taxi object,  not the object itself. 
+Next we call prequal, passing it the argument taxi, 
+which is bound to the parameter car in the function.
+1
+2
+make: "Webville..."
+model: "Taxi
+year: 1955
+color: "yellow"
+passengers: 4
+convertible: false
+mileage: 281341
+function prequal(car) {
+    ...
+}
+We then perform the tests in the body of the function, 
+using the taxi object in the car parameter.
+3
+if (car.mileage > 10000) {
+    return false;
+} else if (car.year > 1960) {
+    return false;
+}
+Unfortunately the taxi has a lot of miles, so the first test of car.mileage > 10000 is 
+true.  The function returns false, and so worthALook is set to false. We then get 
+“You should really pass on the Webville Motors Taxi” displayed in the console.
+4
+var worthALook = prequal(taxi);
+if (worthALook) {
+    console.log("You gotta check out this " + taxi.make + " " + taxi.model);
+} else {
+    console.log("You should really pass on the " + taxi.make + " " + taxi.model);
+}
+In this case, the taxi’s mileage is way above 
+10,000 miles, so prequal returns false.  
+Too bad; it’s a cool ride.
+The prequal function returns 
+false, and so we get...
+JavaScript console
+You should really pass on the Webville Motors Taxi
+var taxi = { ... };
+make: "Webville..."
+model: "Taxi
+year: 1955
+color: "yellow"
+passengers: 4
+convertible: false
+mileage: 281341
+make: "Webville..."
+model: "Taxi
+year: 1955
+color: "yellow"
+passengers: 4
+convertible: false
+mileage: 281341
+taxi
+car points to the same object as taxi!
+
+you are here 4        191
+understanding objects
+Your turn. Here are three more car objects; what is the result of passing 
+each car to the prequal function? Work the answer by hand, and then 
+write the code to check your answers:
+var cadi = { 
+    make: "GM",
+    model: "Cadillac",
+    year: 1955,
+    color: "tan",
+    passengers: 5,
+    convertible: false,
+    mileage: 12892
+};
+prequal(cadi);
+var chevy = { 
+    make: "Chevy",
+    model: "Bel Air",
+    year: 1957, 
+    color: "red",
+    passengers: 2,
+    convertible: false,
+    mileage: 1021
+};
+prequal(chevy);
+var fiat = { 
+    make: "Fiat",
+    model: "500",
+    year: 1957, 
+    color: "Medium Blue",
+    passengers: 2,
+    convertible: false,
+    mileage: 88000
+};
+prequal(fiat);
+Write the 
+value of 
+prequal here.
+
+192        Chapter    5
+passing object references
+Let’s talk a little more about passing 
+objects to functions
+We ’ve already talked a bit about how arguments are passed to functions—arguments are 
+passed by value, which means pass-by-copy. So if  we pass an integer, the corresponding function 
+parameter gets a copy of  the value of  that integer for its use in the function. The same rules 
+hold true for objects, however, we should look a little more closely at what pass-by-value 
+means for objects to understand what happens when you pass an object to a function.
+You already know that when an object is assigned to a variable, that variable holds a reference 
+to the object, not the object itself. Again, think of  a reference as a pointer to the object:
+So, when you call a function and pass it an object, you’re passing the object 
+reference, not the object itself.  So using our pass by value semantics, a copy of  the 
+reference is passed into the parameter, and that reference remains a pointer to 
+the original object.
+Dog
+name: “Fido”
+weight: 40
+breed: “Mixed”
+loves: “walks”
+When an object is assigned to 
+a variable, the variable is given 
+a reference to the object. It 
+doesn’t “hold” the object itself.
+So, what does this all mean? Well, one of  the biggest ramifications is that if  you change a 
+property of  the object in a function, you’re changing the property in the original object. So 
+any changes you make to the object inside a function will still be there when the function 
+completes. Let’s step through an example...
+When we call bark and pass it fido 
+as an argument, the dog parameter 
+variable gets a copy of the reference. 
+fido
+dog
+function bark(dog) {
+ ... code here ...
+}
+bark(fido);
+fido
+The dog parameter variable points 
+to the same object as fido.
+copy
+
+you are here 4        193
+understanding objects
+loseWeight(fido, 10);
+fido is a reference to an 
+object, which means the 
+object doesn’t live in the fido 
+variable, but is pointed to by 
+the fido variable.
+Putting Fido on a diet....
+Let’s say we are testing a new method of  weight loss for dogs, which we 
+want to neatly implement in a function loseWeight. All you need to 
+do is pass loseWeight your dog object and an amount to lose, and like 
+magic, the dog’s weight will be reduced. Here’s how it works:
+function loseWeight(dog, amount) {
+  dog.weight = dog.weight - amount;
+}
+alert(fido.name + " now weighs " + fido.weight);
+So, when we subtract 10 pounds 
+from dog.weight, we’re changing 
+the value of fido.weight.
+When we pass fido into loseWeight, what gets 
+assigned to the dog parameter is a copy of 
+the reference, not a copy of the object. So 
+fido and dog point to the same object.
+When we pass fido 
+to a function, we are 
+passing the reference 
+to the object.
+1
+First check out the dog object, fido, which we are 
+going to pass to the loseWeight function:
+2
+The dog parameter of the loseWeight function gets 
+a copy of the reference to fido. So any changes to 
+the properties of the parameter variable affect 
+the object that was passed in.
+The dog reference 
+is a copy of the 
+fido reference.
+dog
+fido
+Dog
+name: “Fido”
+weight: 48
+breed: “Mixed”
+loves: “walks”
+Here’s the dog object.
+
+194        Chapter    5
+object exercise
+function getSecret(file, secretPassword) {
+    _______.opened = _______.opened + 1;
+    if (secretPassword == _______.password) {
+        return ______.contents;
+    }
+    else {
+        return "Invalid password! No secret for you.";
+    }
+}
+function setSecret(file, secretPassword, secret) {
+    if (secretPassword == _______.password) {
+        ______.opened = 0;
+        ______.contents = secret;
+    }
+}
+var superSecretFile = {
+    level: "classified",
+    opened: 0,
+    password: 2,
+    contents: "Dr. Evel's next meeting is in Detroit."
+};
+var secret = getSecret(_______________, _____);
+console.log(secret);
+setSecret(_________________, _____, "Dr. Evel's next meeting is in Philadelphia.");
+secret = getSecret(_______________, _____);
+console.log(secret);
+You’ve been given a super secret file and two functions that allow access to 
+get and set the contents of the file, but only if you have the right password. 
+The first function, getSecret, returns the contents of the file if the password 
+is correct, and logs each attempt to access the file. The second function, 
+setSecret, updates the contents of the file, and resets the access tracking 
+to 0. It’s your job to fill in the blanks below to complete the JavaScript and 
+test your functions. 
+
+you are here 4        195
+understanding objects
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Object-o-matic</title>
+  <meta charset="utf-8">
+  <script>
+    function makeCar() {
+        var makes = ["Chevy", "GM", "Fiat", "Webville Motors", "Tucker"];
+        var models = ["Cadillac", "500", "Bel-Air", "Taxi", "Torpedo"];
+        var years = [1955, 1957, 1948, 1954, 1961];
+        var colors = ["red", "blue", "tan", "yellow", "white"];
+        var convertible = [true, false];
+        var rand1 = Math.floor(Math.random() * makes.length);
+        var rand2 = Math.floor(Math.random() * models.length);
+        var rand3 = Math.floor(Math.random() * years.length);
+        var rand4 = Math.floor(Math.random() * colors.length);
+        var rand5 = Math.floor(Math.random() * 5) + 1;
+        var rand6 = Math.floor(Math.random() * 2);
+        var car = {
+            make: makes[rand1],
+            model: models[rand2],
+            year: years[rand3],
+            color: colors[rand4],
+            passengers: rand5,
+            convertible: convertible[rand6],
+            mileage: 0
+        };
+        return car;
+    }
+    function displayCar(car) {
+        console.log("Your new car is a " + car.year + " " + car.make + " " + car.model);
+    }
+    var carToSell = makeCar();
+    displayCar(carToSell);
+  </script>
+</head>
+<body></body>
+</html>
+I’m back, and this time 
+I’ve got an Auto-O-Matic. This 
+baby will have you hawking new 
+cars all day long.
+The Auto-O-Matic is similar 
+to the Phrase-O-Matic from

@@ -1,0 +1,748 @@
+When you call a method on an object instance, and that method isn’t found in 
+the instance, you check the prototype for that method. Here’s how.
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+fido.bark();
+No bark method 
+here! So look UP 
+at the prototype...
+1
+First we need some code. How about 
+we call the bark method of a dog object, 
+like this:
+2
+To evaluate this code we look 
+in the fido instance for a bark 
+method. But there isn’t one.
+name: “Fido”
+breed: “Mixed”
+weight: 38
+Dog
+3
+If we can’t find bark in the fido 
+instance, then we take a look next 
+at its prototype.
+4
+Checking the Dog prototype we 
+see it does have a bark method.
+5
+Finally, once we find the 
+bark method, we invoke 
+it, which results in Fido 
+barking.
+function bark() {
+  // code to bark
+}
+Just an everyday call 
+to the fido object’s 
+bark method.
+Properties work the same way. If  we write code that needs fido.name, 
+the value will come from the fido object. But if  we want the value of  
+fido.species, we first check the fido object, but when it isn’t found 
+there, we check the dog prototype (and find it).
+function bark() {
+  // code to bark
+}
+function bark() {
+  // code to bark
+}
+Start here and 
+follow the numbers: 
+1, 2, 3, 4, 5
+
+572        Chapter    13
+using a prototype for inheritance
+So now that you have this 
+newfangled inheritance thing,  I can 
+fire up the dog factory again?
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+function bark() {
+  // code to bark
+}
+name: “Smokey”
+breed: “Chow Chow”
+weight: 40
+Dog
+name: “Woofy”
+breed: “Mixed”
+weight: 20
+Dog
+name: “LadyBug”
+breed: “Hound”
+weight: 55
+Dog
+name: “Barnaby”
+breed: “Basset Hound”
+weight: 55
+Dog
+name: “Fido”
+breed: “Mixed”
+weight: 38
+Dog
+name: “Max”
+breed: “Hotdog”
+weight: 38
+Dog
+Now we only have a 
+single bark function. 
+Much better.
+He’s started producing 
+lots of dogs already. 
+Here’s a bunch of 
+instances he’s created, 
+all inheriting from the 
+dog prototype.
+Every dog has been customized with its name, 
+breed and weight, but relies on the prototype 
+for the species property and the bark method.
+Thank you! Before you 
+started using inheritance 
+we were dying down here!
+Now that you understand how to use inheritance we can 
+create a large number of  dogs. All the dogs can all still bark, 
+but now they’re relying on the dog prototype object to supply 
+that bark method. We have code reuse, not just by having 
+our code written in one place, but by having all dog instances 
+use the same bark method at runtime, which means we aren’t 
+causing lots of  runtime overhead.
+You’re going to see that by using prototypes, you’ll be able 
+to quickly assemble objects that reuse code, and that can be 
+extended with new behavior and properties.
+function bark() {
+  // code to bark
+}
+function bark() {
+  // code to bark
+}
+
+you are here 4        573
+using prototypes
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+name: “Spot”
+breed: “Chihuahua”
+weight: 10
+Dog
+Overriding the prototype
+Just because you inherit something from the prototype 
+doesn’t mean you’re stuck with it. We can always override 
+properties and methods by supplying them in the object 
+instance. That works because JavaScript always looks in 
+the object instance—that is, the specific dog object—for a 
+property before it looks in the prototype. So, if  you want to 
+use a custom bark method for spot, all you have to do is 
+put that custom bark method in the spot object. Once 
+you do that, when JavaScript looks for the bark method to 
+invoke, it will find the method in spot, and won’t bother 
+looking in the prototype.
+Let’s see what it looks like when we override Spot’s bark 
+method to give him the ability to have a big “WOOF” bark.
+“Yip” isn’t a very 
+good bark for me. I need 
+something BIGGER! How 
+about “WOOF!” in all caps?!
+function bark() {
+  // code to bark
+}
+function bark() {
+  // WOOF code
+}
+This is a custom bark 
+method, just for spot.
+With all that in place we 
+can call bark. 
+spot.bark();
+But spot gets his own bark 
+method that says “WOOF!”.
+The bark method in the 
+prototype isn’t used for 
+spot, but it’s still used in 
+fido and fluffy.
+Spot.
+bark()
+Prototype dog 
+stays the same...
+We start looking for the bark 
+method first in the spot object.
+And we find it, so no need to 
+look further at the prototype. 
+When we use this method we 
+get a big WOOF!.
+function bark() {
+  // code to bark
+}
+function bark() {
+  // code to bark
+}
+
+574        Chapter    13
+exercise for prototypes
+Code Magnets
+We had an object diagram on the fridge, and then someone came and messed it up. Can you 
+help put it back together? To reassemble it, we need two instances of the robot prototype. 
+One is Robby, created in 1956, owned by Dr. Morbius, has an on/off switch and runs to 
+Starbucks for coffee. We’ve also got Rosie, created in 1962, who cleans house and is owned by 
+George Jetson. Good luck (oh, and there might be some extra magnets below)!
+Build the object diagram here.
+maker: "ObjectsRUs"
+Robot Prototype
+speak()
+makeCoffee()
+blinkLights()
+name: "Robby"
+Robot
+function 
+blinkLights() {
+  // code 4 lights
+}
+function speak() {
+  // code to speak
+}
+function 
+makeCoffee() {
+  // starbucks
+}
+function 
+makeCoffee() {
+  // code 4 coffee
+}
+name: "Rosie"
+Robot
+owner: Dr. Morbius
+year: 1956
+year: 1962
+owner: George Jetson
+makeCoffee()
+function 
+cleanHouse() {
+  // code 4 clean
+}
+onOffSwitch: true
+Here’s the 
+prototype your 
+robots can 
+inherit from.
+makeCoffee()
+cleanHouse()
+
+you are here 4        575
+using prototypes
+So where do you get a prototype?
+We ’ve talked a lot about the dog prototype, and at this point, 
+you’re probably ready to see an example that uses code rather 
+than diagrams. So, how do we create or get a hold of  a dog 
+prototype? Well, it turns out, you’ve actually had one all along. 
+You just didn’t know it.  
+And here’s how you access it in code:
+Dog.prototype
+If you look at your Dog constructor, it has 
+a prototype property that holds a reference 
+to the actual prototype.
+Now, if  you take this prototype property...
+Hold it right there. Dog 
+is a constructor—in other words, a 
+function. Remember? What do you 
+mean it has a property?
+Don’t look at the man behind the curtain! 
+Just kidding; you’re right. We were trying to gloss over that 
+point (and we really still intend to, for now). Here’s the 
+short story: functions are objects in JavaScript. In fact, in 
+JavaScript just about everything is an object underneath, 
+even arrays if  you haven’t figured that one out yet.
+But, for now, we don’t want to get sidetracked on this. Just 
+know that functions, in addition to doing everything you 
+already know they can do, can also have properties, and in 
+this case, the constructor always has a prototype property. 
+More on functions and other things that are objects later, 
+we promise.
+
+576        Chapter    13
+customizing a prototype
+How to set up the prototype
+As we were saying, you can access the prototype object through the Dog 
+constructor’s prototype property. But what properties and methods are in 
+the prototype object? Well, until you set it up yourself, not much. In other 
+words it’s your job to add properties and methods to the prototype. We 
+typically do that before we start using the constructor.
+So, let’s set up the dog prototype. First we need a constructor to work from, so 
+let’s look at our object diagram to see how to make that:
+Dog.prototype.species = "Canine";
+Dog.prototype.bark = function() {
+    if (this.weight > 25) {
+        console.log(this.name + " says Woof!");
+    } else {
+        console.log(this.name + " says Yip!");
+    }
+};
+Dog.prototype.run = function() {
+    console.log("Run!");
+};
+Dog.prototype.wag = function() {
+    console.log("Wag!");
+};
+function Dog(name, breed, weight) {
+    this.name = name;
+    this.breed = breed;
+    this.weight = weight;
+}
+name: “Spot”
+breed: “Chihuahua”
+weight: 10
+Dog
+This is the constructor 
+to create an instance 
+of a dog. Each instance 
+has its own name, breed 
+and weight., so let’s 
+incorporate those into 
+the constructor.
+But we’re going to get our methods from the 
+prototype, so we don’t need them in the constructor.
+Okay, now that we have a constructor, let’s set up our dog prototype. We want 
+it to have the species property and the bark, run and wag methods. Here’s 
+how we do that:
+We assign the string “Canine” to the 
+prototype’s species property.
+And for each method, we assign the 
+appropriate function to the prototype’s 
+bark, run and wag properties respectively.
+Serious Coding
+Don’t forget about chaining:
+Dog.prototype.species
+Start with Dog and grab its prototype property, which 
+is a reference to an object that has a species property.
+
+you are here 4        577
+using prototypes
+Test drive the prototype with some dogs
+function Dog(name, breed, weight) {
+    this.name = name;
+    this.breed = breed;
+    this.weight = weight;
+}
+Dog.prototype.species = "Canine";
+Dog.prototype.bark = function() {
+    if (this.weight > 25) {
+        console.log(this.name + " says Woof!");
+    } else {
+        console.log(this.name + " says Yip!");
+    }
+};
+Dog.prototype.run = function() {
+    console.log("Run!");
+};
+Dog.prototype.wag = function() {
+    console.log("Wag!");
+};
+var fido = new Dog("Fido", "Mixed", 38);
+var fluffy = new Dog("Fluffy", "Poodle", 30);
+var spot = new Dog("Spot", "Chihuahua", 10);
+fido.bark();
+fido.run();
+fido.wag();
+fluffy.bark();
+fluffy.run();
+fluffy.wag();
+spot.bark();
+spot.run();
+spot.wag();
+Go ahead and get this code typed into a file (“dog.html”) and loaded 
+into your browser for testing. We’ve reproduced all the code after the 
+changes we made on the previous page, and added a bit of  testing code. 
+Make sure all your dogs bark, run and wag like they should.
+Each dog is 
+barking, running 
+and wagging. 
+Good. 
+But wait a second, didn't Spot 
+want his bark to be WOOF!?
+Here's the Dog constructor.
+And here's where we add properties and 
+methods to the dog prototype.
+We're adding one property and 
+three methods to the prototype.
+Now, we create the 
+dogs like normal...
+... and then we call 
+the methods for each 
+dog, just like normal. 
+Each dog inherits the 
+methods from the 
+prototype. 
+JavaScript console
+Fido says Woof! 
+Run!
+Wag!
+Fluffy says Woof! 
+Run! 
+Wag! 
+Spot says Yip! 
+Run! 
+Wag!
+
+578        Chapter    13
+overriding the prototype
+Give Spot his WOOF! in code
+Hey, don’t forget 
+about me. I requested a 
+bigger WOOF!
+Don’t worry, we didn’t forget about Spot. Spot 
+requested a bigger WOOF! so we need to override the 
+prototype to give him his own custom bark method. 
+Let’s update the code:
+...
+var spot = new Dog("Spot", "Chihuahua", 10);
+spot.bark = function() {
+    console.log(this.name + " says WOOF!");
+};
+// calls to fido and fluffy are the same
+spot.bark();
+spot.run();
+spot.wag();
+The only change we 
+make to the code is 
+to give Spot his own 
+custom bark method. 
+We don't need to change how we 
+call Spot's bark method at all.
+Test drive the custom bark method
+Add the new code above and take it 
+for a quick test drive...
+Spot gets the WOOF! 
+he wanted.
+The rest of the code goes here. We’re just saving 
+trees, or bits, or our carbon footprint, or something...
+JavaScript console
+Fido says Woof! 
+Run!
+Wag!
+Fluffy says Woof! 
+Run! 
+Wag! 
+Spot says WOOF! 
+Run! 
+Wag!
+
+you are here 4        579
+using prototypes
+v
+function Robot(name, year, owner) {
+    this.name = name;
+    this.year = year;
+    this.owner = owner;
+}
+Robot.prototype.maker = 
+Robot.prototype.speak = 
+Robot.prototype.makeCoffee = 
+Robot.prototype.blinkLights = 
+var robby = 
+var rosie = 
+robby.onOffSwitch = 
+robby.makeCoffee = 
+rosie.cleanHouse = 
+console.log(robby.name + " was made by " + robby.maker +
+            " in " + robby.year + " and is owned by " + robby.owner);
+robby.makeCoffee();
+robby.blinkLights();
+console.log(rosie.name + " was made by " + rosie.maker +
+            " in " + rosie.year + " and is owned by " + rosie.owner);
+rosie.cleanHouse();
+Remember our object diagram for the Robby and Rosie robots? We’re going to implement that 
+now. We’ve already written a Robot constructor for you along with some test code. Your job is to 
+set up the robot prototype and to implement the two robots. Make sure you run them through the 
+test code.
+Use this code to test your 
+instances to make sure they 
+are working properly and 
+inheriting from the prototype.
+You’ll want to set up the 
+robot prototype here.
+Here’s the basic Robot 
+constructor. You still need 
+to set up its prototype.
+Write your code to create the 
+Robby and Rosie robots here. Make 
+sure you add any custom properties 
+they have to the instances.
+
+580        Chapter    13
+thinking about prototypes
+Good question. When we didn’t have 
+prototypes this was easy because we know 
+this gets set to the object whose method 
+was called. When we are calling the bark 
+method in the prototype, you might think 
+that this is now set to the prototype object. 
+Well, that’s not how it works.
+When you call an object’s method, this is 
+set to the object whose method was called. 
+If  the method is not found in that object, 
+and is found in the prototype, that doesn’t 
+change the value of  this. this always 
+refers to the original object—that is, the 
+object whose method was called—even if  
+the method is in the prototype. So, if  we 
+find the bark method in the prototype, 
+then we call the method, with this set to 
+the original dog object, giving us the result 
+we want, like “Fluffy says Woof !”.
+I was wondering how this.name in the bark 
+method still works given that the bark method is 
+in the prototype and not in the original object.
+
+you are here 4        581
+using prototypes
+Teaching a dog a new trick
+It’s time to teach our dogs a new trick. That’s right we said “dogs” plural, not dog. You 
+see, now that we have a prototype, if  we add any methods to that prototype, even after 
+we’ve already created dog objects, all dogs inheriting from the prototype immediately 
+and automatically get this new behavior.
+Let’s say we want to teach all our dogs to sit. What we do is add a method to the 
+prototype for sitting. 
+1
+We create a new dog Barnaby.
+2
+Next we add a new method, 
+sit, to the prototype.
+3
+We call the barnaby.sit 
+method, but we can’t find sit in 
+barnaby object.
+But we do find sit in the 
+prototype, and we invoke it.
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+function bark() {
+  // code to bark
+}
+function bark() {
+  // code to bark
+}
+function bark() {
+  // code to bark
+}
+name: “Barnaby”
+breed: “Basset Hound”
+weight: 55
+Dog
+sit()
+function sit() {
+  // code to sit
+}
+all
+s
+var barnaby = new Dog("Barnaby", "Basset Hound", 55);
+Dog.prototype.sit = function() {
+    console.log(this.name + " is now sitting");
+}
+We’ll give this a try with Barnaby:
+Let's create another dog 
+to test this on.
+And then let's add the 
+sit method.
+barnaby.sit();
+We first check to see if the 
+barnaby object has a sit method 
+and there isn't one. So we then 
+check the prototype, find the sit 
+method, and invoke it.
+Let’s take a closer look at how this works. Make sure you follow the sequence 1, 2, 3, 4.
+JavaScript console
+Barnaby is now sitting 
+A Closer Look
+4
+
+582        Chapter    13
+questions about prototypes
+species: "Canine"
+Dog Prototype
+bark()
+run()
+wag()
+Any dog object that has 
+the Dog prototype can 
+now use the sit method.
+function bark() {
+  // code to bark
+}
+function bark() {
+  // code to bark
+}
+function bark() {
+  // code to bark
+}
+name: “Barnaby”
+breed: “Basset Hound”
+weight: 55
+Dog
+sit()
+function sit() {
+  // code to sit
+}
+Prototypes are dynamic
+We’re glad to see Barnaby can now sit. But it turns out that now all our 
+dogs can sit, because once you add a method to a prototype, any objects 
+that inherit from that prototype can make use of  that method:
+This works for 
+properties too, 
+of course.
+name: “Smokey”
+breed: “Chow Chow”
+weight: 40
+Dog
+name: “Woofy”
+breed: “Mixed”
+weight: 20
+Dog
+name: “LadyBug”
+breed: “Hound”
+weight: 55
+Dog
+name: “Fido”
+breed: “Mixed”
+weight: 38
+Dog
+name: “Max”
+breed: “Hotdog”
+weight: 38
+Dog
+ Q:
+ So when I add a new method or property to a prototype, 
+all the object instances that inherit from it immediately see it?
+A:
+ If by “see it” you mean that they inherit that method or property, 
+you are correct. Notice that this gives you a way to extend or change 
+the behavior of all your instances at runtime by simply changing their 
+prototype. 
+ 
+ 
+Q:
+ I see how adding a new property to a prototype makes 
+that property available to all the objects that inherit from 
+the prototype. What if I change an existing property in the 
+prototype; does that affect those objects in the same way? Like 
+if I change the property species to “Feline” instead of “Canine”, 
+does that mean all existing dogs are now “Feline” species?
+A: Yes. If you change any property in the prototype, it affects all 
+the objects that inherit from that prototype, unless that object has 
+overridden that property. 
+
+you are here 4        583
+using prototypes
+v
+Robby and Rosie are being used in a Robot game. You’ll find the code for them below. In this 
+game, whenever a player reaches level 42, a new robot capability is unlocked: the laser beam 
+capability. Finish the code below so that at level 42 both Robby and Rosie get their laser beams. 
+Check your answer at the end of the chapter before you go on.
+function Game() {
+    this.level = 0;
+}
+Game.prototype.play = function() {
+    // player plays game here
+    this.level++;
+    console.log("Welcome to level " + this.level);
+    this.unlock();
+}
+Game.prototype.unlock = function() {
+}
+function Robot(name, year, owner) {
+    this.name = name;
+    this.year = year;
+    this.owner = owner;
+}
+var game = new Game();
+var robby = new Robot("Robby", 1956, "Dr. Morbius");
+var rosie = new Robot("Rosie", 1962, "George Jetson");
+while (game.level < 42) {
+     game.play();
+}
+robby.deployLaser();
+rosie.deployLaser();
+JavaScript console
+Welcome to level 1
+Welcome to level 2
+Welcome to level 3 
+ ...
+Welcome to level 41
+Welcome to level 42
+Rosie is blasting you with 
+laser beams.
+A sample of our 
+output. When you 
+finish your code, give 
+it a play and see which 
+robot wins and gets to 
+blast its laser beams!
+
+584        Chapter    13
+using the prototype for initial values
+Dog.prototype.sitting = false;
+Dog.prototype.sit = function() {
+    if (this.sitting) {
+        console.log(this.name + " is already sitting");
+    } else {
+        this.sitting = true;
+        console.log(this.name + " is now sitting");
+    }
+};
+A more interesting implementation of the sit method
+Let’s make the sit method a little more interesting: dogs will start in a state of  not 
+sitting (in other words, standing up). So, when sit is called, if  a dog isn’t sitting, we’ll 
+make him sit. Otherwise, we’ll let the user know he’s already sitting. To do this we’re 
+going to need an extra property, sitting, to keep track of  whether the dog is sitting or 
+not. Let’s write the code:
+By setting sitting to 
+false in the prototype, all 
+dogs start by not sitting.
+Then, in the sit method, we 
+check to see if the dog is sitting 
+or not. At first, when we check 
+this.sitting we’ll be looking at 
+the value in the dog prototype.
+But, if the dog is not sitting, we say he’s now 
+sitting and then we set the value of this.sitting 
+to true. This overrides the prototype property 
+and sets the value in the instance.
+Let’s give this a try for real. Go ahead and update your code, adding the new 
+property and implementation of  sit. Now when we test drive this code, you can see 
+that we can make barnaby sit, and then make spot sit, and each dog keeps track of  
+whether it is sitting separately:
+barnaby.sit()
+barnaby.sit()
+spot.sit()
+spot.sit()
+JavaScript console
+Barnaby is now sitting 
+Barnaby is already sitting
+Spot is now sitting 
+Spot is already sitting
+Test drive the new sit method
+We start with a sitting property in the prototype.
+Notice that the instance now has its 
+own local sitting property, set to true.
+If the dog is sitting, we say he’s 
+already sitting.
+The interesting thing about this code is that when a dog instance starts out life, it inherits 
+a default value of  false for sitting. But, as soon as the sit method is called, the dog 
+instance adds its own value for sitting, which results in a property being created in the 
+instance. This overrides the inherited sitting property in the prototype. This gives us a 
+way to have a default for all dogs, and then to specialize each dog if  we need to.
+
+you are here 4        585
+using prototypes
+1
+We call spot.sit for the first 
+time. Spot doesn’t have a
