@@ -1186,6 +1186,28 @@ mark.bb-highlight[data-has-note="true"]::after {
 @keyframes ddia-pulse { 0% { opacity: 1; } 50% { opacity: 0.35; } 100% { opacity: 1; } }
 .pulse { animation: ddia-pulse 1s ease-in-out infinite; }
 
+/* Mind Map & Interactive Graph Nodes */
+.bb-chapter-reader svg .mind-node {
+  cursor: pointer;
+  transition: transform 0.2s ease, stroke 0.2s ease, fill 0.2s ease, filter 0.2s ease;
+}
+.bb-chapter-reader svg .mind-node:hover {
+  filter: drop-shadow(0 2px 8px var(--accent-soft));
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+.bb-chapter-reader svg .mind-leaf {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.bb-chapter-reader svg .mind-leaf:hover {
+  stroke: var(--ok);
+  fill: var(--surface-2);
+}
+.bb-chapter-reader svg .mind-curve {
+  transition: stroke 0.3s ease, stroke-width 0.3s ease, opacity 0.3s ease;
+}
+
 /* Topic Footer, Inline Personal Notes & Quizzes */
 .bb-chapter-reader .topic-foot {
   display: flex;
