@@ -57,14 +57,14 @@ export default function Clay3DLibraryScene({ className = "" }) {
     const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
     camera.position.set(4.2, 3.8, 5.8);
 
-    // 2. RENDERER
+    // 2. RENDERER (Optimized for 60fps & low GPU load)
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true,
       powerPreference: "high-performance",
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 1, 1.35));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -74,7 +74,7 @@ export default function Clay3DLibraryScene({ className = "" }) {
     // 3. CONTROLS
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.06;
+    controls.dampingFactor = 0.08;
     controls.minDistance = 3.5;
     controls.maxDistance = 11;
     controls.maxPolarAngle = Math.PI / 2 + 0.05; // Prevent camera from going under table
@@ -83,7 +83,7 @@ export default function Clay3DLibraryScene({ className = "" }) {
     controls.autoRotateSpeed = 1.5;
     sceneElementsRef.current.controls = controls;
 
-    // 4. LIGHTING - Warm Studio Clay Lighting
+    // 4. LIGHTING - Warm Studio Clay Lighting (Optimized 512 Shadow Map)
     const ambientLight = new THREE.AmbientLight(0xfff7ed, 0.95);
     scene.add(ambientLight);
 
@@ -94,8 +94,8 @@ export default function Clay3DLibraryScene({ className = "" }) {
     const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
     keyLight.position.set(6, 8, 7);
     keyLight.castShadow = true;
-    keyLight.shadow.mapSize.width = 1024;
-    keyLight.shadow.mapSize.height = 1024;
+    keyLight.shadow.mapSize.width = 512;
+    keyLight.shadow.mapSize.height = 512;
     keyLight.shadow.camera.near = 0.5;
     keyLight.shadow.camera.far = 25;
     keyLight.shadow.camera.left = -5;
@@ -452,13 +452,35 @@ export default function Clay3DLibraryScene({ className = "" }) {
     renderer.domElement.addEventListener("pointerdown", handlePointerDown);
 
     // ==============================================================
-    // 7. ANIMATION LOOP
+    // 7. ANIMATION LOOP (Paused when off-screen or tab hidden)
     // ==============================================================
     let animId;
     let clock = new THREE.Clock();
+    let isVisible = true;
+
+    // Visibility Observer to completely pause rendering when scrolled past
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(container);
+
+    function onVisibilityChange() {
+      if (document.hidden) {
+        isVisible = false;
+      } else {
+        isVisible = true;
+      }
+    }
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     function animate() {
       animId = requestAnimationFrame(animate);
+
+      // Save 100% GPU / CPU when not in viewport or tab hidden
+      if (!isVisible) return;
 
       const delta = clock.getDelta();
       const time = clock.getElapsedTime();
@@ -471,7 +493,6 @@ export default function Clay3DLibraryScene({ className = "" }) {
       // Smooth Transitions for Book States
       if (el.topBookGroup) {
         if (el.isExploded) {
-          // Explode book layers vertically and tilt
           el.topBookGroup.position.y += (1.45 - el.topBookGroup.position.y) * 0.1;
           el.topBookGroup.rotation.x += (-0.35 - el.topBookGroup.rotation.x) * 0.1;
           if (el.innerPagesGroup) el.innerPagesGroup.visible = true;
@@ -479,7 +500,6 @@ export default function Clay3DLibraryScene({ className = "" }) {
             el.bottomBookMesh.position.y += (-0.05 - el.bottomBookMesh.position.y) * 0.1;
           }
         } else if (el.isOpen) {
-          // Open book state
           el.topBookGroup.position.y += (0.85 - el.topBookGroup.position.y) * 0.1;
           el.topBookGroup.rotation.x += (-0.65 - el.topBookGroup.rotation.x) * 0.1;
           if (el.innerPagesGroup) el.innerPagesGroup.visible = true;
@@ -487,7 +507,6 @@ export default function Clay3DLibraryScene({ className = "" }) {
             el.bottomBookMesh.position.y += (0.18 - el.bottomBookMesh.position.y) * 0.1;
           }
         } else {
-          // Stacked closed book state
           el.topBookGroup.position.y += (0.58 - el.topBookGroup.position.y) * 0.1;
           el.topBookGroup.rotation.x += (0 - el.topBookGroup.rotation.x) * 0.1;
           if (el.innerPagesGroup) el.innerPagesGroup.visible = false;
@@ -539,6 +558,8 @@ export default function Clay3DLibraryScene({ className = "" }) {
     // ==============================================================
     return () => {
       cancelAnimationFrame(animId);
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("resize", handleResize);
       renderer.domElement.removeEventListener("pointerdown", handlePointerDown);
 

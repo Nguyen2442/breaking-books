@@ -98,14 +98,14 @@ export default function Clay3DAuthScene({
 
     sceneRefs.current.camera = camera;
 
-    // 2. RENDERER
+    // 2. RENDERER (Optimized for 60fps & low GPU load)
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true,
       powerPreference: "high-performance",
     });
     renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(Math.min(typeof window !== "undefined" ? window.devicePixelRatio : 1, 1.35));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -115,7 +115,7 @@ export default function Clay3DAuthScene({
     // 3. CONTROLS
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
-    controls.dampingFactor = 0.06;
+    controls.dampingFactor = 0.08;
     controls.minDistance = 3.2;
     controls.maxDistance = 11;
     controls.maxPolarAngle = Math.PI / 2 + 0.05;
@@ -124,7 +124,7 @@ export default function Clay3DAuthScene({
     controls.autoRotateSpeed = 1.2;
     sceneRefs.current.controls = controls;
 
-    // 4. LIGHTS
+    // 4. LIGHTS (Optimized 512 Shadow Map)
     const ambientLight = new THREE.AmbientLight(0xfff7ed, 0.9);
     scene.add(ambientLight);
 
@@ -135,8 +135,8 @@ export default function Clay3DAuthScene({
     const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
     keyLight.position.set(5, 8, 6);
     keyLight.castShadow = true;
-    keyLight.shadow.mapSize.width = 1024;
-    keyLight.shadow.mapSize.height = 1024;
+    keyLight.shadow.mapSize.width = 512;
+    keyLight.shadow.mapSize.height = 512;
     keyLight.shadow.camera.near = 0.5;
     keyLight.shadow.camera.far = 20;
     keyLight.shadow.camera.left = -4;
@@ -188,15 +188,12 @@ export default function Clay3DAuthScene({
     scene.add(ring);
 
     // FROSTED GLASS BACKDROP:
-    // Placed strictly in the BACK (z = -1.3) so it NEVER blocks the camera view!
-    const frostedGlassMat = new THREE.MeshPhysicalMaterial({
+    // Placed strictly in the BACK (z = -1.3), using lightweight standard material
+    const frostedGlassMat = new THREE.MeshStandardMaterial({
       color: 0xffffff,
       roughness: 0.15,
-      transmission: 0.88,
-      thickness: 0.4,
       transparent: true,
       opacity: 0.45,
-      ior: 1.45,
     });
 
     // Sleek architectural frosted glass partition safely in the background
@@ -555,13 +552,31 @@ export default function Clay3DAuthScene({
     renderer.domElement.addEventListener("pointerdown", handlePointerDown);
 
     // ==============================================================
-    // 9. ANIMATION LOOP
+    // 9. ANIMATION LOOP (Paused when offscreen or tab hidden)
     // ==============================================================
     let animId;
     let clock = new THREE.Clock();
+    let isVisible = true;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(container);
+
+    function onVisibilityChange() {
+      isVisible = !document.hidden;
+    }
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     function animate() {
       animId = requestAnimationFrame(animate);
+
+      // Save GPU/CPU when not in viewport
+      if (!isVisible) return;
+
       const delta = clock.getDelta();
       const time = clock.getElapsedTime();
 
@@ -616,6 +631,8 @@ export default function Clay3DAuthScene({
 
     return () => {
       cancelAnimationFrame(animId);
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("resize", handleResize);
       renderer.domElement.removeEventListener("pointerdown", handlePointerDown);
 
