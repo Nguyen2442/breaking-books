@@ -1,0 +1,822 @@
+Chapter  4.)  Now,  API  requests  to  repositories.fetch  are  timing
+out  because  the  repositories  must  be  aggregated  across  multiple
+database shards.
+As a result of a weekend service outage that was caused by too many
+calls  to  repositories.fetch,  Company  A  has  agreed  with  Com‐
+pany  B  to  release  a  new  endpoint  that  returns  a  single  repository,
+repositories.fetchSingle, which you can see in Example 7-2.
+Example 7-2. Response payload for repositories.fetchSingle
+[
+  {
+    "12345": {...}
+Toward Consistency | 119
+
+  }
+]
+Now Company A has two endpoints, shown side by side in Table 7-2
+for easy comparison.
+Table 7-2. Side-by-side comparison of repositories.fetch and
+repositories.fetchSingle payloads
+Endpoint 1Endpoint 2
+repositories.fetch()repositories.fetchSingle(12345)
+{
+  "repositories": [
+    {
+      "id": 12345
+    },
+    {
+      "id": 23456
+    }
+  ]
+}
+[
+  {
+    "12345": {...}
+  }
+]
+Notice  the  inconsistencies  when  comparing  the  payloads  for  these
+two  very  similar  endpoints.  For  repositories.fetch  the  response
+includes  a  key  ("repositories")  whose  value  is  an  array  of  objects
+containing IDs keyed by "id".
+In  contrast,  repositories.fetchSingle  returns  an  array  without
+the  "repositories"  key.  Inside  of  that  array  is  an  array  of  objects
+keyed by the actual ID value, instead of by the string "id".
+Although  this  is  a  fictitious  story,  it’s  not  an  uncommon  pattern  at
+growing  companies.  After  the  initial  version  of  an  API  is  released,
+additional changes might be made that are inconsistent. Developers
+adopt  these  new  features,  along  with  their  inconsistencies.  That  is
+how  inconsistency  develops—and  sticks—as  an  API  evolves.  Luck‐
+ily,  to  help  prevent  these  types  of  inconsistencies,  there  are  techno‐
+logical  tools  and  organizational  processes,  and  we  cover  some  of
+them in the following sections.
+Automated Testing
+It’s  important  that  everyone  who  impacts  the  API  understands  and
+supports consistency, but it’s difficult to enforce as an organizational
+value. And you cannot expect people to always make the right deci‐
+sions  for  the  system,  especially  when  they  need  to  reconsider  the
+
+minutiae of a complex system for every decision. That’s where auto‐
+mated testing comes into play.
+Continuous integration (CI) is the practice of merging all developers’
+working  copies  to  a  single  shared  repository,  often  multiple  times  a
+day. The workflow in which a code change goes from being written
+to approved and merged is called a CI pipeline (Figure 7-1). Adding
+an automated testing step (see Step 3 in Figure 7-1) before develop‐
+ers  are  allowed  to  merge  their  code  is  a  great  choice  for  preventing
+unwanted changes from sneaking into the API—especially the back‐
+ward  incompatible  ones.  These  test  suites  are  useful  for  catching
+regressions as you develop your API.
+Figure 7-1. A CI pipeline
+When  you’re  implementing  an  automated  test  suite,  it  must  give
+internal  developers  timely  feedback,  minimize  false  positives,  and
+empower internal developers to make the right choices in their API
+design.  The  tests  themselves  should  validate  input,  expected  behav‐
+ior,  and  the  correct  data  types  in  the  response  payload.  The  more
+individuals there are who are empowered to write high-quality auto‐
+mation  tests,  the  more  useful  your  CI  pipeline  will  be  in  ensuring
+data reliability for your APIs.
+You  might  also  choose  to  include  additional  approval  requirements
+in the CI pipeline prior to code merge for any changes that affect the
+output of the API. After changes that affect the API are detected, the
+Toward Consistency | 121
+
+code  change  can  be  automatically  submitted  for  specific  people  to
+review  before  it  can  be  merged.  Those  reviewers  could  have  a  pro‐
+cess for making sure that requests and responses are consistent with
+the APIs that are already released.
+Automated  testing  should  be  a  part  of  your  internal  development
+life   cycle;   it   brings   high   visibility   and   responsiveness   to   code
+changes.  The  more  you  can  catch  unwanted  changes  before  they
+occur, the better off you are.
+If  you  don’t  have  CI,  run  automated  tests  continuously  off  the  code
+mainline  to  measure  the  health  of  your  API.  Run  the  tests  as  fre‐
+quently  as  possible  to  begin  with.  Then,  as  you  build  your  CI  pipe‐
+line,  make  them  nonblocking  and  monitor  the  results.  When  you
+have 0% false negatives, turn them on as blocking tests, so that fail‐
+ures will prevent merges.
+In  summary,  you  need  to  craft  a  process  to  ensure  that  internal
+developers  get  timely  feedback  on  design  decisions  and  proposed
+changes before they merge code.
+In addition to having your CI pipeline ensure backward compatibil‐
+ity,  there  are  additional  mechanisms  that  can  help  ensure  consis‐
+tency  for  APIs,  which  we  discuss  in  more  detail  in  the  subsections
+that follow.
+API description languages
+In  service-oriented  architecture,  you  would  be  able  to  use  an  inter‐
+face description language (IDL) to define requests and a type system
+to validate responses.  However, there is no advantage to using these
+tools for external-facing APIs, because you have no control over the
+requesters’  behavior.  Because  of  that,  you  need  to  take  a  different
+approach to defining the interfaces of your API.
+JavaScript  Object  Notation  (JSON)  is  a  widely  used  format  that  is
+both flexible and expressive, and it’s the format for all the API exam‐
+ples  in  this  book.  As  JSON  becomes  more  rich  and  expressive,  it
+cannot be constrained to the same type systems that most program‐
+ming  languages  have.  As  a  result,  if  you  are  providing  a  JSON  web
+API, you need to think carefully about the tools you use to manage
+changes for both responses and requests.
+First, let’s talk about describing and validating responses.
+
+Describing and validating responses
+The first thing you want to validate with automated tests is response
+payloads.  Luckily,  you  don’t  need  to  write  this  validation  from
+scratch.
+There are tools that help you to describe the interface of an API in a
+structured way that can be used to generate documentation and run
+your  tests.  Additionally,  a  subset  of  these  tools  also  allows  you  to
+specify   data   types   and   custom   data   types.   Some   examples   are
+json:api, JSON Schema, and Apache Avro.
+The  code  examples  that  follow  include  samples  of  a  simple  JSON
+Schema system and a corresponding test using the RSpec library for
+Ruby.  These  examples  illustrate  validation  for  a  simple  and  flat
+JSON  response—yours  might  end  up  being  much  more  compli‐
+cated. These are intended to give a high-level understanding of how
+JSON validation can happen in your CI pipeline.
+Example  7-3  shows  the  definition  of  the  payload  response  for  repo
+sitories.fetch.   There   are   many   more   features   to   the   JSON
+Schema than are shown here. As a basic example, this schema illus‐
+trates  that  all  fields  are  required  and  that  there  are  no  additional
+optional fields with "additionalProperties": false. It also lists a
+single  required  field  in  the  response,  keyed  as  "repositories".  In
+the  "properties"  object,  each  required  field  is  described  with
+"type": "array" and points to a single definition of what each item
+in the array should look like.
+Example 7-3. JSON Schema 
+definition
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "repositories.fetch",
+  "description": "Schema for repositories.fetch response payload",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "repositories"
+  ],
+  "properties": {
+    "repositories": {
+      "type": "array",
+      "items": {
+        "$ref": "../common_objects_schema.json#/repository"
+      }
+Toward Consistency | 123
+
+    }
+  }
+}
+Example  7-4  is  a  definition  of  the  repository  that  was  referenced  in
+Example  7-3  as  "../common_objects_schema.json#/repository".
+This  particular  object  will  have  required  fields,  each  with  its  own
+corresponding unique properties. This object definition is a power‐
+ful building block in maintaining consistency in your API. These are
+reusable objects that can be consumed in a variety of JSON Schemas
+for other endpoints. The stricter these reusable object definitions are
+and the more they’re used throughout the other JSON Schema defi‐
+nitions, the more you can guarantee that your responses have simi‐
+lar payloads when describing the same object type.
+Example 7-4. A JSON Schema 
+definition for a single “repository” that
+can be reused in a number of other JSON Schema 
+specifications
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "repository": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "name",
+      "description",
+      "created"
+  ],
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "created": {
+      "type": "integer"
+    }
+  }
+ }
+}
+
+In Example 7-5, you can see an example RSpec test that calls the API
+endpoint and then uses a helper to validate the response against the
+JSON Schema. You can run the RSpec tests (or whatever you choose
+for your automated tests) on demand or as part of a CI system. You
+should update the JSON Schema—or however you choose to define
+your response payloads—every time the response payload changes.
+Example 7-5. RSpec test using JSON Schema 
+definition
+describe 'repositories.fetch' do
+  # fetch all repositories
+  ...
+  it "can fetch all repositories successfully", acceptance: true do
+      create_repository_factory (product: 'std')
+      step "call repositories.fetch endpoint"
+      response = @client.repositories.fetch().response_body
+      step 'Validate API response and its schema for "ok: true"'
+      expect (response).to_match_json_schema(repositories.fetch)
+    end
+   end
+ end
+end
+Describing and validating requests
+Now  that  you’ve  seen  how  to  validate  API  response  payloads,  what
+about  requests?  Because  you  can’t  control  how  developers  use  the
+API, your best bet is to define a clear interface that creates flexibility
+while  guiding  developers  toward  the  best  choices  and  patterns.
+Additionally,  a  good  request  definition  interface  also  allows  for  you
+to  define  reusable  types,  just  like  the  reusable  object  definitions  in
+the JSON Schema in Example 7-4.
+Thankfully, there are tools to help you define your request structure
+so  that  you  don’t  need  to  build  it  from  scratch.  Just  like  for  API
+responses,  you  can  use  JSON  Schema  to  describe  and  validate  API
+requests, as long as the request is in JSON or you can reliably trans‐
+form  it  to  JSON.  Additionally,  tools  like  Swagger  use  a  different
+specification called OpenAPI, formerly known as the Swagger Speci‐
+fication, to describe REST APIs. Your API does not necessarily need
+to  be  RESTful  to  get  a  huge  benefit  out  of  this  system—the  only
+requirement is that you use the web. Swagger also has a mechanism
+Toward Consistency | 125
+
+to  automatically  generate  documentation.  Similarly,  OpenAPI  ena‐
+bles code generation for libraries and SDKs.
+Regardless  of  whether  you  use  JSON  Schema  or  OpenAPI,  imple‐
+menting a request specification system can have many uses. In addi‐
+tion to documentation, this system can also do some error checking
+and  validation  of  inbound  API  requests.  When  your  request  fields
+have  strict  types,  you  can  send  an  error  if  the  request  is  poorly  for‐
+matted. This saves you the effort of assembling a bad response pay‐
+load, and it provides better feedback to the developer.
+The  lack  of  ability  to  control  third-party  API  requests  means  that
+mistakes will be born out of an assumption that you and your users
+are like-minded. Don’t forget that human creativity is limitless, and
+users will use your API in ways you never imagined.
+That’s why documentation is key. When you create a request specifi‐
+cation  and  integrate  it  closely  with  your  documentation,  you  help
+developers make the right choices. In your documentation, you need
+to communicate the state of the world today, along with a history of
+significant changes you might have made in the past. You might also
+need to carve out a space to describe forthcoming changes.
+Storytime: API Metadata at Slack
+When Dan Bornstein started working as a software engineer on the
+Developer Platform team at Slack, there was no standard definition
+of  API  requests,  despite  the  API  rapidly  developing  a  large  follow‐
+ing.  So  Dan  created  the  API  metadata  system  to  describe  requests
+for  every  API  method.  Initially,  the  system  catalogued  request
+parameters  that  were  being  used  based  on  historic  traffic.  As  soon
+as  the  initial  system  was  put  in  place  using  historic  traffic,  the  API
+metadata  became  a  proactive  way  for  Slack’s  software  engineers  to
+describe  API  interfaces.  API  metadata  was  used  to  generate  docu‐
+mentation, even going so far as to turn request fields into an inter‐
+active  API  tester.  API  metadata  was  also  plugged  into  the  data
+warehouse  so  that  analytics  reports  could  be  pulled  on  API  traffic.
+Eventually,  it  grew  to  be  a  layer  in  between  the  web  request  and
+response   fulfillment.   This   layer   handled   argument   validation,
+generic  errors  and  warnings,  token  type  validation,  and  more.  It
+became  an  extensible  way  to  catch  early  exceptions  in  requests
+before going through the effort of assembling  a response.
+
+Backward Compatibility
+If  you’re  using  a  query  system  like  GraphQL,  where  requests  must
+specify the desired fields, you might have a good idea of which fields
+are  actively  being  used.  But  if  your  API  is  anything  like  the  vast
+majority  of  third-party  APIs  in  the  wild,  you  most  likely  return  all
+the  relevant  fields  in  your  JSON  payloads.  And  even  if  you  were
+using a *QL framework, there’s always the possibility that developers
+will select all fields. In both of these cases, you have no visibility into
+which  fields  are  being  used—you  know  only  that  they’re  all  being
+requested.
+For certain companies and products, backward compatibility is nonnegotiable.  At  Cloudinary,  the  API  maintains  total  backward  com‐
+patibility  because  image  URLs  based  on  the  API  are  everywhere.
+Luckily,  they  designed  the  interfaces  to  be  extensible  and  futureproof, making the main challenge that of educating customers about
+new features and additions.
+Backward  compatibility  is  a  huge  consideration  for  anybody  devel‐
+oping an API, especially for API providers who have external users.
+It’s somewhat easier to negotiate and change an API response when
+the dependencies are within a company than when the dependencies
+are external.
+Storytime: Slack’s Missing Field
+In  March  2016,  Slack  did  not  yet  have  an  API  metadata  system.  It
+did not have JSON Schema or RSpec tests. The Slack platform had
+only just officially launched three months prior.
+An  inconsistent  API  request  had  been  out  in  the  wild,  to  the  cha‐
+grin  of  Slack  native  mobile  clients.  Third-party  bots  could  call
+chat.postMessage  with  the  as_user  parameter.  When  false,  the
+message     posted     would     have     a     flag,     is_bot=true.     With
+as_user=true,    the    is_bot   flag    was    missing,    and    botimpersonated  messages  were  indistinguishable  from  actual  user
+messages.
+Slack  wanted  impersonation  to  be  allowed,  but  in  a  way  that  was
+clear  to  human  users  that  the  messages  had  come  from  a  bot.  The
+solution was to always set the is_bot field on all message payloads.
+The  decision  was  toward  consistency—the  field  would  always  be
+set, regardless of whether the value was true or false. Slack devel‐
+Backward Compatibility | 127
+
+opers decided to fix the problem once and for all and quietly update
+that undocumented field to always be there.
+Ordinarily, setting a field consistently is a virtue.
+But  one  of  the  most  popular  apps  in  the  ecosystem  had  taken
+advantage of this idiosyncratic field setting. Instead of checking the
+value,  the  app  checked  for  the  presence  of  the  key  for  its  business
+logic.  It  relied  on  this  inconsistency  for  its  app.  When  the  change
+was  made  to  set  the  is_bot  field  no  matter  what,  the  app  broke.
+One of Slack’s most widely used apps suddenly became unavailable
+due to a functionality change in Slack’s API:
+WARNING:
+Developer reporting an outage due to change in
+chat.postMessage parameter as_user.
+What  was  supposed  to  be  a  fix  became  an  error.  Slack  ended  up
+rolling  back  the  change,  giving  developers  three  months  to  find  a
+way around it. On April 13, Slack published a blog post announcing
+the change. The change to make the field consistent went live again
+on April 30.
+The  lesson  here  is  that  even  if  you  get  things  wrong  in  your  API,
+you need to think carefully about how you will roll out a fix to min‐
+imize  impact  to  developers.  Think  beyond  your  expectations  of
+how  developers  will  use  your  API.  You  can’t  always  predict  what
+others will build with your API—and you cannot control how they
+decide to implement their apps.
+Planning for and Communicating Change
+Many technical design resources can help you craft your design for a
+greenfield  project.  But  if  your  API  is  successful,  you’ll  be  working
+for  years  in  a  nongreenfield  area.  This  means  that  you  and  your
+developers  will  be  interfacing  with  your  past  decisions  for  a  long
+time, and all new design decisions will carry context from before.
+You need to decide how tolerant your system should be of different
+types  of  changes.  In  addition  to  that,  you  should  develop  a  robust
+communication  system  with  your  API  users.  Think  about  the  types
+of  changes  you  will  make,  the  impact  of  those  changes  on  develop‐
+ers,  and  what  the  appropriate  communication  should  be.  This  can
+take some time and practice to refine, but having a communication
+plan is key.
+
+Communication Plan
+When it comes to creating a communication plan, ensure that devel‐
+opers  have  a  mechanism  to  receive  updates.  A  rich  site  summary
+(RSS)  feed  is  a  good  start,  but  eventually  you’ll  also  want  a  way  to
+communicate  with  specific  developers  about  changes  that  affect
+them.
+Using  our  previous  example  of  using  repositories.fetch  and
+repositories.fetchSingle,  you  might  want  to  contact  all  of  the
+developers  who  used  the  repositories.fetch  endpoint  in  the  past
+12 months in order to provide them with updates about the brandnew repositories.fetchSingle endpoint. You might even want to
+contact  all  developers  who  used  the  repositories.fetch  endpoint
+and received a 500-level response after you released the product that
+caused timeouts.
+Table 7-3 shows possible communication channels and timelines for
+backward-compatible  and  backward-incompatible  changes.  In  this
+particular example, backward-compatible changes can be released at
+any  time,  and  developers  will  be  given  18  months’  notice  before
+backward-incompatible changes are released.
+Table 7-3. Example categories of types of changes
+ Backward compatibleBackward incompatible
+ExamplesRequest parameter added,
+response field added, new
+API method added
+Response 
+field removed, functionality
+changes, response type changes,
+endpoint removed
+Communication channel
+RSS feed
+API docs
+RSS feed
+API docs
+Email to affected developers
+Blog post explaining change
+Time to release after
+notification
+Anytime18 months
+In addition to communication mechanisms, in which you broadcast
+information  to  specific  audiences,  there  are  other  built-in  ways  to
+communicate.  You  might  consider  annotating  response  payloads  or
+headers  with  information  about  changes.  Example  7-6  shows  how
+that  might  look  in  the  payload  of  the  repositories.fetch  end‐
+point.
+Planning for and Communicating Change | 129
+
+Example 7-6. Adding response metadata to communicate with
+developers
+// GET repositories.fetch()
+{
+  "repositories": [
+    {
+      "id": 12345
+    },
+    {
+      "id": 23456
+    }
+  ],
+  "response_metadata":{
+    "response_change": {
+            "date": "January 1, 2021",
+            "severity": 1,
+            "affected_object": "repository",
+            "details": "Starting January 1, 2021, a new field `date`
+                        will be added to each repository object"
+        }
+  }
+}
+Your  communication  plan  needs  to  strike  a  balance  between  giving
+developers appropriate notice for changes and allowing your API to
+evolve. If you’re making a lot of changes, the overhead of communi‐
+cation  grows  proportionally  to  the  amount  of  process  you  add.
+Think  about  where  you  can  automate  your  communication  along‐
+side  your  code  releases  to  reduce  the  overhead  of  customizing  each
+communication channel.
+Expert Advice
+We definitely keep the lines of communication open when man‐
+aging  change.  We’re  very  proactive  in  ensuring  our  developers
+know  what  to  expect.  We  do  a  lot  through  our  channels—blog
+posts, emails, and other outreach. We understand how important
+this is.
+—Desiree Motamedi Ward, head of developer product mar‐
+keting at Facebook
+
+Adding
+Of all the changes you can make to your API, additions are the easi‐
+est.  Whether  you’re  adding  a  new  endpoint  or  a  new  field,  these
+changes are often simple to execute, if done correctly.
+In the case of adding response fields, adding a new JSON key–value
+pair is almost always backward compatible and won’t affect develop‐
+ers.  This  is  especially  true  if  your  fields  are  always  consistently  set,
+regardless of their value. (Consistently typed fields will be useful for
+generating  code,  which  some  API  providers  do  to  create  their
+SDKs.)  The  same  applies  for  query-based  interfaces:  adding  a  “col‐
+umn” is easier than removing one.
+Even  though  adding  response  fields  is  more  straightforward  than
+removing them, there are still a few things to consider for backward
+compatibility:
+Was the 
+field set before?
+If  the  field  wasn’t  set  before  but  you’ve  decided  to  set  it  consis‐
+tently, ask yourself whether a developer could be relying on the
+fact that the field is unset.
+Will everyone want the new 
+field?
+Sometimes, you need to provide a mechanism for developers to
+opt in to the new field(s). In this case, you might consider a new
+endpoint or a new request parameter.
+Adding  new  request  parameters  to  control  output  may  seem
+like  an  easy  choice.  However,  use  this  option  with  caution.
+When  you  add  too  many  request  parameters,  your  API  end‐
+point  becomes  significantly  harder  to  describe  with  tools  like
+JSON Schema. Therefore, it becomes more and more difficult to
+test with automated tools.
+Adding new endpoints can also seem like an attractive choice to
+enable new features. However, you want to make sure that your
+new  endpoints  are  consistent  with  your  previous  ones,  that
+developers  have  a  seamless  upgrade  path  (do  their  existing
+authorizations  work  with  the  new  endpoint?),  and  that  you
+aren’t overcrowding your namespace with a limited feature.
+Planning for and Communicating Change | 131
+
+Removing
+Given  that  you  need  to  continue  to  evolve  your  API,  there  will  be
+endpoints and fields that you may want to deprecate completely. So,
+let’s  look  at  how  you  can  ease  the  transition  for  developers.  These
+types  of  changes  require  significant  communication  and  infrastruc‐
+ture overhead.
+Expert Advice
+Don’t  overcomplicate  your  API  and  don’t  future-proof  it  too
+much.  Often  by  future-proofing  your  API,  you  make  it  too
+generic and/or too complex. Developers building applications on
+(or  using)  your  platform  are  building  stuff  for  the  “now.”  They
+like to move quickly and are not always thinking 10 steps ahead.
+Your API should cater to this mindset.
+—Yochay Kiriaty, Azure principal program manager at
+Microsoft
+When taking something away from developers, you need to ease the
+transition with a carrot, an incentive to get them to switch to some‐
+thing  new.  What  features  are  you  enabling?  Is  there  a  problem  that
+you  couldn’t  fix  with  the  deprecated  endpoint  that  you’re  fixing  in
+some other way? These are things you should be clear about before
+you  make  your  deprecation  announcement.  Sometimes,  you  may
+need  to  make  the  new  feature  especially  enticing  to  developers  by
+also packaging it with an end-user feature.
+Storytime: Slack’s Conversations API
+As Slack rapidly launched features from 2015 to 2016, API methods
+to  retrieve  channels  became  increasingly  complicated  and  difficult
+to  maintain.  The  engineering  teams  reached  a  critical  inflection
+point in 2017, with the launch of Shared Channels. As a result, they
+released Shared Channels through a new suite of API methods: the
+Conversations API. They made it easy to switch to the new system,
+and   they   incentivized   developers   by   offering   data   exclusively
+through the new API methods.
+As part of easing the transition, you 
+definitely want to communicate
+with  developers  about  the  fields  that  are  being  deprecated.  After
+
+you’ve  started  your  communication,  give  developers  adequate  time
+to stop using the deprecated fields or endpoints.
+A  deprecation  timeline  that’s  too  short  can  erode  trust  with  your
+developers  and  stymie  the  adoption  of  your  API.  Companies  often
+implement  policies  establishing  the  minimum  length  of  time  that
+they will support API releases. For example, as of this writing, Sales‐
+force  commits  to  supporting  each  API  version  for  a  minimum  of
+three years from the date of first release. Before deprecating an API
+version, Salesforce gives at least one year’s notice directly to custom‐
+ers.
+Some API specifications have standards for how to handle depreca‐
+tion. GraphQL offers the ability to mark certain fields as deprecated.
+The specification states:
+3.1.2.2 Object Field deprecation
+Fields in an object may be marked as deprecated as deemed neces‐
+sary  by  the  application.  It  is  still  legal  to  query  for  these  fields  (to
+ensure existing clients are not broken by the change), but the fields
+should be appropriately treated in documentation and tooling.
+—From the GraphQL spec, working draft, October 2016
+Versioning
+As we mentioned in Chapter 4, to bundle changes into understanda‐
+ble  chunks  and  to  give  developers  a  way  to  understand  your  API,
+you  might  want  to  consider  versioning.  The  following  sections
+describe a few possible strategies for handling versioning.
+Additive-change strategy
+In an additive-change strategy, all updates are compatible with pre‐
+vious  versions.  The  following  changes  are  considered  backward
+incompatible   and   should   be   avoided   when   using   the   additivechange strategy:
+•
+Removing or renaming APIs or API parameters
+•
+Changing a type for a response field
+•
+Changes in behavior for an existing API
+•
+Changes in error codes and fault contracts
+Planning for and Communicating Change | 133
+
+In this strategy, you make changes, such as adding an output field or
+adding  a  new  API  endpoint.  However,  you  never  want  to  change  a
+response field’s type or remove a response field without letting users
+opt  in  via  request  parameters.  This  means  that  in  order  to  do  this,
+you’ll add more and more parameters that will alter the response of
+an API request. Table 7-4 illustrates how that would look for a ficti‐
+tious REST API to retrieve a user resource.
+Table 7-4. Requests and responses for a REST API
+Example request opting out of friends listExample request default payload
+GET /users/1234?exclude_friends=1
+{
+      "id": 1234,
+      "name":"Chen Hong",
+      "username:" "chenhong",
+      "date_joined": 1514773798
+}
+GET /users/1234
+{
+     "id": 1234,
+     "name":"Chen Hong",
+     "username:""chenhong",
+     "date_joined": 1514773798,
+     "friends": [
+          2341,
+          3449,
+          2352,
+          2353,
+          2358
+    ]
+}
+In  the  example  in  Table  7-4,  exclude_friends  is  an  added  request
+parameter that changes the response payload.
+With  clear  rules,  there  isn’t  too  much  process  that  needs  to  be
+hashed out within the organization.
+Explicit-version strategy
+The  first  thing  you  need  to  decide  when  you  create  an  explicitly
+numbered  versioning  system  is  how  users  will  interact  with  ver‐
+sions.  This  is  often  called  a  versioning  scheme.  There  are  a  few
+choices  available,  which  we  look  at  here.  Each  one  has  distinct
+advantages. Ultimately, the version access pattern should be as stable
+as   promised   in   accompanying   documentation,   and   developers
+should  have  the  option  to  opt  into  new  versions  while  maintaining
+stability on previous versions.
+
+Expert Advice
+From  the  outset,  we  knew  that  there  would  be  iterations  in  our
+API—Uber  just  moves  too  fast  for  there  not  to  be.  Therefore,
+each endpoint is versioned and makes it easy to access historical
+docs.
+—Chris Messina, developer experience lead at Uber
+Updating  URI  components  is  one  strategy  that  many  API  providers
+use to define version schemes. These are often inserted as a base for
+the URI, before the specification of a resource-like entity. For exam‐
+ple,     take     Uber’s     ride     requests     API     endpoint,     https://
+api.uber.c om  /v1.2/requests.  In  this  example,  v1.2  is  inserted
+before  the  requests  resource.  This  is  similar  to  the  scheme  for  Twit‐
+ter’s    Ads    API,    in    which    2    is    the    version:    https:/ /adsapi.twitter.c om/2/accounts.   An   alternative   to   including   the
+version before the resource is placing the version after the resource,
+which would imply that the version is specific to the resource or API
+method rather than the entire suite of API methods.
+The  benefit  of  specifying  versions  in  URI  components  is  that  many
+programming languages, libraries, and SDKs have support for easily
+binding a request to a version using a base URI. Additionally, if the
+bulk  of  requests  are  GET  requests,  depending  on  your  authorization
+system, it’s easy for developers to debug and inspect endpoints with
+the browser. This scheme should not be used, however, if you’re not
+ready to support these endpoints as permalinks, because the pattern
+implies  a  certain  level  of  resource  permanence  in  the  REST  para‐
+digm.  Finally,  if  you  elect  to  use  URI  components  to  version  your
+API, be prepared to support 300-level HTTP status codes to indicate
+redirection for moved or moving resources.
+Using HTTP headers is another way to specify versions. You can do
+this   through   custom   headers,   such   as   Stripe’s   Stripe-Version
+header,   or   through   the   Accept/Content-Type   header   (Accept:
+application/json; version=1) or through the Accept header with
+a    custom    media    type    (Accept:  application/custom_media
++type.api.v1 + json). This scheme is less visible than a URI com‐
+ponent, which can make it less desirable for experimentation in the
+browser, and it can have implications regarding client caching if the
+Planning for and Communicating Change | 135
+
+client  interprets  two  requests  to  different  versions  as  the  same
+request. It can, however, reduce URI bloat.
+The  final  option  is  using  request  parameters.  In  this  scheme,  you
+allow users to request versions alongside any other request parame‐
+ters.  Here’s  an  example  request  from  the  Google  Maps  API:  htt ps:/ /
+maps.googleapis.com/maps/api/js?v=3. The v=3 inserted in the query
+string is used to select the version number. This has similar benefits
+as  versioning  with  URI  components,  but  depending  on  your  appli‐
+cation stack, it can be more difficult to route these requests because
+of the high variability of query parameters and their types, as well as
+the fact that query parameters are resolved after the URI.
+Of  course,  there’s  more  to  versioning  than  the  mechanics  of  how
+your users will specify version numbers. Behind the scenes, there are
+many  more  decisions  for  you  to  make  for  your  code  base.  For
+instance,  how  will  you  ensure  backward  compatibility  for  old  ver‐
+sions? Developers might be building businesses that rely on the sta‐
+bility  of  your  API,  and,  as  we  mentioned  before,  they  might  not
+retire old versions for years. In many cases, maintaining these many
+versions results in forked code bases or code paths, where new func‐
+tions will be created that call into old functions, as demonstrated in
+Figure 7-2.
+Figure 7-2. Diagram of versioned function names
+Alternatively,   you   might   be   forking   your   code   path   such   that
+requests route to a new controller responsible for executing them, as
+shown in Figure 7-3.
+
+Figure 7-3. Diagram of versioned controller
+Finally, another way to maintain versions in your code base is to cre‐
+ate  transformations  between  each  version  (Figure  7-4).  In  this  case,
+there is a main function that is updated, and that function has vari‐
+ous transformation functions corresponding to the schemas of pre‐
+vious versions. The transformation functions convert the data to the
+appropriate schema before returning the data.
+Figure 7-4. Pseudocode sample of a transformation layer between ver‐
+sion 2 and version 1
+In  addition  to  implementing  the  versioning  system,  you  and  your
+team  need  to  think  about  how  to  organize  and  label  your  versions.
+For  this,  the  semantic  versioning  specification  (SemVer)  can  be
+helpful  in  using  a  standard  to  describe  your  changes.  In  SemVer,
+there  are  MAJOR,  MINOR,  and  PATCH  versions  (in  the  format
+MAJOR.MINOR.PATCH).   MAJOR   versions   are   for   backwardincompatible  API  changes.  MINOR  versions  are  for  adding  func‐
+tionality in a backward-compatible manner. PATCH versions are for
+backward-compatible bug fixes.
+The convention for documenting major changes is a whole number
+jump, such as v1 to v2. The convention for minor and patch changes
+Planning for and Communicating Change | 137
+
+is incrementing decimal places after the number, such as v1.1 to v1.2
+or  v1.1.0  to  v1.1.1.  Even  when  using  SemVer,  you  need  to  decide
+how  granularly  to  version  requests  and  what  types  of  changes  are
+acceptable  in  each  version.  For  example,  you  might  decide  to  auto‐
+matically  roll  all  developers  forward  into  new  MINOR  version
+bumps,  because  those  are  backward-compatible  changes.  Another
+strategy  could  be  to  apply  all  minor  changes  to  previous  versions
+without  any  named  version  bump.  A  new  response  field  might
+appear in both v2 and v1.
+Table  7-5  presents  an  example  chart  that  a  company  might  use  to
+provide a framework for major and minor change versioning.
+Table 7-5. Examples of major and minor changes
+Major changeMinor change
+Change in business logic 
+affecting output for requests formatted
+the same way
+Added a new endpoint
+Removed endpointAdded a new request parameter
+Discontinued support for a request parameterAdded a new response 
+field
+Product deprecated 
+In addition to deciding what types of changes should be rolled into
+each  version  bump,  you  need  to  determine  how  to  build  API  ver‐
+sions into your documentation and how to communicate versions at
+each  level  of  documentation.  Figure  7-5  depicts  a  banner  from
+Uber’s API docs that serves this purpose.
+Figure 7-5. Banner from Uber’s API documentation that notifies users
+about documentation for previous versions of an endpoint
+Finally,  you  might  want  to  incentivize  users  to  adopt  new  versions
+by releasing anticipated features with version bumps.
+
+Versioning case study: Stripe
+Now  that  you’ve  explored  some  of  the  decisions  that  you  need  to
+make  when  versioning  your  API,  let’s  take  a  look  at  how  Stripe
+implements   versioning.   Stripe   is   an   online   payments   company.
+Because Stripe as a company relies on third-party developers imple‐
+menting  its  API  to  generate  revenue,  it  is  a  notable  example  of  a
+company  invested  in  maintaining  backward  compatibility.  As  of
+2017, the Stripe API continued to maintain compatibility with every
+version of its API released since its inception in 2011.
+Expert Advice
+Shipping  frequent  improvements  to  an  API  is  great;  breaking
+something  a  developer  has  built  is  not.  Finding  an  elegant  bal‐
+ance is critical—and one way to do it is to entirely avoid breaking
+changes.
+This  has  been  Stripe’s  approach:  we  provide  backward  compati‐
+bility to ensure that code written today will still work years from
+now. We lock the API version that a developer is using once they
+get started. Unless they actively choose to upgrade (because they
+want  to  take  advantage  of  new  functionality),  we  won’t  require
+them  to  do  so.  Behind  the  scenes,  we  introduce  discrete  pro‐
+gramming  gates  for  every  new  API  version.  These  gates  condi‐
+tionally  provide  access  to  new  features  or  changes,  isolate  layers
+of logic for requests and responses, and essentially hide any con‐
+cept of backward compatibility from our main code base.
+—Romain Huet, head of developer relations at Stripe
+Stripe  implements  rolling  versions,  named  by  the  release  date.  The
+first time a developer makes an API request, their account is pinned
+to  the  most  recent  API  version  available.  After  that,  there’s  no  need
+for  requests  to  specify  that  pinned  version.  To  upgrade  versions,
+Stripe  provides  a  dashboard  where  developers  have  a  self-service
+option  to  change  their  default  version.  Additionally,  Stripe  allows
+developers to override the version in individual requests by setting a
+Stripe-Version   header,   such   as   Stripe-Version:  2018-02-28.
+This combination of overrides and pinned upgrades allows develop‐
+ers  to  opt  in  to  changes  seamlessly.  Interestingly,  Stripe  has  built
+a /v1 into its API base URIs, even though it has yet to make a major
+version release with breaking changes. The company has created the
+Planning for and Communicating Change | 139
+
+opportunity  for  such  a  release,  but  as  of  this  writing,  it  has  not  yet
+had to implement one.
+Behind   the   scenes,   the   Stripe   API   has   codified   every   possible
+response with a class called an API resource. It has its own domainspecific language, similar to that which defines the possible fields for
+the  resource.  When  a  version  change  is  made,  the  change  is  encap‐
+sulated  in  a  version  change  module,  which  defines  documentation
+about  the  change,  a  transformation,  and  the  set  of  API  resource
+types that are eligible to be modified. The benefit here is that Stripe
+is able to generate a changelog programmatically as soon as services
+are deployed with a new version.
+Versioning case study: Google+ Hangouts
+Next,  let’s  take  a  look  at  the  Google+  Hangouts  API.  In  this  API,
+incremental versions were used to communicate groups of changes,
+not for developers to manage the desired logic or responses of end‐
+points.  Instead,  when  endpoints  needed  to  be  renamed  or  changed,
+Google  would  add  a  release  note  indicating  that  the  old  endpoint
+was deprecated (Figure 7-6).
+Figure 7-6. Google+ Hangouts API release notes indicating that a
+function was renamed
+Google  announced  on  January  10,  2017,  that  it  would  no  longer  be
+supporting the API. Apps would run only until April 25, 2017, with
+a handful of exceptions (Slack, Dialpad, RingCentral, Toolbox, Con‐
+trol  Room,  and  Cameraman).  Not  only  did  the  company  add  ban‐
+ners about the announcement throughout its documentation, but it
+also added a note in the responses stating that the endpoints would
+no longer work after April 25. Figure 7-7 shows a screenshot of the
+deprecation banner in the Google+ Hangouts API documentation.
+
+Figure 7-7. Banner for the Google+ Hangouts API indicating that sup‐
+port would be terminated
+Process management
+Whichever  mechanism  you  choose,  versioning  adds  process  over‐
+head to your API. You need to make sure that you have robust docu‐
+mentation  to  adequately  describe  the  changelog  and  differences
+between APIs. Under the hood, you might need to figure out how to
+deploy  versioned  code  or  how  to  arrange  your  access  control  layer
+to preserve the functionality of older versions. It becomes a nontriv‐
+ial process to maintain more than one deprecated version, especially
+if upstream core libraries can affect your API output.
+You also want to think about how many versions your staff can sup‐
+port  simultaneously.  For  code  maintenance,  how  will  you  prioritize
+security fixes that need to be applied to multiple versions? Will you
+upgrade  all  previous  versions  for  certain  changes?  How  will  your
+developer  support  staff  be  able  to  effectively  assist  developers  when
+they  experience  issues?  These  are  all  considerations  that  become
+more complicated and time-consuming with a versioned system.
+In some cases, the cost of maintaining versions outweighs the bene‐
+fits. One of the benefits of not versioning is that you avoid cascading
+dependencies  and  complicated  maintenance.  With  only  a  single
+layer to your API, the code is transparent and easily readable to your
+internal developers, and the benefit of maintainability should not be
+undervalued.  You  might  want  to  consider  delaying  versioning  until
+you have adequate infrastructure to support your developers.
+Whether  you  decide  to  version  or  not,  managing  change  means
+finding  a  balance  between  maintaining  backward  compatibility  and
+releasing  changes  with  enough  velocity  for  your  developers  to  suc‐
+ceed  on  your  platform.  Don’t  forget  to  get  feedback,  optimize  for
+your developers, and make all changes in moderation.
+Planning for and Communicating Change | 141
+
+Closing Thoughts
+In this chapter, we discussed many aspects of the continuous process
+of  developing  and  refining  APIs  by  managing  change.  Having  a
+strong  process  and  system  for  managing  ongoing  changes  will  be
+the key to unlocking the full potential of your API. With the ability
+to manage change, you won’t be stuck in the past, and you’ll be able
+to continue improving your API for the future.
+In Chapter 8, we tell you all about building a developer ecosystem so
+that  when  the  time  comes  to  take  your  API  to  the  next  level,  you’ll
+have lots of developers waiting to get those new additions.

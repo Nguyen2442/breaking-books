@@ -1,0 +1,56 @@
+<section class="chapter" id="ch2" data-ch="2" data-title="Kiến trúc Giao diện Lập trình Ứng dụng Web: Bản chất và Tầm nhìn Tương tác">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 2</p>
+    <h1>Designing Web APIs: What's an API? <span class="vi">Kiến trúc Giao diện Lập trình Ứng dụng Web: Bản chất và Tầm nhìn Tương tác</span></h1>
+    <p class="lede">API không đơn thuần là giao diện lập trình, mà là biên giới chiến lược giúp hệ thống phần mềm giao tiếp, mở rộng hệ sinh thái và kiến tạo giá trị kinh tế.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">1 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch2-t1" data-num="1.1" data-short="Bản chất API">
+    <div class="topic-theory-card">
+      <p class="eyebrow">KIẾN TRÚC GIAO TIẾP</p>
+      <h2>Giải mã khái niệm và tầng ý nghĩa thực sự của API</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>API vượt xa một hàm lập trình thông thường, nó là biên giới giao tiếp số giữa các hệ thống và con người.</p></div>
+      <div class="prose">
+        <p>Khi bàn về <dfn data-term="API"><strong>Application Programming Interface</strong></dfn>, phần lớn kỹ sư thường nghĩ đến các hàm hoặc điểm cuối (endpoints) giao tiếp mạng. Tuy nhiên, bản chất sâu xa của API là một giao diện tương tác định hình mô hình kinh doanh và bộc lộ cấu trúc tổ chức của doanh nghiệp.</p><p>Các trường hợp sử dụng API trong hệ thống phân tán bao gồm:</p><ul><li><strong>Tích hợp định danh:</strong> Sử dụng dịch vụ như OAuth để xác thực người dùng xuyên suốt các ứng dụng cloud.</li><li><strong>Xử lý thanh toán:</strong> Ủy quyền giao dịch tài chính cho các cổng thanh toán chuyên biệt mà không cần bận tâm về luật định phức tạp.</li><li><strong>Chia sẻ dữ liệu thời tiết:</strong> Phân phối thông tin từ các cơ quan chuyên môn đến hàng ngàn ứng dụng tiêu dùng.</li></ul><p>Việc thấu hiểu bản chất này giúp kiến trúc sư xây dựng các hợp đồng giao tiếp bền vững, giảm thiểu sự phụ thuộc chặt chẽ (tight coupling) giữa các phân hệ.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại các sàn thương mại điện tử Việt Nam</b>
+        <p>Trong các đợt bão sale như 11.11 tại Shopee hoặc Lazada, các API giỏ hàng và thanh toán phải chịu tải hàng triệu request đồng thời. Việc thiết kế giao diện API chuẩn hóa giúp tách biệt hoàn toàn hệ thống kho hàng nội bộ với giao diện người dùng bên ngoài, ngăn chặn hiện tượng sập toàn hệ thống khi một module gặp sự cố.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch1-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô phỏng Luồng Tương tác qua API Gateway</strong>
+        <small>Quan sát hệ thống xử lý request từ client qua API đến các microservices chuyên biệt</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch2-review" data-num="2.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 2</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>API (Application Programming Interface) là công cụ nền tảng kết nối các chương trình phần mềm, con người và toàn bộ mạng lưới internet toàn cầu. Bản chất của API nằm ở từ 'interface' — một hợp đồng giao tiếp chuẩn hóa che giấu sự phức tạp nội bộ bên dưới của hệ thống. Trong bối cảnh kiến trúc phân tán hiện đại, API quyết định khả năng tích hợp dịch vụ, từ việc xác thực định danh qua bên thứ ba, xử lý thanh toán tài chính cho đến việc nhúng bản đồ và dữ liệu thời tiết. Các công ty công nghệ hàng đầu như Amazon, Stripe hay Google xây dựng nền tảng kinh doanh tỷ đô dựa trên việc đóng gói dịch vụ thành các API có tính tương tác cao. Việc thiết kế một API không chỉ là giải quyết bài toán kỹ thuật tức thời, mà là kiến tạo một sản phẩm phục vụ trực tiếp cho các nhà phát triển phần mềm khác sử dụng.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Theo góc nhìn kiến trúc hiện đại, ai là khách hàng chính thực sự của một Web API?</p>
+        <ol><li>Người dùng cuối sử dụng giao diện web trực quan</li><li>Các lập trình viên viết chương trình tương tác với API đó</li><li>Nhà quản lý tài chính của công ty cung cấp dịch vụ</li><li>Hệ thống cơ sở dữ liệu lưu trữ phía sau</li></ol>
+        <p class="explain">APIs được thiết kế chủ yếu để các lập trình viên khác hiểu, tích hợp và sử dụng trong ứng dụng của họ, đòi hỏi trải nghiệm tài liệu và thiết kế trực quan.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

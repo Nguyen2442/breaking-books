@@ -1,0 +1,62 @@
+<section class="chapter" id="ch3" data-ch="3" data-title="Kiến trúc API và Phân khúc Nhà phát triển">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 3</p>
+    <h1>Developers, Use Cases, and the Business Case for APIs <span class="vi">Kiến trúc API và Phân khúc Nhà phát triển</span></h1>
+    <p class="lede">Xác định chính xác đối tượng nhà phát triển và mô hình kinh doanh là điều kiện tiên quyết để xây dựng API sống còn.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">2 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch3-t1" data-num="3.1" data-short="Phân khúc Developer & Use Cases">
+    <div class="topic-theory-card">
+      <p class="eyebrow">NGUYÊN LÝ CỐT LÕI</p>
+      <h2>Hiểu rõ nhà phát triển và các trường hợp sử dụng thực tế</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Xác định đúng đối tượng người dùng API giúp tránh việc xây dựng các hệ thống không ai thèm dùng.</p></div>
+      <div class="prose">
+        <p>Mỗi <dfn data-term="Developer Persona"><strong>chân dung nhà phát triển</strong></dfn> mang theo những nhu cầu, năng lực kỹ thuật và ràng buộc vận hành hoàn toàn khác biệt. Việc bỏ qua bước phân tích use case sẽ dẫn đến các thảm họa kiến trúc như payload quá lớn, thiếu tính năng bảo mật, hoặc độ trễ không chấp nhận được.</p><p>Các trường hợp sử dụng phổ biến trong hệ thống API thực chiến bao gồm:</p><ul><li><strong>Web Developer:</strong> Cần tính đơn giản, tích hợp nhanh giao diện UI, tài liệu rõ ràng với các SDK ngôn ngữ phổ biến.</li><li><strong>Enterprise Backend Developer:</strong> Đòi hỏi tính toàn vẹn dữ liệu cao, cơ chế xác thực khắt khe, hỗ trợ kiểm toán (audit) và độ sẵn sàng cao (High Availability).</li><li><strong>Frontend Integration Developer:</strong> Yêu cầu kết nối thời gian thực (real-time chat, WebSocket), giảm thiểu số lượng request mạng.</li></ul><p>Đội ngũ kiến trúc sư phải đặc tả kỹ lưỡng và kiểm thử API design thông qua mock server trước khi bắt tay vào hiện thực hóa tầng business logic.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại các cổng thanh toán Việt Nam (MoMo/ZaloPay)</b>
+        <p>Khi thiết kế API tích hợp thanh toán cho hàng chục ngàn merchant, đội ngũ backend phải phục vụ cả lập trình viên non-expert (cần tài liệu SDK PHP/NodeJS đơn giản) lẫn kiến trúc sư hệ thống lớn (cần cơ chế webhook retry đảm bảo idempotency tuyệt đối tránh trùng giao dịch).</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch3-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô phỏng tác động của Phân khúc Use Cases đến Hiệu năng API</strong>
+        <small>Điều chỉnh tải lượng request và quan sát cách các nhóm developer khác nhau gây áp lực lên hệ thống hạ tầng.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch3-review" data-num="3.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 3</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Chương này phân tích sâu sắc mối quan hệ giữa các nhóm <dfn data-term="Developer Persona"><strong>nhà phát triển</strong></dfn>, các trường hợp sử dụng (<dfn data-term="Use Cases"><strong>Use Cases</strong></dfn>), và mô hình kinh doanh cốt lõi của API. Chi phí thay đổi thiết kế API sau khi đã phát hành là cực kỳ đắt đỏ, đòi hỏi phải đặc tả và xác thực kỹ lưỡng từ giai đoạn đầu. Tác giả phân chia ba mô hình chiến lược phát triển API: API phục vụ nội bộ trước rồi đến bên ngoài (như Slack), API phục vụ bên ngoài trước rồi đến nội bộ (như GitHub), và API chính là sản phẩm (như Stripe, Twilio). Cuối cùng, một API xuất sắc cần đạt được sự cân bằng giữa tính rõ ràng, tính linh hoạt, hiệu năng, khả năng mở rộng và tài liệu hướng dẫn đầy đủ.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Theo cuốn sách Designing Web APIs, tại sao việc thay đổi thiết kế API sau khi đã triển khai lại cực kỳ khó khăn?</p>
+        <ol><li>Vì mã nguồn viết bằng ngôn ngữ cũ khó bảo trì.</li><li>Vì chi phí chuyển đổi từ một thiết kế API sang thiết kế khác là cực kỳ cao đối với các nhà phát triển.</li><li>Vì cơ sở dữ liệu không hỗ trợ việc migration trường dữ liệu.</li><li>Vì các nhà cung cấp cloud tính phí rất cao khi cập nhật endpoint.</li></ol>
+        <p class="explain">Tác giả nhấn mạnh rằng chi phí switching cost của nhà phát triển bên thứ ba là rất lớn, do đó việc specify và validate API từ trước là bắt buộc.</p>
+      </div>
+
+      <div class="q" data-answer="2">
+        <p><strong>Câu 2:</strong> Đâu là bài học cốt lõi từ mô hình phát triển API của Slack trong giai đoạn đầu?</p>
+        <ol><li>Xây dựng API cho bên ngoài trước rồi mới dùng nội bộ.</li><li>API không bao giờ cần thay đổi cấu trúc sau khi ra mắt.</li><li>API ban đầu phục vụ nội bộ client, sau đó phát triển thành nền tảng tích hợp bên thứ ba.</li><li>API chỉ phục vụ mục đích duy nhất là hiển thị tin nhắn.</li></ol>
+        <p class="explain">Slack ban đầu xây dựng API cho các client web/mobile nội bộ của họ, nhưng sau đó đã mở rộng thành Developer Platform nhờ nhu cầu tích hợp mạnh mẽ từ các phần mềm doanh nghiệp.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

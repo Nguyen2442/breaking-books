@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import {
   BookOpen,
@@ -27,6 +27,7 @@ import {
   RotateCcw,
   Atom,
   Search,
+  LayoutDashboard,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 
@@ -40,11 +41,13 @@ const Clay3DLibraryScene = dynamic(() => import("@/components/Clay3DLibraryScene
 });
 import Interactive3DHologram from "@/components/Interactive3DHologram";
 
-export default function LandingPage() {
+function LandingContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isPreview = searchParams.get("preview") === "1" || searchParams.get("landing") === "1";
+
   const [currentUser, setCurrentUser] = useState(null);
   const [isDark, setIsDark] = useState(false);
-
   const [searchQuery, setSearchQuery] = useState("");
 
   // Interactive Live Demo Mockup state
@@ -63,13 +66,29 @@ export default function LandingPage() {
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
+
+    // 1. Instant check from localStorage: if already signed in, redirect to Studio Library!
+    try {
+      const cached = localStorage.getItem("bb_user");
+      if (cached && !isPreview) {
+        router.replace("/library");
+        return;
+      }
+    } catch {}
+
+    // 2. Background session sync
     fetch("/api/auth")
       .then((r) => r.json())
       .then((data) => {
-        if (data.ok && data.user) setCurrentUser(data.user);
+        if (data.ok && data.user) {
+          setCurrentUser(data.user);
+          if (!isPreview) {
+            router.replace("/library");
+          }
+        }
       })
       .catch(() => {});
-  }, []);
+  }, [isPreview, router]);
 
   function toggleTheme() {
     const next = !isDark;
@@ -476,5 +495,13 @@ export default function LandingPage() {
         </p>
       </footer>
     </div>
+  );
+}
+
+export default function LandingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-orange-50/40 dark:bg-slate-950" />}>
+      <LandingContent />
+    </Suspense>
   );
 }

@@ -1,0 +1,93 @@
+<section class="chapter" id="ch9" data-ch="9" data-title="Thiết Kế API Web: Phạm Vi Bảo Mật, Đặc Tả Kỹ Thuật Và Kiến Trúc Sự Kiện">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 9</p>
+    <h1>Designing Web APIs: Scopes, Specifications, and Event-Driven Architecture <span class="vi">Thiết Kế API Web: Phạm Vi Bảo Mật, Đặc Tả Kỹ Thuật Và Kiến Trúc Sự Kiện</span></h1>
+    <p class="lede">Xây dựng đặc tả API vững chắc, thiết lập phạm vi OAuth chi tiết và chuyển đổi từ mô hình REST polling sang WebHooks thời gian thực để chịu tải cao.</p>
+    <div class="chapter-meta">
+      <span class="pill">2 bài học lý thuyết</span>
+      <span class="pill">2 sơ đồ tư duy tương tác</span>
+      <span class="pill">3 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch9-t1" data-num="9.1" data-short="Phạm vi OAuth & Thiết kế Đặc tả">
+    <div class="topic-theory-card">
+      <p class="eyebrow">NGUYÊN LÝ CỐT LÕI</p>
+      <h2>Thiết Lập OAuth Scopes Và Viết Tài Liệu Đặc Tả API Chuẩn Mực</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Xác định chính xác tài nguyên CRUD, phân định rạch ròi OAuth scopes và xây dựng spec như một hợp đồng kỹ thuật sống.</p></div>
+      <div class="prose">
+        <p>Khi xây dựng hệ thống API phục vụ tài liệu nhạy cảm, việc dựa vào xác thực cơ bản là không đủ an toàn. Đội ngũ kiến trúc sư phải lựa chọn <dfn data-term="oauth-2-0"><strong>OAuth 2.0</strong></dfn> kết hợp token ngắn hạn và refresh token nhằm siết chặt biên giới bảo mật.</p><p>Các trường phái thiết kế phạm vi quyền hạn (Scopes) thường phân hóa thành các mức độ sau:</p><ul><li><strong>General Scope (Toàn cục):</strong> Một scope duy nhất bao trùm toàn bộ mọi thao tác trên tài nguyên, dễ tích hợp nhưng rủi ro bảo mật cực cao khi token bị xâm phạm.</li><li><strong>Split Scopes (Phân chia đọc/ghi):</strong> Tách biệt rõ ràng giữa quyền đọc (read) và quyền ghi (write), giúp người dùng dễ dàng kiểm soát quyền hạn ứng dụng bên thứ ba.</li><li><strong>Granular CRUD Scopes (Đơn lẻ theo CRUD):</strong> Chia nhỏ đến từng hành động Create, Read, Update, Delete nhưng gây phức tạp hóa quá trình ủy quyền cho người dùng cuối.</li></ul><p>Sau khi chốt các phạm vi và thao tác, việc lập tài liệu đặc tả kỹ thuật (<dfn data-term="api-specification"><strong>API Specification</strong></dfn>) là bước đệm tối quan trọng. Tài liệu này không chỉ dùng để xin ý kiến đóng góp từ các bên liên quan mà còn là bộ hợp đồng cứng để team backend và frontend tiến hành hiện thực hóa song song mà không sợ lệch pha.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại hệ thống tài chính MoMo/ZaloPay</b>
+        <p>Khi tích hợp cổng thanh toán với các ngân hàng đối tác, việc phân rã OAuth scopes thành các quyền hạn cực kỳ hẹp (ví dụ: 'wallet:read_balance' thay vì 'wallet:full_access') giúp ngăn chặn thảm họa rò rỉ dữ liệu khi một API bên thứ ba bị tấn công leo thang đặc quyền.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch9-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô Phỏng Cây Quyết Định Chọn OAuth Scopes Và Tác Động Hệ Thống</strong>
+        <small>Tương tác với thanh trượt để mô phỏng mức độ rủi ro bảo mật và tải xử lý dựa trên độ phức tạp của Scope được chọn.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch9-t2" data-num="9.2" data-short="Kiến Trúc Sự Kiện & WebHooks">
+    <div class="topic-theory-card">
+      <p class="eyebrow">HIỆU NĂNG & HẠ TẦNG</p>
+      <h2>Giải Quyết Bài Toán Polling Bằng Kiến Trúc Hướng Sự Kiện WebHooks</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Chuyển dịch từ mô hình REST polling liên tục sang WebHooks sự kiện giúp giảm tải 99% lượng request thừa cho hệ thống.</p></div>
+      <div class="prose">
+        <p>Khi API phát triển và số lượng nhà phát triển bên thứ ba tăng lên, bài toán theo dõi sự thay đổi file trở thành cơn ác mộng hạ tầng. Nếu dùng mô hình REST truyền thống, các ứng dụng client buộc phải thực hiện <dfn data-term="polling"><strong>Polling</strong></dfn> liên tục (ví dụ: gọi API 1 lần/phút cho mỗi file), dẫn đến thảm họa cạn kiệt kết nối database.</p><p>Các phương án kiến trúc hướng sự kiện có thể xem xét gồm:</p><ul><li><strong>WebHooks:</strong> Server chủ động bắn HTTP POST request chứa payload sự kiện đến endpoint do client đăng ký ngay khi có thay đổi dữ liệu.</li><li><strong>WebSockets:</strong> Duy trì kết nối TCP song công dài hạn (long-lived connection), phù hợp với ứng dụng giao diện người dùng thời gian thực nhưng quá nặng nề cho API tích hợp server-to-server.</li><li><strong>HTTP Streaming:</strong> Tốt cho việc đẩy dữ liệu liên tục tần suất cao nhưng dư thừa và lãng phí tài nguyên với các tệp tin có tần suất cập nhật thấp.</li></ul><p>Việc lựa chọn <dfn data-term="webhooks"><strong>WebHooks</strong></dfn> giải quyết triệt để vấn đề băng thông và tải trọng. Tuy nhiên, kiến trúc sư phải tính đến cơ chế chống lặp sự kiện (<dfn data-term="deduplication"><strong>Deduplication</strong></dfn>) để tránh việc hệ thống phía client bị sập do hứng chịu sự cố tấn công từ chối dịch vụ vô tình (DDoS) khi file thay đổi liên tục.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Bão sale 11.11 tại TikTok Shop và Shopee Việt Nam</b>
+        <p>Trong các chiến dịch sale lớn, hàng vạn shop tích hợp tự động không thể dùng phương thức gọi API kiểm tra trạng thái đơn hàng liên tục. Hệ thống WebHooks bất đồng bộ đẩy thông báo 'order_status_changed' giúp giảm tải hàng triệu request rác mỗi giây cho hạ tầng trung tâm.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch9-w2">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô Phỏng Tải Hạ Tầng: Polling Truyền Thống vs WebHooks Sự Kiện</strong>
+        <small>Điều chỉnh số lượng ứng dụng kết nối đồng thời để quan sát sự khác biệt về độ trễ và khả năng chịu tải của hệ thống.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch9-review" data-num="9.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 9</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Chương này đi sâu vào phương pháp thiết kế API toàn diện từ tài liệu đặc tả (specification) đến kiến trúc hướng sự kiện. Vấn đề cốt lõi khi phát triển API cấp độ doanh nghiệp là làm sao cân bằng giữa tính bảo mật, trải nghiệm nhà phát triển và gánh nặng hạ tầng. Giải pháp được đưa ra bao gồm việc ứng dụng <dfn data-term="oauth-scopes"><strong>OAuth Scopes</strong></dfn> với phân quyền đọc/ghi chi tiết, loại bỏ các thao tác rủi ro cao như xóa file ở giai đoạn đầu, và viết một tài liệu đặc tả API chuẩn mực làm hợp đồng song song cho đội ngũ frontend và backend. Hơn thế nữa, chương còn giải quyết bài toán nghẽn mạng do polling liên tục bằng cách chuyển dịch sang mô hình <dfn data-term="webhooks"><strong>WebHooks</strong></dfn> hướng sự kiện, giúp tiết kiệm tài nguyên hạ tầng nghiêm trọng và tối ưu hóa trải nghiệm tích hợp hệ thống.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Tại sao việc thiết kế tài liệu đặc tả API (API Specification) trước khi viết code lại đóng vai trò sống còn trong kiến trúc phần mềm?</p>
+        <ol><li>Giúp nhân viên kinh doanh dễ dàng bán hàng hơn cho khách hàng doanh nghiệp.</li><li>Đóng vai trò là hợp đồng kỹ thuật giúp đội ngũ frontend và backend phát triển song song, đồng thời thu thập phản hồi sớm từ stakeholders.</li><li>Loại bỏ hoàn toàn sự cần thiết phải viết tài liệu hướng dẫn sử dụng sau này.</li><li>Đảm bảo mã nguồn backend tự động sinh ra không có lỗi cú pháp.</li></ol>
+        <p class="explain">Đặc tả API là cam kết thiết kế giúp đồng bộ hóa tư duy giữa các bên, cho phép xây dựng các thành phần độc lập (mock server, client, backend) song song mà không phải chờ đợi nhau.</p>
+      </div>
+
+      <div class="q" data-answer="2">
+        <p><strong>Câu 2:</strong> Trong bối cảnh hệ thống có hàng ngàn ứng dụng tích hợp theo dõi sự thay đổi file, phương án kiến trúc nào giải quyết triệt để bài toán nghẽn mạng do polling?</p>
+        <ol><li>Tăng cấu hình phần cứng (Scale-up) cho Database Server.</li><li>Sử dụng mô hình WebSockets dài hạn cho mọi kết nối của developer.</li><li>Chuyển dịch sang kiến trúc hướng sự kiện WebHooks để chủ động đẩy thông báo thay đổi.</li><li>Buộc các nhà phát triển tự viết thuật toán cache dữ liệu phía họ.</li></ol>
+        <p class="explain">WebHooks cho phép server chủ động đẩy dữ liệu sự kiện ngay khi xảy ra thay đổi, loại bỏ hoàn toàn việc client phải gọi API liên tục (polling) gây lãng phí tài nguyên.</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p><strong>Câu 3:</strong> Lợi ích cốt lõi của việc phân tách rõ ràng OAuth Scopes thành 'read' và 'write' thay vì dùng một scope toàn cục là gì?</p>
+        <ol><li>Giúp giảm dung lượng lưu trữ của token trong cơ sở dữ liệu.</li><li>Giới hạn quyền hạn tối thiểu (Principle of Least Privilege), ngăn chặn tổn thất lớn khi một token bị rò rỉ.</li><li>Tăng tốc độ xử lý mã hóa JWT của API Gateway.</li><li>Giúp lập trình viên viết ít dòng code kiểm tra phân quyền hơn.</li></ol>
+        <p class="explain">Áp dụng nguyên tắc đặc quyền tối thiểu (Least Privilege) qua OAuth scopes giúp cô lập thiệt hại; nếu token 'read' bị lộ, kẻ tấn công không thể sửa đổi hoặc xóa tài nguyên.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

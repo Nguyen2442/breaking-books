@@ -1,0 +1,56 @@
+<section class="chapter" id="ch15" data-ch="15" data-title="Tài Nguyên Nhà Phát Triển: Xây Dựng Hệ Sinh Thái API Bền Vững">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 15</p>
+    <h1>Developer Resources <span class="vi">Tài Nguyên Nhà Phát Triển: Xây Dựng Hệ Sinh Thái API Bền Vững</span></h1>
+    <p class="lede">Kiến trúc API xuất sắc sẽ thất bại nếu thiếu hệ thống tài nguyên và tài liệu hướng dẫn nhà phát triển đạt được mục tiêu nhanh chóng.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">1 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch15-t1" data-num="15.1" data-short="Tài liệu & Getting Started">
+    <div class="topic-theory-card">
+      <p class="eyebrow">NGUYÊN LÝ CỐT LÕI</p>
+      <h2>Xây dựng tài liệu cốt lõi và tối ưu Time to Hello World</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Tài liệu Getting Started dẫn dắt lập trình viên từ con số không đến thành công đầu tiên, định hình ấn tượng đầu tiên về toàn bộ nền tảng API.</p></div>
+      <div class="prose">
+        <p>Tài liệu là điểm chạm đầu tiên khi nhà phát triển tiếp cận hệ thống <dfn data-term="api-platform"><strong>API Platform</strong></dfn>. Một tài liệu tồi sẽ biến API mạnh mẽ nhất thành một chiếc hộp đen vô dụng.</p><p>Các hình thức tài liệu phổ biến trong các hệ thống lớn:</p><ul><li><strong>Getting Started Guides:</strong> Tập trung hướng dẫn hoàn thành một bài tập Hello World nhanh nhất để giảm thiểu TTHW.</li><li><strong>API Reference Documentation:</strong> Mô tả chi tiết từng endpoint, tham số, lỗi kỹ thuật, có thể tự động sinh từ đặc tả OpenAPI.</li><li><strong>Tutorials & FAQs:</strong> Giải quyết các bài toán nghiệp vụ phức tạp và xử lý các điểm nghẽn thường gặp từ đội ngũ hỗ trợ.</li></ul><p>Hãy giữ tài liệu tập trung vào <dfn data-term="happy-path"><strong>Happy Path</strong></dfn>, đồng thời liên kết trực tiếp tới các tài nguyên xử lý sự cố khi hệ thống gặp ngoại lệ.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại các cổng thanh toán Việt Nam</b>
+        <p>Các đơn vị trung gian thanh toán như VNPay hay ZaloPay luôn duy trì trang Getting Started với mã nguồn mẫu bằng PHP, Node.js và Java giúp đối tác merchant cấu hình webhook và nhận callback xác nhận đơn hàng thành công trong vòng chưa đầy 30 phút.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch15-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô phỏng luồng Onboarding & Time to Hello World (TTHW)</strong>
+        <small>Tương tác với thanh trượt để quan sát mức độ phức tạp của tài liệu tác động trực tiếp đến tỷ lệ giữ chân lập trình viên.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch15-review" data-num="15.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 15</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Chương này phân tích toàn diện hệ thống <dfn data-term="developer-resources"><strong>tài nguyên nhà phát triển</strong></dfn>, lớp giá trị quyết định sự thành bại của một nền tảng API. Việc xây dựng tài liệu từ <dfn data-term="getting-started"><strong>Getting Started guides</strong></dfn>, tài liệu tham khảo chi tiết (<dfn data-term="api-reference"><strong>API Reference</strong></dfn>), SDK, thư viện, cho đến các công cụ chẩn đoán (<dfn data-term="debugging-tools"><strong>Debugging Tools</strong></dfn>) và sandbox giúp giảm thiểu tối đa <dfn data-term="tthw"><strong>Time to Hello World (TTHW)</strong></dfn>. Khảo sát thực tế cho thấy các nền tảng như Stripe hay Slack chiếm lĩnh thị trường nhờ trải nghiệm tích hợp mượt dựa trên tài liệu sống và bộ công cụ tự động hóa.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Mục tiêu quan trọng nhất của một tài liệu 'Getting Started' là gì?</p>
+        <ol><li>Liệt kê toàn bộ 100% các mã lỗi HTTP có thể xảy ra</li><li>Giúp lập trình viên đạt được thành công đầu tiên (Hello World) trong thời gian ngắn nhất</li><li>Cung cấp toàn bộ mã nguồn của hệ thống backend</li><li>Định nghĩa chi tiết các điều khoản pháp lý và bản quyền</li></ol>
+        <p class="explain">Getting Started hướng tới việc rút ngắn Time to Hello World (TTHW), giúp lập trình viên nhanh chóng kiểm chứng tính khả thi của API.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

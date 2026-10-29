@@ -1,0 +1,564 @@
+Chapter  3.  Because  some  customers  have  sensitive  files,  we  want
+something more robust than Basic Authentication and have selected
+OAuth  with  short-lived  tokens  and  refresh  tokens.  This  ensures  a
+higher  level  of  security  for  private  files  that  users  might  archive.  
+Now  that  we’ve  selected  OAuth,  we  want  to  pick  some  OAuth
+scopes.
+To do this, we need to list the types of resources that we want to pro‐
+vide,  along  with  the  operations  that  will  be  allowed  via  the  API.
+After   that,   we’ll   fill   in   a   scope   scheme   that   makes   sense.   For
+Table  5-2,  we  will  be  filling  out  resources  in  the  left-hand  column
+
+because the MyFiles API will be REST-based. Your API may be dif‐
+ferent,  and  you  might  want  to  think  about  the  objects  that  you’ll
+provide  via  your  API  instead  of  resources.  These  objects  might  be
+data  affected  by  user  actions,  data  affected  by  developer  actions,  or
+any  data  that  you  will  be  transporting  to  the  developer.  Notice  the
+close  correlation  between  the  operations  and  CRUD  for  MyFiles  in
+Table 5-2. Your operations might differ, especially if you have elected
+a different paradigm, such as RPC.
+Table 5-2. Operations and resources for the MyFiles API
+Resource or objectOperation
+Files and their metadataCreate
+Files and their metadataRead
+Files and their metadataUpdate
+Files and their metadataDelete
+Now  that  we  have  resources  and  operations,  it’s  time  to  pick  our
+OAuth scopes. We have several options:
+•We  could  create  a  general  scope,  files,  that  would  cover  all
+operations related to files.
+•
+We could split the files into two buckets of actions: reading and
+writing.
+•We  could  get  even  more  granular  and  split  the  scope  into  the
+specific CRUD operations.
+After thinking about the scopes and the supported operations more
+carefully, we decide to eliminate the ability to delete files. That’s not
+an  action  that  users  take  very  often,  and  it’s  been  identified  as  the
+riskiest operation. As a result, for MyFiles, we will have simple read
+and  write  scopes  that  will  cover  our  three  operations.  In  the
+MyFiles  product,  reading  is  a  less  risky  scope  than  writing,  so  we
+want to be able to distinguish the two for users authorizing applica‐
+tions.  At  the  same  time,  the  two  scopes  offer  the  option  of  being
+expanded  to  other  operations  when  we’re  ready  to  release  them.
+Table 5-3 shows how that breaks down for our resources.
+Scenario 1 | 67
+
+Table 5-3. Scopes, operations, and resources for the MyFiles API
+Resource or objectOperationScope
+Files and their metadataCreate
+write
+Files and their metadataRead
+read
+Files and their metadataUpdate
+write
+In the MyFiles example, the relationship between decisions and doc‐
+umentation  was  fairly  dynamic.  Listing  the  desired  operations  and
+thinking  about  the  OAuth  scopes  resulted  in  a  hard  decision  to
+reduce the initial functionality offering for the API. Decisions about
+implementation  and  scope  inevitably  need  to  be  made  during  the
+design  process.  These  decisions  should  be  embraced  insomuch  as
+they help better solve the problem that you initially defined.
+Write an API 
+Specification
+Now  that  you’ve  made  some  key  high-level  decisions,  it’s  time  to
+write  a  specification  (also  called  a  spec).  The  spec  gives  you  an
+opportunity to think through your design thoroughly. It also serves
+as  an  artifact  that  you  can  use  to  communicate  with  other  people,
+especially   when   you   are   soliciting   feedback   from   stakeholders.
+Finally, after you have reached agreement on the spec, it serves as a
+contract,  enabling  you  to  build  the  various  parts  of  the  API  imple‐
+mentation in parallel.
+We recommend using collaborative document-editing software with
+version  control  and  commenting  support.  This  is  a  great  way  to
+boost  participation,  track  feedback,  and  keep  everyone  up  to  date
+with the latest changes.
+The Introduction for the MyFiles API Technical
+Specification
+A strong spec starts off with a high-level summary, detailing major
+decisions  you’ve  made,  and  a  brief  explanation  of  why  you  made
+those decisions. The following offers an example of how that might
+look for MyFiles.
+Title
+Proposal: MyFiles API Spec
+
+Authors
+Brenda Jin
+Saurabh Sahni
+Amir Shevat
+Problem
+Our  archive  repositories  provide  valuable  file  metadata  to  our
+direct  customers.  Customers  use  this  data  to  integrate  with
+business-critical  services,  but  they  are  currently  doing  so  by
+downloading  CSVs  and  uploading  CSVs  to  other  business
+products.  We  are  currently  not  providing  a  way  to  program‐
+matically grant access to the repository metadata to customers
+who use third-party integrations.
+Solution
+Build an API that allows developers to programmatically access
+MyFiles files.
+Implementation
+For this API, we’ve decided to use REST for the following rea‐
+sons:
+•
+REST resource paradigm matches how MyFiles treats files
+in our tech stack.
+•Desired file operations for the API match closely to CRUD
+operations.
+•No need for event transport at this time.
+Authentication
+This  API  will  use  OAuth  2.0  with  refresh  tokens  and  token
+expiry.
+Other things we considered
+WebHooks  are  a  great  way  for  developers  to  get  information
+about  user  events,  such  as  files  uploaded  and  files  changed
+without continuously polling for data. We’ve decided to incor‐
+porate  an  outline  of  how  these  would  work.  We  anticipate
+building those as a phase 2 for the API.
+We  have  decided  not  to  implement  a  DELETE  operation  for
+third-party developers at this time, because we consider it high
+risk and unnecessary for the initial API launch.
+Scenario 1 | 69
+
+From there, the spec should dive into increasingly detailed informa‐
+tion,  such  as  an  outline  of  the  developer’s  workflow,  authentication
+information (if new authorization mechanisms are being built), and
+any  relevant  details  about  data  transmission  protocols.  Visual  dia‐
+grams can go a long way toward communicating information that is
+complex to describe with words.
+Tables are also useful tools for detailing multidimensional aspects of
+APIs.  For  REST  or  RPC  APIs,  it  can  be  helpful  to  outline  the  URIs
+or method names, inputs, outputs, errors, and scope.
+Table  5-4  demonstrates  what  this  looks  like  for  our  simple  MyFiles
+example.
+Table 5-4. Detail section describing each API URI in the MyFiles API
+technical specification
+URIInputsOutputsScope
+GET
+/files
+Required: N/A
+Optional:
+include_deleted (bool)
+default false
+limit (int)
+default 100, Max 1000
+cursor (string)
+default null
+last_updated_after
+(timestamp):
+default null
+200 OK
+Array of $file resources:
+[
+    {
+      "id": $id,
+      "name": string,
+      "date_added":
+        $timestamp,
+      "last_updated":
+        $timestamp,
+      "size": int,
+      "permalink": $uri,
+      "is_deleted": bool
+    }
+]
+read
+GET 
+files/:id
+ 
+200 OK
+$file
+read
+PATCH
+files/:id
+Updatable fields:
+name   (string)
+notes   (string)
+202 Accepted
+$file
+write
+POST
+files/:id
+Required:
+name (string)
+Optional:
+notes (string)
+200 Created
+$file
+write
+In  your  table,  the  URI  (or  Endpoint)  column  should  include  the
+HTTP  method  for  REST  endpoints.  The  Inputs  column  should
+
+include all input parameters, their acceptable types, their default val‐
+ues, and whether the parameters are required. The Outputs column
+should  outline  a  success  response  and  its  types.  For  the  types,  you
+may  want  to  use  shorthand  values  or  whatever  notations  that  your
+use  to  denote  the  types  throughout  your  code  base.  You  may  also
+want  to  specify  custom  types  that  you  have  or  will  define  with  an
+API description language. (For more information on this, see Chap‐
+ter  7.)  Alternatively,  you  might  want  to  simply  include  a  literal
+example.  The  Errors  column  should  include  any  important  user
+errors  that  you  will  be  exposing  for  the  individual  API.  You  should
+not document general errors and system errors here. If you’re using
+OAuth,  the  Scope  column  specifies  the  scope  that  grants  access  to
+the  API  method.  (See  also  “API  Specification  Template”  on  page
+203.)
+In the specification of the MyFiles API URIs, we’ve also added error
+codes   that   are   specific   to   each   resource.   In   addition   to   these
+resource-specific  errors,  it’s  important  to  think  globally  about  how
+we will respond with errors that could happen in any API. Table 5-5
+includes  a  list  of  general  and  specific  errors,  along  with  the  HTTP
+status  codes  that  we’ve  chosen  for  the  MyFiles  example  in  this  sce‐
+nario.
+Table 5-5. Section describing HTTP status codes for errors in the MyFiles
+API technical 
+specification
+Status codeDescriptionError response body
+200 OKThe request succeeded.See Outputs in Table 5-4.
+201 CreatedThe request succeeded and a new
+file was created.
+See Outputs in Table 5-4.
+202 AcceptedThe 
+file was updated successfully.
+See Outputs in Table 5-4.
+400 Bad RequestThe request cannot be accepted,
+often because of a missing
+parameter or due to an error, like
+too large a file being given.
+{ "error":
+"missing_parameter",
+"message": "The following
+parameters are missing from
+your   request: <parameter1>,
+<parameter2>."
+}
+{ "error":
+"file_size_too_large",
+"message": "The file provided
+is too large. The limit is
+<file_size_limit>."
+}
+Scenario 1 | 71
+
+Status codeDescriptionError response body
+401 UnauthorizedNo valid access token was
+provided.
+{ "error": "unauthorized",
+"message": "The provided
+token is not valid."
+}
+403 ForbiddenThe user may not have permission
+to view the file.
+{ "error": "forbidden",
+"message": "You do not have
+permission to access the
+requested file <id>."
+}
+404 Not FoundThe requested file was not found.
+{ "error": "file_not_found",
+"message": "The requested file
+<id> was not found."
+}
+429 Too Many
+Requests
+Too many requests were sent in a
+given amount of time.
+{ "error":
+"too_many_requests",
+"message": "You have made too
+many requests in a short
+period of time. Try again
+in <time> minutes."
+}
+500 Server ErrorSomething went wrong on the
+server side.
+ 
+You might notice that there are decisions to make regarding how to
+note  types  and  resources.  Sometimes,  you  need  room  to  describe
+which types are nullable and which types are optional. Additionally,
+you need a place for more information, such as how you would like
+to handle file uploads via your API. You might want to add a Notes
+column and put that information there. If you run out of horizontal
+space,  you  can  always  turn  the  page  to  landscape  mode  or  use  a
+document editor with horizontally scrollable tables.
+Beyond what we’ve already mentioned listing in your API spec, you
+might  also  want  to  include  additional  information  about  scaling,
+performance, logging, and security. Finally, at the end of the spec, it
+can  be  useful  to  include  an  Open  Questions  section,  where  you  can
+list unanswered questions.
+Scenario 2
+Let’s take the API design for MyFiles further. Here’s the scenario for
+the next part of the chapter:
+
+You’ve  built  and  released  the  MyFiles  REST  API,  and  it’s  been  a
+huge  success  over  the  past  few  months.  You’ve  been  staying  in
+touch  with  developers  to  get  their  feedback,  and  you’ve  heard  that
+they  want  the  ability  to  receive  updates  when  files  have  changed.
+With  the  original  REST  design,  this  means  that  they  must  make
+multiple  requests  on  every  notable  file  and  check  for  any  kind  of
+difference. This polling behavior is taking a toll on your infrastruc‐
+ture, and it’s not user-friendly for developers. As a result, your team
+has decided to build something to address this problem.
+Define the Problem
+Here is how how the problem and impact statements might look for
+Scenario 2:
+Problem and Impact Statements for Scenario 2 of the
+MyFiles API
+Problem
+Our  REST  API  has  enabled  developers  to  programmatically
+access  third-party  integrations.  However,  the  only  way  devel‐
+opers currently have to keep track of changes to files is by con‐
+stantly polling our API, up to once per minute per file.
+Impact
+After  adding  some  additional  features  to  our  API,  developers
+will  be  able  to  receive  updates  whenever  changes  are  made  to
+files they care about.
+Outline Key User Stories
+“The User Story for the MyFiles API, Scenario 2” on page 73 shows
+the key user story for Scenario 2.
+The User Story for the MyFiles API, Scenario 2
+As  a  developer,  I  want  to  receive  an  update  when  a  
+file  has  been
+added,  changed,  or  removed so that I  don’t  have  to  continuously
+poll the REST API.
+Scenario 2 | 73
+
+Select Technology Architecture
+In Scenario 1, we selected a REST API for our technical architecture.
+In  this  scenario,  we  are  considering  a  variety  of  event-driven  APIs.
+Table  5-6  lays  out  the  pros  and  cons  of  three  common  patterns  for
+the MyFiles API: WebHooks, WebSockets, and HTTP Streaming. 
+If  you  need  a  refresher  on  the  various  types  of
+event-driven APIs, head back to Chapter 2.
+Table 5-6. Pros and cons of event-driven API paradigms for the MyFiles
+API
+ParadigmProsConsSelected?
+WebHooksMyFiles developers
+might want to receive
+an event every time
+files are added,
+removed, or changed.
+If files are changing too frequently, we might
+need sophisticated infrastructure to
+deduplicate events so that we don’t
+inadvertently initiate distributed denial-ofservice (DDoS) events on our developers’
+applications.
+✓
+WebSocketsCan be used by
+internal clients for UI
+display.
+We don’t want developers creating UI clients
+for MyFiles via the API.
+We don’t believe there is a use case to
+support long-lived connections for the types
+of events that developers would want to
+know about.
+χ
+HTTP
+Streaming
+Good for pushing data
+frequently.
+With the low frequency of changes per file,
+we don’t see a need for HTTP Streaming.
+χ
+Based  on  the  pros  and  cons  of  the  various  styles  of  event-driven
+APIs,  we’ve  decided  to  select  WebHooks.  One  additional  aspect  of
+this design that you should consider is how developers are going to
+configure  their  settings  to  select  exactly  which  events  and  files
+they’re  interested  in.  Keep  that  in  mind,  but  we  won’t  get  into  the
+configuration design in this chapter.
+Write an API 
+Specification
+Now, taking the key user story and the selected technology architec‐
+ture  into  account,  refer  to  the  following  example  spec  for  the
+MyFiles WebHooks design. If you’re following along with your own
+
+example, you might want to use the API Specification Template pro‐
+vided (“API Specification Template” on page 203).
+Sample Spec for the MyFiles WebHooks Design for
+Scenario 2
+Title
+Proposal: MyFiles API WebHooks Spec
+Authors
+Brenda Jin
+Saurabh Sahni
+Amir Shevat
+Problem
+Our  REST  API  has  enabled  developers  to  programmatically
+access  third-party  integrations.  However,  the  only  way  devel‐
+opers currently have to keep track of changes to files is by con‐
+stantly polling our API, up to once per minute per file.
+Solution
+Build an event-driven WebHooks API that allows developers to
+receive  selected  add,  update,  and  change  events  relating  to
+MyFiles files.
+Implementation
+Developers  will  specify  an  endpoint  that  they  control  for  our
+WebHooks  to  send  POST  requests  with  JSON  bodies  for  each
+spec. See Table 5-7 for payload specification.
+Authentication
+This  API  will  use  the  OAuth  2.0  authentication  from  the
+MyFiles  REST  API.  Any  developer  who  has  installed  the  read
+OAuth scope will be able to receive WebHook requests.
+Other things we considered
+There  are  a  number  of  ways  to  design  event-driven  APIs,  and
+we   elected   WebHooks.   WebSockets   and   long-lived   HTTP
+streaming connections were also considered.
+In  addition  to  the  high-level  overview,  let’s  also  write  details  about
+the events and their payloads. Table 5-7 shows how that could look.
+Scenario 2 | 75
+
+Table 5-7. Section describing event objects for the MyFiles API technical
+specification
+EventPayloadOAuth scope
+file_added
+{
+  "id": $id,
+  "resource_type":
+  "file",
+  "event_type": "added",
+  "name": string,
+  "date_added": $timestamp,
+  "last_updated": $timestamp,
+  "size": int,
+  "permalink": $uri,
+  "notes": array <file_notes>,
+  "uri": $uri
+}
+read
+file_changed
+{
+  "id": $id,
+  "resource_type": "file",
+  "event_type": "changed",
+  "name": string,
+  "date_added": $timestamp,
+  "last_updated": $timestamp,
+  "size": int,
+  "permalink": $uri,
+  "notes": array <file_notes>,
+  "uri": $uri
+}
+read
+file_removed
+{
+  "id": $id,
+  "resource_type": "file",
+  "event_type": "removed",
+  "name": string,
+  "date_added": $timestamp,
+  "last_updated": $timestamp,
+  "size": null,
+  "permalink": null,
+  "notes": null,
+  "uri": null
+}
+read
+Notice  that  in  this  example  there  are  interesting  decisions  to  be
+made  about  how  to  note  the  type  of  change  for  this  particular
+resource.  Should  there  be  more  data  in  the  payload?  Or  should  the
+event  names  be  granular,  with  references  to  where  developers  can
+make a subsequent request, and get more information, as described
+by the payload.uri field in Table 5-7?
+
+Validate Your Decisions
+Now that we’ve explored how to write an API specification, it’s time
+to get feedback. After each specification is written, you should find a
+way  to  test  your  ideas  with  stakeholders.  In  this  chapter,  we  have
+provided two different specs to give a range of examples, but in the
+real world there would be time between each of these scenarios, and
+feedback  would  be  solicited  after  each  specification  was  written.
+Don’t  wait  to  finish  building  your  API  masterpiece  before  getting
+input—the  right  feedback  early  on  can  save  you  a  lot  of  time  and
+prevent costly rewrites.
+Reviewing the 
+specification with stakeholders
+One  of  the  guiding  principles  of  the  design  methodology  described
+in  this  chapter  is  enabling  feedback  early  and  often.  The  spec  you
+have just written is a starting point for much of this, where you can
+get  feedback  on  the  problem,  the  high-level  solution,  and  the  nittygritty  details.  Review  your  spec  with  others  and  solicit  feedback  on
+the design. Find a developer who might build a business integration
+and  ask  them  what  they  think.  If  your  stakeholders  are  internal,
+make  sure  that  you  get  their  input.  It  is  important  to  go  through
+these  cycles  of  feedback  before  you  write  any  code  because  the
+mindsets  for  creating  and  consuming  an  API  are  different,  and  the
+input  you  receive  will  help  you  fix  usability  issues  before  you  start
+building.
+The  point  of  gathering  feedback  is  not  to  simply  “get  sign-off.”  As
+you are gathering feedback, you should be inviting constructive dis‐
+agreement and criticism. This isn’t so that others can tear down your
+design but so that you can collect valuable information to improve it
+before  you  begin  building.  (Hopefully  you  have  relationships  with
+key stakeholders that are built on trust and mutual understanding to
+help move this conversation along.)
+Gathering  feedback  is  not  an  effort  to  prove  (or  disprove)  your
+design prowess. In fact, it isn’t even about your ideas. It should be an
+authentic  exploration  of  the  possible  solutions  to  the  problem  you
+defined at the beginning of this chapter. Genuine curiosity through‐
+out the feedback cycle enables the exchange of ideas. When gather‐
+ing feedback, you should be deepening your understanding of other
+stakeholders’  concerns  and  hesitations,  even  if  they’re  difficult  to
+hear  and  even  if  you  disagree.  When  phrasing  questions,  it’s  better
+Scenario 2 | 77
+
+to  be  specific  about  the  information  you’d  like.  For  example,  “Did
+you  like  it?”  isn’t  as  helpful  as  “What  problems  did  you  run  into  as
+you  implemented  the  WebHooks  API?”  You  might  even  ultimately
+decide  not  to  incorporate  some  of  your  stakeholders’  suggestions
+because  your  solution  addresses  their  concerns  another  way.  With
+this  deeper  understanding,  your  solutions  will  be  more  thorough
+and  more  multifaceted,  and  you  will  make  more  intentional  tradeoffs.
+It certainly takes effort to synthesize complex ideas and merge seem‐
+ingly  disparate  interests—it’s  more  work  than  simply  running  with
+your first solution. However, it’s better to build the right API than to
+build the wrong one.
+Mocking data for interactive user testing
+We recommend using whatever tools are available to you in order to
+test your design and gather the feedback you need. One of the tools
+you  might  want  to  use  is  mock  data.  For  example,  you  could  create
+an  interface  for  developers  in  which  they  can  get  mock  data  in  the
+format  of  your  proposed  spec.  The  mock  data  is  a  set  of  fixed
+responses  that  can  be  served  through  an  application  or  some  other
+lightweight  interface  that  you  can  route  through  your  existing  web
+application.  The  mock  data  application  will  be  a  more  interactive
+testing  environment  for  stakeholders,  which  will  help  you  get  even
+more  specific  feedback  before  you  fully  implement  the  API.  Addi‐
+tionally,  a  mocking  tool  can  help  your  developers  implement  their
+apps and integrations in parallel with your API development.
+Storytime: Macys.com Responsive Checkout
+In 2015, Macys.com built a brand-new responsive checkout system
+that  used  a  series  of  JSON  APIs.  The  previous  system  was  built  as
+individual  pages  on  a  Java  backend  using  the  Spring  Framework.
+Because it was going to take several weeks for the backend develop‐
+ers to create the JSON API, the team first agreed upon the API spec.
+Then,  the  frontend  developers  created  a  lightweight  Node.js  mock
+application  that  served  fake  fixed  responses  while  the  API  was
+being  developed.  This  allowed  the  interactive  responsive  frontend
+experience  to  be  built  and  tested,  in  parallel  with  the  development
+of the APIs. When it came time to release the checkout experience
+
+to customers, the team simply swapped out the Node.js mock appli‐
+cation with the new API endpoints.
+Beta testers
+Often  your  stakeholders  aren’t  just  internal.  If  you  have  a  publicfacing  API,  there  are  also  external  stakeholders  to  consider  when
+soliciting  feedback.  After  you  make  some  decisions  based  on  the
+spec  and  begin  building  the  API,  you’ll  want  to  consider  getting
+feedback  from  developer  partners  in  a  beta  testing  program.  This
+would allow developer partners early access to the new API, with the
+intent  that  they  would  provide  feedback  before  an  official  public
+release. This gives you as the API builder additional opportunities to
+improve  the  API  design  for  real  users  and  real  use  cases.  For  more
+on building developer partner programs, see Chapter 10.
+Closing Thoughts
+We  think  the  MyFiles  API  is  off  to  a  good  start—don’t  you?  This
+process  provided  a  generic  template  for  you  to  use  to  design  APIs.
+As  you  think  about  how  to  customize  the  design  process  for  your
+API, consider keeping the process as lightweight and fast as possible,
+while maximizing the feedback.
+Throughout this book, we continue to encourage you to think about
+the  human  factor  in  computing.  Time  and  time  again,  we’ve  seen
+that poor design decisions are made when API providers ignore the
+needs of the user or developer communites.
+Adapt  the  template  provided  here  as  needed  for  your  organization,
+but don’t forget the user!
+Closing Thoughts | 79

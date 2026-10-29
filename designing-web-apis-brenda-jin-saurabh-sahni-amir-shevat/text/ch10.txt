@@ -1,0 +1,1058 @@
+CHAPTER 6
+Scaling APIs
+Making  sure  your  API  scales  both  in  terms  of  use  cases  and  load  is
+critical for its success. In this section, we cover the following scaling
+best practices and tips to help ensure that your API is future-proof:
+•Scaling throughput
+•Evolving API design
+•
+Paginating APIs
+•
+Rate-limiting APIs
+•
+Developer SDKs
+When you are building an API that other people depend on, availa‐
+bility and reliability are important. You want to ensure that it never
+goes  down  and  that  it  continues  to  load  fast  for  its  users.  However,
+your  API  can  suddenly  experience  a  surge  in  usage.  That  can  affect
+the  quality  of  your  service  or  even  bring  your  own  application
+down, if the application relies on your APIs.
+To  scale  your  API  by  supporting  an  increased  number  of  API  calls,
+there  are  many  things  you  can  do  at  the  application  level.  Database
+query  optimization,  sharding  databases,  adding  missing  indexes,
+utilizing  caching,  doing  expensive  operations  asynchronously,  writ‐
+ing  efficient  code,  and  tuning  web  servers  help  in  increasing  the
+throughput  and  decreasing  the  latency.  All  of  these  things  are  very
+important  and  you  should  do  them.  We  cover  these  topics  only
+briefly in the first section of this chapter, given that they are covered
+81
+
+more  extensively  in  other  books  about  web  application  perfor‐
+mance.
+Beyond these optimizations, there is another set of changes that are
+frequently  overlooked  and  can  significantly  help  in  scaling  APIs.
+There  are  ways  in  which  you  can  develop  your  API  design,  change
+API  usage  policies,  or  help  third-party  developers  to  write  efficient
+code  when  working  with  your  API.  In  “Evolving  Your  API  Design”
+on  page  90,  we  cover  these  often-forgotten  best  practices  and  tips
+that can be useful for scaling your API.
+Your API might also need to handle increasingly large datasets. Pag‐
+ination is an effective strategy for delivering large datasets to devel‐
+opers.  We  go  over  some  tips  and  techniques  for  this  in  “Paginating
+APIs” on page 97.
+Even  after  you  have  taken  care  of  all  the  aforementioned  concerns
+by  scaling  your  throughput,  developing  your  API  design,  and  pagi‐
+nating your APIs, it’s still possible for developers to make requests at
+an overwhelmingly high rate. In “Rate-Limiting APIs” on page 102,
+we  discuss  strategies  for  effectively  limiting  developer  requests  to  a
+reasonable frequency to maintain the health of your overall applica‐
+tion.
+Finally,  scaling  APIs  isn’t  just  about  the  mechanisms  within  your
+application  and  API  that  enable  growth.  In  “Developer  SDKs”  on
+
+best practices.
+Scaling Throughput
+As the number of users of an API grows, the throughput—measured
+as the number of API calls per second—increases. In this section, we
+talk about various ways in which you can optimize your API to sup‐
+port this growth.
+Finding the Bottlenecks
+Scaling your API might require fundamental changes to your appli‐
+cation architecture and code. First, you need to determine what your
+scaling  bottlenecks  are;  otherwise,  you’re  just  making  guesses.  One
+of  the  best  ways  to  gain  insights  into  bottlenecks  is  through  instru‐
+mentation. By collecting data on usage and monitoring for capacity
+
+bottlenecks,  you  can  take  advantage  of  data-driven  insights  into
+optimizations that will help you scale.
+Generally, these bottlenecks fall into four categories:
+Disk I/O
+Expensive  database  queries  and  local  disk  access  often  lead  to
+disk-related bottlenecks.
+Network I/O
+Network   bottlenecks   in   modern   applications   are   frequently
+caused by dependencies on external services requiring API calls
+across data centers.
+CPU
+Inefficient  code  performing  expensive  computations  is  one  of
+the common causes of CPU bottlenecks.
+Memory
+Memory  bottlenecks  typically  occur  when  systems  do  not  have
+sufficient RAM.
+Most of the cloud hosting providers offer solutions to measure these
+bottlenecks. If you’re on Amazon Web Services (AWS), you can use
+Amazon CloudWatch. Heroku has New Relic.  And on Google, you
+can  use  Stackdriver  to  access  metrics  and  get  insights  into  health,
+performance, and availability.
+To pinpoint specific bottlenecks, you can monitor the categories we
+just  listed,  homing  in  on  your  most  frequently  called  API  methods.
+One  of  the  most  obvious  symptoms  of  a  bottleneck  is  high  latency
+for  response  times.  By  measuring  the  response  times  of  your  API
+methods  and  how  frequently  they  are  called,  you  can  narrow  down
+the methods you want to optimize.
+After  you  determine  which  API  methods  to  optimize,  performance
+profiling  is  one  of  the  best  ways  to  identify  your  bottlenecks.
+Although  performance  and  scaling  are  different,  they  are  related.
+Poorly performing APIs are difficult to scale.
+By  profiling  your  code,  you  can  find  out  which  are  your  CPU-  or
+memory-intensive  functions.  Profiling  in  a  development  environ‐
+ment  often  helps  you  to  find  the  application  bottlenecks;  however,
+sometimes  the  issues  in  production  are  different.  This  is  especially
+true if activities and events that happen in production are difficult to
+simulate  or  reproduce  in  your  development  environment.  If  you
+Scaling Throughput | 83
+
+enable profiling in production for a small subset of your traffic, you
+can  gain  further  insights  into  the  performance  issues.  Figure  6-1
+shows Stackdrivers that help engineers understand which paths con‐
+sume the most resources and the different ways in which their code
+is actually called.
+Figure 6-1. Performance flame graph generated by Stackdriver Profiler
+in Google Cloud Platform
+In  addition  to  code  profiling,  which  identifies  CPU-  or  memoryintensive  functions,  database  profiling  helps  you  to  pinpoint  the
+slow queries related to disk I/O. MySQL offers a slow query log that
+can  log  queries  that  take  a  long  time  to  execute.  Other  databases
+offer similar solutions to analyze and isolate potentially problematic
+queries.
+As  for  network  I/O  bottlenecks,  load  testing,  along  with  the  afore‐
+mentioned methods, is another commonly used technique to deter‐
+mine   how   your   API   will   behave   under   anticipated   peak   load
+conditions.  Load  testing  is  helpful  in  identifying  the  maximum
+operating capacity of a system as well as bottlenecks that can lead to
+service degradation at high load. Some companies use load testing to
+perform internal drills in advance of known upcoming spikes. Nota‐
+bly,  ecommerce  companies  do  this  to  prepare  and  plan  in  advance
+for spikes—of up to five times the traffic and transactions—that can
+occur  during  major  shopping  events,  such  as  Black  Friday  in  the
+United States.
+
+Adding Computing Resources
+Simply  adding  more  computing  resources  can  help  in  scaling  an
+application. There are two ways to add more resources:
+Vertical scaling
+Vertical  scaling  can  be  achieved  by  adding  more  power,  like
+CPUs, RAM, and disk storage, to existing servers.
+Horizontal scaling
+Horizontal  scaling  is  achieved  by  adding  more  server  instances
+to  your  pool  of  resources  so  that  the  load  can  be  distributed
+among them.
+Figure 6-2 shows the architecture of a typical large web application.
+Web  servers  are  fronted  by  a  load  balancer  distributing  requests
+across  servers.  To  horizontally  scale  databases,  data  is  often  parti‐
+tioned  such  that  rows  of  a  database  table  are  stored  on  different
+servers.  Each  server  contains  only  part  of  the  data.  This  is  also
+referred to as database sharding. Along with sharding, database repli‐
+cation  is  used  to  distribute  the  load  on  the  database.  This  is  helpful
+in  improving  performance,  reliability,  and  scalability.  There  are
+many  nuances  to  scaling  cloud  application  architecture  which  we
+won’t cover in this book.
+Scaling Throughput | 85
+
+Figure 6-2. Architecture of a typical large-scale web application
+Database Indexes
+Indexing is a way to optimize the performance of data retrieval oper‐
+ations  on  a  database  table.  Indexes  help  databases  to  locate  rows  to
+return  for  a  query  without  having  to  compare  every  row  in  a  data‐
+base table. They do this by additionally storing the index data struc‐
+ture.
+For example, if you frequently find users by email address in a users
+table, creating an index on the email column will help you to speed
+up  these  queries.  Without  an  index,  the  database  would  need  to
+examine every row.
+However,  adding  too  many  indexes  is  not  ideal,  either.  Each  index
+on  a  table  requires  additional  storage  space,  and  there  is  a  perfor‐
+mance  hit  every  time  you  add,  update,  or  delete  rows  because  the
+corresponding  indexes  need  to  be  updated  as  well.  Typically,  you
+need  indexes  on  columns  that  are  common  in  your  WHERE,  ORDER
+BY, and GROUP BY clauses.
+
+For  more  information  on  implementing  database  indexes,  consult
+the documentation and resources for your specific database.
+Caching
+Caching  is  one  of  the  most  popular  and  simplest  techniques  that
+web applications use to scale to very large throughput. Caching sol‐
+utions like Memcached store data in memory instead of on the disk
+because it is much faster to read from memory.
+Caching is often used to store the responses to database queries. By
+analyzing  your  database  logs,  you  can  figure  out  the  database  quer‐
+ies  that  take  a  long  time  to  execute  and  are  most  frequent.  With
+caching, when you need to look up data, you first check whether it’s
+available in the cache. If you find the data, you return it. Otherwise,
+you  can  do  a  database  query  to  find  results  and  store  them  in  the
+cache  for  future  lookups  before  returning  the  response  to  the  user.
+By  caching  these  results  in  memory,  you  can  significantly  improve
+the scalability and performance of your application.
+When you implement caching, one important thing to remember is
+to invalidate the cache. Often you want to delete the cache whenever
+the  corresponding  data  is  updated.  At  other  times,  when  you  can
+tolerate  data  update  delays,  you  might  let  the  cache  expire  on  its
+own.
+Although   application-level   caching   for   APIs   is   typically   imple‐
+mented  along  with  your  web  servers,  caching  API  results  closer  to
+end  users  can  help  to  achieve  even  higher  throughput  and  perfor‐
+mance. This is referred to as edge caching.
+Storytime: Slack’s Flannel—an Application-Level Edge
+Cache
+In the early days of Slack, the Slack clients used a very different API
+design than they eventually would (see Figure 6-3). In this context,
+a  client  is  any  application  used  to  display  the  messages  and  other
+features  of  Slack,  including  web  browsers  and  native  desktop  and
+mobile  applications.  When  Slack  was  used  primarily  on  small
+teams,  each  client  would  make  an  API  request  to  load  everything
+on  startup.  This  was  useful  for  getting  all  the  channels,  users,  and
+bots to display at once.
+Scaling Throughput | 87
+
+Figure 6-3. Slack’s pre-Flannel architecture
+However, as teams grew larger and larger, requesting the entire state
+of  the  application  became  slow.  What  had  worked  for  small  teams
+didn’t work for large teams. Connection time to start took too long,
+the client memory footprint became too big, reconnecting to Slack
+were   expensive,   and   reconnection   storms   became   resourceintensive.
+As  a  result,  Slack  spent  months  redesigning  the  API  for  clients  to
+request  and  manage  state.  This  API  became  known  as  Flannel.  As
+Figure  6-4  illustrates,  Flannel  was  a  lazy-loading  cache  service  that
+provided query APIs for clients to fetch data on demand. Whereas
+previously,  clients  received  the  entire  application  state  on  startup,
+they now used Flannel to request only what they needed to create a
+reasonable user interface (UI) for human users and then made sub‐
+sequent requests to update their local state.
+Figure 6-4. Slack’s architecture with Flannel
+It  took  a  whole  team  and  months  of  work  to  get  this  new  cache  in
+place  to  scale  the  API,  but  the  results  were  phenomenal.  Client
+startup  data  size  was  reduced  by  7  times  on  a  medium-sized  team
+
+and  44  times  on  a  large  team.  For  more  information  on  this  story,
+see the Slack engineering blog.
+Doing Expensive Operations Asynchronously
+If some of your API requests take a long time to execute, you might
+want  to  consider  performing  expensive  operations  outside  of  the
+request  (asynchronously).  This  way  you  can  serve  the  responses  to
+such requests faster.
+For  example,  if  you  have  a  system  that  allows  users  to  store  and
+search  files,  when  a  file  is  uploaded,  you  do  not  need  to  make  it
+available in the search index as part of the same request. Files can be
+added to the index as part of an offline job that’s executed asynchro‐
+nously in near real time.
+To  do  operations  asynchronously,  you  can  use  task  queue  services
+provided by various cloud service providers, like Amazon and Goo‐
+gle. You can also use an open source task queue like Celery.
+Scaling Throughput Best Practices
+Here are some best practices that will help your applications to scale
+to high load:
+•Measure and find your bottlenecks first before starting to make
+changes  for  scaling.  The  database  is  the  most  common  bottle‐
+neck in modern applications.
+•
+Avoid   premature   optimizations.   Scaling   optimizations   often
+come at a cost, and some of them can increase the development
+time of your application. Unless you have scaling problems, you
+probably don’t want to add that complexity.
+•
+Prefer horizontal scalability over vertical scalability.
+•
+Understand  that  database  indexes  are  among  the  best  ways  to
+address slow database queries.
+•
+Determine which data you use frequently, and cache it.
+•
+If you add caching, do not forget to add cache invalidation.
+•
+Consider performing expensive operations asynchronously.
+Scaling Throughput | 89
+
+•Avoid  writing  inefficient  code  that  might  do  expensive  opera‐
+tions,  like  database  queries  in  a  for  loop  for  a  single  API
+request.
+Evolving Your API Design
+In  the  real  world,  your  initial  API  design  might  not  scale  with  the
+growth  of  your  user  base  or  with  the  increased  adoption  and  usage
+of  your  API.  For  insights  into  bottlenecks  that  may  occur  and  to
+reduce the number of API calls, it’s important to determine the main
+reasons  that  developers  are  using  the  API  and  where  the  issues  are.
+Are developers using the API for reasons you didn’t predict? Is poll‐
+ing a problem? Is the API returning too much data? Although there
+is no magic bullet to resolve all scaling issues, you may want to con‐
+sider the following solutions.
+Expert Advice
+Grow and work with your users. Keep a good and open channel
+with  your  developers/users.  Gain  feedback  and  tune  the  API  to
+solve their main pain points.
+—Ido Green, developer advocate at Google
+Introducing New Data Access Patterns
+As your API becomes popular, your developers might begin using it
+in ways that you didn’t anticipate. To address scaling challenges, you
+might want to consider alternative ways of sharing data. Let’s take a
+look at four companies that took on significant API design changes
+in order to scale: Zapier, Twitter, GitHub, and Slack.
+If  polling  is  one  of  your  API  scaling  problems  and  you  have  only
+REST  APIs,  you  should  explore  options  like  WebSockets  and  Web‐
+Hooks.  Your  developers  will  not  need  to  poll  for  changes  but  can
+wait  for  new  data  to  be  delivered  in  real  time.  A  2013  Zapier  study
+found  that  only  about  1.5%  of  their  polling  API  calls  returned  new
+data.  By  supporting  WebHooks,  they  estimated  that  server  load
+could be reduced by 66 times.
+In  the  past,  Twitter  applications  could  only  receive  new  tweets  in
+near  real  time  by  frequently  polling  the  Twitter  API.  This  led  to
+
+increased traffic to the REST APIs, and as a result, added to existing
+scaling challenges. To resolve the issue, Twitter introduced a stream‐
+ing API that delivers new data and cuts down on polling. Now, using
+this  streaming  API,  developers  can  subscribe  to  selected  keywords
+or users and can receive new tweets over a long-lived connection.
+In  the  past,  GitHub  found  that  its  responses  were  bloated  and  were
+sending too much data—but even with the large payloads, they still
+weren’t including all of the data that developers needed. Developers
+would   make   separate   calls   to   assemble   a   complete   view   of   a
+resource.  To  address  these  scalability  challenges,  GitHub  launched
+the  GraphQL  API.  Using  GraphQL,  developers  can  batch  multiple
+API  calls  into  a  single  API  call  and  fetch  only  the  items  that  they
+needed.  This  helps  to  reduce  the  number  of  API  calls  GitHub
+receives, and it reduces the cost of computation on fields that devel‐
+opers don’t need.
+Slack  started  out  with  a  Real-Time  Messaging  (RTM)  API,  which
+allowed developers to build apps and bots that could respond in real
+time to activities in Slack. The API delivered events from Slack over
+a  WebSocket.  As  time  went  on,  Slack  discovered  that  even  though
+the  RTM  API  was  great  for  its  own  clients,  it  provided  too  much
+data for developers to handle well. Plus, it was difficult for Slack and
+for  developers  to  scale.  Developers  with  several  users  had  to  deal
+with  many  concurrent  open  HTTP  connections—at  least  one  per
+user.  Slack  also  needed  to  manage  as  many  connections  as  the  API
+provider. In 2016, to address all of these problems, Slack introduced
+the  Events  API  (Figure  6-5),  which  is  WebHook-based  and  enables
+developers to create bots over HTTP. Instead of receiving an endless
+stream  of  data  that  includes  all  events,  and  rather  than  constantly
+polling  Slack’s  RPC  API,  developers  can  use  the  Events  API  to  sub‐
+scribe  to  only  the  events  that  they  care  about—delivered  via  HTTP.
+This helps both Slack and app developers to scale better.
+Evolving Your API Design | 91
+
+Figure 6-5. Slack’s WebHook-based event subscription interface
+Adding New API Methods
+Another way to address scalability and performance problems is by
+adding  new  API  methods.  If  you  have  some  expensive  APIs,  you
+might want to dive deeper into the use cases they are serving. Some‐
+times  developers  might  need  only  a  small  subset  of  the  data  from
+your API responses, or, as in the GitHub case that we just looked at,
+developers  might  be  working  hard  to  assemble  data  that  isn’t  easily
+accessible  with  the  existing  APIs.  If  developers  can  only  either
+request  everything  or  nothing,  they  may  end  up  receiving  full
+responses  and  ignoring  most  of  the  payloads.  It’s  possible  that  the
+data they don’t need is expensive for you to compute. It’s difficult to
+remove or change APIs after they are in use, but adding new meth‐
+ods  is  easy.  New  methods  can  deliver  the  data  that  your  developers
+need,  while  addressing  the  performance  and  scale  issues  of  your
+existing APIs.
+Slack introduced several new APIs over time to address scaling chal‐
+lenges.  One  of  Slack’s  popular  API  methods,  rtm.start,  became
+extremely  expensive.  This  method  would  start  an  RTM  session  and
+return  a  wide  variety  of  data  about  the  team,  its  channels,  and  its
+members.  Originally  designed  for  small  teams,  this  API  method
+would return the full application state, in addition to a session URL
+for  a  WebSocket  connection.  As  team  sizes  grew,  this  payload
+became  unwieldy  and  large—up  to  several  megabytes,  which  was
+expensive for developers to handle. Even though a handful of devel‐
+opers  used  the  data  returned  from  this  method,  most  developers
+wanted  only  to  connect  to  the  WebSocket.  As  a  result,  Slack  intro‐
+duced  a  new  API  method,  rtm.connect,  that  simply  returns  an
+
+RTM WebSocket API session URL without returning any other data
+in the payload. This new method has helped application developers
+and   Slack   to   overcome   some   of   the   scaling   problems   with
+rtm.start.
+Slack also launched a new Conversations API that addresses perfor‐
+mance  and  scalability  issues  along  with  various  developer  pain
+points. Previously, developers needed to use different methods from
+multiple “family trees” to achieve the same thing, depending on the
+type  of  the  channel  with  which  they  were  working.  For  example,  to
+list  private  channels,  developers  would  use  groups.list,  and  for
+public  channels,  they  used  channels.list.  This  resulted  in  many
+different  objects  for  developers  to  reconcile—objects  that,  at  their
+core,  all  represented  the  same  type  of  timeline  message  container.
+The Conversations API (Figure 6-6) bring consistency to these pay‐
+loads  and  addresses  various  performance  improvements  so  that
+developers can scale their applications. API endpoints returning lists
+of large objects are all paginated. Slack also stopped returning large
+nested  lists  of  lists  in  payloads  and  created  separate  endpoints  to
+fetch  additional  information.  For  instance,  a  new  API  endpoint,
+conversations.members,  returns  a  paginated  list  of  members  in  a
+conversation.  Apart  from  making  Slack’s  application  infrastructure
+more  scalable,  these  new  APIs  also  make  third-party  developers’
+lives  much  easier.  Slack’s  developers  report  removing  many  lines  of
+code with this new change.
+Evolving Your API Design | 93
+
+Figure 6-6. Slack’s Conversations API consolidated multiple endpoints
+into one
+Another  use  case  that  the  Conversations  API  helped  developers  to
+complete  was  that  of  finding  conversations  of  which  a  user  was  a
+member.  To  do  that,  developers  would  make  multiple  requests  to
+query  the  members  of  each  conversation  and  then  filter  conversa‐
+tions for a given user. By releasing an API method called users.con
+versations,  Slack  reduced  the  number  of  calls  that  developers
+needed  to  make.  In  a  single  request  to  the  new  users.conversa
+
+tions API method, developers could fetch up to 1,000 conversations
+of  which  a  user  was  a  member.  Previously,  this  could  have  taken
+1,001 API calls.
+Supporting Bulk Endpoints
+Sometimes  developers  need  to  do  the  same  operation  on  several
+items,   like   looking   up   or   updating   multiple   users.   This   often
+requires  doing  several  individual  API  calls.  Supporting  bulk  end‐
+points so that developers can do those operations in fewer API calls
+can be helpful for scaling. Bulk endpoints are more efficient because
+they require fewer HTTP round trips and can even help in reducing
+load on a database.
+Let’s look at another example from Slack. To invite multiples users to
+a  single  Slack  channel,  developers  had  to  call  the  channels.invite
+API method once per user. Slack added support for inviting multiple
+users  in  a  single  API  call  (Example  6-1),  thereby  saving  costs  for
+both Slack and developers. Several API providers, like Zendesk and
+Salesforce,  support  bulk  operation  endpoints  as  well  as  batching  of
+requests.
+Example 6-1. Slack’s Conversations API supporting bulk operations
+POST /api/conversations.invite
+HOST slack.com
+Content-Type: application/json
+Authorization: Bearer xoxp-dummy-token-165018607-jqf4sbdaq2a
+{
+ "channel":"C0GEV71UG",
+ "users":["W1234567890","U2345678901", "U3456789012"]
+}
+Adding New Options to Filter Results
+When your API begins returning a number of objects, it’s important
+to consider providing options to filter the results. This way, develop‐
+ers  can  limit  the  number  of  objects  returned  to  those  that  they
+actually  need.  This  makes  your  API  more  scalable.  Different  APIs
+need  different  filters  depending  on  how  they  are  used.  Here  are
+some common filters that are widely applicable:
+Evolving Your API Design | 95
+
+Search filter
+With   search   filters,   developers   can   specifically   request   the
+results  they  are  looking  for  using  similar  words,  regex,  or
+matching  strings.  In  the  absence  of  such  a  filter,  developers
+could  end  up  requesting  and  parsing  a  lot  more  results  than
+they need.
+Date 
+filter
+Often developers need only new results since the last time they
+requested  results  from  the  API.  By  supporting  a  date  filter,  you
+can  return  only  the  results  from  after  or  before  the  given  time‐
+stamp.  The  Twitter  timeline,  the  Facebook  News  Feed,  and  the
+Slack message history APIs support such filters.
+Order 
+filter
+An  order  filter  enables  developers  to  order  a  set  of  results  by  a
+given  property.  This  can  reduce  the  number  of  results  that
+developers  need  to  request  and  process.  The  Amazon  Product
+Advertising API supports sorting by popularity, price, and con‐
+dition.
+Options to indicate which 
+fields to return or not return
+Some fields in your API responses might be far more expensive
+to  compute  than  others.  Unnecessary  fields  can  also  signifi‐
+cantly  increase  the  response  payload  size.  API  providers  fre‐
+quently offer developers an option to exclude or include certain
+fields.  For  example,  the  Twitter  timeline  API  provides  filters  to
+trim included user objects and not return tweets.
+Expert Advice
+Evolving the API design has helped Facebook and app developers
+with  scaling.  Previously,  app  developers  had  to  include  a  full
+Facebook  SDK  in  their  mobile  apps.  Recently,  we  released  an
+update  to  our  mobile  SDKs  that  allows  developers  to  install  cer‐
+tain pieces of it. If a developer does not need the functionality of
+the  full  Android  SDK,  they  can  save  space  by  using  only  the
+SDK(s) needed to support the Facebook products.
+—Desiree Motamedi Ward, head of developer product mar‐
+keting at Facebook
+
+Evolving API Design Best Practices
+Here  are  four  best  practices  for  evolving  API  design  that  will  help
+you with scaling:
+•As  you  continue  to  evolve  your  APIs,  it’s  important  to  ensure
+that  you  do  not  introduce  surprising  breaking  changes  to  your
+developers.
+•
+Analyze your API usage and patterns to figure out what to opti‐
+mize.
+•
+Talk  to  your  developers  and  partners.  This  will  give  you  good
+insights into problems and potential solutions.
+•
+Before  launching  new  API  patterns  for  everyone,  try  them  out
+with  a  handful  of  developers  and  partners.  This  way,  you  can
+iterate on the design based on their feedback before making the
+patterns generally available.
+Paginating APIs
+In  addition  to  scaling  throughput  and  evolving  your  API  design,
+paginating  APIs  can  help  with  scaling.  Quite  often,  APIs  need  to
+handle large datasets. An API call might end up returning thousands
+of  items.  Returning  too  many  items  can  overload  the  web  applica‐
+tion  backend  and  even  slow  down  clients  that  can’t  handle  large
+datasets.  For  that  reason,  it’s  important  to  paginate  large  result  sets.
+This splits long lists of data into smaller chunks, minimizes response
+times for requests, and makes responses easier to handle.
+In this section, we explore some techniques that you can use to pagi‐
+nate an API.
+Offset-Based Pagination
+Using  limits  and  offsets  is  generally  the  easiest  way  to  implement
+pagination. It’s also the most widely used pagination technique.
+To  paginate  this  way,  clients  provide  a  page  size  that  defines  the
+maximum number of items to return and a page number that indi‐
+cates the starting position in the list of items. Based on these values,
+servers  storing  data  in  a  SQL  database  can  easily  construct  a  query
+to  fetch  results.  For  instance,  to  fetch  the  fifth  page  of  items  with
+Paginating APIs | 97
+
+each  page’s  size  being  10,  we  should  load  10  items,  starting  after  40
+items (skipping the first 4 pages of size 10). The corresponding SQL
+query would look like the following:
+SELECT * FROM `items`
+ORDER BY `id` asc
+LIMIT 10 OFFSET 40;
+APIs, such as GitHub’s, support this kind of pagination. Clients can
+simply make a request with page and per_page parameters specified
+in the URL, such as the one shown here:
+https://api.github.com/user/repos?page=5&per_page=10
+Advantages and disadvantages
+Offset-based  pagination  is  extremely  simple  to  implement,  both  for
+clients  and  the  server.  It  also  has  user  experience  advantages.  It
+allows users to jump into any arbitrary page instead of forcing them
+to scroll through the entire content (Figure 6-7).
+Figure 6-7. Pagination links in a UI
+However, this technique has a few disadvantages:
+•
+It’s  inefficient  for  large  datasets.  SQL  queries  with  large  offsets
+are  pretty  expensive.  The  database  has  to  count  and  skip  rows
+up  to  the  offset  value  before  it  gets  to  returning  the  desired  set
+of items.
+•
+It  can  be  unreliable  when  the  list  of  items  changes  frequently.
+The  addition  of  an  item  while  a  client  is  paginating  through
+results  could  cause  the  client  to  display  the  same  item  twice.
+Similarly, on the removal of an item, a client might end up skip‐
+ping it at the boundary.
+•
+Offset-based  pagination  can  be  tricky  in  a  distributed  system.
+For  large  offsets,  you  might  need  to  scan  a  number  of  shards
+before you get to the desired set of items.
+
+That  said,  offset  paginations  can  be  great  when  pagination  depth  is
+limited and clients can tolerate duplicates or missed items.
+Cursor-Based Pagination
+To  address  the  problems  of  offset-based  pagination,  various  APIs
+have adopted a technique called cursor-based pagination. To use this
+technique, clients first send a request while passing only the desired
+number of items. The server then responds with the requested num‐
+ber of items (or the maximum number of items supported and avail‐
+able),  in  addition  to  a  next  cursor.  In  the  subsequent  request,  along
+with  the  number  of  items,  clients  pass  this  cursor  indicating  the
+starting position for the next set of items.
+Implementing  cursor-based  pagination  is  not  very  different  from
+offset-based  pagination.  However,  it’s  much  more  efficient.  Systems
+that  store  data  in  a  SQL  database  can  create  queries  based  on  the
+cursor values and retrieve results.
+Suppose that a server returns a Unix timestamp of the last record as
+the  cursor.  To  fetch  a  page  of  results  that  are  older  than  that  given
+cursor, the server can construct a SQL query like the following:
+SELECT * FROM items
+WHERE created_at < 1507876861
+ORDER BY created_at
+LIMIT 10;
+Having an index on the column created_at in the preceding exam‐
+ple makes the query fast.
+Several  modern  APIs,  including  those  of  Slack,  Stripe,  Twitter,  and
+Facebook,  offer  cursor-based  pagination.  Let’s  take  a  look  at  how
+cursor-based pagination works in the Twitter API.
+Consider this scenario: a developer wants to obtain the list of a user’s
+followers’ IDs. To fetch the first page of results, the developer makes
+an API request, as shown here:
+GET https://api.twitter.com/1.1/followers/ids.json?screen_name=
+    saurabhsahni&count=50
+The Twitter API returns the following response:
+{
+    "ids": [
+        385752029,
+        602890434,
+Paginating APIs | 99
+
+        ...
+        333181469,
+        333165023
+    ],
+    ...
+    "next_cursor": 1374004777531007833,
+}
+Using  the  value  from  next_cursor,  the  developer  can  then  request
+the next page of results with the following request:
+GET https://api.twitter.com/1.1/followers/ids.json?user_id=12345
+    &count=50&cursor=1374004777531007833
+As the developer makes subsequent requests to advance through the
+next    pages,    they    will    eventually    receive    a    response    with
+"next_cursor"  as  0,  and  that  will  indicate  the  end  of  the  entire
+paginated result set.
+Advantages and disadvantages
+Cursor-based pagination addresses both the issues seen with offsetbased pagination:
+Performance
+One  of  the  key  benefits  of  cursor-based  pagination  is  perfor‐
+mance.  With  an  index  on  the  column  used  in  the  cursor  for
+pagination, even queries requiring scanning large tables are fast.
+Consistency
+The addition or removal of items does not affect the result set of
+a page. While paginating across results, the server returns every
+item exactly once.
+Cursor-based  pagination  is  great  for  large  and  dynamic  datasets.
+However, it has a few drawbacks:
+•
+Clients  cannot  jump  to  a  given  page.  They  need  to  traverse
+through the entire result set page by page.
+•
+The results must be sorted on a unique and sequential database
+column,  used  for  the  cursor  value.  It  should  not  be  possible  to
+add records at a random position in the list.
+•
+Implementing  cursor-based  pagination  is  a  bit  more  compli‐
+cated  than  offset-based  pagination,  particularly  for  clients.  Cli‐
+
+ents often need to store the cursor value to use it in subsequent
+requests.
+Choosing what goes in the cursor
+Common options to use for cursors include:
+ID as the cursor
+API providers often choose a unique ID as the cursor value. For
+instance, the Twitter timeline APIs support tweet IDs as cursors.
+To fetch older tweets in a timeline, developers can pass the low‐
+est ID received in the first set of results as the max_id parameter.
+The  server  then  returns  only  tweets  with  IDs  lower  than  or
+equal to the value of the max_id parameter.
+Timestamp
+Another  common  approach  adopted  by  APIs  returning  timebased  data,  such  as  news  feeds,  is  to  use  the  timestamp  as  the
+cursor.  Facebook  APIs  support  until  and  since  parameters,
+which accept Unix timestamps. When a timestamp is passed in
+the  since  request  parameter,  the  Facebook  API  returns  only
+items newer than the given timestamp.
+Opaque strings
+Using opaque strings as the cursor is increasingly becoming the
+preferred  choice  for  API  providers.  Although  they  appear  as
+random sets of characters, they are generally encoded values. A
+key  advantage  of  using  opaque  strings  is  the  ability  to  encode
+additional information within a single cursor. Large-scale appli‐
+cations  can  encode  multiple  IDs  or  an  ID-plus-pointer  combi‐
+nation  to  a  database  shard  in  these  cursor  values.  Modern
+versions  of  various  APIs,  including  those  of  Slack,  Facebook,
+GitHub, and Twitter, use opaque strings as cursors.
+Pro Tip
+Cursor-based  pagination  is  best  suited  for  hightraffic  applications  for  which  clients  need  to
+scan through large datasets.
+Paginating APIs | 101
+
+Pagination Best Practices
+Here  are  some  best  practices  that  you  should  keep  in  mind  when
+designing pagination for an API:
+•When implementing pagination, do not forget to set reasonable
+default and maximum values for the page size.
+•
+Avoid  using  offset-based  pagination  if  clients  will  run  queries
+with large offsets.
+•With   pagination,   sorting   data   such   that   newer   items   are
+returned  first  and  older  items  later  is  sometimes  better.  This
+way clients don’t need to paginate through to the end if they are
+interested only in newer items.
+•
+If your API does not support pagination today, introduce it later
+in a way that maintains backward compatibility. More on back‐
+ward compatibility in Chapter 7.
+•
+When  implementing  pagination,  return  the  next  page  URL
+pointing  to  the  subsequent  page  of  results.  An  empty  or  null
+next page value can indicate the end of the list. By encouraging
+clients  to  follow  the  next  page  URL,  over  time  you  can  change
+your pagination strategy without breaking clients.
+•Do not encode any sensitive information inside cursors. Clients
+can generally decode them.
+Rate-Limiting APIs
+Often  API  providers  discover  the  need  to  rate-limit  APIs  the  hard
+way.  When  an  API  becomes  popular  and  suddenly  sees  a  surge  of
+traffic  that  potentially  affects  the  availability  of  the  application,  API
+developers begin exploring rate-limiting options. There are two key
+reasons why APIs should do rate-limiting:
+To protect the infrastructure while increasing reliability and availabil‐
+ity of the application
+You  do  not  want  a  single  misbehaving  developer  or  user  to
+bring  your  application  down  through  a  denial-of-service  (DoS)
+attack.
+
+To protect your product
+You want to prevent abuses of your product, like mass registra‐
+tion of users or creation of a lot of spam content.
+Rate limits help to handle surges in traffic or spam by making your
+application  more  reliable.  By  safeguarding  your  infrastructure  and
+product,  rate  limits  are  also  protecting  developers.  There  is  no  API
+or data for anyone if it’s possible to bring down the entire system via
+the  API.  So,  let’s  dive  into  what  rate-limiting  is  and  how  you  can
+implement it for your API.
+What Is Rate-Limiting?
+A rate-limiting system controls the rate of traffic sent or received on
+a network interface. For web APIs, rate-limiting systems are used to
+control how many times an application or a client is allowed to call
+an  API  during  a  given  time  interval.  Traffic  is  allowed  up  to  the
+specified rate, whereas traffic that exceeds that rate might be denied.
+For  example,  GitHub’s  API  allows  developers  to  make  up  to  5,000
+requests per hour.
+When  you’re  thinking  about  rate-limiting  an  API,  one  of  the  first
+things you need to do is to come up with a policy. Apart from pro‐
+tecting  your  infrastructure  and  product,  a  good  rate-limiting  policy
+has the following characteristics:
+•Easy to understand, explain, and work with
+•Ensures that developers are not rate-limited while working with
+desired use cases
+Here  are  a  few  things  to  consider  when  developing  your  ratelimiting policy:
+Granular rate limits versus a global rate limit
+Many  APIs  choose  a  single  global  API  rate  limit  across  all  API
+endpoints.  This  is  easy  to  implement  for  you  as  well  as  for
+developers.  However,  if  some  of  your  API  endpoints  consume
+significantly  more  resources  than  others,  you  might  want  to
+define  rate  limits  per  endpoint.  Such  granular  rate  limits  will
+protect your infrastructure from any unreasonable spikes for an
+expensive  API  endpoint.  The  Twitter  API  defines  a  rate  limit
+per API endpoint, whereas GitHub and Facebook define a single
+global API rate limit.
+Rate-Limiting APIs | 103
+
+Measuring traffic per user, application, or client IP
+Often  the  entity  which  you  want  to  rate-limit  depends  on  the
+authentication  method  required  by  your  API.  APIs  requiring
+user  authentication  generally  apply  rate-limiting  on  a  per-user
+basis, whereas APIs requiring an application authentication typ‐
+ically  rate-limit  on  a  per-app  basis.  For  unauthenticated  API
+calls,  API  providers  often  choose  to  rate-limit  by  IP  address.
+APIs from GitHub, Facebook, Twitter, and Slack apply rate lim‐
+its per user for authenticated API calls.
+Supporting occasional 
+traffic bursts or not
+Some APIs, particularly the ones used by enterprise developers,
+support  traffic  bursts  beyond  a  sustained  rate  limit.  This  way,
+developers’ applications experiencing a surge in traffic can con‐
+tinue to work well with the API. If you choose to support occa‐
+sional traffic bursts, you probably want to use the token bucket
+algorithm  to  implement  rate-limiting.  In  the  next  section,  we
+discuss this and other algorithms.
+Allowing exceptions
+You need not have a single rate-limiting policy or a single set of
+rate  limits  (or  quota)  that  are  applicable  to  all  your  developers.
+It’s  possible  that  some  of  your  trusted  developers  or  partners
+will need higher rate limits. You can always have exceptions for
+them,  if  they  request  additional  quota.  That  said,  before  you
+grant exceptions, you might want to:
+•
+Ensure  that  the  developer’s  use  case  is  valid  and  beneficial
+to customers.
+•
+Verify that there is no better way to achieve the same result
+with your existing APIs and constraints.
+•
+Validate  whether  your  infrastructure  can  support  the  rate
+limit ask.
+Expert Advice
+Any API used by external developers requires careful attention to
+availability,  reliability,  and  security.  This  is  especially  true  in
+Stripe’s  case;  payments  infrastructure  is  the  lifeblood  of  our  cus‐
+tomers’ business. One bad actor shouldn’t accidentally or deliber‐
+ately affect its availability.
+
+We implement a few rate-limiting strategies to prioritize criti‐
+cal requests over noncritical traffic and keep our API available to
+everyone.
+—Romain Huet, head of developer relations at Stripe
+Another  way  to  ensure  reasonable  use  of  your  API  is  with  terms  of
+service  (ToS)  agreement  documentation.  These  documents  detail
+permitted  uses  of  your  API  to  developers,  including  rate  limits.
+Developers  hitting  your  API  at  higher  rates  than  specified  in  your
+ToS might be subject to API token invalidation or other actions you
+deem necessary.
+We address ToS in detail in Chapter 9.
+Implementation Strategies
+As you build a rate-limiting system, ensure that the system does not
+slow  your  API  response  time.  To  ensure  high  performance  and  the
+ability  to  scale  horizontally,  most  API  services  use  in-memory  data
+stores,  like  Redis  and  Memcached,  to  implement  the  rate-limiter.
+Both Redis and Memcached offer fast reads and writes and are often
+used by API providers to keep track of the number of API requests
+received for rate-limiting.
+There are a few common algorithms that are used to implement rate
+limits:
+•
+Token bucket
+•
+Fixed-window counter
+•
+Sliding-window counter
+Token bucket
+The  token  bucket  algorithm  allows  for  maintaining  a  steady  upper
+limit  on  the  rate  of  traffic  while  permitting  occasional  bursts.  The
+algorithm  is  explained  with  the  analogy  of  a  bucket  (Figure  6-8)
+with finite capacity, into which tokens are added at a fixed rate. But
+Rate-Limiting APIs | 105
+
+it can’t fill up infinitely. If a token arrives when the bucket is full, it’s
+discarded. On every request, n number of tokens are removed from
+the bucket. If there are fewer than n number of tokens in the bucket,
+the request is rejected.
+Figure 6-8. Token bucket algorithm
+Implementing  this  algorithm  using  an  in-memory  key–value  data
+store  is  easy.  Suppose  that  you  want  to  rate-limit  API  requests  per
+user to 20 requests/minute while allowing occasional bursts of up to
+50 requests. Here’s how a key–value data store implementation could
+work:
+•
+On  the  first  request  for  a  user,  initialize  a  bucket  with  the
+capacity  of  50  tokens.  Store  the  request  timestamp  and  this
+token  count  in  the  data  store,  with  the  user’s  identifier  as  the
+key.
+•
+On  subsequent  requests,  refill  the  bucket  with  new  tokens  per
+the defined fixed rate and time elapsed since the last request.
+•
+Then,  remove  one  token  from  the  bucket  and  update  the  time‐
+stamp to the current timestamp.
+
+•Finally,  if  the  available  token  count  drops  to  zero,  reject  the
+request.
+The token bucket algorithm is easy to implement and is used by sev‐
+eral API providers, including Slack, Stripe, and Heroku. If you want
+to  be  lenient  on  “bursty”  traffic,  this  is  a  great  choice.  Figure  6-9
+illustrates how the token bucket algorithm would rate-limit traffic in
+practice.
+Figure 6-9. Token bucket rate-limiting in practice
+Fixed-window counter
+The  fixed-window  counter  algorithm  allows  a  fixed  number  of
+requests to go through the system over a specified time interval. You
+can easily implement the fixed window by using an in-memory key–
+value  data  store.  Implementing  a  per-user  rate  limit  of  20  requests/
+minute could work, as described here:
+•
+On the first request, store the request count as 1 for a key repre‐
+senting  the  user  and  timestamp  rounded  to  the  current  minute
+value. This key can expire after the current minute is over.
+•
+Increment  the  aforementioned  request  count  key  by  one  on
+every subsequent request.
+•
+If the request count exceeds the rate limit, reject the request.
+Although  this  is  easy  to  implement,  this  algorithm  can  allow  up  to
+twice  the  specified  number  of  requests  within  the  one-minute  win‐
+dow.  For  instance,  if  there  were  20  requests  for  a  user  at  11:01:40
+a.m.,  the  client  can  do  another  20  requests  at  11:02:05.  Figure  6-10
+Rate-Limiting APIs | 107
+
+illustrates  how  the  fixed-window  counter  algorithm  can  allow  six
+requests to succeed between the 1.5-minute and 2.5-minute window
+marks, when the defined rate limit is four requests per minute.
+Figure 6-10. Fixed-window counter rate-limiting in practice
+If  your  API  can  tolerate  these  kinds  of  bursts,  the  fixed-window
+counter  algorithm  could  be  suitable  for  you.  API  providers  like
+Twitter use this algorithm.
+Sliding-window counter
+As the name suggests, the sliding-window counter algorithm allows
+you  to  keep  track  of  traffic  in  a  sliding  window  of  time,  ensuring
+that  the  API  can  reject  the  “bursty”  traffic  that’s  possible  with  the
+token bucket and fixed-window counter algorithm.
+To  implement  the  sliding-window  algorithm,  just  incrementing  a
+single  counter  is  not  enough.  Instead,  we  divide  the  rate-limit  win‐
+dow into individual buckets of time. For example, to implement a 20
+requests/minute rate limit, we might divide a 1-minute window into
+60  buckets  and  maintain  a  counter  for  each  second.  These  buckets
+can simply expire after one minute. On each request, we sum up the
+counters  recorded  in  the  last  minute.  If  the  total  exceeds  the  rate
+limit, we reject the request. If you want to implement a lenient slid‐
+ing  window,  you  can  sum  the  last  59  buckets  before  deciding
+whether  the  current  request  should  be  accepted.  Figure  6-11  shows
+how  the  sliding-window  counter  algorithm  can  reject  bursty  traffic
+in practice.
+
+Figure 6-11. Sliding-window counter rate-limiting in practice
+Instagram  uses  the  sliding-window  counter  algorithm  to  rate-limit
+its API. If you want to ensure that traffic to your API remains steady
+from  each  developer,  the  sliding-window  counter  could  be  suitable
+for you.
+Pro Tip
+Before  launching  a  new  rate-limiting  policy  or
+algorithm,  dark  launch  it  to  understand  how
+much and which traffic it will block. To do that,
+use logging to analyze how many requests would
+be    rejected,    without    actually    rejecting    any
+requests.  You  might  want  to  adjust  your  thresh‐
+olds  as  you  learn  about  the  impact  they  will
+have.
+Expert Advice
+All Uber developers must create an account and register with us.
+Developers  can  automatically  create  production  calls  against
+their  own  accounts  (i.e.,  request  a  real  Uber  to  come  pick  them
+up)  and  other  registered  developer  accounts,  but  they  must
+request  extended  permissions  to  make  calls  on  behalf  of  other
+users.  Each  developer  is  automatically  rate-limited,  and  we  rec‐
+ommend  that  developers  reach  out  to  explain  clearly  and  trans‐
+parently  why  they  might  need  additional  API  quota.  In  some
+cases,  we  would  see  a  spike  in  traffic  in  one  of  our  developer’s
+API  keys,  and  we’d  reach  out  to  find  out  what  was  going  on.
+Depending on the nature and volume of the traffic, we might not
+throttle them right away, pending more information.
+Rate-Limiting APIs | 109
+
+We  also  presented  our  developer  terms  of  service  in  plain  lan‐
+guage  and  enforced  them  through  legal  means  when  we  found
+developers  violated  them.  Oftentimes,  we  simply  reached  out  to
+the developer and let them know that their use of the API wasn’t
+cool—and  we’d  work  with  them  to  bring  them  into  compliance.
+In other cases, the developer didn’t care about the terms and kept
+abusing  their  access  even  after  warnings  made  in  consultation
+with Uber Legal; in those rare and unfortunate cases, we revoked
+their API access.
+—Chris Messina, developer experience lead at Uber
+Rate Limits and Developers
+Rate  limits  are  among  the  things  that  developers  hate.  Often,  rate
+limits force developers to write additional code or just confuse them
+about why their requests are being rejected. If you implement a ratelimiting  system,  you  might  like  to  do  a  few  additional  things  to
+make developers’ lives easier. Let’s take a look at these.
+Return appropriate HTTP status codes
+When  developers  hit  your  rate  limit,  deny  the  request  by  returning
+an HTTP 429 status code, as shown in Example 6-2, which indicates
+that the user has sent too many requests in a given amount of time.
+It’s  also  standard  to  set  the  retry-after  header  to  let  developers
+programmatically retry the request.
+Example 6-2. Slack API returning 429 and 
+retry-after header when the
+rate limit is reached
+$ curl -I https://slack.com/api/rtm.connect
+HTTP/2 429
+Date: Sun, 17 Jun 2018 14:43:38 GMT
+retry-after: 36
+Rate-limit custom response headers
+Along  with  the  status  code,  you  should  include  custom  response
+headers explaining the rate limit. These headers will help developers
+decide  programmatically  when  they  should  retry  the  API  call.  Here
+are a few commonly used custom headers:
+
+X-RateLimit-Limit
+The  maximum  rate  at  which  a  developer  can  call  this  endpoint
+in a given amount of time.
+X-RateLimit-Remaining
+The number of requests that are available to the developer in the
+current interval. If you’re using the token bucket algorithm, this
+can  indicate  the  number  of  tokens  remaining  in  the  applicable
+bucket.
+X-RateLimit-Reset
+The time at which the current rate-limit window resets in UTC
+epoch seconds.
+Example 6-3 depicts example rate-limit headers as seen from a Git‐
+Hub API call.
+Example 6-3. GitHub API returning rate-limit headers when the rate
+limit is reached
+$ curl -I https://api.github.com/users/saurabhsahni
+HTTP/1.1 200 OK
+Date: Sat, 11 Nov 2017 04:37:22 GMT
+Status: 200 OK
+X-RateLimit-Limit: 60
+X-RateLimit-Remaining: 59
+X-RateLimit-Reset: 1510378642
+Rate-limit status API
+If  you  have  different  rate  limits  for  different  API  endpoints,  your
+developers might like to have an API that they can call to query the
+rate-limit  status  across  various  API  endpoints.  This  way,  they  can
+programmatically keep track of available requests per endpoint.
+Documenting rate limits
+Developers need to mind their rate-limit constraints when using an
+API.  By  documenting  your  rate-limit  values,  you  will  help  your
+developers  in  making  the  right  architectural  choices.  Most  of  the
+popular APIs clearly document rate limits. This way, developers can
+learn  about  them  before  actually  running  into  rate-limit  errors.
+Apart from rate-limit values, you should also consider documenting
+Rate-Limiting APIs | 111
+
+best  practices  that  developers  can  follow  to  avoid  hitting  the  rate
+limit.
+Expert Advice
+The  GitHub  REST  API  has  a  flat  5,000  authenticated  calls  per
+hour  rate  limit,  but  those  calls  could  come  all  at  once.  We  saw
+this  happen  a  variety  of  times  when  a  Chrome  extension  or  an
+integrator’s  script  went  a  little  haywire.  At  a  certain  scale,  rate
+limits based on authenticated users can only be one small part of
+an  overall  system  meant  to  protect  your  application.  We  now
+have  per-service  rate  limits  to  avoid  saturation,  content  creation
+back-offs  to  avoid  creating  too  many  issues  in  a  short  period  of
+time,  and  other  abuse  protections  to  avoid  answering  exponen‐
+tially more API requests within a window of a few seconds.
+If  we  were  to  redo  the  rate-limiting,  we’d  likely  choose  a  smaller
+rate-limit  window  similar  to  folks  like  Twitter:  you  get  250  calls
+every 10 minutes.
+—Kyle Daigle, director of ecosystem engineering at GitHub
+Rate-Limiting Best Practices
+Here  are  a  few  best  practices  to  like  to  consider  when  adding  ratelimiting to an API:
+•Pick the rate-limiting algorithm based on the traffic pattern that
+you  want  to  support.  Generally,  paid  services  are  lenient  with
+traffic  bursts  and  choose  the  token  bucket  algorithm.  Others
+choose a fixed window or sliding window.
+•
+Choose  rate-limit  thresholds  such  that  common  API  use  cases
+are not rate-limited.
+•
+Provide  clear  guidance  to  external  developers  on  what  your
+rate-limit  thresholds  are  and  how  can  they  request  additional
+quota.
+•
+Before granting additional quota to a developer, you might want
+to  understand  why  they  need  to  exceed  the  rate  limits,  what
+their  use  case  is,  and  what  the  current  usage  pattern  is.  If  your
+infrastructure can support additional quota and there is no bet‐
+ter  way  to  achieve  the  same  result,  you  might  want  to  consider
+giving them an exception.
+
+•Starting  with  lower  rate-limit  thresholds  is  helpful.  Increasing
+rate-limit   thresholds   is   easier   than   reducing   them   because
+reducing them can negatively affect active developer apps.
+•
+Implement  exponential  back-off  in  your  client  SDKs  and  pro‐
+vide  sample  code  to  developers  on  how  to  do  that.  This  way,
+developers  are  less  likely  to  continue  hitting  your  API  when
+they  are  rate-limited.  For  more  information,  see  “Error  Han‐
+dling and Exponential Back-Off ” on page 115.
+•Use rate limits to reduce the impact of incidents by heavily ratelimiting noncritical traffic during an outage.
+Lessons Learned from Slack’s Rate-Limiting
+In March 2018, Slack rolled out an evolved rate-limiting system.
+Until  then,  the  rate  limits  for  Slack  API  methods  were  quite
+vague  and  often  unenforced.  In  the  absence  of  documented  rate
+limits, developers building applications using the Slack API often
+assumed  that  they  would  not  be  rate-limited.  However,  some‐
+times  that  assumption  backfired  when  their  applications  were
+installed by large enterprise customers.
+To  introduce  new  rate-limit  thresholds,  Slack  analyzed  use  cases
+for each API and defined thresholds ensuring that most common
+use  cases  could  be  accomplished  by  applications  without  getting
+rate-limited.   Before   launching   new   rate-limit   thresholds,   the
+team launched dark tests to figure out which applications would
+get  rate-limited  in  the  new  system.  While  in  some  cases  Slack
+adjusted  its  rate-limit  thresholds,  in  other  cases  it  was  clear  that
+the developer’s implementation was not efficient.
+The  Slack  team  could  have  launched  the  new  rate-limit  thresh‐
+olds  without  any  warning.  However,  the  team  members  figured
+that  it  would  be  a  breaking  change  for  those  developers  that
+might now get rate-limited due to the new thresholds. To ensure
+the  best  experience  for  these  developers  and  for  customers,  they
+granted  a  brief  grace  period  to  those  apps  to  adjust  their  imple‐
+mentations.  The  new  documented  rate  limits  helped  developers
+in making better architectural decisions while building their app
+and mitigated rate-limit surprises in production.
+—Saurabh Sahni, staff engineer at Slack
+Rate-Limiting APIs | 113
+
+Developer SDKs
+A  developer  software  development  kit  (SDK)  is  a  set  of  tools  that
+allow  developers  to  create  applications  on  a  specific  platform.  By
+providing  SDKs,  you  are  not  just  simplifying  the  integration  effort
+required,  you  are  also  helping  developers  follow  the  best  practices
+for working with your API. When developers are able to follow best
+practices,  that  will  in  turn  create  more  optimal  usage  patterns  for
+your API, which will help you scale.
+For   more   general   information   on   SDKs,   see

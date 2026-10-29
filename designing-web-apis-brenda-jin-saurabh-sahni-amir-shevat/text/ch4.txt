@@ -1,0 +1,588 @@
+CHAPTER 2
+API Paradigms
+Picking  the  right  API  paradigm  is  important.  An  API  paradigm
+defines  the  interface  exposing  backend  data  of  a  service  to  other
+applications.  When  starting  out  with  APIs,  organizations  do  not
+always consider all the factors that will make an API successful. As a
+result, there isn’t enough room built in to add the features they want
+later  on.  This  can  also  happen  when  the  organization  or  product
+changes over time. Unfortunately, after there are developers using it,
+changing an API is difficult (if not impossible). To save time, effort,
+and  headaches—and  to  leave  room  for  new  and  exciting  features—
+it’s  worthwhile  to  give  some  thought  to  protocols,  patterns,  and  a
+few  best  practices  before  you  get  started.  This  will  help  you  design
+an API that allows you to make the changes you want in the future.
+Over  the  years,  multiple  API  paradigms  have  emerged.  REST,  RPC,
+GraphQL, WebHooks, and WebSockets are some of the most popu‐
+lar standards today. In this chapter, we dive into these different para‐
+digms.
+Request–Response APIs
+Request–response  APIs  typically  expose  an  interface  through  an
+HTTP-based  web  server.  APIs  define  a  set  of  endpoints.  Clients
+make  HTTP  requests  for  data  to  those  endpoints  and  the  server
+returns  responses.  The  response  is  typically  sent  back  as  JSON  or
+XML.  There  are  three  common  paradigms  used  by  services  to
+expose  request–response  APIs:  REST,  RPC,  and  GraphQL.  We  look
+into each of them in the subsections that follow.
+9
+
+Representational State Transfer
+Representational  State  Transfer  (REST)  is  the  most  popular  choice
+for  API  development  lately.  The  REST  paradigm  is  used  by  provid‐
+ers  like  Google,  Stripe,  Twitter,  and  GitHub.  REST  is  all  about
+resources.  A  resource  is  an  entity  that  can  be  identified,  named,
+addressed, or handled on the web. REST APIs expose data as resour‐
+ces  and  use  standard  HTTP  methods  to  represent  Create,  Read,
+Update,  and  Delete  (CRUD)  transactions  against  these  resources.
+For  instance,  Stripe’s  API  represents  customers,  charges,  balance,
+refunds, events, files, and payouts as resources.
+Here are some general rules REST APIs follow:
+•
+Resources are part of URLs, like /users. 
+•For  each  resource,  two  URLs  are  generally  implemented:  one
+for  the  collection,  like  /users,  and  one  for  a  specific  element,
+like /users/U123.
+•
+Nouns  are  used  instead  of  verbs  for  resources.  For  example,
+instead of /getUserInfo/U123, use /users/U123.
+•
+HTTP  methods  like  GET,  POST,  UPDATE,  and  DELETE  inform  the
+server about the action to be performed. Different HTTP meth‐
+ods invoked on the same URL provide different functionality:
+Create
+Use POST for creating new resources.
+Read
+Use  GET  for  reading  resources.    GET  requests  never,  ever
+change  the  state  of  the  resource.  They  have  no  side  effects;
+the  GET  method  has  a  read-only  semantic.  GET  is  idempo‐
+tent. Consequently, you can cache the calls perfectly.
+Update
+Use  PUT  for  replacing  a  resource  and  PATCH  for  partial
+updates for existing resources.
+Delete
+Use DELETE for deleting existing resources.
+•
+Standard  HTTP  response  status  codes  are  returned  by  the
+server indicating success or failure. Generally, codes in the 2XX
+range   indicate   success,   3XX   codes   indicate   a   resource   has
+
+moved,  and  codes  in  the  4XX  range  indicate  a  client-side  error
+(like  a  missing  required  parameter  or  too  many  requests).
+Codes in the 5XX range indicate server-side errors.
+•
+REST  APIs  might  return  JSON  or  XML  responses.  That  said,
+due  to  its  simplicity  and  ease  of  use  with  JavaScript,  JSON  has
+become the standard for modern APIs. (XML and other formats
+might  still  be  supported  to  make  adoption  easy  for  clients  that
+are already working with those formats using similar APIs.)
+Table  2-1  shows  how  HTTP  methods  are  typically  used  in  REST
+APIs,   and   Examples   2-1   and   2-2   show   some   example   HTTP
+requests.
+Table 2-1. CRUD operations, HTTP verbs, and REST conventions
+OperationHTTP verbURL: /usersURL: /users/U123
+Create
+POST
+Create a new userNot applicable
+Read
+GET
+List all usersRetrieve user U123
+Update
+PUT or PATCH
+Batch update usersUpdate user U123
+Delete
+DELETE
+Delete all usersDelete user U123
+Example 2-1. HTTP request to retrieve a charge from the Stripe API
+GET /v1/charges/ch_CWyutlXs9pZyfD
+HOST api.stripe.com
+Authorization: Bearer YNoJ1Yq64iCBhzfL9HNO00fzVrsEjtVl
+Example 2-2. HTTP request to create a charge from the Stripe API
+POST /v1/charges/ch_CWyutlXs9pZyfD
+HOST api.stripe.com
+Content-Type: application/x-www-form-urlencoded
+Authorization: Bearer YNoJ1Yq64iCBhzfL9HNO00fzVrsEjtVl
+amount=2000&currency=usd
+Showing relationships
+A  resource  that  exists  only  within  another  resource  can  be  better
+represented  as  a  subresource  instead  of  a  top-level  resource  in  the
+URL. This makes the relationship clear for the developers using the
+API.
+For  instance,  the  GitHub  API  uses  subresources  to  represent  rela‐
+tionships in various APIs:
+Request–Response APIs | 11
+
+POST /repos/:owner/:repo/issues
+Create an issue.
+GET /repos/:owner/:repo/issues/:number
+Retrieve an issue.
+GET /repos/:owner/:repo/issues
+List all issues.
+PATCH /repos/:owner/:repo/issues/:number
+Edit an issue.
+Non-CRUD operations
+Beyond  the  typical  CRUD  operations  that  we  just  looked  at,  REST
+APIs  might  sometimes  need  to  represent  non-CRUD  operations.
+The following approaches are commonly used in that case:
+•
+Render an action as part of a field of a resource. For example, as
+shown  in  Example  2-3,  GitHub’s  API  uses  "archived"  as  an
+input  parameter  to  the  repo  edit  API  to  represent  archiving  a
+repository action.
+•
+Treat  an  action  like  a  subresource.  The  GitHub  API  uses  this
+pattern       for       locking       and       unlocking       an       issue.
+PUT  /repos/:owner/:repo/issues/:number/lock    locks    an
+issue.
+•
+Some operations, such as search, are even more difficult to fit in
+the REST paradigm. A typical practice in that case is to use just
+the action verb in the API URL. GET /search/code?q=:query:
+finds files in GitHub matching the given query.
+Example 2-3. HTTP request to archive a GitHub repository
+PATCH /repos/saurabhsahni/Hacks
+HOST api.github.com
+Content-Type: application/json
+Authorization: token OAUTH-TOKEN
+{
+  "archived": true
+}
+
+Remote Procedure Call
+Remote Procedure Call (RPC) is one of the simplest API paradigms,
+in  which  a  client  executes  a  block  of  code  on  another  server.
+Whereas REST is about resources, RPC is about actions. Clients typ‐
+ically  pass  a  method  name  and  arguments  to  a  server  and  receive
+back JSON or XML.
+RPC APIs generally follow two simple rules:
+•
+The  endpoints  contain  the  name  of  the  operation  to  be  exe‐
+cuted.
+•API  calls  are  made  with  the  HTTP  verb  that  is  most  appropri‐
+ate: GET for read-only requests and POST for others.
+RPC  style  works  great  for  APIs  that  expose  a  variety  of  actions  that
+might have more nuances and complications than can be encapsula‐
+ted  with  CRUD  or  for  which  there  are  side  effects  unrelated  to  the
+“resource”  at  hand.  RPC-style  APIs  also  accommodate  complicated
+resource models or actions upon multiple types of resources.
+One  notable  example  of  an  RPC-style  web  API  is  Slack’s  API.
+Example  2-4  demonstrates  an  example  of  a  POST  request  to  Slack’s
+conversations.archive RPC API.
+Example 2-4. HTTP request to Slack’s API
+POST /api/conversations.archive
+HOST slack.com
+Content-Type: application/x-www-form-urlencoded
+Authorization: Bearer xoxp-dummy-token-1650112-jgc2asDae
+channel=C01234
+Slack’s  Conversations  API  (Figure  2-1)  allows  several  actions,  like
+archive, join, kick, leave, and rename. Although in this case there is
+a  clear  “resource,”  not  all  of  these  actions  would  fit  into  the  REST
+pattern nicely. Additionally, there are other actions, such as posting
+a  message  with  chat.postMessage,  which  have  complex  relation‐
+ships  with  message  resources,  attachment  resources,  and  visibility
+settings within the web client.
+Request–Response APIs | 13
+
+Figure 2-1. RPC-style Slack API methods
+RPC-style  APIs  are  not  exclusive  to  HTTP.  There  are  other  highperformance protocols that are available for RPC-style APIs, includ‐
+ing  Apache  Thrift  and  gRPC.  Although  there  are  JSON  options  for
+gRPC, both Thrift and gRPC requests are serialized. Structured data
+and  clearly  defined  interfaces  enable  this  serialization.  Thrift  and
+gRPC also have built-in mechanisms for editing the data structures.
+We  don’t  explore  many  examples  of  either  gRPC  or  Thrift  in  this
+book, but we thought they were worth mentioning here.
+GraphQL
+GraphQL  is  a  query  language  for  APIs  that  has  gained  significant  
+traction  recently.  It  was  developed  internally  by  Facebook  in  2012
+before being publicly released in 2015 and has been adopted by API
+providers  like  GitHub,  Yelp,  and  Pinterest.  GraphQL  allows  clients
+to  define  the  structure  of  the  data  required,  and  the  server  returns
+
+exactly that structure. Examples 2-5 and 2-6 show a GraphQL query
+to the GitHub API and the response.
+Example 2-5. GraphQL query
+{
+  user(login: "saurabhsahni") {
+    id
+    name
+    company
+    createdAt
+  }
+}
+Example 2-6. Response from GitHub GraphQL API
+{
+  "data": {
+    "user": {
+      "id": "MDQ6VXNlcjY1MDI5",
+      "name": "Saurabh Sahni",
+      "company": "Slack",
+      "createdAt": "2009-03-19T21:00:06Z"
+    }
+  }
+}
+Unlike REST and RPC APIs, GraphQL APIs need only a single URL
+endpoint.  Similarly,  you  do  not  need  different  HTTP  verbs  to
+describe  the  operation.  Instead,  you  indicate  in  the  JSON  body
+whether  you’re  performing  a  query  or  a  mutation,  as  illustrated  in
+Example 2-7. GraphQL APIs support GET and POST verbs.
+Example 2-7. GraphQL API call to GitHub
+POST /graphql
+HOST api.github.com
+Content-Type: application/json
+Authorization: bearer 2332dg1acf9f502737d5e
+  xoxp-dummy-token-dummy-token-sample-redacted-99999
+{
+  "query": "query { viewer { login }}"
+}
+Request–Response APIs | 15
+
+GraphQL has a few key advantages over REST and RPC:
+Saves multiple round trips
+GraphQL  enables  clients  to  nest  queries  and  fetch  data  across
+resources  in  a  single  request.  Without  GraphQL,  this  might
+require  multiple  HTTP  calls  to  the  server.  This  means  mobile
+applications  using  GraphQL  can  be  quick,  even  on  slow  net‐
+work connections.
+Avoids versioning
+You  can  add  new  fields  and  types  to  a  GraphQL  API  without
+affecting existing queries. Similarly, deprecating existing fields is
+easier.  By  doing  log  analysis,  an  API  provider  can  figure  out
+which  clients  are  using  a  field.  You  can  hide  deprecated  fields
+from  tools  and  remove  them  when  no  clients  are  using  them.
+With REST and RPC APIs, it’s harder to figure out which clients
+are using a deprecated field, making removal more difficult.
+Smaller payload size
+REST and RPC APIs often end up responding with data that cli‐
+ents  might  not  ever  use.  With  GraphQL,  because  clients  can
+exactly specify what they need, the payload sizes can be smaller.
+GraphQL  queries  return  predictable  results  while  giving  clients
+control over the data that is returned.
+Strongly typed
+GraphQL  is  strongly  typed.  At  development  time,  GraphQL
+type checking helps in ensuring that a query is syntactically cor‐
+rect  and  valid.  This  makes  building  high-quality,  less  errorprone clients easy.
+Introspection
+Although  there  are  external  solutions  like  Swagger  that  help
+make exploring REST APIs easy, GraphQL is natively discovera‐
+ble.  It  comes  with  GraphiQL,  an  in-browser  IDE  for  exploring
+GraphQL. It lets users write, validate, and test GraphQL queries
+in  a  browser.  Figure  2-2  shows  using  GraphiQL  to  explore  the
+GitHub API.
+
+Figure 2-2. GraphiQL: GitHub’s GraphQL explorer showing a complex
+query
+Expert Advice
+One  of  the  biggest  issues  GitHub  saw  was  REST  payload  creep.
+Over time, you add additional information to a serializer for, say,
+a repository. It starts small but as you add additional data (maybe
+you’ve  added  a  new  feature)  that  primitive  ends  up  producing
+more and more data until your API responses are enormous.
+We’ve  tackled  that  over  the  years  by  creating  more  endpoints,
+allowing you to specify you’d like the more verbose response, and
+by adding more and more caching. But, over time, we realized we
+were  returning  a  ton  of  data  that  our  integrators  didn’t  even
+want.  That’s  one  of  several  reasons  we’ve  been  investing  in  our
+GraphQL  API.  With  GraphQL,  you  specify  a  query  for  just  the
+data you want and we return just that data.
+—Kyle Daigle, director of ecosystem engineering at GitHub
+Although  GraphQL  has  many  advantages,  one  of  its  drawbacks  is
+the complexity it adds for the API provider. The server needs to do
+additional  processing  to  parse  complex  queries  and  verify  parame‐
+ters.  Optimizing  performance  of  GraphQL  queries  can  be  difficult,
+too.  Internally,  within  a  company,  it’s  easy  to  predict  the  use  cases
+and  debug  performance  bottlenecks.  When  working  with  external
+developers, those use cases become difficult to understand and opti‐
+mize for. When opening up GraphQL to third parties, you move the
+expense  of  managing  multiple  incoming  requests  to  composing
+complicated queries on the backend—depending on the request, the
+performance and impact to infrastructure can be highly variable.
+Request–Response APIs | 17
+
+Table  2-2  summarizes  the  differences  between  the  various  request–
+response API options.
+Table 2-2. Comparison of request–response API paradigms
+ RESTRPCGraphQL
+What?Exposes data as
+resources and uses
+standard HTTP
+methods to represent
+CRUD operations
+Exposes action-based API 
+methods—clients pass method
+name and arguments
+A query language for APIs
+—clients define the
+structure of the response
+Example
+services
+Stripe, GitHub, Twitter,
+Google
+Slack, FlickrFacebook, GitHub, Yelp
+Example
+usage
+GET /users/<id>GET /users.get?id=<id>query ($id:
+String!) {
+  user(login: $id)
+{
+    name
+    company
+    createdAt
+  }
+}
+HTTP
+verbs
+used
+GET, POST, PUT,
+PATCH, DELETE
+GET, POSTGET, POST
+Pros
+•Standard method
+name, arguments
+format, and status
+codes
+•Utilizes HTTP
+features
+•
+Easy to maintain
+•Easy to understand
+•Lightweight payloads
+•High performance
+•Saves multiple round
+trips
+•
+Avoids versioning
+•Smaller payload size
+•
+Strongly typed
+•Built-in introspection
+Cons
+•Big payloads
+•
+Multiple HTTP
+round trips
+•Discovery is difficult
+•
+Limited standardization
+•Can lead to function
+explosion
+•Requires additional
+query parsing
+•Backend performance
+optimization is difficult
+•
+Too complicated for a
+simple API
+When to
+use?
+For APIs doing CRUDlike operations
+For APIs exposing several
+actions
+When you need querying
+flexibility; great for
+providing querying
+flexibility and maintaining
+consistency
+
+Event-Driven APIs
+With  request–response  APIs,  for  services  with  constantly  changing
+data,  the  response  can  quickly  become  stale.  Developers  who  want
+to  stay  up  to  date  with  the  changes  in  data  often  end  up  polling  the
+API.  With  polling,  developers  constantly  query  API  endpoints  at  a
+predetermined frequency and look for new data.
+If  developers  poll  at  a  low  frequency,  their  apps  will  not  have  data
+about  all  the  events  (like  a  resource  being  created,  updated,  or
+deleted) that occurred since the last poll. However, polling at a high
+frequency would lead to a huge waste of resources, as most API calls
+will  not  return  any  new  data.  In  one  case,  Zapier  did  a  study  and
+found  that  only  about  1.5%  of  their  polling  API  calls  returned  new
+data.
+To  share  data  about  events  in  real  time,  there  are  three  common
+mechanisms: WebHooks, WebSockets, and HTTP Streaming. We dive
+deeper into each of them in the subsections that follow.
+WebHooks
+A WebHook is just a URL that accepts an HTTP POST (or GET, PUT,
+or  DELETE).  An  API  provider  implementing  WebHooks  will  simply
+POST  a  message  to  the  configured  URL  when  something  happens.
+Unlike   with   request–response   APIs,   with   WebHooks,   you   can
+receive updates in real time. Several API providers, like Slack, Stripe,
+GitHub, and Zapier, support WebHooks. For instance, if you want to
+keep  track  of  “channels”  in  a  Slack  team  with  Slack’s  Web  API,  you
+might need to continuously poll the API for new channels. However,
+as illustrated in Figure 2-3, by configuring a WebHook, you can sim‐
+ply receive a notification whenever a new channel is created.
+Event-Driven APIs | 19
+
+Figure 2-3. Polling versus WebHooks
+WebHooks  are  great  for  easily  sharing  real-time  data  from  one
+server  to  another  server.  From  an  app  developer’s  point  of  view,  it’s
+typically  easy  to  implement  WebHooks  because  it  simply  requires
+creating  a  new  HTTP  endpoint  to  receive  events  (see  Figure  2-4).
+This  means  that  they  can  generally  reuse  existing  infrastructure.  At
+the   same   time,   supporting   WebHooks   adds   new   complexities,
+including the following:
+Failures and retries
+To ensure WebHooks are delivered successfully, it’s important to
+build a system that will retry WebHook delivery on errors. Slack
+built  a  system  that  retries  failed  deliveries  up  to  three  times:
+once  immediately,  and  then  one  minute  later,  and  finally  five
+minutes later. Further, if the endpoint continues to return errors
+for  95%  of  requests,  Slack  stops  sending  events  to  that  Web‐
+Hook endpoint and notifies the developer.
+Security
+Although  there  are  standard  ways  of  making  REST  API  calls
+secure,  security  for  WebHooks  is  still  evolving.  With  Web‐
+Hooks,  the  onus  is  on  app  developers  to  ensure  that  they’ve
+
+received  a  legitimate  WebHook.  That  often  leads  to  developers
+using  unverified  WebHooks.  There  are  some  common  patterns
+that most API providers follow to secure WebHooks, which we
+discuss in Chapter 3.
+Firewalls
+Applications  running  behind  firewalls  can  access  APIs  over
+HTTP,  but  they  are  unable  to  receive  inbound  traffic.  For  such
+applications,  utilizing  WebHooks  is  difficult  and  often  not  pos‐
+sible.
+Noise
+Typically, each WebHook call represents one single event. When
+there  are  thousands  of  events  happening  in  a  short  time  that
+need to be sent via a single WebHook, it can be noisy.
+Figure 2-4. Configuring a GitHub WebHook
+Event-Driven APIs | 21
+
+WebSockets
+WebSocket is a protocol used to establish a two-way streaming com‐
+munication channel over a single Transport Control Protocol (TCP)
+connection.  Although  the  protocol  is  generally  used  between  a  web
+client  (e.g.,  a  browser)  and  a  server,  it’s  sometimes  used  for  serverto-server communication, as well.
+The  WebSocket  protocol  is  supported  by  major  browsers  and  often
+used  by  real-time  applications.  Slack  uses  WebSockets  to  send  all
+kinds  of  events  happening  in  a  workspace  to  Slack’s  clients,  includ‐
+ing new messages, emoji reactions added to items, and channel crea‐
+tions.  Slack  also  provides  a  WebSocket-based  Real  Time  Messaging
+API to developers so that they can receive events from Slack in real
+time  and  send  messages  as  users.  Similarly,  Trello  uses  WebSockets
+to push changes made by other people down from servers to brows‐
+ers  listening  on  the  appropriate  channels,  and  Blockchain  uses  its
+WebSocket  API  to  send  real-time  notifications  about  new  transac‐
+tions and blocks.
+WebSockets  can  enable  full-duplex  communication  (server  and  cli‐
+ent can communicate with each other simultaneously) at a low over‐
+head.  Additionally,  they  are  designed  to  work  over  port  80  or  443,
+enabling  them  to  work  well  with  firewalls  that  might  block  other
+ports.  This  is  an  especially  important  consideration  when  it  comes
+to  enterprise  developers.  For  example,  some  enterprise  developers
+using  Slack  APIs  prefer  to  use  the  WebSocket  API  over  WebHooks
+because  they  are  able  to  receive  events  from  the  Slack  API  securely
+without  having  to  open  up  an  HTTP  WebHook  endpoint  to  the
+internet where Slack can post messages.
+WebSockets  are  great  for  fast,  live  streaming  data  and  long-lived
+connections.  However,  be  wary  if  you  plan  to  make  these  available
+on  mobile  devices  or  in  regions  where  connectivity  can  be  spotty.
+Clients are supposed to keep the connection alive. If the connection
+dies,  the  client  needs  to  reinitiate  it.  There  are  also  issues  related  to
+scalability. Developers using Slack’s WebSocket API must establish a
+connection  for  each  team  that  uses  their  app  (Figure  2-5).  This
+means  that  if  an  app  is  installed  on  10,000  Slack  workspaces,  the
+developer would be responsible for maintaining 10,000 connections
+between Slack servers and the app’s server.
+
+Figure 2-5. Frames sent over a full-duplex WebSocket connection
+between Slack and a browser
+HTTP Streaming
+With  the  HTTP  request–response  APIs,  clients  send  an  HTTP  
+request  and  the  server  returns  an  HTTP  response  of  a  finite  length
+(Figure  2-6).  Now,  it’s  possible  to  make  the  length  of  this  response
+indefinite.  With  HTTP  Streaming,  the  server  can  continue  to  push
+new data in a single long-lived connection opened by a client.
+Figure 2-6. Client–server interaction with an HTTP Streaming API
+To  transmit  data  over  a  persistent  connection  from  server  to  client,
+there  are  two  options.  The  first  option  is  for  the  server  to  set  the
+Event-Driven APIs | 23
+
+Transfer-Encoding header to chunked. This indicates to clients that
+data will be arriving in chunks of newline-delimited strings. For typ‐
+ical application developers, this is easy to parse.
+Another  option  is  to  stream  data  via  server-sent  events  (SSE).  This
+option  is  great  for  clients  consuming  these  events  in  a  browser
+because they can use the standardized EventSource API.
+Twitter   utilizes   the   HTTP   Streaming   protocol   to   deliver   data
+through  a  single  connection  opened  between  an  app  and  Twitter’s
+streaming API. The big benefit for developers is that they don’t need
+to   poll   the   Twitter   API   continuously   for   new   tweets.   Twitter’s
+Streaming API can push new tweets over a single HTTP connection
+instead  of  a  custom  protocol.  This  saves  resources  for  both  Twitter
+and the developer.
+HTTP  Streaming  is  easy  to  consume.  However,  one  of  the  issues
+with  it  is  related  to  buffering.  Clients  and  proxies  often  have  buffer
+limits. They might not start rendering data to the application until a
+threshold is met. Also, if clients want to frequently change what kind
+of events they listen to, HTTP Streaming might not be ideal because
+it requires reconnections.
+ 
+Table  2-3  summarizes  the  differences  between  the  various  eventdriven API options.
+Table 2-3. Comparison of event-driven APIs
+ WebHooksWebSocketsHTTP Streaming
+What?Event 
+notification via HTTP
+callback
+Two-way streaming
+connection over TCP
+Long-lived connection over
+HTTP
+Example
+services
+Slack, Stripe, GitHub, Zapier,
+Google
+Slack, Trello, BlockchainTwitter, Facebook
+Pros
+•Easy server-to-server
+communication
+•Uses HTTP protocol
+•Two-way streaming
+communication
+•Native browser support
+•Can bypass firewalls
+•Can stream over simple
+HTTP
+•Native browser support
+•Can bypass firewalls
+
+ WebHooksWebSocketsHTTP Streaming
+Cons
+•Do not work across
+firewalls or in browsers
+•Handling failures, retries,
+security is hard
+•Need to maintain a
+persistent connection
+•Not HTTP
+•Bidirectional
+communication is
+difficult
+•
+Reconnections required
+to receive different
+events
+When to
+use?
+To trigger the server to
+serve real-time events
+For two-way, real-time
+communication between
+browsers and servers
+For one-way
+communication over
+simple HTTP
+Closing Thoughts
+There  is  no  one-size-fits-all  solution  when  it  comes  to  selecting  an
+API paradigm. Each of the API paradigms that we discussed in this
+chapter works well for certain kinds of use cases. You might need to
+support  multiple  paradigms,  too.  For  example,  the  Slack  API  sup‐
+ports  RPC-style  APIs,  WebSockets,  and  WebHooks.  It’s  important
+for  you  to  understand  which  solution  will  work  best  for  your  cus‐
+tomers,  which  will  help  you  meet  your  business  goals,  and  what  is
+possible with the constraints within which you are working.
+In Chapter 3, we look into how you can secure your APIs. We cover
+how  API  providers  are  building  authentication  and  authorization
+schemes. We also look extensively at OAuth, an open protocol used
+to secure authorization in a simple and standard way.
+Closing Thoughts | 25

@@ -1,0 +1,30 @@
+chapter   leader   for   Girl   Develop   It,   Brenda   has   contributed   to
+numerous  open  source  teaching  materials  and  empowered  thou‐
+sands of women to learn web and software development.
+Saurabh Sahni is a staff engineer on the developer platform team at
+Slack.  For  the  last  eight  years,  he  has  been  building  and  designing
+developer  platforms  and  APIs.  Prior  to  working  at  Slack,  Saurabh
+led  a  team  of  engineers  responsible  for  Yahoo  Developer  Network
+infrastructure  and  developer  tools,  where  he  helped  launch  Yahoo
+Mobile Developer Suite and several APIs.
+Amir  Shevat  is  a  VP  of  developer  experience  at  Twitch.  He  has
+spent the past 15 years building developer products, APIs, and eco‐
+systems around APIs at Slack, Microsoft, and Google. He is also the
+author of Designing Bots (O’Reilly).
+Colophon
+The animal on the cover of Designing Web APIs is the Cozumel fox,
+an  undescribed  species  of  the  genus  Urocyon.  About  a  third  of  the
+size of the gray fox, these canids are native to Cozumel Island, Mex‐
+ico,  where  they  have  lived  exclusively  since  at  least  the  times  of  the
+Mayan  civilization.  The  last  confirmed  sighting  of  a  Cozumel  fox
+was in 2001; it may already be extinct, but formal investigations have
+not been conducted.
+Many of the animals on O’Reilly covers are endangered; all of them
+are important to the world. To learn more about how you can help,
+go to animals.oreilly.com.
+The cover image is from Beverley Tucker’s General Report upon 
+The
+Zoology  of  the  Several  Pacific  Railroad  Routes.  The  cover  fonts  are
+URW Typewriter and Guardian Sans. The text font is Adobe Minion
+Pro;  the  heading  font  is  Adobe  Myriad  Condensed;  and  the  code
+font is Dalton Maag’s Ubuntu Mono.

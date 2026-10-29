@@ -1,0 +1,325 @@
+Brenda  Jin,
+Saurabh  Sahni &
+Amir Shevat
+Designing  
+ Web APIs 
+BUILDING APIS THAT DEVELOPERS LOVE
+
+Brenda Jin, Saurabh Sahni,
+and Amir Shevat
+Designing Web APIs
+Building APIs That Developers Love
+BostonFarnhamSebastopol
+Tokyo
+BeijingBostonFarnhamSebastopol
+Tokyo
+Beijing
+
+978-1-492-02692-1
+[LSI]
+Designing Web APIs
+by Brenda Jin, Saurabh Sahni, and Amir Shevat
+Copyright © 2018 Brenda Jin, Saurabh Sahni, and Amir Shevat. All rights reserved.
+Printed in the United States of America.
+Published by O’Reilly Media, Inc., 1005 Gravenstein Highway North, Sebastopol, CA
+95472.
+O’Reilly books may be purchased for educational, business, or sales promotional use.
+Online editions are also available for most titles (http://oreilly.com/safari). For more
+information,  contact  our  corporate/institutional  sales  department:  800-998-9938  or
+corporate@oreilly.com.
+Acquisitions Editor: Mary Treseler
+Development Editor: Angela Rufino
+Production Editor: Justin Billing
+Copyeditor: Octal Publishing, Inc.
+Proofreader: Rachel Head
+Indexer: Ellen Troutman
+Interior Designer: David Futato
+Cover Designer: Karen Montgomery
+Illustrator: Rebecca Demarest
+September 2018: First Edition
+Revision History for the First Edition
+2018-08-28:    First Release
+See http://oreilly.com/catalog/errata.csp?isbn=9781492026921 for release details.
+The  O’Reilly  logo  is  a  registered  trademark  of  O’Reilly  Media,  Inc.  Designing  Web
+APIs, the cover image, and related trade dress are trademarks of O’Reilly Media, Inc.
+The views expressed in this work are those of the authors, and do not represent the
+publisher’s  views.  While  the  publisher  and  the  authors  have  used  good  faith  efforts
+to ensure that the information and instructions contained in this work are accurate,
+the  publisher  and  the  authors  disclaim  all  responsibility  for  errors  or  omissions,
+including without limitation responsibility for damages resulting from the use of or
+reliance  on  this  work.  Use  of  the  information  and  instructions  contained  in  this
+work is at your own risk. If any code samples or other technology this work contains
+or  describes  is  subject  to  open  source  licenses  or  the  intellectual  property  rights  of
+others,  it  is  your  responsibility  to  ensure  that  your  use  thereof  complies  with  such
+licenses and/or rights.
+
+Table of Contents
+Preface. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .  vii
+1.
+What’s an API?. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   1
+Why Do We Need APIs?                                                                      2
+Who Are Our Users?                                                                            2
+The Business Case for APIs                                                                 3
+What Makes an API Great?                                                                 7
+Closing Thoughts                                                                                 8
+2.
+API Paradigms. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    9
+Request–Response APIs                                                                      9
+Event-Driven APIs                                                                             19
+Closing Thoughts                                                                               25
+3.
+API Security. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    27
+Authentication and Authorization                                                   27
+OAuth                                                                                                   28
+WebHooks Security                                                                            42
+Closing Thoughts                                                                               46
+4.
+Design Best Practices. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    47
+Designing for Real-Life Use Cases                                                   47
+Designing for a Great Developer Experience                                 48
+Closing Thoughts                                                                               59
+5.
+Design in Practice. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    61
+Scenario 1                                                                                            62
+iii
+
+Scenario 2                                                                                            72
+Closing Thoughts                                                                               79
+6.Scaling APIs. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    81
+Scaling Throughput                                                                           82
+Evolving Your API Design                                                                90
+Paginating APIs                                                                                  97
+Rate-Limiting APIs                                                                          102
+Developer SDKs                                                                                114
+Closing Thoughts                                                                             116
+7.
+Managing Change. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   117
+Toward Consistency                                                                         117
+Backward Compatibility                                                                  127
+Planning for and Communicating Change                                  128
+Closing Thoughts                                                                             142
+8.
+Building a Developer Ecosystem Strategy. . . . . . . . . . . . . . . . . . . . .   143
+Developers, Developers, Developers                                             144
+Building a Developer Strategy                                                        147
+Deriving Measurements                                                                  160
+Closing Thoughts                                                                             161
+9.
+Developer Resources. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   163
+API Documentation                                                                         163
+Samples and Snippets                                                                      172
+Software Development Kits and Frameworks                              175
+Development Tools                                                                          179
+Rich Media                                                                                        180
+Community Contribution                                                               182
+Closing Thoughts                                                                             183
+10.
+Developer Programs. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   185
+Defining Your Developer Programs                                              185
+Deep Developer Programs                                                              187
+Broad Developer Programs                                                             192
+Measuring Developer Programs                                                    197
+Closing Thoughts                                                                             198
+11.
+Conclusion. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .    199
+iv | Table of Contents
+
+A.API Design Worksheets. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   201
+Index. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .   207
+Table of Contents | v
+
+Preface
+Building  a  popular  developer  platform  with  an  API  that  is  used  by
+millions  of  developers  is  one  of  the  most  challenging  and  exciting
+endeavors  you  can  undertake  in  your  software  career.  In  this  book,
+you’ll learn how to do that.
+APIs are at the core of modern software development. They tackle a
+basic developer challenge: how can I, as a software engineer, expose
+the  code  I’ve  written  to  other  developers  to  use  and  innovate  with?
+Building  software  in  the  modern  world  is  very  much  like  building
+with  LEGO  bricks.  As  a  developer  you  have  access  to  a  vast  set  of
+APIs   that   expose   services   such   as   payments,   communication,
+authorization and authentication, and so forth. When building new
+software,  your  job  as  a  software  engineer  is  to  use  these  APIs  to
+compose  your  new  product,  reusing  code  that  others  built  in  order
+to save time and avoid reinventing the wheel.
+Many  software  engineers  who  enjoyed  playing  with  LEGOs  as  kids
+still  love  to  play  with  them  today.  And  who  wouldn’t?  It’s  fun,  and
+you get to build useful stuff with awesome colorful pieces that con‐
+nect  to  one  another  seamlessly.  But  what  if  you  could  build  the
+LEGO  itself ?  Wouldn’t  it  be  great  if  you  could  invent  not  only  new
+LEGO kits, but also the LEGO parts themselves, and let others inno‐
+vate with them? When building your own API, you are in effect cre‐
+ating your own LEGO parts for other developers to use.
+APIs are not a new concept in computer science—in the ’60s, devel‐
+opers  began  to  build  standard  libraries  for  the  first  procedural  lan‐
+guages  and  share  these  with  other  developers.  These  developers
+could use the standard functionality of these libraries without know‐
+ing their internal code.
+vii
+
+Then,   in   the   ’70s   and   ’80s,   with   the   emergence   of   networkconnected  computers,  came  the  first  network  APIs  that  exposed
+services developers could consume through Remote Procedure Calls
+(RPCs).  With  RPCs,  developers  could  expose  their  functionality
+over the network and call remote libraries as if they were local. Pro‐
+gramming  languages  like  Java  provided  further  abstraction  and
+complexity, with messaging middleware servers that listed and orch‐
+estrated these remote services.
+During  the  ’90s,  with  the  emergence  of  the  internet,  many  compa‐
+nies  wanted  to  standardize  the  way  we  build  and  expose  APIs.
+Standards such as the Common Object Request Broker Architecture
+(CORBA),  the  Component  Object  Model  (COM)  and  Distributed
+Component Object Model (DCOM) by Microsoft, and many others
+sought to become the de facto way to expose services over the web.
+The  problem  was  that  most  of  these  standards  were  complex  to
+manage, mandated similar programming languages on both sides of
+the network, and sometimes required the local installation of part of
+the remote service (commonly called a _stub_) in order to access it.
+It  was  a  mess;  the  dream  of  interoperability  soon  became  a  night‐
+mare of configurations and constraints.
+In the late ’90s and early ’00s came more open and standard ways of
+accessing  remote  services  over  the  web  (web  APIs).  First  with  the
+Simple Object Access Protocol (SOAP) and Extensible Markup Lan‐
+guage  (XML),  and  then  with  Representative  State  Transfer  (REST)
+and  JavaScript  Object  Notation  (JSON),  accessing  services  became
+easier  and  more  standardized  without  dependencies  on  client-side
+code  or  programming  language.  We  cover  the  more  popular  and
+useful of these methods in this book.
+One  by  one,  every  tech  company  began  exposing  useful  services
+through  APIs—from  the  early  days  of  the  Amazon  Affiliate  API
+(2002),  to  the  Flickr  API  (2004),  the  Google  Maps  API  (2005),  and
+the  Yahoo!  Pipes  API  (2007),  there  are  now  thousands  of  APIs
+exposing every service imaginable, from image manipulation to arti‐
+ficial intelligence. Developers can call these and create new products
+that  are  a  composition  of  multiple  APIs,  just  like  building  with
+LEGO bricks.
+Although  APIs  have  become  a  commodity  and  using  them  an  easy
+task, building an API is still an art form. Do not take this challenge
+lightly;  building  a  solid  API  is  not  easy.  APIs  should  be  brilliantly
+viii | Preface
+
+simple  and  highly  interoperable—like  with  LEGO,  each  part  from
+any  kit  should  work  well  with  every  other  piece  in  any  other  kit.
+APIs   should   also   be   accompanied   by   developer   programs   and
+resources to help developers adopt them. Building a solid API is just
+the first step; you also need to create and support a thriving ecosys‐
+tem of developers. We cover these challenges in the last part of this
+book.
+We  wrote  this  book  because  we  realized  that  over  the  course  of  our
+careers  we  had  followed  similar  processes  and  made  similar  deci‐
+sions, processes, and optimizations for many APIs, but these guide‐
+lines had not been compiled into a single authoritative resource. We
+could each point to blog posts or articles here and there about sepa‐
+rate  topics,  but  there  wasn’t  one  place  that  described  how  to  design
+for  the  evolution  and  growth  of  web  APIs  and  their  ecosystems.
+With  this  book,  we  hope  to  put  at  your  fingertips  all  the  tools  that
+we’ve created and discovered over the course of our careers building
+APIs. Having access to this skill set is very valuable. It can be the dif‐
+ference between the success and failure of your business or technol‐
+ogy, and it can be the unique advantage that will drive your career.
+How This Book Is Organized
+This book comprises three major parts:
+Theory (Chapters 1–4)
+Here we cover the basic concepts of building an API, review dif‐
+ferent API patterns, and discuss different aspects of a good API.
+Practice (Chapters 5–7)
+In  these  chapters,  we  talk  about  how  to  actually  design  an  API
+and manage its operation in production.
+Developer Love (Chapters 8–11)
+In  this  section,  we  go  beyond  designing  an  API  and  show  you
+how to build a thriving developer ecosystem around your API.
+Also  included  in  this  book  are  case  studies  (lessons  from  Stripe,
+Slack, Twitch, Microsoft, Uber, GitHub, Facebook, Cloudinary, Ora‐
+cle,  and  more!),  advice  and  pro  tips  from  experts  in  the  field,  and
+stories  about  real-life  experiences.  In  Appendix  A,  you’ll  find  some
+handy worksheets, templates, and checklists.
+Preface | ix
+
+Conventions Used in This Book
+The following typographical conventions are used in this book:
+Italic
+Indicates new terms, URLs, email addresses, filenames, and file
+extensions.
+Constant width
+Used  for  program  listings,  as  well  as  within  paragraphs  to  refer
+to  program  elements  such  as  variable  or  function  names,  data‐
+bases,  data  types,  environment  variables,  statements,  and  key‐
+words.
+Constant width bold
+Shows commands or other text that should be typed literally by
+the user.
+Constant width italic
+Shows text that should be replaced with user-supplied values or
+by values determined by context.
+This element signifies a “Pro Tip.”
+This element signifies a general note.
+This element indicates a warning or caution.
+x | Preface
+
+O’Reilly Safari
+Safari  (formerly  Safari  Books  Online)  is  a
+membership-based   training   and   reference
+platform  for  enterprise,  government,  educa‐
+tors, and individuals.
+Members have access to thousands of books, training videos, Learn‐
+ing  Paths,  interactive  tutorials,  and  curated  playlists  from  over  250
+publishers,  including  O’Reilly  Media,  Harvard  Business  Review,
+Prentice  Hall  Professional,  Addison-Wesley  Professional,  Microsoft
+Press,  Sams,  Que,  Peachpit  Press,  Adobe,  Focal  Press,  Cisco  Press,
+John  Wiley  &  Sons,  Syngress,  Morgan  Kaufmann,  IBM  Redbooks,
+Packt,   Adobe   Press,   FT   Press,   Apress,   Manning,   New   Riders,
+McGraw-Hill, Jones & Bartlett, and Course Technology, among oth‐
+ers.
+For more information, please visit http://oreilly.com/safari.
+How to Contact Us
+Please address comments and questions concerning this book to the
+publisher:
+O’Reilly Media, Inc.
+1005 Gravenstein Highway North
+Sebastopol, CA 95472
+800-998-9938 (in the United States or Canada)
+707-829-0515 (international or local)
+707-829-0104 (fax)
+We  have  a  web  page  for  this  book,  where  we  list  errata,  examples,
+and  any  additional  information.  You  can  access  this  page  at  https://
+bit.ly/designing-web-apis.
+To comment or ask technical questions about this book, send email
+to bookquestions@oreilly.com.
+For  more  information  about  our  books,  courses,  conferences,  and
+news, see our website at http://www.oreilly.com.
+Find us on Facebook: http://facebook.com/oreilly
+Preface | xi
+
+Follow us on Twitter: http://twitter.com/oreillymedia
+Watch us on YouTube: http://www.youtube.com/oreillymedia
+Acknowledgments
+Thanks  to  our  families,  whose  love  and  support  have  made  this
+book possible.
+Special thanks to our technical reviewers Bilal Aijazi, James Higgen‐
+botham, Jenny Donnelly, Margaret Le, and Melissa Khuat.
+Thank  you  as  well  to  Eric  Conlon,  Or  Weis,  Taylor  Singletary,  and
+Zoe  Madden-Wood,  who  provided  additional  comments  and  feed‐
+back.
+Finally, thank you to all the folks who participated in interviews and
+case studies and otherwise helped shape this book:
+•
+Bilal Aijazi, CTO at Polly
+•
+Chris Messina, developer experience lead at Uber
+•
+Desiree  Motamedi  Ward,  head  of  developer  product  marketing
+at Facebook
+•
+Ido Green, developer advocate at Google
+•
+Kyle Daigle, director of ecosystem engineering at GitHub
+•
+Ran Rubinstein, VP of solutions at Cloudinary
+•Romain Huet, head of developer relations at Stripe
+•
+Ron Reiter, senior director of engineering at Oracle
+•
+Taylor Singletary, lead content writer at Slack
+•
+Yochay Kiriaty, Azure principal program manager at Microsoft
+xii | Preface

@@ -1,0 +1,56 @@
+<section class="chapter" id="ch1" data-ch="1" data-title="Kiến trúc và Triết lý Thiết kế Web API Hiện đại">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 1</p>
+    <h1>Designing Web APIs: What's an API? <span class="vi">Kiến trúc và Triết lý Thiết kế Web API Hiện đại</span></h1>
+    <p class="lede">Xây dựng các giao diện lập trình ứng dụng (API) đạt chuẩn công nghiệp đòi hỏi tư duy mô đun hóa như những khối LEGO nhằm tối ưu hóa trải nghiệm nhà phát triển và thúc đẩy hệ sinh thái kinh doanh.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">1 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch1-t1" data-num="1.1" data-short="Triết lý và Nguồn gốc API">
+    <div class="topic-theory-card">
+      <p class="eyebrow">NGUYÊN LÝ CỐT LÕI</p>
+      <h2>Bản chất khối LEGO và Sự tiến hóa lịch sử của Web API</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>API chuyển hóa hạ tầng phức tạp thành các khối LEGO tiêu chuẩn giúp kỹ sư tái sử dụng mã nguồn và tăng tốc phát triển sản phẩm.</p></div>
+      <div class="prose">
+        <p>Hệ thống phần mềm hiện đại không được xây dựng từ con số không mà được hợp thành từ việc ghép nối các dịch vụ chuyên biệt thông qua <dfn data-term="API"><strong>Application Programming Interface</strong></dfn>. Giống như những viên gạch LEGO đầy màu sắc có thể khớp nối với bất kỳ bộ kit nào, một API xuất sắc cho phép lộ ra các chức năng nội bộ một cách an toàn, đơn giản và có khả năng tương tác toàn cục.</p><p>Lịch sử ngành kỹ thuật phần mềm đã trải qua nhiều thế hệ giao tiếp từ xa nhằm tìm kiếm chuẩn mực tối ưu:</p><ul><li><strong>Thư viện thủ tục (Procedural Libraries - 1960s):</strong> Chia sẻ mã nguồn tiêu chuẩn cục bộ mà không cần hiểu tầng code bên trong.</li><li><strong>Remote Procedure Calls (RPCs - 1970s-80s):</strong> Cho phép gọi hàm từ xa qua mạng lưới máy tính như gọi hàm cục bộ.</li><li><strong>CORBA & SOAP (1990s-2000s):</strong> Các chuẩn doanh nghiệp cồng kềnh, phụ thuộc ngôn ngữ và cấu hình phức tạp.</li><li><strong>REST & JSON (Modern Era):</strong> Chuẩn mở dựa trên HTTP và định dạng nhẹ, độc lập hoàn toàn với ngôn ngữ client.</li></ul><p>Khi thiết kế API chịu tải cao, kiến trúc sư trưởng phải coi việc đóng gói dịch vụ như việc đúc ra những khuôn mẫu chuẩn công nghiệp, triệt tiêu mọi sự phụ thuộc ngầm và tối ưu hóa độ trễ mạng.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại hệ thống thanh toán Việt Nam (MoMo/ZaloPay)</b>
+        <p>Các cổng thanh toán lớn tại Việt Nam phải phục vụ hàng triệu request mỗi phút trong các chiến dịch Flash Sale (như 11.11 hay Tết). Nếu API không được thiết kế theo mô hình mô đun độc lập, một sự cố ở hệ thống tra cứu lịch sử giao dịch sẽ kéo sập toàn bộ luồng thanh toán cốt lõi. Việc tuân thủ triết lý API tối giản giúp cô lập lỗi và duy trì tính sẵn sàng (Availability) ở mức 99.99%.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch1-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô phỏng Luồng Tương tác Khối LEGO API</strong>
+        <small>Điều chỉnh tải lượng request đồng thời để quan sát độ trễ và khả năng ghép nối mô đun của API Gateway.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch1-review" data-num="1.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 1</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Chương mở đầu của cuốn sách 'Designing Web APIs' thiết lập nền tảng tư duy kiến trúc cho việc thiết kế giao diện lập trình ứng dụng trong hệ thống phân tán chịu tải cao. Tác giả phân tích lịch sử tiến hóa của API từ các thư viện thủ tục (procedural libraries) thập niên 60, Remote Procedure Calls (RPCs), các chuẩn cồng kềnh thời kỳ web 1.0 (CORBA, SOAP) cho đến các chuẩn hiện đại REST và JSON. Bản chất cốt lõi của một API xuất sắc không chỉ nằm ở mã nguồn tối ưu mà còn ở khả năng đóng gói dịch vụ thành các khối LEGO độc lập, giao tiếp liền mạch, dễ tích hợp và kèm theo hệ sinh thái nhà phát triển toàn diện. Bài toán kinh doanh cốt lõi xoay quanh việc biến hạ tầng kỹ thuật thành tài sản chiến lược, thu hút cộng đồng lập trình viên và tạo ra các nguồn doanh thu đột phá.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Theo triết lý được trình bày trong sách Designing Web APIs, đối tượng sử dụng chính (primary users) của một Web API là ai?</p>
+        <ol><li>Người dùng cuối (End-users) sử dụng giao diện di động.</li><li>Các nhà phát triển phần mềm (Developers) tích hợp dịch vụ vào sản phẩm của họ.</li><li>Bộ phận kiểm thử chất lượng (QA Engineers) của doanh nghiệp.</li><li>Giám đốc công nghệ (CTO) phê duyệt ngân sách hạ tầng.</li></ol>
+        <p class="explain">Web APIs được thiết kế chuyên biệt để phục vụ các nhà phát triển phần mềm (developers) giúp họ tái sử dụng mã nguồn, tích hợp nhanh chóng và đổi mới sản phẩm, tương tự như việc ghép các khối LEGO lại với nhau.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

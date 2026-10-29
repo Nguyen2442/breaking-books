@@ -1,0 +1,93 @@
+<section class="chapter" id="ch4" data-ch="4" data-title="Kiến trúc các Trường phái API trong Hệ thống Chịu tải cao">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 4</p>
+    <h1>Designing Web APIs: API Paradigms <span class="vi">Kiến trúc các Trường phái API trong Hệ thống Chịu tải cao</span></h1>
+    <p class="lede">Lựa chọn sai trường phái API ngay từ giai đoạn thiết kế kiến trúc sẽ tạo ra điểm nghẽn cổ chai, gây phình to payload và làm tê liệt hệ thống khi scale quy mô lớn.</p>
+    <div class="chapter-meta">
+      <span class="pill">2 bài học lý thuyết</span>
+      <span class="pill">2 sơ đồ tư duy tương tác</span>
+      <span class="pill">3 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch4-t1" data-num="4.1" data-short="Request-Response APIs">
+    <div class="topic-theory-card">
+      <p class="eyebrow">NGUYÊN LÝ CỐT LÕI</p>
+      <h2>Kiến trúc Request-Response: REST, RPC và GraphQL</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Phân tích các trường phái giao tiếp đồng bộ phổ biến, đánh đổi giữa tính chuẩn hóa tài nguyên của REST, tính linh hoạt hành động của RPC và khả năng tối ưu truy vấn của GraphQL.</p></div>
+      <div class="prose">
+        <p>Mô hình <dfn data-term="request-response-api"><strong>Request-Response API</strong></dfn> đóng vai trò là xương sống của kiến trúc web hiện đại, nơi client gửi yêu cầu qua HTTP và nhận về cấu trúc dữ liệu JSON hoặc XML. Việc lựa chọn sai trường phái giao tiếp sẽ dẫn đến hiện tượng phình to payload, tiêu tốn băng thông và làm giảm nghiêm trọng hiệu năng của các ứng dụng di động hoạt động trong điều kiện mạng kém.</p><p>Các trường phái giao tiếp đồng bộ chính được phân loại dựa trên cách tiếp cận dữ liệu và hành động:</p><ul><li><strong>Representational State Transfer (REST):</strong> Tập trung hoàn toàn vào tài nguyên (Resources) định danh bằng danh từ trên URL, kết hợp chuẩn các HTTP verbs (GET, POST, PUT, PATCH, DELETE) để thực thi CRUD hoàn hảo.</li><li><strong>Remote Procedure Call (RPC):</strong> Tập trung vào hành động (Actions) và thủ tục từ xa, cho phép thực thi các logic phức tạp vượt ra ngoài ranh giới CRUD thông thường thông qua tên phương thức.</li><li><strong>GraphQL:</strong> Ngôn ngữ truy vấn linh hoạt do Facebook phát triển, cho phép client tự định hình cấu trúc dữ liệu trả về trong một request duy nhất, triệt tiêu hiện tượng over-fetching.</li></ul><p>Kiến trúc sư cần cân nhắc kỹ lưỡng các chỉ số về băng thông mạng, chi phí phân tích cú pháp query ở tầng server và năng lực caching trước khi đưa ra quyết định áp dụng cho hệ thống phân tán.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Bài toán thực chiến tại các nền tảng TMĐT Việt Nam</b>
+        <p>Khi xây dựng trang chi tiết sản phẩm tại các sàn thương mại điện tử lớn, nếu sử dụng REST truyền thống, ứng dụng client trên mobile phải gọi tới 5-6 API riêng biệt (thông tin sản phẩm, giá, kho, đánh giá, khuyến mãi) gây tốn round-trips. Việc chuyển dịch sang GraphQL hoặc tối ưu hóa subresources giúp gộp các lời gọi này thành một request duy nhất, giảm độ trễ P99 đáng kể.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch4-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô phỏng Hiệu năng Truyền tải giữa REST, RPC và GraphQL</strong>
+        <small>Điều chỉnh tải lượng request đồng thời để quan sát độ trễ P99, Throughput và lượng dữ liệu truyền tải trên mạng</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch4-t2" data-num="4.2" data-short="Event-Driven APIs">
+    <div class="topic-theory-card">
+      <p class="eyebrow">NGUYÊN LÝ CỐT LÕI</p>
+      <h2>Kiến trúc Event-Driven: WebHooks, WebSockets và HTTP Streaming</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Giải quyết bài toán dữ liệu thay đổi liên tục bằng các cơ chế thời gian thực bất đồng bộ, loại bỏ hoàn toàn lãng phí tài nguyên do polling.</p></div>
+      <div class="prose">
+        <p>Trong các hệ thống phân tán với dữ liệu biến đổi từng giây, việc sử dụng các API kiểu <dfn data-term="polling"><strong>polling</strong></dfn> truyền thống dẫn đến sự lãng phí tài nguyên khổng lồ khi phần lớn các lần gọi không trả về dữ liệu mới. Các nghiên cứu thực tế chứng minh rằng có tới hơn 98% các lượt poll hoàn toàn trống rỗng, gây áp lực vô ích lên hệ thống server.</p><p>Để truyền tải sự kiện theo thời gian thực một cách hiệu quả, kiến trúc sư có thể lựa chọn các giải pháp bất đồng bộ sau:</p><ul><li><strong>WebHooks:</strong> Giao thức HTTP callback một chiều, nơi server nguồn tự động gửi HTTP POST tới URL của client khi có sự kiện phát sinh, dễ tích hợp nhưng đòi hỏi cơ chế retry vững chắc.</li><li><strong>WebSockets:</strong> Giao tiếp song công toàn phần (Full-duplex) trên một kết nối TCP duy nhất qua cổng 80/443, lý tưởng cho các ứng dụng chat, bảng tương tác và tài chính thời gian thực.</li><li><strong>HTTP Streaming:</strong> Kéo dài kết nối HTTP vô thời hạn bằng cách sử dụng Transfer-Encoding chunked hoặc Server-Sent Events (SSE) để truyền dữ liệu một chiều từ server xuống client.</li></ul><p>Việc vận hành các kết nối thời gian thực đòi hỏi hạ tầng phải giải quyết triệt để bài toán duy trì trạng thái kết nối (stateful persistence), quản lý bộ nhớ đệm và chiến lược khảm mạch khi mạng chập chờn.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến xử lý thông báo biến động số dư tại các Ví điện tử Việt Nam</b>
+        <p>Các hệ thống thanh toán như MoMo hoặc ZaloPay xử lý hàng triệu giao dịch mỗi phút không thể dựa vào polling từ phía ứng dụng người dùng. Họ ứng dụng WebSockets và WebHooks để đẩy sự kiện biến động số dư và trạng thái đơn hàng ngay lập tức tới thiết bị người dùng và hệ thống đối tác merchant chỉ trong vài mili-giây, đảm bảo trải nghiệm real-time tuyệt đối.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch4-w2">
+      <figcaption>
+        <span class="lab-tag">🧪 Mô phỏng Cô lập Tài nguyên</span>
+        <strong>Mô phỏng Kênh Thời gian thực: Polling vs WebHooks vs WebSockets</strong>
+        <small>Quan sát sự biến động tài nguyên và số lượng kết nối duy trì khi số lượng client đồng thời tăng cao</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch4-review" data-num="4.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 4</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Việc lựa chọn trường phái API quyết định cách giao diện hệ thống bộc lộ dữ liệu tầng backend cho các ứng dụng client. Khi mới bắt đầu, các tổ chức thường bỏ qua các yêu cầu phát triển tính năng trong tương lai dẫn đến việc mã nguồn bị đóng băng và khó thay đổi sau khi đã có lập trình viên tích hợp. Chương này bóc tách chi tiết hai nhóm trường phái chính gồm Request-Response (REST, RPC, GraphQL) và Event-Driven (WebHooks, WebSockets, HTTP Streaming). Mỗi trường phái mang lại những đánh đổi rõ rệt về hiệu năng mạng, khả năng tối ưu cache, độ phức tạp của máy chủ và mức độ chịu tải trong các hệ thống phân tán.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Khi thiết kế một API chuyên thực hiện các thao tác CRUD tiêu chuẩn trên danh mục tài nguyên người dùng, trường phái nào là lựa chọn tối ưu nhất theo sách?</p>
+        <ol><li>RPC Paradigm vì hỗ trợ gọi hàm trực tiếp nhanh chóng</li><li>REST Paradigm vì tận dụng tính chất định danh tài nguyên và HTTP methods chuẩn hóa</li><li>GraphQL vì loại bỏ hoàn toàn các request thừa</li><li>WebSockets vì duy trì kết nối thời gian thực</li></ol>
+        <p class="explain">REST sinh ra để giải quyết các bài toán thao tác trên tài nguyên (resources) sử dụng danh từ trên URL kết hợp các HTTP verbs chuẩn (GET, POST, PUT, DELETE), giúp dễ dàng cache và bảo trì.</p>
+      </div>
+
+      <div class="q" data-answer="2">
+        <p><strong>Câu 2:</strong> Đâu là nhược điểm chí mạng nhất khi triển khai GraphQL cho bên thứ ba (third-party developers) truy cập công khai?</p>
+        <ol><li>Không hỗ trợ định kiểu dữ liệu mạnh (strongly typed)</li><li>Payload trả về luôn luôn lớn hơn REST trong mọi trường hợp</li><li>Server phải xử lý việc parse các câu truy vấn phức tạp, dẫn đến khó tối ưu hóa hiệu năng backend</li><li>Client không thể tùy biến cấu trúc dữ liệu trả về</li></ol>
+        <p class="explain">Khi mở GraphQL ra bên ngoài, các bên thứ ba có thể viết các câu query lồng nhau vô cùng phức tạp, chuyển gánh nặng tối ưu hóa và xử lý tính toán sang backend server, gây khó khăn trong việc dự đoán tải.</p>
+      </div>
+
+      <div class="q" data-answer="0">
+        <p><strong>Câu 3:</strong> Tại sao các kiến trúc sư thường khuyên dùng WebSockets thay vì WebHooks cho các ứng dụng chạy sau tường lửa doanh nghiệp khắt khe?</p>
+        <ol><li>Vì WebSockets hoạt động qua cổng 80 hoặc 443 bằng kết nối TCP hai chiều mà không cần mở endpoint inbound nhận HTTP callback</li><li>Vì WebSockets hoàn toàn không sử dụng giao thức TCP</li><li>Vì WebHooks không bao giờ hỗ trợ cơ chế bảo mật</li><li>Vì WebSockets tự động retry khi server sập</li></ol>
+        <p class="explain">WebSockets thiết lập luồng stream hai chiều trên một kết nối TCP đơn lẻ qua cổng chuẩn 80/443, giúp các ứng dụng nằm sau tường lửa bảo mật có thể nhận dữ liệu chủ động mà không cần mở cổng inbound cho WebHook.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

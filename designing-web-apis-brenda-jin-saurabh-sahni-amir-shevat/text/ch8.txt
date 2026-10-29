@@ -1,0 +1,208 @@
+CHAPTER 5
+Design in Practice
+Now that we’ve provided guidance on API paradigms, security, and
+best  practices,  it’s  time  for  a  hands-on,  practical  exercise  in  design‐
+ing APIs. In this chapter, we take everything we covered in the first
+part  of  the  book  and  use  a  fictitious  example  to  explore  different
+considerations.
+In  addition,  we  provide  insights  into  how  to  create  an  effective
+design process so that you’ll be able to design APIs on your own for
+whatever your use case may be.
+Throughout this section, we focus heavily on the user experience to
+anchor  our  design  decisions.  Today’s  consumers  are  accustomed  to
+excellent  product  experiences  that  suit  their  needs  and  lifestyle,  not
+just products that get the job done. This high expectation for quality
+of  experience  goes  beyond  the  products  that  people  purchase.  It
+extends to the apps that they use and the developer experience they
+expect when using APIs.
+We  might  be  building  businesses  and  companies,  but  we  don’t
+design APIs for ourselves. We design APIs for the systems receiving
+the data and, more importantly, for the people who build those sys‐
+tems.  If  those  developers  cannot  use  the  data  we’ve  provided,  we
+have ultimately failed to create a useful design.
+In  the  following  sections,  we  use  two  different  scenarios  to  explore
+how to begin with a user-centric design process and how to get feed‐
+back  along  the  way.  There  are  many  methodologies  to  design,  and
+the  following  process  is  simply  a  framework  from  which  to  start.
+61
+
+The  most  important  aspect  of  this  particular  methodology  is  that  it
+is  designed  to  solicit  feedback  in  a  way  that  will  result  in  decisions
+that ultimately benefit the API user.
+If you’d like to follow along with your own example, you might want
+to use the Appendix A.
+Scenario 1
+To  get  us  started  with  a  practical  example,  here’s  a  simple,  fictitious
+scenario that we will use for the first part of this chapter:
+You  are  the  lead  engineer  in  a  fast-growing  image  archive  startup
+called  MyFiles.  The  company’s  main  product  allows  individual
+users  and  companies  to  privately  archive  data.  Now  that  there  is  a
+steady  stream  of  new  users  and  lots  of  archival  metadata,  you  and
+the team think there is a big potential in creating and publishing an
+API.  As  the  lead  engineer,  you’ve  been  tasked  with  launching  the
+new API within the next quarter.
+Define Business Objectives
+Before  you  begin  coding  or  writing  your  API  specification,  take  a
+moment to ask yourself two questions: what problem are you trying
+to  solve,  and  what  is  the  impact  you  want  to  have  by  building  this
+API?  The  answers  to  both  of  these  questions  must  focus  on  the
+needs of the user as well as the business you have created.
+The  answer  to  the  first  question  should  be  succinct  enough  to  state
+at the top of any product or technical specification. It should include
+information  on  how  the  problem  affects  or  involves  the  customers
+and the business.
+The answer to the second question should define what success looks
+like for your API. It should illustrate the desired behaviors you’d like
+to see from developers who are using your API.
+The  earlier  you  ask  these  questions,  the  more  you  will  be  able  to
+make informed design decisions to achieve your goals.
+
+The  following  sidebar  demonstrates  how  the  problem  and  impact
+statements might look for the new MyFiles API.
+Problem and Impact Statements for the MyFiles API
+Problem
+Our  archive  repositories  provide  valuable  file  metadata  to  our
+direct  customers.  Customers  use  this  data  to  integrate  with
+business-critical  services,  but  they  are  currently  doing  this  by
+downloading  CSVs  and  uploading  CSVs  to  other  business
+products.  We  are  currently  not  providing  a  way  to  program‐
+matically  grant  access  to  the  archive  metadata  to  customers
+who use third-party integrations.
+Impact
+As  a  result  of  building  an  API,  developers  creating  business
+integrations  for  archival  metadata  will  be  able  to  create  plugins  that  enhance  our  product.  In  addition,  existing  customers
+will now be able to use our product in ways that they were not
+able  to  before,  and  therefore  they  will  be  more  engaged  on  a
+daily basis.
+In these statements, three key parties are mentioned:
+•The MyFiles business
+•
+The customers
+•
+The developers building third-party integrations
+Although  a  three-way  relationship  is  applicable  to  the  MyFiles  API,
+for  other  businesses,  the  only  parties  involved  in  the  problem  and
+impact  statements  could  be  the  company  and  the  developers,  who
+are  also  the  customers.  Use  the  problem  and  impact  statements  to
+clearly define who the API user is.
+After  you’ve  done  this,  make  sure  there  is  alignment  from  other
+stakeholders at your company. It’s important for all parties who will
+build or use this API to understand the problems that it is trying to
+solve.  Mismatched  expectations  lead  to  conflict  later  on,  which  can
+turn into an inconsistent or contradictory API design.
+One  important  reason  to  define  the  problem  and  impact  clearly  is
+that  when  you’re  starting  out  with  a  design  proposal,  before  you’ve
+Scenario 1 | 63
+
+implemented  anything,  there  might  be  ideological  conversations.
+For example, stakeholders might have a strong opinion about imple‐
+mentation  details,  such  as  whether  to  use  RPC  or  REST  and  other
+similar  topics.  Without  being  able  to  focus  on  the  problem  state‐
+ment,  your  entire  company  could  end  up  in  ideological  limbo.  A
+clear statement of the problem and desired impact will help to guide
+pragmatic  choices  and  designs  that  are  grounded  in  your  users’
+needs.
+As  you  answer  these  questions,  keep  in  mind  that  your  API  will
+change if your product does. In the best-case scenario, your API will
+become  a  living  system  that  grows  as  it  interacts  with  other  entities
+across  the  internet.  The  “truths”  you  take  for  granted  today  might
+not be the same as those tomorrow. But don’t let this fact stop your
+design—design for today, and leave a small door to step through for
+tomorrow.
+Even  if  this  isn’t  your  first  time  designing  an  API  for  your  product,
+defining  your  problem  and  impact  statement  is  still  important.  In
+fact,  we  believe  that  it’s  even  more  important.  With  an  established
+API  and  product,  developing  it  is  more  complicated  because  of
+backward  compatibility  and  dependencies  on  other  teams.  Do  the
+difficult work up front and make sure you have researched:
+•What  APIs  are  available,  and  what  are  their  patterns  and  con‐
+ventions?
+•
+What are the most popular features of the comparable APIs that
+you  have  already  released?  Can  you  use  existing  instrumenting
+or logging to pull supporting metrics?
+•
+What  would  you  most  like  to  change  about  the  APIs  that  you
+already have, and what is your strategy for doing so?
+•
+Which  other  teams  will  be  affected  by  your  new  API,  and  how
+can you get their feedback early?
+Outline Key User Stories
+After you outline the problem and desired impact, write down some
+of the use cases that you expect your API to fulfill. (If you’re familiar
+with  Agile  methodologies,  these  will  be  similar  to  “user  stories,”  in
+which  the  user  is  your  developer.)  In  any  case,  you’ll  want  to  note
+
+the  user  type  and  the  action  that  the  user  will  be  able  to  complete.
+Example 5-1 shows the template.
+Example 5-1. Template for Defining Key User Stories
+As a [user type], I want [action] so that [outcome].
+Example 5-2 presents some examples for our MyFiles API.
+Example 5-2. Example User Stories for the MyFiles API, Scenario 1
+As  a  developer,  I  want  to  request  a  list  of  
+files  so  that  I  can  see
+what a user has uploaded.
+As  a  developer,  I  want  to  request  details  for  a  single  file  so  that  I
+can get details on a file that a user has uploaded.
+As  a  developer,  I  want  to  upload  files  on  behalf  of  a  user  so  that
+users don’t need to leave my app to add a file to MyFiles.
+As a developer, I want to edit files on behalf of a user so that users
+don’t need to leave my app to add a file to MyFiles.
+In  the  next  section,  we  look  at  how  these  user  stories  translate
+directly into the technology architecture decisions.
+Select Technology Architecture
+As  we  mentioned  before,  modern  consumers  aren’t  just  looking  for
+products  that  get  the  job  done.  Product  design  extends  beyond  the
+user-friendliness of the actual product to the experience of selecting
+and  receiving  it.  IKEA  has  famously  created  products  with  simple
+packaging  that  are  easy  to  assemble  without  instructions.  Amazon
+has  “hassle-free”  shipping.  The  same  developers  who  expect  seam‐
+less  consumer  experiences  are  also  developing  against  your  API.
+That’s  why  picking  the  right  paradigm  and  authentication  system  is
+so important.
+Let’s begin by choosing the paradigm for the API you’d like to create. 
+Use  what  you  learned  in  Chapter  2  to  fill  out  the  chart  in  Table  5-1
+Scenario 1 | 65
+
+with  pros  and  cons  of  each  pattern.  Here,  we’ve  filled  it  out  for  the
+MyFiles API.
+Table 5-1. Pros and cons of different API paradigms for the MyFiles API
+ParadigmProsConsSelected?
+REST
+MyFiles is essentially 
+resource-oriented—the
+resources are the archived
+content and metadata.
+The operations to support
+are simple Create, Read,
+Update and Delete (CRUD)
+operations.
+REST would be a long-term commitment to
+a resources model for files. If we need to
+support several actions, REST might not be
+a great fit.
+✓
+RPCExpandable to other actions
+beyond CRUD.
+At this time, there are no operations
+outside of CRUD that this API will execute,
+so there doesn’t appear to be a need to
+support other actions.
+χ
+GraphQL
+Flexible for developers.
+Easy to keep payloads small.
+Overly complicated to implement. No client
+presentation needed at this time.
+χ
+For  the  MyFiles  API,  the  best  option  based  on  the  pros  and  cons  is
+REST.  The  REST  pattern  closely  matches  the  MyFiles  product,
+which is resource-oriented. We need to give developers access to the
+MyFiles  account  from  the  very  beginning  so  they  get  a  full  picture.
+Let’s focus on the build phase of the REST API here in Scenario 1.
+In Scenario 2, we’ll take a look at how WebHooks offer a mechanism
+for MyFiles to push data to developers so that they aren’t constantly
+polling  the  REST  API  or  maintaining  open  connections  with  the
+MyFiles servers.
+Now  that  we’ve  picked  our  transport,  let’s  pick  our  authentication
+mechanism  using  the  MyFiles  example  and  what  we  learned  from

@@ -1,0 +1,96 @@
+CHAPTER 7
+Managing Change
+Good design is never frozen in time. Just because you made a great
+design  today  does  not  mean  that  it  will  continue  to  be  good  when
+change  is  afoot.  Good  APIs  need  to  be  able  to  adapt  and  change
+along with the evolution of your product or business.
+Breaking  changes  are  one  of  the  common  pitfalls  of  many  APIs.  In
+this  chapter,  we  discuss  how  to  approach  change  with  an  eye  for
+consistency as well as how to ensure backward compatibility as your
+API evolves.
+Expert Advice
+An  API  should  be  consistent,  clear,  and  well  documented.  Small
+inconsistencies around things like naming and URLs add up to a
+lot of confusion as your API ages. Because you want to keep from
+making  breaking  changes,  you  want  to  do  your  best  to  remain
+consistent  but  more  importantly  ensure  that  new  additions  are
+clear and obvious for integrators.
+—Kyle Daigle, director of ecosystem engineering at GitHub
+Toward Consistency
+Consistency  is  the  hallmark  of  excellent  experiences  of  any  kind—
+APIs are no exception. Consistency builds trust. Trust is the founda‐
+tion to creating a thriving developer ecosystem.
+117
+
+Here are some of the hallmarks of consistency:
+•Developers  are  able  to  build  a  mental  model  of  how  to  access
+data in your system.
+•
+Response objects are formulated with strict types and meaning‐
+ful names; that is, each model is the same regardless of the end‐
+point.
+•
+Developers  can  use  the  same  request  patterns  across  a  number
+of endpoints, which reduces the need for middleware and helps
+applications perform and scale.
+•
+Requests fail predictably with meaningful errors.
+Sometimes,  despite  our  best  intentions,  APIs  can  become  inconsis‐
+tent.  Take  Slack’s  API,  for  example.  API  endpoints  had  been  added
+incrementally  over  time  without  any  central  design  oversight.  Each
+product  group  within  the  company  designed  and  released  API
+methods   independently.   As   a   result,   inconsistencies   emerged.
+Table  7-1  shows  simplified  request  patterns  for  two  similar  API
+methods, channels.join and channels.invite.
+Table 7-1. Simplified requests for two Slack API methods in 2017:
+channels.join and channels.invite
+Takes a channel nameTakes a channel ID
+// Join a channel
+channels.join({
+  channel: "channel-name"
+})
+// Invite a user to a channel
+channels.invite({
+  channel: "C12345",
+  user: "U23456"
+})
+In  Table  7-1,  you  can  see  how  one  endpoint  takes  a  channel  as  a
+string name, whereas the other takes a channel as an ID. This type of
+inconsistency hurts developers, because for a developer to be able to
+use  both  of  these  endpoints,  they  now  need  to  store  both  the  chan‐
+nel ID and channel name and to create a layer of logic to determine
+which  one  to  use  to  assemble  a  request.  What  if  the  channel  name
+changes?  The  developer  is  additionally  responsible  for  keeping  the
+channel name up to date.
+Consistency  might  sound  simple  enough,  and  it’s  easy  to  create  a
+consistent  experience  if  you  have  the  opportunity  to  design  every‐
+thing at once with no historical constraints. But after you have active
+developers  using  your  API,  things  become  complicated.  As  compa‐
+
+nies  and  products  evolve,  new  changes  to  the  API  can  seem  like  a
+constant negotiation between consistency with the past and correct‐
+ness for the future.
+Let’s  look  at  a  fictitious  example  to  illustrate  what  might  happen.
+Suppose  Company  A  has  released  new  API  with  one  method  that
+lets a developer fetch all of a user’s repositories at once. Initially, the
+product  allowed  for  only  10  repositories  per  user.  Example  7-1
+presents  a  response  payload  for  an  original  API  method  from  the
+initial API offering, repositories.fetch.
+Example 7-1. Response payload for repositories.fetch
+{
+  "repositories": [
+    {
+      "id": 12345
+    },
+    {
+      "id": 23456
+    }
+  ]
+}
+After a few months, the company has grown. It adds a new price tier
+to  the  product  that  enables  unlimited  repositories  per  user.  A  year
+later,   a   number   of   power   users   have   accumulated   millions   of
+repositories.  Company  B  has  built  a  popular  application  that  uses
+repositories.fetch.   Although   the   number   of   repositories   has
+expanded, the repositories.fetch endpoint has continued to lack
+a pagination mechanism. (For more information on pagination, see

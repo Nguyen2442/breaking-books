@@ -1,0 +1,56 @@
+<section class="chapter" id="ch13" data-ch="13" data-title="Đảm Bảo Tính Nhất Quán và Tương Thích Ngược Cho Web API">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 13</p>
+    <h1>Designing Web APIs: Toward Consistency and Backward Compatibility <span class="vi">Đảm Bảo Tính Nhất Quán và Tương Thích Ngược Cho Web API</span></h1>
+    <p class="lede">Kiểm soát tiến hóa API chịu tải cao thông qua kiểm thử tự động, đặc tả JSON Schema, chiến lược versioning và duy trì tính tương thích ngược tuyệt đối.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">1 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch13-t1" data-num="13.1" data-short="Kiểm thử tự động & Schema">
+    <div class="topic-theory-card">
+      <p class="eyebrow">NGUYÊN LÝ CỐT LÕI</p>
+      <h2>Đảm bảo tính nhất quán qua Kiểm thử tự động và JSON Schema</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Sử dụng JSON Schema và tích hợp kiểm thử vào CI pipeline để ngăn chặn các thay đổi phá vỡ tính tương thích.</p></div>
+      <div class="prose">
+        <p>Trong các hệ sinh thái phần mềm lớn, con người không thể luôn đưa ra quyết định chính xác cho mọi chi tiết phức tạp của hệ thống. Đó là lúc <dfn data-term="Automated Testing"><strong>kiểm thử tự động</strong></dfn> và <dfn data-term="CI Pipeline"><strong>CI pipeline</strong></dfn> can thiệp trực tiếp vào quy trình phát triển để chặn đứng các mã nguồn vi phạm trước khi merge.</p><p>Các công cụ mô tả giao diện và xác thực dữ liệu phổ biến bao gồm:</p><ul><li><strong>JSON Schema:</strong> Định nghĩa chặt chẽ kiểu dữ liệu, bắt buộc các trường và chống phát sinh thuộc tính lạ với additionalProperties: false.</li><li><strong>OpenAPI / Swagger:</strong> Mô tả cấu trúc REST API, hỗ trợ sinh tài liệu tự động và mã nguồn SDK cho client.</li><li><strong>Apache Avro / json:api:</strong> Các chuẩn đặc tả nâng cao phục vụ tối ưu hóa tuần tự hóa dữ liệu hiệu suất cao.</li></ul><p>Đội ngũ kỹ sư cần cấu hình các bộ test chạy không chặn (nonblocking) cho đến khi đạt tỷ lệ âm tính giả 0%, sau đó chuyển thành test chặn (blocking) để bảo vệ tuyệt đối chất lượng API.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại MoMo / ZaloPay</b>
+        <p>Khi xử lý hàng triệu giao dịch đối soát thời gian thực, MoMo bắt buộc phải ép các đối tác ngân hàng tuân thủ nghiêm ngặt JSON Schema được định nghĩa sẵn trong API Gateway để tránh lỗi lệch kiểu dữ liệu tiền tệ (Float vs Int).</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch13-w1">
+      <figcaption>
+        <span class="lab-tag">🔌 Kiến trúc & Luồng Dữ liệu</span>
+        <strong>Mô phỏng CI Pipeline kiểm thử API Payload</strong>
+        <small>Điều chỉnh tải lượng request đồng thời để quan sát phản ứng của CI Pipeline và cơ chế chặn lỗi Schema.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch13-review" data-num="13.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 13</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Trong các hệ thống phân tán chịu tải lớn, sự tiến hóa của Web API thường dẫn đến các mâu thuẫn về cấu trúc payload, lỗi timeout do phân đoạn dữ liệu (shards), hoặc phá vỡ ứng dụng của bên thứ ba. Chương này phân tích các phương pháp cốt lõi để duy trì sự nhất quán bao gồm tích hợp quy trình kiểm thử tự động (CI Pipeline), áp dụng công cụ mô tả giao diện như JSON Schema và OpenAPI, quản lý chiến lược versioning (Additive-change vs Explicit-version), và thiết kế kế hoạch truyền thông thay đổi. Các case study từ Slack, Stripe và Uber minh họa cách cô lập các tầng logic, sử dụng lập trình cổng (programming gates) và xử lý khủng hoảng khi thay đổi thông số API.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Tại sao việc sử dụng 'additionalProperties: false' trong JSON Schema lại cực kỳ quan trọng đối với tính nhất quán của API?</p>
+        <ol><li>Giúp tăng tốc độ xử lý của cơ sở dữ liệu</li><li>Ngăn chặn các client hoặc lập trình viên tự ý thêm các trường dữ liệu không được định nghĩa vào payload</li><li>Giúp giảm dung lượng băng thông mạng xuống 50%</li><li>Tự động sinh mã nguồn SDK cho ngôn ngữ Java và Python</li></ol>
+        <p class="explain">Thuộc tính 'additionalProperties: false' buộc payload phải tuân thủ nghiêm ngặt schema đã khai báo, không cho phép các trường thừa xuất hiện ngẫu nhiên gây lệch lạc giao diện.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

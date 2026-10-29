@@ -1,0 +1,625 @@
+CHAPTER 9
+Developer Resources
+Building a great API is not enough if no one knows how to use it. As
+you design your API, make sure that you guide and enable develop‐
+ers by providing the learning materials they need to succeed.
+Developer resources are a set of assets that you should provide your
+developers  so  that  they  can  improve  how  they  use  your  API.  There
+are  many  types  of  developer  resources  out  there,  each  affecting  dif‐
+ferent aspects of the development life cycle. In this chapter, we cover
+the  major  resources  that  most  companies  provide.  We  also  provide
+some tips and tricks to make them work for you.
+API Documentation
+Let’s  begin  with  the  most  basic  resource  that  is  required  for  every
+API or platform—documentation.
+Documentation  is  where  developers  come  to  learn  about  your  API.
+Whether  you’re  providing  a  simple  README  file  or  developing  a
+full  website  for  your  developers,  it  is  critical  to  clearly  document
+how they can most effectively use your API. There are several differ‐
+ent aspects to good documentation, covering all stages of the devel‐
+opment life cycle.
+Getting Started
+Getting  Started  guides  are  a  common  type  of  tutorial  that  walk  the
+developer from unfamiliarity with an API to initial success. In many
+cases, this comes in the form of completing a “Hello World” exercise
+163
+
+—a  reference  to  the  common  practice  within  the  engineering  pro‐
+fession of getting a program or API to churn out “Hello World” as a
+proof  of  success.  The  API  doesn’t  literally  have  to  return  “Hello,
+world”,  but  you  might  have  users  get  to  a  place  where  they’ve  suc‐
+cessfully  made  one  API  request,  opened  a  WebSocket  connection
+and  received  the  first  event,  or  received  an  example  POST  request
+from a WebHook. The Getting Started tutorial’s job is to outline the
+easiest  and  fastest  set  of  steps  that  developers  need  to  take  to  get
+there, also known as the Time to Hello World (TTHW).
+Having a Getting Started guide that you position front and center on
+your API site is important for onboarding new developers. Simplify‐
+ing and shortening the TTHW significantly contributes to developer
+adoption of your API.
+A single Getting Started guide works for simple use cases, but if you
+have a complex API that covers multiple use cases, you should aug‐
+ment  your  initial  guide  with  additional  primers  that  expand  on  it.
+You  could  have  several  Getting  Started  tutorials,  each  focusing  on
+different aspect—for example, “Building Your First Web App,” “Get‐
+ting  Started  Storing  Your  Data,”  and  “Introducing  User  Authentica‐
+tion.”
+Here are some key aspects of a good Getting Started guide:
+Do not assume prior knowledge
+As much as you can, try to explain each technical term in your
+document.  (You  can  do  that  using  links  to  other  pages  or  popup  windows,  to  refer  the  user  to  more  in-depth  literature  on
+specific  topics.)  If  there  are  prerequisites,  provide  links  to  their
+corresponding Getting Started documents.
+Do not diverge from the happy path
+Assume that everything will go well, but link to troubleshooting
+documentation for cases in which something goes wrong. Don’t
+leave  developers  high  and  dry,  without  the  answers  and  off  the
+happy path.
+Show examples of inputs and outputs
+If the developer needs to run a command line, show an example
+of  that  command  line;  if  there  is  an  expected  result,  show  a
+screenshot of that result.
+Your  API  might  have  several  function  calls,  different  types  of
+requests  (POST/GET),  and  different  responses  and  parameters.
+
+Show every permutation of each method and the corresponding
+outputs.
+Try to show sample code demonstrating the simplest use of your API
+If  it  is  not  too  long  or  cumbersome,  provide  samples  that
+demonstrate basic use of the code.
+End with a call to action and links to other references
+Don’t  let  your  developers  become  stuck;  be  sure  to  give  them  a
+direction and resources to help them expand their knowledge.
+Expert Advice
+The  right  API  design  creates  engaging  and  delightful  developer
+experiences,  and  a  well-thought-out  onboarding  process  is  criti‐
+cal  for  developers  to  instantly  understand  how  the  API  operates
+and  rapidly  build  on  it.  For  example,  Stripe’s  dynamic  and  per‐
+sonalized  developer  documentation  provides  customized  code
+samples that can be quickly added to an existing application, and
+we  offer  first-class  libraries  in  popular  programming  languages.
+API endpoints, parameters, data models, and error messages are
+all  carefully  defined  and  consistent  across  the  platform.  Devel‐
+oper support is also part of the core product experience, and we
+work  hard  to  provide  a  response  within  hours  (or  minutes).  We
+believe  that  these  touch  points  produce  an  elegant  API  design
+that  ensures  developers  are  successful,  exponentially  improving
+their productivity.
+If you look back 10 years, starting a business and accepting pay‐
+ments  online  was  incredibly  hard.  There  was  no  other  choice
+than  to  build  in-house  solutions,  establish  merchant  accounts,
+and  read  through  hundreds  of  pages  of  documentation  just  to
+accept  a  simple  payment.  At  Stripe,  we  see  payments  as  a  prob‐
+lem rooted in code, not finance. Our API design allows develop‐
+ers  to  accept  payments  from  anywhere  in  the  world,  using  any
+payment methods, in a matter of minutes.
+—Romain Huet, head of developer relations at Stripe
+API Reference Documentation
+This  is  a  very  technical  part  of  the  documentation  and  might  be
+automated  using  tools  like  Swagger.  Reference  documents  like  the
+one  shown  in  Figure  9-1  are  detailed  descriptions  of  all  the  API
+methods,  their  input  and  output  parameters,  and  the  errors  that
+they might return.
+API Documentation | 165
+
+Figure 9-1. Twitch’s API reference page
+Reference  documentation  should  be  comprehensive  and  complete.
+Do not worry about repeating common sections, because these types
+of documents are not intended to be read in sequence. For example,
+if you have an error that appears in two methods, it is important to
+repeat  the  error  description  and  causes  in  both  sections  because
+developers are not necessarily going to read through documentation
+for every API endpoint. Reference documents are also a great place
+to  put  examples  of  the  API  usage  and  even  to  add  a  built-in  API
+tester so that developers can begin experimenting with the API. We
+go  over  API  testers  in  more  depth  in  “Sandboxes  and  API  Testers”
+on page 179.
+Because users will usually access these pages from Google search or
+from  your  own  internal  search,  it  is  better  to  list  each  API  method
+on  its  own  page.  This  improves  discoverability  and  usability.  Addi‐
+tionally,  it  gives  you  greater  flexibility  to  provide  more  detail  when
+necessary.
+Good reference documents provide developers with everything they
+need to know about a certain API call or functionality within a sin‐
+gle page, with links to useful additional resources.
+
+Tutorials
+In  this  section  of  your  documentation,  you  provide  step-by-step
+instructions  for  different  aspects  of  your  API,  as  illustrated  in
+Figure 9-2. You can write an article about security or rate limits, for
+example. Begin by covering the complex parts of your API and then
+move to more simple things, if you have the bandwidth.
+Figure 9-2. Shopify’s API tutorials
+Pro Tip
+A  good  best  practice  here  is  to  work  with  your
+support team and ask them which topics gener‐
+ate  the  greatest  number  of  tickets.  You  can  use
+that information to create tutorials on the topics
+that  are  the  most  difficult  for  your  audience.
+Doing  this  periodically  will  ensure  that  you  are
+always documenting high-frequency issuess.
+It is important to remember that you need to update tutorials when
+you update your API, or you risk them becoming misleading rather
+than  a  source  of  guidance  for  developers.  You  can  also  sort  them
+based on metainformation, such as the programming language used
+in the tutorial. This makes it easier for your developers to find what
+they need.
+API Documentation | 167
+
+Expert Advice
+One  of  the  ways  I  find  most  useful  to  differentiate  is  a  tutorial
+that tells you “How to X with Y”: “How to secure your app with
+Apache   and   mod_security”   or   “How   to   write   a   bot   in
+QuickBasic.”
+—Taylor Singletary, lead content writer at Slack
+Frequently Asked Questions
+In  a  similar  vein,  collect  frequently  asked  questions  (FAQ)  and
+answer  them  to  the  best  of  your  ability.    Remember  to  generalize
+and  anonymize  the  questions  and  answers.  The  format  of  the  FAQ
+document  is  simple:  put  the  question  in  the  bold  and  the  answer
+below  it,  as  demonstrated  in  Figure  9-3.  If  you  like,  you  can  prefix
+these with “Q:” and “A:,” respectively.
+Figure 9-3. Facebook API FAQ page
+There  are  many  ways  to  collect  a  list  of  frequently  asked  questions.
+Here are a few examples:
+•
+Have  a  monthly  meeting  with  the  support  team  and  ask  what
+the most common tickets are.
+
+•Explore  Stack  Overflow  and  look  for  the  most  voted  for  ques‐
+tion around your API.
+•Talk  to  the  partnership  and  sales  team  and  ask  what  questions
+they hear the most.
+•Ask developers to add to your FAQ section by inviting them to
+submit  questions  in  a  form  that  you  should  make  available  on
+that page.
+Landing Page
+This  is  the  first  page  developers  should  see  when  they  view  your
+documentation site. It should generally have the following sections:
+•
+A short explanation of what your API is for (see “Distilling the
+Value Proposition” on page 151). Walk through the use cases the
+developer can implement or the key value they can get from the
+API.
+•
+A  call  to  action  that  directs  the  developer  to  next  steps.  “Get
+Started”  is  a  great  call  to  action,  with  a  link  to  the  Getting
+Started document.
+•Links  to  key  resources,  samples,  and  tools,  all  of  which  we
+describe later on in this chapter.
+Your  developer  landing  page  serves  two  purposes:  it  welcomes  and
+onboards  new  developers,  and  it  provides  resources  and  ongoing
+support to returning developers. You might want to collaborate with
+your marketing or design team to make sure that the page is appeal‐
+ing and designed for both audiences.
+This   page   is   extremely   important   because   it   provides   the   first
+impression of the API. Developers will skim through this page to see
+whether it is the right fit for their needs and will quickly bounce out
+if  they  do  not  find  what  they  want.  Slack  has  gone  through  several
+iterations,  each  time  improving  a  different  aspect  of  the  landing
+page.  Google  has  spent  week  at  a  time  doing  user  research  to  opti‐
+mize its developer portal. Stripe has done a good job with its docu‐
+mentation landing page, as you can see in Figure 9-4.
+API Documentation | 169
+
+Figure 9-4. Stripe’s API landing page
+Pro Tip
+Make  sure  your  landing  page  and  other  key
+pages  are  highly  discoverable  in  search  engines
+such  as  Google.  This  will  be  the  most  common
+way developers find your site.
+Changelog
+As  your  API  evolves  and  matures,  we  recommend  that  you  keep  a
+changelog  on  your  developer  site.  On  this  page,  you  provide  devel‐
+opers  with  news  about  updates  to  the  API,  details  on  breaking
+changes that might be coming, security and service change notifica‐
+tions, and so forth.
+Pro Tip
+GitHub  Releases  make  it  easy  to  create  change‐
+logs.   Check   out   the   Releases   API   for   more
+details.
+Adding  an  RSS  feed  to  the  page  enables  developers  to  subscribe  to
+the changelog and to be notified when you update it, as depicted in
+Figure 9-5. This is a simple way to create a channel for developers to
+keep up to date with your API.
+
+Figure 9-5. Slack API changelog
+Changes  to  your  code  can  also  be  announced  in  an  email  or  over
+Twitter, if you can reach your developers that way. However, a dedi‐
+cated page that lets developers see all the changes that your API has
+gone  through  since  they  last  touched  it  can  also  be  very  useful.
+Remember  that  different  audiences  prefer  different  means  of  com‐
+munication, as discussed in Chapter 8.
+Terms of Service
+The terms of service (ToS) is a document that describes the reason‐
+able  use  of  your  API—what  is  permitted  and,  more  importantly,
+what  is  not  permitted.  This  document  is  very  useful  for  developers
+who  want  to  understand  whether  their  use  case  is  supported,  but  it
+is  also  critical  for  you  as  the  API  developer  in  order  to  set  the
+boundaries  of  usage  of  your  API.  The  ToS  is  the  baseline  for
+enforcement—taking  action  against  misuse  of  your  API.  Without
+knowing  what  is  permitted  and  what  is  not,  developers  may  find  it
+difficult to know how to act like good citizens on your platform.
+The ToS should be written, or at least reviewed, by your legal coun‐
+sel. The document should define things like the following:
+API Documentation | 171
+
+Rate limits
+See Chapter 6 for more details on rate-limiting.
+Data retention policy
+How  long  and  for  what  can  a  developer  use  the  data  they  get
+from your API?
+Privacy policy
+What  can  developers  do  with  personally  identifiable  informa‐
+tion (PII)? With whom can they share it?
+Non-allowed use cases
+Can your API be used for commercial use cases? Can it be used
+for adult or gambling use cases?
+API license
+Can developers resell your API? Can they use it as part of their
+API? Is it free to use?
+Additional requirements
+Should  the  developers  post  privacy  acknowledgments  in  their
+apps?
+There may be many more aspects for you to cover in your ToS. It is
+also  important  to  state  in  the  ToS  that  you  can  change  the  terms  as
+time  passes.  As  your  ecosystem  grows  and  your  API  evolves,  you
+will find that you need to update your ToS to adjust to the new cir‐
+cumstances.
+When communicating with developers who have misused your API,
+you  should  refer  to  the  section  in  your  ToS  that  they  violated  and
+work with them to reach compliance.
+Pro Tip
+Remember  that  to  be  effective,  your  ToS  should
+be  simple  and  short.  It’s  a  legal  document  that
+you actually want developers to read and under‐
+stand, not a ritualized checkbox.
+Samples and Snippets
+Providing developers with code samples and snippets is a great way
+to improve their use of and productivity with your API.  When done
+right,  you  can  incorporate  best  practices  (such  as  for  performance
+
+and security), into your examples, making the developers less prone
+to make errors with or misuse the API.
+Code Samples
+Code samples can take a wide range of forms, but they all follow the
+basic intent of providing developers with reference examples of how
+to  use  the  API.  You  should  provide  code  samples  in  the  program‐
+ming languages most common to your developers. The code should
+be  highly  readable  and  include  a  lot  of  comments  that  walk  the
+developer  through  the  code  and  explain  each  section  of  the  API’s
+use.
+Even if you can only provide a single code sample, that can be valua‐
+ble  to  developers  of  all  backgrounds,  assuming  that  it’s  consistent
+and  based  on  core  development  principles.  PHP  and  Node.js  are
+great  for  these  kinds  of  examples  for  web  APIs  because  they’re  easy
+to  focus  on  request  and  response  cycles  without  the  need  to  refer‐
+ence any additional frameworks.
+Pro Tip
+Just  like  tutorials  and  documents,  code  samples
+need  to  be  maintained.  When  the  API  changes,
+you need to update all of your examples too.
+Most  code  samples  try  to  tackle  a  single  use  case  of  the  API,  like
+sending  a  message,  getting  an  event,  or  making  a  payment.  Other
+code  samples  provide  examples  of  integrations  between  different
+aspects of your API, such as illustrating an authenticated request to
+an API or combining the responses from two requests to accomplish
+a task, for example.
+Another  type  of  code  sample  is  the  reference  app.  This  code  sample
+tackles  a  business  use  case  rather  than  demonstrating  specific  API
+functionality.  Good  examples  of  these  are  the  open  source  Google
+I/O  app,  which  Google  releases  every  year,  or  the  chat  app  that
+Twitch built into its sample.
+The  major  challenge  with  reference  apps  is  making  them  readable,
+usable,  and  not  too  tightly  connected  to  the  use  case.  If  an  app  is
+super-optimized  for  the  use  case,  it  is  difficult  for  a  developer  to
+learn  from  it  and  to  extrapolate  what  they  need  to  implement  their
+own use case.
+Samples and Snippets | 173
+
+Snippets
+Snippets, on the other hand, are short and contextual code samples
+that accompany a tutorial, a reference doc, or an FAQ answer. Snip‐
+pets should be in the single digits of lines of code, and they need to
+be briefly documented but still very readable.
+Unlike  code  samples,  snippets  are  a  part  of  complete  code;  you  do
+not need to declare variables or add imports to a snippet. The snip‐
+pet should look like it has been cut out of a code sample and pasted
+into the document, as depicted in Figure 9-6.
+Figure 9-6. A snippet
+Because  snippets  are  shorter  and  easier  to  implement,  we  recom‐
+mend  that  you  implement  them  in  several  programming  languages
+to  make  it  easy  for  developers  to  cut  and  paste  directly  into  their
+own code.
+A  good  method  here  is  to  use  an  interactive  language  switcher  in
+your  documentation  that  lets  the  developer  choose  their  preferred
+programming language, as shown in Figure 9-7.
+
+Figure 9-7. Firebase samples with language switcher
+Software Development Kits and Frameworks
+Developers have different proficiency levels, and not all of them will
+be  comfortable  accessing  your  web  API  directly.  As  discussed  in
+“Developer SDKs” on page 114, building software development kits
+(SDKs)  and  frameworks  is  a  good  way  to  make  it  easier  to  access
+your API. Another benefit of a good SDK or framework is that you
+can  bake  best  practices  and  security  measurements  straight  into
+them.  Creating  these  boilerplate  code  blocks  removes  the  need  for
+developers to implement these best practices themselves.
+Expert Advice
+A  good  API  has  SDK  bindings  in  all  languages,  platforms,  and
+coding styles. One of the lessons I learned is that you have to be
+prepared  in  advance  for  extreme  use  cases  and  make  sure  that
+your API can meet the needs of customers.
+—Ron Reiter, senior director of engineering at Oracle
+Software Development Kits and Frameworks | 175
+
+SDKs
+SDKs are thin abstraction layers over your API. They provide devel‐
+opers  with  the  ability  to  work  with  a  code  library  rather  than  mak‐
+ing  raw  API  calls.  Developers  download  or  refer  to  an  SDK  library
+and  build  their  business  logic  by  calling  the  functionality  of  the
+SDK.
+Many  companies  wrap  their  APIs  with  SDKs,  and  many  developers
+prefer  to  use  an  SDK  rather  than  calling  the  API  methods  directly.
+This is due to the inherent complexity that comes with handling and
+making web requests.
+The interfaces of the SDK need to be readable and well documented,
+but  the  internals  of  the  SDK  do  not  need  to  meet  these  require‐
+ments.  The  internals  of  the  SDK  library  can  be  optimized  or  even
+obfuscated and minified.
+It  is  important  that  you  provide  SDKs  in  the  programming  lan‐
+guage(s)  your  developers  use.  SDKs  are  not  like  sample  code;  they
+are less portable and basically useless if they are not in the program‐
+ming language of your audience.
+Remember  that,  after  you  launch  an  SDK,  you  need  to  continue  to
+update it. The key here is to update your SDK at the same time you
+make your API updates. Assuming that your developers are relying
+heavily  on  your  SDK,  if  you  do  not  update  it,  they  will  not  have
+access to the new platform or API features that you just launched.
+Pro Tip
+It  is  important  to  instrument  and  measure  the
+use  of  your  SDK  separately  from  measuring
+direct  API  calls.  Building  and  maintaining  mul‐
+tiple  SDKs  is  expensive  and  demanding.  Look‐
+ing  at  the  data  gives  you  a  good  indication  of
+whether  you  need  to  continue  to  invest  in  your
+SDKs.
+You  can  generate  SDKs  automatically  by  using  tools  such  as  Swag‐
+ger.  There  is  some  infrastructure  work  involved  in  enabling  such
+tools (such as adding metadata to your API), but this can be an easy
+
+and productive way to generate SDKs in multiple programming lan‐
+guages.
+Expert Advice
+Cloudinary’s APIs are the main way our customers use us besides
+the  administration  web  console.  Developers  building  websites
+and  apps  that  involve  any  type  of  imagery  and  video  use  us  to
+upload,  manipulate,  manage,  and  deliver  the  media.  The  API  is
+RESTful  and  is  wrapped  by  numerous  SDKs,  available  in  almost
+any programming language.
+—Ran Rubinstein, VP of solutions at Cloudinary
+For more information on the technical aspects of an SDK, see Chap‐
+ter 6.
+Frameworks
+Frameworks are additional layers of abstraction that you sometimes
+need to add over an API. They make it easier to use API methods by
+providing  functionality  that  is  closer  to  the  use  case  the  developer
+needs to implement and can further hide the complexity of the API.
+A  good  example  is  the  Botkit  framework.  When  Slack  initially
+released  its  API,  it  provided  basic  functionality  to  read  and  write
+messages.  Although  this  was  all  the  functionality  that  experienced
+developers  needed  to  build  Slack  apps,  it  did  not  provide  an  easy
+way  to  build  conversational  interfaces  and  bots.  Developers  had  to
+handle  complex  use  cases,  such  as  asking  for  user  inputs  in  Slack
+and waiting for the answers to come back through the API.
+The Botkit team developed an open source framework that encapsu‐
+lated  that  functionality  and  wrapped  the  complexity  of  these  use
+cases   in   a   simple   and   easy-to-use   library,   as   illustrated   in
+Example  9-1.  Developers  using  the  Botkit  framework  more  easily
+coded  their  way  through  these  challenging  use  cases  by  letting  Bot‐
+kit handle these processes.
+Software Development Kits and Frameworks | 177
+
+Example 9-1. Botkit framework snippet
+controller.hears(
+    ['hello', 'hi', 'greetings'],
+    ['direct_mention', 'mention', 'direct_message'],
+    function(bot,message) {
+        bot.reply(message.'Hello!');
+    }
+);
+As  you  can  see  in  Example  9-1,  the  developer  states  that  they  are
+looking  to  hear  hello,  hi,  or  greetings  by  way  of  a  mention,
+direct mention,  or  direct message,  and  what  they  reply  with,  in
+turn,  is  Hello!  This  would  have  been  an  order  of  magnitude  more
+complex to code if it weren’t for the Botkit framework. With Botkit,
+the  developer  just  defines  the  business  process,  and  the  framework
+takes care of all the rest.
+Sometimes,  you  don’t  need  an  opinionated  framework.  If  your  API
+is simple and intuitive, you might want to reduce maintenance cost
+by  just  providing  code  samples  or  SDKs,  and  leave  the  additional
+complexity to your developers. You might also take into account the
+proficiency  of  your  developers.  Advanced  developers  might  not
+need a framework in order to handle complex use cases.
+When  maintained  correctly,  frameworks  and  SDKs  provide  an  eas‐
+ier  path  to  API  upgrades  and  migrations.  You  as  the  API  provider
+can  abstract  the  API  changes  and  let  the  developers  keep  their  old
+code  working.  Breaking  changes  have  a  smaller  negative  impact  if
+the  only  thing  the  developer  needs  to  do  is  to  replace  the  SDK  or
+framework with a new version. The same goes for new functionality:
+developers  can  easily  access  new  API  calls  using  the  same  known
+paradigm  just  by  replacing  the  old  SDK  or  framework  with  a  new
+version that supports the new functionality.
+When building SDKs and frameworks, it is important to make them
+accessible  and  discoverable  on  your  API  site.  We  also  recommend
+that  you  host  your  SDKs  and  frameworks  in  code  repositories  such
+as  GitHub  so  that  developers  can  be  inspired  by  the  code,  report
+bugs,  and  contribute  if  needed.  See  “Community  Contribution”  on
+
+Development Tools
+Your API can easily look like a taunting black box to your develop‐
+ers.  Providing  the  right  tools  can  go  a  long  way  toward  helping
+developers solve their own problems. It is not easy to generalize the
+types of tools your API might need. Each API comes with a different
+set  of  challenges.  There  are  some  common  pain  points,  which  we
+cover  here,  but  you  need  to  analyze  and  understand  your  develop‐
+ers’ needs and pains and to define tools specifically for your service.
+Debugging and Troubleshooting
+In  Chapter  4,  we  discussed  how  to  make  errors  meaningful  so  that
+developers  can  better  understand  whether  a  request  fails  due  to
+something they did wrong or due to an issue with the system. How‐
+ever, even with meaningful errors, it can still be difficult for develop‐
+ers to know exactly how and why their request failed.
+That’s  why  providing  developers  with  tools  to  analyze,  debug,  and
+troubleshoot their API calls can therefore be very helpful.
+Debugging  tools  can  be  as  simple  as  a  web  page  that  lets  the  devel‐
+oper  see  the  logs  that  are  associated  with  their  API  calls  or  as  com‐
+plicated   as   a   step-by-step   debugger   that   integrates   into   the
+development   environment.   In   many   cases,   the   former   is   good
+enough to troubleshoot most issues.
+Sandboxes and API Testers
+Sandboxes and API testers give developers the ability to quickly test
+and  verify  that  they  are  using  the  API  in  the  right  way.  Sandboxes
+provide developers with a safe and isolated environment—for exam‐
+ple,  a  mocked-up  list  of  images  that  they  can  delete  and  modify  as
+they  want,  using  the  API,  without  the  worry  of  changing  product
+data. API testers usually come as part of the API documentation and
+let  developers  test  the  API  calls—sometimes  on  live  data.  Google
+provides  a  very  comprehensive  API  testing  service  called  APIs
+Explorer. Figure 9-8 presents an example of an API test page.
+Development Tools | 179
+
+Figure 9-8. Google’s APIs Explorer
+Note  that  developers  do  not  need  to  code  in  order  to  make  an  API
+request  using  APIs  Explorer;  they  just  need  to  provide  valid  input
+parameters.
+Rich Media
+There  are  many  ways  to  learn  technical  content—some  people  like
+to read, some like to listen, and some like to watch. Although a lot of
+developers  prefer  written  tutorials  and  documents,  there  is  a  grow‐
+ing  trend  of  engaging  and  educating  developers  via  short  videos,
+webinars, live Q&A sessions, and so forth.
+Videos
+Videos  are  a  great  way  to  introduce  new  tech,  provide  general  best
+practices, or deep dive into a topic.
+These  days,  creating  videos  is  not  that  difficult—most  phones  and
+digital  cameras  can  create  high-definition  videos.  Many  developer
+relations people even create video tutorials from the comfort of their
+own homes.
+That  said,  although  creating  and  editing  videos  is  getting  easier,
+making  high-quality  videos  can  still  be  expensive  and  difficult:  you
+need  professional  gear,  a  lot  of  practice,  and  several  rehearsals.  At
+Google  there  is  a  full  team  dedicated  to  editing  and  producing  vid‐
+eos. Presenting in these videos is not something that every developer
+relations person is fit to do. It requires a certain skill to be in front of
+a  camera  and  to  present  content  that  is  complex  and  involves
+
+screens that you don’t actually see while standing in front of a green
+screen.
+Pro Tip
+The  best-performing  videos  are  short.  Videos
+longer  than  two  minutes  tend  to  have  a  drastic
+drop in viewership.
+If  you  are  happy  with  medium-quality  videos,  recording  live  ses‐
+sions is a great way to get started. Whenever you do a live presenta‐
+tion  at  an  event,  you  can  record  the  session  and  use  that  on  your
+website for other developers to see.
+Storytime: Doubling Down on Video
+When I worked at Google, we decided to double down on videos
+after a very long global tour during which we presented the same
+content again and again in more than 12 countries. We recorded
+some  of  the  sessions  and  found  that  the  recordings  reached  a
+greater  number  of  people  (measured  in  number  of  views)  than
+our  total  accumulated  live  audience  throughout  the  tour.  After
+that,  we  created  an  entire  team  dedicated  to  generating  highquality videos at scale.
+—Amir Shevat
+Office Hours
+Office  hours  are  a  great  resource  for  developers  to  get  their  ques‐
+tions  answered.  This  is  a  block  of  time  that  you  set  aside  to  answer
+questions and help developers build on your API.
+When  the  Slack  Developer  Platform  team  launched,  it  was  very
+small. Team members could not meet all the developers who wanted
+them  to  provide  training  on  the  platform  in  person  and  decided  to
+launch a weekly office hours online. Developers and partners could
+join  the  office  hours  using  a  public  video  call  link,  provided  by
+Slack,  and  ask  their  questions.  Because  these  sessions  had  multiple
+participants,  they  had  the  added  value  of  having  everyone  learn
+from one another’s questions.
+Rich Media | 181
+
+Webinars and Online Training
+Webinars are a good way to educate developers online. In fact, some
+developers  prefer  this  way  of  learning  because  it  is  somewhat  more
+collaborative.  In  webinars,  the  speaker  presents  a  topic  through  an
+online tool, such as Zoho, and invites developers to join the training.
+The presentation is broadcast to the audience, sometimes accompa‐
+nied  by  screen  sharing  or  videos.  At  the  end  of  the  webinar,  and
+sometimes  even  during  the  webinar,  developers  can  ask  questions
+on the content, and the presenter answers them.
+Expert Advice
+As of this writing, I run a monthly web training session about my
+previous  book,  Designing  Bots  (O’Reilly).  The  webinar  takes  two
+hours, and participants go through training and hands-on exerci‐
+ses. I get to engage with about 50 developers without leaving the
+comfort of my office.
+—Amir Shevat
+Community Contribution
+Although  all  of  the  resources  we  outlined  in  this  chapter  are  great
+ways  to  educate,  train,  and  engage  developers  to  use  your  API,
+building  out  all  these  resources  is  a  difficult  task  that  requires  time
+and money. But fear not! Some of these resources can be created and
+maintained by the community of developers that use your API.
+One of the positive side effects of a thriving developer community is
+that  its  members  contribute  content  and  generate  resources.  Devel‐
+opers  write  tutorials,  create  videos,  share  code  samples,  and  answer
+questions. Here are a few real-world examples of these types of con‐
+tribution:
+•
+Google works with key members of the community called Goo‐
+gle  Developers  Experts  to  create  everything  from  videos  and
+presentations to code samples.
+•
+Slack  manages  open  source  SDKs  and  receives  bug  fixes  and
+code  patches  on  an  ongoing  basis.  It  also  lists  community  arti‐
+cles on its own developer site.
+
+•Mobile  developers  meet  around  the  world,  share  insights,  and
+train  one  another.  In  Tel  Aviv,  Israel,  for  example,  a  group  of
+community  members  who  have  created  a  volunteer-run  course
+called  Android  Academy  that  educates  new  developers  on  how
+to build great Android apps.
+•
+Twitch  uses  public  forums  in  which  developers  can  talk  about
+work  they  have  done,  support  one  another,  and  provide  feed‐
+back to the Twitch Developer Experience product team.
+Almost  every  API  out  there  has  some  community  contribution.
+Remember  that  you  will  need  to  provide  the  basic  documentation
+yourself,  because  in  the  beginning,  community  contribution  will  be
+minimal.  Consider  the  community  contribution  as  an  addition  to
+your work, not a replacement of it.
+Pro Tip
+Whenever      you      are      using      communitycontributed content, give credit to the contribu‐
+tor.  They  have  done  a  selfless  act  for  you,  and
+giving them props for that is both the right thing
+to  do  and  an  inspiration  to  others  who  want  to
+contribute.
+Building  a  section  for  community  contribution  in  your  developer
+site  is  a  great  way  to  empower  your  developers,  once  you  have
+enough  articles  and  code  samples  there.  Remember  that  mainte‐
+nance is a bigger issue with community contribution; if you change
+your API, work with your contributors to amend their content or to
+clearly state the version for which each contribution is good.
+Closing Thoughts
+Developer  resources  add  a  delicate  and  crucial  layer  of  value  over
+your  API.  Without  developer  resources,  your  audience  needs  to
+guess  how  to  use  your  API  and  will  probably  misuse  it—or,  more
+commonly, just not use it at all.
+In  this  chapter,  we  outlined  common  developer  resources  and  gave
+tips on how to build them. Remember that each API is different, and
+your  developers  might  need  an  additional  set  of  resources  that  we
+haven’t explicitly covered here. Keep in touch with your developers,
+Closing Thoughts | 183
+
+empathize  with  them,  and  foster  your  community  to  build  a  selfsustaining ecosystem.
+In  Chapter  10,  we  discuss  exactly  that:  how  to  build  developer  pro‐
+grams that foster a thriving ecosystem. Let’s dive into that now.

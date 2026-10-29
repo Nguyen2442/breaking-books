@@ -1,0 +1,280 @@
+CHAPTER 4
+Design Best Practices
+In the previous chapters, we gave an overview of various approaches
+for  transmitting  data  via  your  web  API.  Now  that  you’re  familiar
+with  the  landscape  of  transport  and  have  an  understanding  of  how
+to  choose  between  various  patterns  and  frameworks,  we  want  to
+provide  some  tactical  best  practices  to  help  your  developers  get  the
+most out of your API. 
+Designing for Real-Life Use Cases
+When  designing  an  API,  it’s  best  to  make  decisions  that  are  groun‐
+ded in specific, real-life use cases. Let’s dig into this idea a bit more.
+Think  about  the  developers  who  are  using  your  API.  What  tasks
+should they be able to complete with your API? What types of apps
+should  developers  be  able  to  build?  For  some  companies,  this  is  as
+targeted  as  “developers  should  be  able  to  charge  customer  credit
+cards.”  For  other  companies,  the  answer  can  be  more  open-ended:
+“developers  should  be  able  to  create  a  full  suite  of  interactive
+consumer-quality applications.”
+After  you  have  your  use  cases  defined,  make  sure  that  developers
+can actually do the things you want them to do using your API.
+Quite  often  APIs  are  designed  based  on  the  internal  architecture  of
+the  application,  leaking  details  of  the  implementation.  This  leads  to
+confusion  for  third-party  developers  and  a  bad  developer  experi‐
+ence.  That’s  why  it’s  so  important  to  focus  not  on  exposing  on  your
+company’s internal infrastructure but on the experience that an out‐
+47
+
+side  developer  should  have  when  interacting  with  your  API.  For  a
+concrete  example  of  how  to  define  key  use  cases,  see  the  section
+“Outline Key Use Cases” in Chapter 5.
+When you get started with a design, it’s easy to imagine many “whatifs” before implementation and testing. Although these questions are
+useful during the brainstorming phase, they can lead a design astray
+by  tempting  you  to  try  and  solve  too  many  problems  at  once.  By
+picking a specific workflow or use case, you will be able to focus on
+one design and then test whether it works for your users.
+Expert Advice
+When  we  asked  Ido  Green,  developer  advocate  at  Google,  what
+makes an API good, his top answer was focus:
+“The  API  should  enable  developers  to  do  one  thing  really  well.
+It’s not as easy as it sounds, and you want to be clear on what the
+API is not going to do as well.”
+If you need help narrowing down the developer
+audience to a specific one, see Chapter 8.
+Designing for a Great Developer Experience
+Like we spend time thinking about the user experience delivered via
+a  user  interface,  it’s  important  to  think  about  the  developer  experi‐
+ence  delivered  via  an  API.  Developers  have  a  low  bar  for  abandon‐
+ing  APIs,  so  bad  experiences  result  in  attrition.  By  the  same  token,
+usability  is  the  bare  minimum  for  keeping  a  developer  using  your
+API.  Good  experiences  get  love  from  developers:  they  will  in  turn,
+become the most creative innovators using your API as well as evan‐
+gelists for your API.
+Make It Fast and Easy to Get Started
+It’s important for developers to be able to understand your API and
+to get up and running quickly. Developers may be using your API to
+avoid having to build out a secondary product suite to support their
+
+main  product.  Don’t  make  them  regret  that  decision  with  an  API
+that’s opaque and difficult to use.
+Expert Advice
+No  matter  how  carefully  we  design  and  build  our  core  API,
+developers  continue  to  create  products  we’d  never  expect.  We
+give them the freedom to build what they like.
+Designing  an  API  is  much  like  designing  a  transportation  net‐
+work. Rather than prescribing an end state or destination, a good
+API expands the very notion of what’s possible for developers.
+—Romain Huet, head of developer relations at Stripe
+Documentation  can  go  a  long  way  toward  helping  developers  get
+started.  In  addition  to  documents  that  outline  the  specifications  of
+an API, it can be helpful to have tutorials or Getting Started guides.
+A  tutorial  is  an  interactive  interface  to  teach  developers  about  your
+API. You might have developers answer questions or fill in “code” in
+an input area. A guide is a more contextual document than a specifi‐
+cation.  It  provides  information  for  developers  at  a  certain  point  in
+time—typically when getting started, but sometimes when updating
+or converting from one version or feature to another.
+In  some  cases,  you  can  supplement  the  ease  of  use  by  providing
+interactive documentation online, where developers have a sandbox
+to test out your API. For more on sandboxes, see Chapter 9. Often‐
+times,  developers  can  use  these  interfaces  to  test  code  and  preview
+results  without  having  to  implement  authentication.  Figure  4-1
+presents an example of Stripe’s UI for this.
+Designing for a Great Developer Experience | 49
+
+Figure 4-1. Developers can try the Stripe API without signing up
+In  addition  to  interactive  documentation,  tools  such  as  software
+development kits (SDKs) can go a long way toward helping develop‐
+ers use your API. These code packages are designed to help develop‐
+ers  get  up  and  running  quickly  with  their  projects  by  simplifying
+some of the transactional layers and setup of an application.
+For  an  ideal  experience,  developers  should  be  able  to  try  out  your
+APIs without logging in or signing up. If you cannot avoid that, you
+should  provide  a  simple  signup  or  application  creation  flow  that
+captures  the  minimum  required  information.  If  your  API  is  pro‐
+tected by OAuth, you should provide a way for developers to gener‐
+ate access tokens in the UI. Implementing OAuth is cumbersome for
+developers, and in the absence of easy ways to generate these tokens,
+you will see a significant drop-off rate at this point.
+Work Toward Consistency
+You  want  your  API  to  be  intuitively  consistent.  That  should  be
+reflected  in  your  endpoint  names,  input  parameters,  and  output
+responses.  Developers  should  be  able  to  guess  parts  of  your  API
+even  without  reading  the  documentation.  Unless  you  are  making  a
+significant  version  bump  or  large  release,  it’s  best  to  work  toward
+consistency when designing new aspects of an existing API.
+For example, you might have previously named a group of resources
+“users”  and  named  your  API  endpoints  accordingly,  but  you  now
+
+realize  that  it  makes  more  sense  to  call  them  “members.”  It  can  be
+very  tempting  to  work  toward  the  “correctness”  of  the  new  world
+rather than focus on consistency with the old. But if the objects are
+the  same,  it  could  be  very  confusing  to  developers  to  sometimes
+refer to them as “users” and other times as “members” in URI com‐
+ponents,  request  parameters,  and  elsewhere.  For  the  majority  of
+incremental  changes,  consistency  with  the  existing  design  patterns
+will work best for your users.
+As  another  example,  if  in  some  places  you  have  a  response  field
+called  user  and  sometimes  its  type  is  an  integer  ID  but  sometimes
+its  type  is  an  object,  each  and  every  developer  receiving  those  two
+response  payloads  needs  to  check  whether  user  is  an  int  ID  or  an
+object.  This  logic  leads  to  code  bloat  in  developers’  code  bases,
+which is a suboptimal experience.
+This  can  show  up  in  your  own  code  as  well.  If  you  have  SDKs  that
+you’re  maintaining,  you  will  need  to  add  more  and  more  logic  to
+handle  these  inconsistencies  and  to  make  a  seamless  interface  for
+developers. You might as well do this at the API level by maintaining
+consistency instead of introducing new names for the same things.
+Consistency  generally  means  that  there  are  a  number  of  patterns
+and  conventions  repeated  throughout  your  API,  in  such  a  way  that
+developers can begin to predict how to use your API without seeing
+the  documentation.  That  could  include  anything  from  data  access
+patterns  to  error  handling  to  naming.  The  reason  consistency  is
+important is that it reduces the cognitive load on developers who are
+trying to figure out your API. Consistency helps your existing devel‐
+opers in adapting new features by reducing forks in their code, and
+it  helps  new  developers  hit  the  ground  running  with  everything
+you’ve built on your API. In contrast, with less consistency, different
+developers  will  need  to  reimplement  the  same  logic  over  and  over
+again.
+For more on this topic, skip ahead to Chapter 5.
+Designing for a Great Developer Experience | 51
+
+Make Troubleshooting Easy
+Another best practice for designing APIs is making troubleshooting
+easy for developers. This can be done through returning meaningful
+errors as well as by building tooling.
+Meaningful errors
+What’s  in  an  error?  An  error  can  occur  in  many  places  along  your
+code  path,  from  an  authorization  error  during  an  API  request,  to  a
+business logic error when a particular entity doesn’t exist, to a lowerlevel  database  connection  error.  When  designing  an  API,  it  is  help‐
+ful  to  make  troubleshooting  as  easy  as  possible  by  systematically
+organizing  and  categorizing  errors  and  how  they  are  returned.
+Incorrect  or  unclear  errors  are  frustrating  and  can  negatively  affect
+adoption of your APIs. Developers can get stuck and just give up.
+Meaningful   errors   are   easy   to   understand,   unambiguous,   and
+actionable. They help developers to understand the problem and to
+address it. Providing these errors with details leads to a better devel‐
+oper experience. Error codes that are machine-readable strings allow
+developers to programmatically handle errors in their code bases.
+In  addition  to  these  strings,  it  is  useful  to  add  longer-form  errors,
+either  in  the  documentation  or  somewhere  else  in  the  payload.
+These  are  sometimes  referred  to  as  human-readable  errors.  Even
+better, personalize these errors per developer. For instance, with the
+Stripe API, when you use a test key in your live mode, it returns an
+error such as:
+No such token tok_test_60neARX2. A similar object exists in 
+test mode, but a live mode key was used to make this request.
+Table  4-1  shows  example  errors  (both  recommended  and  not)  for
+certain situations. 
+Table 4-1. Example error codes for 
+different situations
+SituationRecommendedNot recommended
+Authentication failed because token is
+revoked
+token_revokedinvalid_auth
+Value passed for name exceeded max
+length
+name_too_longinvalid_name
+Credit card has expired
+expired_cardinvalid_card
+Cannot refund because a charge has
+already been refunded
+charge_already_refunded
+cannot_refund
+
+To  begin  designing  your  system  of  errors,  you  might  map  out  your
+backend  architecture  along  the  code  path  of  an  API  request.  The
+goal of this is not to expose your backend architecture but to catego‐
+rize  the  errors  that  happen  and  to  identify  which  ones  to  expose  to
+developers. From the moment an API request is made, what are the
+critical actions that are taken to fulfill the request? Map out the vari‐
+ous high-level categories of errors that occur during the course of an
+API  request,  from  the  beginning  of  the  request  to  any  service
+boundaries  within  your  architecture.  Table  4-2  provides  a  brief
+example to get you started.
+Table 4-2. Group errors into high-level categories
+Error categoryExamples
+System-level error
+Database connection issue
+Backend service connection issue
+Fatal error
+Business logic error
+Rate-limited
+Request fulfilled, but no results were found
+Business-related reason to deny access to information
+API request formatting error
+Required request parameters are missing
+Combined request parameters are invalid together
+Authorization error
+OAuth credentials are invalid for request
+Token has expired
+After  grouping  your  error  categories  throughout  your  code  path,
+think  about  what  level  of  communication  is  meaningful  for  these
+errors.  Some  options  include  HTTP  status  codes  and  headers,  as
+well  as  machine-readable  “codes”  or  more  verbose  human-readable
+error messages returned in the response payload. Keep in mind that
+you’ll  want  to  return  an  error  response  in  a  format  consistent  with
+your   non-error   responses.   For   example,   if   you   return   a   JSON
+response on a successful request, you should ensure that the error is
+returned in the same format.
+You  might  also  want  a  mechanism  to  bubble  up  errors  from  a  ser‐
+vice  boundary  to  a  consistent  format  from  your  API  output.  For
+example,  a  service  you  depend  on  might  have  a  variety  of  connec‐
+tion errors. You would let the developer know that something went
+wrong and that they should try again.
+In  most  cases,  you  want  to  be  as  specific  as  possible  to  help  your
+developers take the correct next course of action. Other times, how‐
+Designing for a Great Developer Experience | 53
+
+ever,  you  might  want  to  occlude  the  original  issue  by  returning
+something  more  generic.  This  might  be  for  security  reasons.  For
+example, you probably don’t want to bubble up your database errors
+to  the  outside  world  and  reveal  too  much  information  about  your
+database connections. 
+Table 4-3 offers examples of how you might begin to organize your
+errors as you design your API.
+Table 4-3. Organize your errors into status codes, headers, machinereadable codes, and human-readable strings
+Error
+category
+HTTP
+status
+HTTP
+headers
+Error code (machine-readable)Error message
+(humanreadable)
+System-level
+error
+500
+----
+--
+Business logic
+error
+429
+Retry-
+After
+rate_limit_exceeded
+“You have been
+rate-limited. See
+Retry-After and try
+again.”
+API request
+formatting
+error
+400
+--missing_required_parameter
+“Your request was
+missing a {user}
+parameter.”
+Auth error401
+--invalid_request
+“Your ClientId is
+invalid.”
+As you begin to organize your errors, you might recognize patterns
+around which you can create some automatic messaging. For exam‐
+ple,  you  might  define  the  schema  for  your  API  to  require  specific
+parameters and to have a library that automatically checks for these
+at  the  beginning  of  the  request.  This  same  library  could  format  the
+verbose error in the response payload.
+You’ll want to create a way to document these errors publicly on the
+web.  You  can  build  this  into  your  API  description  language  (see

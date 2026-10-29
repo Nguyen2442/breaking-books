@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 850" width="600" height="850">
+    <defs>
+      <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#090d16" />
+        <stop offset="55%" stop-color="#0f172a" />
+        <stop offset="100%" stop-color="#0f766e" />
+      </linearGradient>
+      <linearGradient id="spine" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="rgba(255,255,255,0.25)" />
+        <stop offset="30%" stop-color="rgba(0,0,0,0.5)" />
+        <stop offset="100%" stop-color="transparent" />
+      </linearGradient>
+    </defs>
+    <rect width="600" height="850" fill="url(#bg)" />
+    <rect width="36" height="850" fill="url(#spine)" />
+    <rect x="45" y="45" width="510" height="760" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2" rx="8" />
+    <circle cx="300" cy="240" r="110" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="40" />
+    <text x="75" y="380" font-family="system-ui, -apple-system, sans-serif" font-size="34" font-weight="800" fill="#ffffff">
+      Designing Web APIs Brenda Jin 
+    </text>
+    <text x="75" y="425" font-family="system-ui, -apple-system, sans-serif" font-size="28" font-weight="700" fill="#ffffff">Saurabh Sahni Amir Shevat</text>
+    <text x="75" y="520" font-family="system-ui, -apple-system, sans-serif" font-size="20" font-weight="600" fill="#2dd4bf" letter-spacing="2">
+      TÁC GIẢ
+    </text>
+    <line x1="75" y1="550" x2="180" y2="550" stroke="#2dd4bf" stroke-width="3" />
+    <text x="75" y="740" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="rgba(255,255,255,0.5)" letter-spacing="1.5">
+      BREAKING BOOKS INTERACTIVE
+    </text>
+  </svg>

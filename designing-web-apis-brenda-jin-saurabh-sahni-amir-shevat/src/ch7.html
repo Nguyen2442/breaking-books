@@ -1,0 +1,62 @@
+<section class="chapter" id="ch7" data-ch="7" data-title="Kiến Trúc Xây Dựng API Co Giãn, Công Cụ Vận Hành Và Khả Năng Tương Thích Ngược">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 7</p>
+    <h1>Designing for a Great Developer Experience: Extensibility, Tooling, and Versioning <span class="vi">Kiến Trúc Xây Dựng API Co Giãn, Công Cụ Vận Hành Và Khả Năng Tương Thích Ngược</span></h1>
+    <p class="lede">Thiết kế API hướng tới trải nghiệm lập trình viên thông qua công cụ vận hành trực quan, chiến lược mở rộng linh hoạt và cơ chế tương thích ngược bền vững.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">2 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch7-t1" data-num="7.1" data-short="Công cụ vận hành & Giám sát">
+    <div class="topic-theory-card">
+      <p class="eyebrow">QUẢN TRỊ VẬN HÀNH</p>
+      <h2>Xây Dựng Hệ Thống Công Cụ & Giám Sát API Cho Lập Trình Viên</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Tạo dashboard và hệ thống logging minh bạch giúp lập trình viên tự chẩn đoán lỗi mà không cần đội ngũ support can thiệp.</p></div>
+      <div class="prose">
+        <p>Quá trình vận hành API ở quy mô lớn đòi hỏi hệ thống <dfn data-term="logging"><strong>logging</strong></dfn> tự động ghi nhận mã trạng thái HTTP, tần suất lỗi và các metadata quan trọng của request. Tuy nhiên, việc thu thập dữ liệu này phải tuân thủ nghiêm ngặt các tiêu chuẩn bảo mật thông tin cá nhân bằng cách <dfn data-term="pii-redaction"><strong>redact PII</strong></dfn> (Che giấu thông tin nhận diện cá nhân).</p><p>Các phương án tiếp cận công cụ giám sát phổ biến hiện nay:</p><ul><li><strong>Sử dụng giải pháp thương mại sẵn có:</strong> Tốc độ triển khai nhanh, cung cấp sẵn các dashboard phân tích trực quan nhưng chi phí vận hành tăng tuyến tính theo dung lượng log.</li><li><strong>Tự xây dựng hệ thống analytics nội bộ:</strong> Linh hoạt tùy chỉnh theo đặc thù nghiệp vụ nhưng tốn kém nguồn lực kỹ thuật để duy trì hạ tầng đường ống dữ liệu.</li></ul><p>Việc cung cấp các <dfn data-term="dashboards"><strong>dashboards</strong></dfn> thời gian thực theo mốc thời gian giúp đội ngũ phát triển phát hiện điểm nghẽn endpoint, xác định tham số nào không còn được sử dụng và tối ưu hóa trải nghiệm tích hợp.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại hệ thống thanh toán MoMo/ZaloPay</b>
+        <p>Trong các hệ thống xử lý giao dịch tài chính thời gian thực tại Việt Nam, việc ghi log request/response bắt buộc phải loại bỏ token thanh toán và mã PIN (redact PII). Hệ thống dashboard phải trực quan hóa số lượng lỗi 5xx theo giờ để kỹ sư ứng trực phát hiện sự cố nghẽn mạng hạ tầng ngân hàng ngay lập tức.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch7-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô phỏng Luồng Giám Sát Lỗi & Xử Lý Log API</strong>
+        <small>Điều chỉnh tải lượng request đồng thời để quan sát hiệu năng xử lý log và hiển thị dashboard thời gian thực.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch7-review" data-num="7.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 7</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Chương 7 tập trung vào việc duy trì chất lượng API khi hệ thống và lượng người dùng tăng trưởng theo thời gian. Quá trình này đòi hỏi xây dựng hệ thống công cụ hỗ trợ như <dfn data-term="logging"><strong>logging</strong></dfn> ẩn danh hóa dữ liệu cá nhân, <dfn data-term="dashboards"><strong>dashboards</strong></dfn> tổng hợp métrica, và các tài liệu lỗi chi tiết theo chuẩn RFC 7807. Bên cạnh đó, hệ thống API phải được thiết kế có tính mở rộng cao (<dfn data-term="extensibility"><strong>extensibility</strong></dfn>), hỗ trợ chương trình thử nghiệm sớm (<dfn data-term="beta-program"><strong>beta program</strong></dfn>), áp dụng phiên bản hóa (<dfn data-term="versioning"><strong>versioning</strong></dfn>) hoặc tầng chuyển đổi dữ liệu (<dfn data-term="translation-layer"><strong>translation layer</strong></dfn>) nhằm đảm bảo tính tương thích ngược tuyệt đối cho hệ sinh thái bên thứ ba.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="0">
+        <p><strong>Câu 1:</strong> Tại sao việc thiết kế hệ thống versioning API nên được thực hiện từ giai đoạn đầu?</p>
+        <ol><li>Vì chi phí thêm versioning sau khi hệ thống đã lớn và có nhiều dependency phức tạp sẽ cực kỳ tốn kém.</li><li>Vì các lập trình viên bên thứ ba luôn yêu cầu đổi phiên bản mỗi tuần.</li><li>Vì tiêu chuẩn HTTP bắt buộc phải có version trong URL path.</li><li>Vì các công cụ logging tự động không hoạt động nếu thiếu số phiên bản.</li></ol>
+        <p class="explain">Càng để lâu, các pattern phụ thuộc trong mã nguồn càng chằng chịt, khiến việc duy trì backward compatibility trở nên vô cùng phức tạp.</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p><strong>Câu 2:</strong> Giải pháp nào được Slack áp dụng khi chuyển sang mô hình Enterprise Grid làm thay đổi cấu trúc định danh người dùng?</p>
+        <ol><li>Yêu cầu toàn bộ ứng dụng bên thứ ba viết lại mã nguồn ngay lập tức.</li><li>Xây dựng một translation layer (tầng chuyển đổi) dịch ngầm các ID cũ sang ID mới.</li><li>Ngừng cung cấp API cũ và cắt vĩnh viễn quyền truy cập.</li><li>Giữ nguyên user ID cũ và từ chối nâng cấp mô hình Enterprise Grid.</li></ol>
+        <p class="explain">Slack đã chọn xây dựng một translation layer để dịch ngầm ID, đảm bảo tính tương thích ngược dù việc này làm chậm lịch ra mắt sản phẩm vài tháng.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

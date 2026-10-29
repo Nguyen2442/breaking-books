@@ -1,0 +1,157 @@
+Chapter  7)  or  documentation  mechanism.  Think  about  the  various
+layers of errors before writing the documents, because it can become
+complicated  to  describe  multiple  factors  if  there  are  many  different
+types  of  errors.  You  might  also  want  to  consider  using  verbose
+response  payloads  to  link  to  your  public  documentation.  This  is
+where  you’ll  give  developers  more  information  on  the  error  they
+received as well as how to recover from it.
+
+For even more structured and detailed recommendations on mean‐
+ingful errors and problem details for HTTP APIs, see RFC 7807.
+Build tooling
+In  addition  to  making  troubleshooting  easy  for  developers,  you
+should  make  it  easy  for  yourself  by  building  internal  and  external
+tools.
+Logging  on  HTTP  statuses,  errors  and  their  frequencies,  and  other
+request  metadata  is  valuable  to  have,  for  both  internal  and  external
+use,  when  it  comes  to  troubleshooting  developer  issues.  Figure  4-2
+shows Stripe’s dashboard with detailed logs that make it convenient
+for developers to troubleshoot. There are many off-the-shelf logging
+solutions  available.  However,  when  implementing  one,  before  you
+troubleshoot real-time traffic, be sure to respect customer privacy by
+redacting any personally identifiable information (PII). For more on
+developer  tools  that  help  developers  debug  and  troubleshoot,  see
+Chapter 9.
+Figure 4-2. The Stripe API dashboard with request logs
+Besides  logging,  when  building  an  API,  it’s  helpful  to  create  dash‐
+boards   to   help   developers   analyze   aggregate   metadata   on   API
+Designing for a Great Developer Experience | 55
+
+requests.  For  example,  you  could  use  an  analytics  platform  to  rank
+the  most-used  API  endpoints,  identify  unused  API  parameters,  tri‐
+age common errors, and define success metrics.
+Like for logging, many analytics platforms are available off the shelf.
+You  can  present  the  information  in  high-level  dashboards  that  pro‐
+vide  a  visual  display  in  a  time-based  manner.  For  example,  you
+might  want  to  show  the  number  of  errors  per  hour  over  the  past
+week. Additionally, you might want to provide developers complete
+request  logs  with  details  about  the  original  request,  whether  it  suc‐
+ceeded or failed, and the response returned.
+Make Your API Extensible
+No matter how well you’ve designed your API, there will always be a
+need for change and growth as your product evolves and developer
+adoption  increases.  This  means  that  you  need  to  make  your  API
+extensible by creating a strategy for evolving it. This enables you as
+the  API  provider  and  your  developer  ecosystem  to  innovate.  Addi‐
+tionally, it can provide a mechanism to deal with breaking changes.
+Let’s  dive  into  the  idea  of  extensibility  and  explore  how  to  incorpo‐
+rate  early  feedback,  versioning  an  API,  and  maintaining  backward
+compatibility.  For  more  details  on  scaling  APIs  by  developing  your
+API design, see Chapter 6.
+Expert Advice
+APIs  should  provide  primitives  that  can  enable  new  workflows
+and  not  simply  mirror  the  workflows  of  your  application.  The
+creation of an API acts as a gate for what the API’s users can do.
+If you provide too low-level access, you could end up with a con‐
+fusing  integration  experience  and  you  push  too  much  work  on
+the  integrators.  If  you  provide  too  high-level  access,  you  could
+end  up  with  most  integrations  simply  mirroring  what  your  own
+application  does.  You  need  to  find  the  right  balance  to  enable
+workflows  you  hadn’t  considered  either  as  part  of  your  applica‐
+tion or within the API itself in order to enable innovation. Con‐
+sider what your own engineers would want in an API to build the
+next interesting feature for your application and then make that a
+part of your public API.
+—Kyle Daigle, director of ecosystem engineering at GitHub
+
+One  aspect  of  extensibility  is  ensuring  that  you  have  created  an
+opportunity  for  feedback  with  your  top  partners  (for  more  on  top
+partners,  read  Chapter  10).  You  need  a  way  to  release  certain  fea‐
+tures or fields and to give certain privileged developers the option to
+test these changes without releasing the changes to the public. Some
+would  call  this  a  “beta”  or  “early  adopter”  program.  For  more  on
+these programs, see Chapter 10. This feedback is extremely valuable
+in helping you decide whether your API has been designed in a way
+that achieves its goals. It gives you a chance to make changes before
+adoption   has   become   prevalent   and   before   significant   changes
+require a lot of communication or operational overhead.
+In some cases, you might want to version your API. Building a ver‐
+sioning system is easier if it’s baked into the design at an early stage.
+The longer you wait to implement versioning, the more complicated
+it becomes to execute. That’s because it becomes more and more dif‐
+ficult  as  time  goes  on  to  update  your  code  base’s  dependency  pat‐
+terns  so  that  old  versions  maintain  backward  compatibility.  The
+benefit of versioning is that it allows you to make breaking changes
+with new versions while maintaining backward compatibility for old
+versions.  A  breaking  change  is  a  change  that,  when  made,  would
+stop an existing app from continuing to function as it was function‐
+ing before using your APIs.
+For  more  on  API  versioning,  see  “Outline  Key
+User Stories” on page 64.
+Storytime: Slack’s Translation Layer
+In  2017  Slack  launched  its  Enterprise  Grid  product,  which  was  a
+federated  model  of  its  previous  offering.  As  a  result  of  this  federa‐
+tion, Slack had to fundamentally change its user data model so that
+users could belong to multiple “workspaces.”
+In  the  API,  users  previously  had  only  a  single  ID.  However,  in  the
+new federated model, each user had a main (global) user ID for the
+Enterprise  Grid  and  a  local  user  ID  for  each  workspace.  When
+existing  teams  migrated  to  the  Enterprise  Grid  product,  their  user
+IDs were slated to change. This would have broken any third-party
+apps relying on a fixed user ID in the API.
+Designing for a Great Developer Experience | 57
+
+When  Slack’s  engineering  team  realized  this  problem,  it  went  back
+to the drawing board to figure out what could be done to maintain
+backward compatibility for third-party developers. That’s when the
+team  decided  to  create  a  translation  layer.  This  additional  infra‐
+structure would silently translate user IDs to be consistent with the
+ones that developers had previously received.
+Although  the  decision  to  build  this  translation  layer  delayed  the
+Enterprise Grid product launch by several months, it was missioncritical for Slack to ensure that its API remained backward compat‐
+ible.
+For  companies  and  products  that  businesses  rely  on,  maintaining
+backward-compatible   versions   is   a   difficult   requirement.   That’s
+especially  true  for  apps  that  don’t  experience  a  high  rate  of  change.
+For  a  lot  of  enterprise  software,  there  isn’t  somebody  dedicated  to
+updating  versions,  and  there’s  no  incentive  for  a  company  to  invest
+in  updating  versions  just  because  you’ve  released  a  new  one.  Many
+internet-connected  hardware  products  also  use  APIs,  but  hardware
+does  not  always  have  a  mechanism  to  update  its  software.  Plus,
+hardware can be around for a long time—think about how long you
+owned  your  last  TV  or  router.  For  those  reasons,  it  is  sometimes
+imperative that you maintain backward compatibility with previous
+API versions.
+That  said,  maintaining  versions  does  have  a  cost.  If  you  don’t  have
+the  capacity  to  support  old  versions  for  years,  or  if  you  anticipate
+very  few  changes  to  your  API,  by  all  means  skip  the  versions  and
+adopt  an  additive  change  strategy  that  also  maintains  backward
+compatibility in a single, stable version.
+If you anticipate major breaking changes and updates at any time in
+your future, we strongly recommend setting up a versioning system.
+Even  if  it  takes  years  to  get  to  your  first  major  version  change,  at
+least  you’ve  got  the  system  ready  to  go.  The  overhead  of  creating  a
+system of version management at the beginning is much lower than
+that of adding it in later, when it’s urgently needed.
+
+For more on API versioning, see Chapter 7.
+Storytime: Deprecating an API at Twitch
+In 2018, online video streaming platform Twitch decided to depre‐
+cate  an  API  and  provide  a  new  API.  After  it  announced  the  old
+API’s deprecation and end of life (shutdown), Twitch received a lot
+of  feedback  from  developers  who  said  that  they  needed  more  time
+to  handle  the  breaking  change  or  their  integrations  would  be  bro‐
+ken. Because of that feedback, Twitch decided to extend the end of
+life of the old API to give developers ample time to move their code
+to the new one.
+Closing Thoughts
+Meeting the needs of your users is at the core of solid API design. In
+this chapter, we covered a number of best practices to help you ach‐
+ieve a great developer experience.
+As you build your API and developer ecosystem, you might discover
+more  best  practices  specific  to  your  company,  your  product,  and
+your users.
+In Chapter 5, we put these ideas into practice and walk you through
+the  practical  steps  for  using  everything  you’ve  learned  in  this  book
+thus far to design an API.
+Closing Thoughts | 59

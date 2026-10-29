@@ -1,0 +1,94 @@
+Chapter 9.
+The  following  sections  describe  a  few  things  that  you  should  con‐
+sider when creating an SDK to help with scaling of your API.
+Rate-Limiting Support
+Developers do not want to write additional code to work with your
+rate  limits.  So,  if  you  provide  SDKs,  you  should  ensure  that  they
+work  well  with  your  rate  limits.  Your  SDK  code  should  parse  the
+rate-limit  headers  returned  in  API  responses  and  slow  down  the
+request  rate,  if  necessary.  Your  SDK  should  also  gracefully  handle
+429  errors  and  retry  only  after  the  time  indicated  by  the  rate-limit
+headers.
+Pagination Support
+Retrieving results that spread across pages is often difficult. It’s espe‐
+cially  easy  to  hit  rate  limits  when  requesting  multiple  pages  in  a
+loop. By adding support for working with your paginated APIs, you
+can ensure that rate limits and errors are gracefully handled. At the
+same time, you probably want to support some upper limit on how
+many pages to fetch.
+Using gzip
+Using  gzip  compression  in  your  SDKs  is  a  simple  and  effective  way
+to  reduce  the  bandwidth  needed  for  each  API  call.  Although  com‐
+
+pressing   and   decompressing   content   consumes   additional   CPU
+resources, this is often a great trade-off for reducing network costs.
+Caching Frequently Used Data
+You  can  add  support  for  storing  API  responses  or  frequently  used
+data locally in a cache. This can help in reducing the number of API
+calls  you  will  receive.  If  you  have  concerns  or  policies  around  what
+data  clients  can  store,  ensuring  that  the  cache  automatically  expires
+in a few hours can help.
+Error Handling and Exponential 
+Back-Off
+Errors are often handled poorly by developers. It’s difficult for devel‐
+opers  to  reproduce  all  possible  errors  during  development,  and
+that’s  why  they  might  not  write  code  to  handle  those  errors  grace‐
+fully.
+As  you  build  your  SDK,  first,  you  could  implement  local  checks  to
+return errors on invalid requests. For example, your SDK can reject
+an  API  call  locally  if  it’s  missing  a  required  parameter  for  an  API
+method. This way, you can often prevent invalid API requests from
+hitting your servers.
+You  should  also  build  support  for  the  actions  the  client  application
+should  take  when  a  request  fails.  Some  failures,  like  authorization
+errors,  cannot  be  addressed  by  a  retry.  Your  SDK  should  surface
+appropriate  errors  for  these  failures  to  the  developer.  For  other
+errors,  it’s  simply  better  for  the  SDK  to  automatically  retry  the  API
+call.
+To help developers avoid making too many API calls to your server,
+your SDK should implement exponential 
+back-off. This is a standard
+error-handling  strategy  in  which  client  applications  periodically
+retry  a  failed  request  over  an  increasing  amount  of  time.  Exponen‐
+tial  back-off  can  help  in  reducing  the  number  of  requests  your
+server receives. When your SDKs implement this, it helps your web
+application recover gracefully from outages.
+SDK Best Practices
+Here  are  some  best  practices  for  building  SDKs  that  will  help  you  
+with scaling your API:
+Developer SDKs | 115
+
+•Stability,  security,  and  reliability  for  SDKs  are  critical.  Any  bug
+in  an  SDK  might  require  updates  from  several  developers.
+Depending  on  how  many  developers  are  using  your  SDK,  even
+a simple upgrade can be quite difficult. Thoroughly testing your
+SDK before releasing is highly recommended.
+•
+If  you’re  building  a  mobile  SDK,  you  need  to  further  optimize
+size, memory usage, CPU usage, network interactions, and bat‐
+tery performance.
+•Implementing  complex  API  operations  like  OAuth  in  your
+SDKs  helps  to  speed  up  the  onboarding  experience  for  your
+developers.
+•Handle  rate  limits  and  errors  gracefully.  Build  protections  into
+your  SDK  to  avoid  too  many  concurrent  calls  to  your  API
+servers.
+•
+Make  troubleshooting  easy  by  surfacing  errors  to  developers
+and allowing them to turn on logging.
+•The way you package your SDK affects adoption. Use appropri‐
+ate  platforms,  like  npm,  CocoaPods,  RubyGems,  or  pip,  to  dis‐
+tribute your SDKs.
+Closing Thoughts
+Scaling  an  API  is  not  just  about  supporting  more  requests  per  sec‐
+ond.  There  are  other  creative  ways  to  support  growing  numbers  of
+customers. It’s important to understand what scalability issues you’re
+running into and why. Do your developers actually need to make the
+number  of  API  calls  they  are  making?  Would  changes  to  your  API
+design  help  in  reducing  that  volume?  Can  developers  use  your  API
+more  efficiently?  Answering  these  questions,  along  with  feedback
+from  your  developers,  will  help  you  be  more  successful  in  scaling
+your API.
+As you refine your API design, policies, and tools, these changes can
+sometimes  affect  your  developers.  In  Chapter  7,  you  learn  how  to
+release these changes while keeping your developers informed.

@@ -1,0 +1,56 @@
+<section class="chapter" id="ch10" data-ch="10" data-title="Kiến Trúc Mở Rộng API Chịu Tải Cao">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 10</p>
+    <h1>Designing Web APIs - Chapter 6: Scaling APIs <span class="vi">Kiến Trúc Mở Rộng API Chịu Tải Cao</span></h1>
+    <p class="lede">Chiến lược mở rộng thông lượng API, tối ưu thiết kế, phân trang dữ liệu và giới hạn tốc độ yêu cầu nhằm đảm bảo tính sẵn sàng cao cho hệ thống phân tán.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">1 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch10-t1" data-num="10.1" data-short="Mở rộng thông lượng">
+    <div class="topic-theory-card">
+      <p class="eyebrow">NGUYÊN LÝ CỐT LÕI</p>
+      <h2>Xác định điểm nghẽn và mở rộng thông lượng API</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Phát hiện chính xác điểm nghẽn phần cứng và tối ưu hóa thông qua caching, database index và xử lý bất đồng bộ.</p></div>
+      <div class="prose">
+        <p>Trước khi thực hiện bất kỳ tối ưu hóa nào, kỹ sư cần phải định vị chính xác điểm nghẽn của hệ thống thông qua instrumentation và performance profiling. Các điểm nghẽn trong hệ thống phân tán thường xuất hiện ở bốn tầng tài nguyên phần cứng chính.</p><p>Các trường hợp phân loại điểm nghẽn phổ biến:</p><ul><li><strong>Disk I/O:</strong> Gây ra bởi các câu lệnh truy vấn database đắt đỏ, thiếu index hoặc truy cập ổ cứng cục bộ quá nhiều lần.</li><li><strong>Network I/O:</strong> Xảy ra khi ứng dụng phụ thuộc vào các dịch vụ bên ngoài gọi qua nhiều trung tâm dữ liệu khác nhau.</li><li><strong>CPU Bottleneck:</strong> Do mã nguồn kém tối ưu, thực thi các thuật toán phức tạp hoặc vòng lặp chứa câu lệnh query bên trong.</li><li><strong>Memory Bottleneck:</strong> Hệ thống thiếu RAM dẫn đến việc swap liên tục hoặc bị hệ điều hành tiêu diệt tiến trình (OOMKilled).</li></ul><p>Sau khi xác định điểm nghẽn, các giải pháp như horizontal scaling, database indexing, application caching và asynchronous task queues (như Celery) sẽ được kích hoạt để tăng tốc độ phản hồi và giảm độ trễ P99.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại hệ thống thanh toán MoMo/ZaloPay</b>
+        <p>Trong các giờ cao điểm xử lý hàng triệu giao dịch đối soát, các kỹ sư tại MoMo phải sử dụng profiler để tách biệt các tác vụ ghi log và gọi bên thứ ba ra các hàng đợi bất đồng bộ (asynchronous task queues), đồng thời tạo index chuyên biệt trên bảng giao dịch để tránh nghẽn Disk I/O.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch10-w1">
+      <figcaption>
+        <span class="lab-tag">🧪 Mô phỏng Cô lập Tài nguyên</span>
+        <strong>Mô phỏng tải lượng API và hiện tượng nghẽn tài nguyên</strong>
+        <small>Điều chỉnh số lượng request đồng thời để quan sát sự thay đổi của độ trễ và thông lượng khi chưa hoặc đã áp dụng caching và indexing.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch10-review" data-num="10.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 10</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Chương này mổ xẻ toàn diện các kỹ thuật cốt lõi để scale hệ thống API từ quy mô nhỏ đến các đợt bùng nổ tải trọng lớn hàng triệu request. Bắt đầu từ việc xác định chính xác các điểm nghẽn (<dfn data-term="bottleneck"><strong>Bottlenecks</strong></dfn>) tại Disk I/O, Network I/O, CPU và Memory thông qua công cụ profiler và load testing. Tiếp theo, sách phân tích các chiến lược mở rộng thông lượng thông qua việc tối ưu cơ sở dữ liệu (<dfn data-term="database-indexing"><strong>Database Indexing</strong></dfn>), <dfn data-term="caching"><strong>Caching</strong></dfn> tại tầng ứng dụng và edge, cùng việc xử lý các tác vụ nặng theo hướng bất đồng bộ (<dfn data-term="asynchronous-processing"><strong>Asynchronous Processing</strong></dfn>). Đồng thời, việc tiến hóa thiết kế API thông qua WebHooks, WebSockets, GraphQL, và các endpoint dạng bulk giúp cắt giảm đáng kể số lượng HTTP round-trip không cần thiết. Cuối cùng, các cơ chế phân trang nâng cao (<dfn data-term="cursor-based-pagination"><strong>Cursor-based Pagination</strong></dfn>) và hệ thống kiểm soát tốc độ truy cập (<dfn data-term="rate-limiting"><strong>Rate-Limiting</strong></dfn>) được áp dụng để bảo vệ tuyệt đối hạ tầng trước các cuộc tấn công DDoS hoặc hiện tượng bão kết nối từ client.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="2">
+        <p><strong>Câu 1:</strong> Kỹ thuật phân trang nào sau đây KHÔNG PHÙ HỢP cho các tập dữ liệu lớn và thay đổi liên tục?</p>
+        <ol><li>Cursor-based pagination sử dụng unique ID</li><li>Cursor-based pagination sử dụng Unix timestamp</li><li>Offset-based pagination sử dụng tham số limit và offset</li><li>Phân trang dựa trên opaque strings</li></ol>
+        <p class="explain">Offset-based pagination rất kém hiệu quả khi offset lớn vì database phải quét và bỏ qua toàn bộ các hàng trước đó, đồng thời dễ dẫn đến việc lặp hoặc sót dữ liệu khi có bản ghi mới được thêm/xóa trong lúc client đang phân trang.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

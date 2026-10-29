@@ -1,0 +1,57 @@
+CHAPTER 1
+What’s an API?
+“What’s an API?” When a new programmer asks this question, they
+typically get the answer, “an application programming interface.”
+But  APIs  are  so  much  more  than  their  name  suggests—and  to
+understand  and  unleash  their  value,  we  must  focus  on  the  keyword
+interface.
+An  API  is  the  interface  that  a  software  program  presents  to  other
+programs, to humans, and, in the case of web APIs, to the world via
+the internet. An API’s design belies much about the program behind
+it—business  model,  product  features,  the  occasional  bug.  Although
+APIs  are  designed  to  work  with  other  programs,  they’re  mostly
+intended to be understood and used by humans writing those other
+programs.
+APIs  are  the  building  blocks  that  allow  interoperability  for  major
+business platforms on the web. APIs are how identity is created and
+maintained  across  cloud  software  accounts,  from  your  corporate
+email address to your collaborative design software to the web appli‐
+cations  that  help  you  order  pizza  delivery.  APIs  are  how  weather
+forecast  data  is  shared  from  a  reputable  source  like  the  National
+Weather  Service  to  hundreds  of  software  apps  that  specialize  in  its
+presentation.  APIs  process  your  credit  cards  and  enable  companies
+to seamlessly collect your money without worrying about the minu‐
+tiae  of  financial  technology  and  its  corresponding  laws  and  regula‐
+tions.
+1
+
+More and more, APIs are a key component of scalable and success‐
+ful  internet  companies  like  Amazon,  Stripe,  Google,  and  Facebook.
+For  companies  looking  to  create  a  business  platform  that  expands
+the market for everyone, APIs are an important piece of the puzzle.
+Designing  your  first  API  is  just  the  beginning.  This  book  goes
+beyond  design  principles  for  your  first  API  and  dives  into  how  to
+develop  and  grow  an  API  alongside  your  business.  With  the  right
+choices, your API will stand the test of time.
+Why Do We Need APIs?
+APIs have emerged out of a need to exchange information with pro‐
+viders of data who are equipped to solve specific problems, so folks
+at other companies don’t have to spend time solving those problems
+themselves.  For  example,  you  might  want  to  embed  an  interactive
+map  on  a  web  page  without  reinventing  Google  Maps.  You  might
+want  to  have  a  user  sign  in  without  having  to  reinvent  Facebook
+Login.  Or,  you  might  want  to  create  a  chatbot  that  occasionally
+interacts  with  users  without  having  to  build  a  real-time  messaging
+system.
+In  all  of  these  cases,  supplementary  features  and  products  are  cre‐
+ated  using  data  or  interactions  from  a  specialized  platform.  APIs
+enable  businesses  to  develop  unique  products  quickly.  Rather  than
+reinventing the wheel, startups are able to differentiate their product
+offerings  while  taking  advantage  of  existing  technologies  and  tap‐
+ping into other ecosystems.
+Who Are Our Users?
+None of the theory matters if you’re not focused on building the right
+thing for the right customer.
+—Bilal Aijazi, CTO at Polly
+When  building  any  product,  it  is  a  good  idea  to  focus  on  the  cus‐
+tomer  first.  This  is  also  very  important  when  designing  an  API.    In

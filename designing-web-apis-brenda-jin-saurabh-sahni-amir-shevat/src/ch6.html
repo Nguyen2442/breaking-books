@@ -1,0 +1,56 @@
+<section class="chapter" id="ch6" data-ch="6" data-title="Nguyên tắc thiết kế Web API tối ưu hóa trải nghiệm nhà phát triển">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 6</p>
+    <h1>Designing Web APIs: Design Best Practices <span class="vi">Nguyên tắc thiết kế Web API tối ưu hóa trải nghiệm nhà phát triển</span></h1>
+    <p class="lede">Thiết kế Web API không chỉ xoay quanh việc phơi bày hạ tầng backend mà phải lấy <dfn data-term="developer-experience"><strong>Trải nghiệm nhà phát triển (DX)</strong></dfn> làm trọng tâm, đảm bảo tính nhất quán, kịch bản sử dụng rõ ràng và cơ chế gỡ lỗi trực quan.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">1 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch6-t1" data-num="6.1" data-short="Thiết kế Use Case & DX">
+    <div class="topic-theory-card">
+      <p class="eyebrow">NGUYÊN LÝ CỐT LÕI</p>
+      <h2>Thiết kế dựa trên Use Case thực tế và Trải nghiệm nhà phát triển</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Tập trung vào trải nghiệm của lập trình viên bằng cách xác định rõ kịch bản sử dụng và giảm thiểu rào cản gia nhập.</p></div>
+      <div class="prose">
+        <p>Khi xây dựng một <dfn data-term="web-api"><strong>Web API</strong></dfn>, sai lầm phổ biến là để cấu trúc cơ sở dữ liệu hoặc kiến trúc hạ tầng nội bộ rò rỉ ra ngoài. Điều này khiến lập trình viên bên thứ ba phải gánh chịu độ phức tạp không cần thiết, dẫn đến hiện tượng bỏ API sang nền tảng khác.</p><p>Các trường phái tiếp cận đối tượng sử dụng API bao gồm:</p><ul><li><strong>Hướng tác vụ cụ thể (Targeted):</strong> Phù hợp với API thanh toán hoặc xác thực, nơi developer chỉ cần hoàn thành một nhiệm vụ tối quan trọng.</li><li><strong>Hướng mở rộng linh hoạt (Open-ended):</strong> Phù hợp với nền tảng như Stripe hay Shopee Open Platform, cho phép xây dựng toàn bộ hệ sinh thái ứng dụng sáng tạo.</li></ul><p>Hãy cung cấp tài liệu hướng dẫn (guides), bài học tương tác (tutorials) và môi trường thử nghiệm (sandbox) không bắt buộc đăng nhập để đạt tỷ lệ chuyển đổi cao nhất từ lập trình viên.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại cổng thanh toán MoMo</b>
+        <p>Khi MoMo mở API thanh toán QR cho hàng vạn merchant, họ cung cấp sẵn môi trường Sandbox với các test token có sẵn. Nhờ vậy, lập trình viên có thể mô phỏng luồng thành công và thất bại ngay lập tức mà chưa cần ký kết hợp đồng thương mại phức tạp.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch6-w1">
+      <figcaption>
+        <span class="lab-tag">🔌 Kiến trúc & Luồng Dữ liệu</span>
+        <strong>Mô phỏng luồng tương tác và rào cản của Developer với API</strong>
+        <small>Điều chỉnh mức độ phức tạp của tài liệu và xác thực để quan sát tác động đến tỷ lệ tích hợp thành công.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch6-review" data-num="6.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 6</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Chương 4 đúc kết các thực hành tốt nhất (best practices) khi xây dựng Web API phục vụ cộng đồng lập trình viên. Bài toán đặt ra là làm thế nào để giảm thiểu độ phức tạp nhận thức (cognitive load), giúp lập trình viên nhanh chóng tích hợp mà không bị bối rối bởi các chi tiết rò rỉ từ hạ tầng nội bộ. Nội dung tập trung vào việc định hình các kịch bản sử dụng thực tế (real-life use cases), duy trì tính nhất quán (consistency) xuyên suốt các tài nguyên, endpoints, tham số đầu vào và kiểu dữ liệu phản hồi. Bên cạnh đó, hệ thống mã lỗi (error handling) cần được phân loại bài bản thành mã trạng thái HTTP, mã máy đọc được (machine-readable strings) và thông điệp hướng dẫn con người (human-readable strings) nhằm biến quá trình gỡ lỗi trở nên tường minh, dễ đoán và dễ tự động hóa.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Yếu tố nào quan trọng nhất khi bắt đầu thiết kế một Web API mới theo cuốn sách Designing Web APIs?</p>
+        <ol><li>Xây dựng cơ sở dữ liệu phân tán chịu tải cao</li><li>Dựa trên các kịch bản sử dụng thực tế (real-life use cases) của lập trình viên</li><li>Sử dụng hoàn toàn giao thức gRPC thay vì REST</li><li>Bắt buộc lập trình viên đăng ký tài khoản VIP trước khi xem tài liệu</li></ol>
+        <p class="explain">Sách nhấn mạnh việc thiết kế phải xuất phát từ các use case cụ thể giúp developer hoàn thành công việc, thay vì lộ chi tiết hạ tầng nội bộ.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

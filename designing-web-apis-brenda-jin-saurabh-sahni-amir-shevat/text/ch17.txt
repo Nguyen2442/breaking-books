@@ -1,0 +1,1072 @@
+CHAPTER 11
+Conclusion
+Building  a  successful  API  is  an  art,  comprising  business  analysis,
+technology architecture, software development, partnership, content
+writing,  developer  relations,  support,  and  marketing.  It  takes  a  vil‐
+lage to build a good, popular API. In this book, we reviewed the best
+practices  and  theory  for  solid  API  design;  we  demonstrated  a  stepby-step  practical  use  case,  and  we  showed  you  how  to  build  and
+maintain a developer ecosystem around an API.
+One  of  the  important  takeaways  from  this  book  is  to  be  thoughtful
+about how you design your API itself and to be considerate of your
+developer ecosystem.
+Among other attributes, a good API:
+•
+Solves  an  actual  developer  need  or  pain  point  (Chapter  1  and
+Chapter 8)
+•
+Is consistent (Chapter 7)
+•
+Is stable (Chapter 6)
+•
+Is thoroughly documented (Chapter 9)
+•
+Does not have breaking changes (Chapter 7)
+•
+Has reasonable rate limits (Chapter 6)
+•
+Follows standards (Chapter 2)
+•
+Is reliable and secure (Chapter 3)
+•
+Has a great community and support (Chapter 10)
+•
+Has sample code (Chapter 9)
+199
+
+•Is easy to understand and use (Chapter 4)
+•Has a good SDK, in multiple languages (Chapter 6)
+•Is easy to test (Chapter 9)
+These  are  not  things  that  just  happen,  and  they  are  usually  difficult
+and  expensive  to  fix  if  you  get  them  wrong  the  first  time  around.
+Validate  your  API  with  real  users;  ask  your  developers  for  constant
+feedback; be transparent with your changes, policies, rate limits, and
+updates; and be a member of your own developer community.
+After  you  unlock  the  product-market  fit  for  your  API  and  foster  a
+developer ecosystem around it, you will experience magic—develop‐
+ers will use your API to innovate, empower amazing new solutions,
+and build things you didn’t think were possible.
+There  is  no  better  feeling  than  building  something  that  millions  of
+people  use  every  day  to  make  their  lives  better.  Trust  us,  we  have
+done that, and you can, too.
+
+APPENDIX A
+API Design Worksheets
+We’ve  added  these  worksheets  to  accompany  our  hands-on  design
+advice.  The  worksheets  can  be  used  to  accompany  the  fictitious
+example  from  Chapter  5,  or  used  repeatedly  as  templates  for  your
+own API designs.
+201
+
+Define Business Objectives
+The Problem
+Briefly  define  the  problem  and  how  it  affects  customers  and  the
+business.
+The Impact
+Define what success looks like for your API. What will the world be
+like after you’ve released your new API?
+Key User Stories
+List  several  key  user  stories  for  your  API  with  the  following  tem‐
+plate:
+As a [user type], I want [action] so that [outcome].
+1. 
+2. 
+3.
+ 
+4.
+ 
+5.
+ 
+Technology Architecture
+Describe the technology architecture you’ve selected, along with the
+reasons  behind  your  decision.  You  may  wish  to  include  charts  or
+graphs  showing  the  pros  and  cons  of  paradigms  you’ve  considered.
+Here’s an optional example table:
+Table A-1. Technology architecture
+Pattern, paradigm, or protocol considered    Pros    Cons    Selected?    
+   
+   
+202 | Appendix A: API Design Worksheets
+
+API Specification Template
+Title
+Authors
+Problem
+Solution
+Implementation
+Give  a  high-level  description  of  the  implementation  plan.  You  may
+wish to use additional tables or diagrams to describe your plan.
+Authentication
+Describe how developers will gain access to the API.
+Other Things We Considered
+If you considered any other API paradigms, architectures, authenti‐
+cation  strategies,  protocols,  etc.,  briefly  mention  what  you  consid‐
+ered.
+API Design Worksheets | 203
+
+Inputs, Outputs (REST, RPC)
+If  you’re  designing  a  REST  or  RPC  API,  describe  the  endpoints,
+inputs, and outputs. You may wish to add columns or use a different
+table format to describe the requests and responses.
+Table A-2. Table_name
+URI        Inputs        Outputs        
+  
+  
+Events, Payloads (Event-Driven APIs)
+If  you’re  designing  an  event-driven  API,  describe  the  events  and
+their  payloads.  You  may  wish  to  add  columns  for  additional  infor‐
+mation, such as OAuth scope.
+Table A-3. Table_name
+Events            Payload            
+ 
+ 
+Errors
+Table A-4. Technology architecture
+HTTP status code      Error code      Verbose error      Description      
+   
+   
+204 | Appendix A: API Design Worksheets
+
+Feedback Plan
+Describe  how  you  plan  to  gather  feedback  on  your  API  design,
+including whether you plan to release to beta testers.
+API Implementation Checklist:
+❏ Define specific developer problem to solve
+❏ Write internal API specification
+❏ Get internal feedback on API specification
+❏ Build API
+       ❏ Authentication
+       ❏ Authorization
+       ❏ Error handling
+       ❏ Rate-limiting
+       ❏ Pagination
+       ❏ Monitoring and logging
+❏ Write documentation
+❏ Run beta test with partners on new API
+❏ Gather feedback from beta partners and make changes
+❏ Create communication plan to notify developers of changes
+❏ Release API changes
+API Design Worksheets | 205
+
+Index
+A
+additions to APIs, 131
+additive-change strategy, 133
+Amazon Web Services (AWS), 83
+ambassador programs, 195
+analytics dashboards, 56
+Apache Thrift, 14
+API testers, 179
+APIs
+about, 1
+attributes and traits of good APIs,
+199
+business case for, 3-7
+APIs as a product, 6
+APIs for external developers
+first, internal developers
+second, 5
+APIs for internal developers
+first, external developers
+second, 4
+characteristics of great APIs, 7
+description language, 122-126
+design paradigms, 9
+designing (see designing APIs,
+best practices; designing APIs,
+practical exercise in)
+event-driven, 19-25
+comparison of different types,
+24
+HTTP Streaming, 23-24
+WebHooks, 19-22
+WebSockets, 22-23
+request–response
+comparison of types, 18
+GraphQL, 14-18
+REST, 10-13
+RPC, 13-14
+security (see security)
+uses of, 2
+application names, misleading, pro‐
+hibiting in OAuth, 40
+application-level caching for APIs, 87
+archiving a GitHub repository, HTTP
+request for, 12
+asynchronous operations, 89
+authentication, 27
+choosing mechanism for MyFiles
+API (example), 66
+authorization, 28
+OAuth 2.0 as standard for, 29
+Authorization header (HTTP)
+for Basic Authentication, 28
+with OAuth tokens and scope, 34
+automated testing (see testing)
+awareness tactics examples, 156
+AWS (see Amazon Web Services)
+B
+backward compatibility, maintaining,
+58, 127-128
+Basic Authentication, 28
+beta programs, 188-190
+beta testers, 79
+Botkit framework, 177
+bottlenecks, finding, 82
+207
+
+breadth and depth analysis for devel‐
+oper programs, 185
+breadth developer programs, 192-197
+bulk operation endpoints, support‐
+ing, 95
+business case for APIs, 3-7
+business objectives, defining, 62-64
+business-focused tech savvy audience,
+145
+C
+cache invalidation, 87
+caching
+in developer SDKs, 115
+using to scale thoughput, 87
+change, managing, 117-142
+aiming for consistency, 117-126
+using automated testing,
+120-126
+backward compatibility, 127-128
+planning for and communicating
+change, 128-141
+additions to the API, 131
+communication plan, 129
+removing fields or endpoints,
+132
+versioning, 133-141
+changelogs, 170
+CI pipeline, 121
+clickjacking, 40
+client secret, ability to reset in OAuth,
+39
+cloud hosting providers, solutions for
+measuring bottlenecks, 83
+code samples, 173
+code snippets, 174
+communication means, preferred, of
+developers, 149
+communication plan for changes, 129
+community contributions, 182-183
+community, building, 192
+computing resources, adding to scale
+applications, 85
+consistency in an API, 50, 117-126
+hallmarks of consistency, 118
+using automated testing, 120-126
+continuous integration (CI), 121
+Conversations APIs (Slack), 13, 93
+CPU bottlenecks, 83
+Create, Read, Update, and Delete
+operations (see CRUD operations)
+credit programs, 197
+cross-site request forgery (CSRF), 27,
+38
+cross-site scripting (XSS), 27
+CRUD operations, 10
+HTTP verbs and REST conven‐
+tions, 11
+in MyFiles API (example), 67
+in request–response API para‐
+digms, 18
+pros and cons of API paradigms
+for MyFiles API (example), 65
+current actual numbers for developer
+funnel indicators, 155
+cursor-based pagination, 99-101
+advantages and disadvantages,
+100
+ID as cursor, 101
+opaque strings as cursor, 101
+timestamp as cursor, 101
+custom HTTP headers
+rate-limit response headers, 110
+with OAuth token and scope, 34
+D
+dark launching rate-limiting, 109
+data access patterns (new), introduc‐
+ing in your API, 90
+database indexes, 86
+database profiling, 84
+database replication, 85
+database sharding, 85
+date filters, 96
+debugging tools, 179
+DELETE method (HTTP), 10
+(see also CRUD operations)
+depth developer programs, 187-192
+design sprints, 160, 191
+designing APIs, best practices, 47-59
+design for great developer experi‐
+ence, 48-59
+making it fast and easy to get
+started, 48
+making troubleshooting easy,
+52-56
+208 | Index
+
+making your API extensible,
+56
+working toward consistency,
+50
+design for real-life use cases,
+47-48
+focusing on users, 2
+designing APIs, practical exercise in,
+61-79
+scenario 1, 62-72
+defining business objectives,
+62-64
+outlining key user stories, 64
+selecting technology architec‐
+ture, 65
+writing an API specification,
+68-72
+scenario 2, 72-79
+defining problem and impact
+statement, 73
+getting feedback on the API
+spec, 77-79
+selecting technology architec‐
+ture, 74
+writing an API specification,
+74-77
+developer ecosystem strategy, build‐
+ing, 143-161
+building a developer strategy, 147
+defining your developer funnel,
+152-154
+funnel indicators, 154
+deriving measurements, 160
+developer segmentation, 147-150
+common use cases and tasks,
+148
+examples of segmentation
+analysis, 149
+identity, 147
+market size and geographical
+distribution, 149
+platform of choice, 148
+preferred development lan‐
+guage, framework, and
+tools, 148
+preferred means of communi‐
+cation, 149
+proficiency, 148
+developers, 144-147
+business-focused tech savvy
+audience, 145
+hackers, 145
+hobbyist, 144
+professional developers, 146
+variations on categories men‐
+tioned, 146
+distilling the value proposition,
+151
+mapping current and future state,
+155-156
+outlining your tactics, 156-160
+awareness tactics examples,
+156
+developer relations high-level
+quarterly plan, 159
+proficiency tactics examples,
+157
+success tactics examples, 158
+usage tactics examples, 157
+developer programs, 185-198
+breadth and depth analysis for,
+185
+breadth programs, 192-197
+credit programs, 197
+hackathons, 194
+meetups and community, 192
+online videos and streaming,
+196
+speaking at events and event
+sponsorships, 194
+support, forums, and StackO‐
+verflow, 196
+train-the-trainer and ambassa‐
+dor programs, 195
+depth programs, 187-192
+design sprints, 191
+early access/beta program, 188
+top partner program, 187
+measuring, 197
+developer relations, 143
+Developer Relations
+core activities, 185
+developer resources, 163-184
+API documentation, 163-172
+code samples and snippets,
+172-175
+Index | 209
+
+community contribution, 182-183
+development tools, 179
+frameworks, 177
+office hours, 181
+rich media, 180
+videos, 180
+software development kits
+(SDKs), 175-177
+webinars and online training, 182
+developer SDKs (see software devel‐
+opment kits)
+developers
+APIs for external developers first,
+internal developers second, 5
+APIs for internal developers first,
+external developers second, 4
+communicating with about API
+changes, 129
+removal of fields or endpoints,
+132
+rate limits and, 110-112
+trying APIs without signing up,
+49
+disk I/O, 83
+documentation for APIs, 49, 163-172
+changelog, 170
+frequently asked questions, 168
+Getting Started guides, 163
+landing page, 169
+reference documentation, 165
+terms of service (ToS), 171
+tutorials, 167
+E
+early access/beta program, 188
+edge caching, 87
+error handling and exponential back‐
+off in SDKs, 115
+errors
+HTTP status codes in MyFiles
+API specification (example),
+71
+meaningful, 52-55
+actionable errors and recom‐
+mended error codes, 52
+grouping errors into high-level
+categories, 53
+organizing into status codes,
+headers, and machinereadable and humanreadable codes, 54
+event objects for MyFiles API techni‐
+cal spec (example), 75
+event-driven APIs, 19-25
+comparison of different types, 24
+HTTP Streaming, 23-24
+pros and cons for MyFiles API
+(example), 74
+WebHooks, 19-22
+WebSockets, 22-23
+events (developer), 194
+Events API (Slack), 91
+evolving API design, 90-97
+adding new API methods, 92
+best practices, 97
+introducing new data access pat‐
+terns, 90
+new options to filter results, 95
+supporting bulk endpoints, 95
+explicit-version strategy, 134-138
+exponential back-off, 115
+extensibility of APIs, 56
+F
+Facebook, ToS violations, 41
+failures and retries (WebHooks), 20
+feedback, getting on API specifica‐
+tion, 77-79
+fields in API responses, filtering, 96
+filtering results, providing options
+for, 95
+firewalls, WebHooks and, 21
+fixed-window counter (rate-limiting),
+107
+Flannel (Slack), 88
+forums, 196
+frameworks, 177
+frequently asked questions (FAQ),
+168
+function names, versioned, 136
+G
+geographical distribution (develop‐
+ers), 149
+210 | Index
+
+GET method (HTTP), 10
+(see also CRUD operations)
+Getting Started guides, 163
+GitHub, 5
+addressing scalability challenges,
+91
+archiving a repository, HTTP
+request for, 12
+OAuth scope headers in API
+response, 35
+rate-limit response header, 111
+rate-limiting at, 112
+Gmail
+phishing attack on, 40
+thin WebHook message payload,
+45
+Google Cloud Platform (GCP), 83
+Google Developer Groups (GDG),
+192
+Google Hangouts, versioning case
+study, 140
+GraphQL, 6, 14-18, 91
+advantages over REST and RPC,
+16
+comparison to REST and RPC
+APIs, 18
+Object Field deprecation, 133
+pros and cons for MyFiles API
+(example), 66
+gRPC, 14
+gzip compression, using in SDKs, 114
+H
+hackathons, 194
+hackers, 145
+hash-based message authentication
+code (HMAC), 43
+Hello World exercise, 163
+hobbyist developers, 144
+horizontal scaling, 85
+HTTP, 9
+(see also request–response APIs)
+in RPC-style APIs, 13
+HTTP headers
+custom OAuth headers
+X-Accepted-OAuth-Scopes, 35
+X-OAuth-Scopes, 35
+custom rate-limit response head‐
+ers
+X-RateLimit-Limit, 111
+X-RateLimit-Remaining, 111
+X-RateLimit-Reset, 111
+organizing errors into, 54
+specifying API versions in, 135
+X-Frame-Options, 40
+HTTP methods
+CRUD operations and REST con‐
+ventions, 11
+in REST APIs, 10
+in REST, RPC, and GraphQL
+APIs, 18
+in RPC-style APIs, 13
+HTTP status codes
+description for errors in MyFiles
+API specification (example),
+71
+in REST APIs, 10
+indicating redirection for moved/
+moving resources, 135
+organizing errors into, 54
+returning for rate limits, 110
+HTTP Streaming, 23-24
+comparison with WebHooks and
+WebSockets, 24
+pros and cons for MyFiles eventdriven API (example), 74
+HTTPs endpoints (OAuth), 39
+human-readable errors, 52
+I
+ID as cursor, 101
+identity (developers), 147
+iframes, rendering of authorization
+screen, disallowing, 40
+impact statement for MyFiles API
+(example), 63
+scenario 2, 73
+indexes (database), 86
+integrated development environ‐
+ments (IDEs), 148
+interface definition language, 122-126
+interface description language (IDL),
+122
+interfaces, 1
+Index | 211
+
+J
+JavaScript object notation (JSON),
+122
+JSON responses in REST APIs, 11
+JSON web APIs, 122-126
+describing and validating
+requests, 125
+describing and validating respon‐
+ses, 123
+K
+key indicators status report (devel‐
+oper funnel), 155
+key performance indicators (KPIs),
+connecting to developer activities,
+160
+L
+landing page for API documentation,
+169
+load testing, 84
+logging
+changelog, 170
+use in troubleshooting developer
+issues, 55
+M
+machine-readable error codes, 52
+Macys.com responsive checkout, 78
+MAJOR, MINOR, and PATCH ver‐
+sions, 137
+managing change (see change, man‐
+aging)
+market potential (developer funnel
+indicators), 155
+market size, 149
+measurements of developer activities,
+160
+measuring developer programs, 197
+meetups and community, 192
+memory bottlenecks, 83
+methods, adding to APIs, 92
+MINOR versions, 137
+mocking data for interactive user
+testing, 78
+Mutual TLS (Transport Layer Secu‐
+rity), 44
+N
+network I/O, 83
+noise (in WebHooks), 21
+non-CRUD operations in REST APIs,
+12
+O
+OAuth, 28-42, 50
+benefits of, 29
+best practices, 38
+listing and revoking authoriza‐
+tions, 37
+scopes, 32
+Slack's move to granular
+OAuth scopes, 34
+selection for use in MyFiles API
+(example), 66
+token and scope validation, 34
+token expiry and refresh tokens,
+35
+token generation, 30
+objective key results (OKRs), 159
+office hours, 181
+offset-based pagination, 97
+advantages and disadvantages, 98
+opaque strings as cursor, 101
+OpenAPI, 125
+order filters, 96
+P
+paginating APIs, 97-102
+best practices, 102
+cursor-based pagination, 99-101
+advantages and disadvantages,
+100
+choosing cursor contents, 101
+offset-based pagination, 97
+advantages and disadvantages,
+98
+pagination support in developer
+SDKs, 114
+partner engineers, 187
+PATCH method (HTTP), 10
+(see also CRUD operations)
+PATCH versions, 137
+personally identifiable information
+(PII), 55
+212 | Index
+
+phishing attacks using misleading
+application names, 40
+platform of choice (developers), 148
+polling, 19
+solving as API scaling problem in
+REST APIs, 90
+WebHooks vs., 19
+POST method (HTTP), 10
+(see also CRUD operations)
+problem and impact statement for
+MyFiles API (example), 63
+scenario 2, 73
+professional developers, 146
+proficiency (developer), 148
+proficiency tactics examples, 157
+profiling code, 83
+programming languages, 148
+implementing code snippets in,
+174
+PUT method (HTTP), 10
+(see also CRUD operations)
+Q
+quarterly plan for developer relations,
+159
+R
+rate-limit response headers, 110
+rate-limiting APIs, 102-114
+best practices, 112
+implementation strategies,
+105-110
+fixed-window counter, 107
+sliding-window counter, 108
+token bucket algorithm, 105
+rate limits and developers,
+110-112
+documenting rate limits, 111
+rate-limit status API, 111
+rate-limiting policy, 103
+Slack's rate-limiting, lessons
+learned from, 113
+Stripe's rate-limiting strategies,
+104
+Read method, 10
+(see also CRUD operations)
+read/write scopes, 32
+Real-Time Messaging API, 91
+reference apps, 173
+reference documentation, 165
+refresh tokens, 36
+one-time-use, 39
+remote procedure calls (RPCs), 13
+(see also RPC APIs)
+removing endpoints or fields from
+APIs, 132
+replay attacks, 43
+request logs, providing for develop‐
+ers, 55
+requests
+adding request parameters to con‐
+trol output, 131
+describing and validating, 125
+request parameters in version
+schemes, 136
+request–response APIs, 9-19
+comparison of different types, 18
+GraphQL, 14-17
+REST, 10-13
+RPC, 13-14
+resources (in REST APIs), 10
+showing relationships between, 11
+responses
+adding response fields, 131
+describing and validating, 123-125
+REST APIs, 10-13
+comparison to RPC and
+GraphQL, 18
+CRUD operations, HTTP verbs,
+and REST conventions, 11
+general rules for, 10
+non-CRUD operations, 12
+payload creep, 17
+polling as scaling problem, solv‐
+ing, 90
+pros and cons for MyFiles API
+(example), 66
+showing relationships among
+resources, 11
+retries (WebHooks), 20
+rich media, 180-181
+rich site summary (RSS) feed, adding
+to changelog, 170
+RPC APIs, 13-14
+Index | 213
+
+comparison to REST and
+GraphQL, 18
+general rules for, 13
+HTTP request to Slack API, 13
+pros and cons for MyFiles API
+(example), 66
+Slack, Conversations APIs, 13
+using protocols other than HTTP,
+14
+RSpec test using JSON Schema speci‐
+fication, 125
+S
+sandboxes and API testers, 179
+scaling APIs, 81-116
+evolving your API design, 90-97
+adding new API methods, 92
+best practices, 97
+introducing new data access
+patterns, 90
+providing new options to filter
+results, 95
+supporting bulk endpoints, 95
+providing developer SDKs,
+114-116
+caching frequently used data,
+115
+error handling and exponen‐
+tial back-off, 115
+pagination support, 114
+rate-limiting support, 114
+SDK best practices, 115
+using gzip compression in
+SDKs, 114
+scaling throughput, 82-90
+adding computing resources,
+85
+best practices, 89
+caching, 87
+database indexes, 86
+doing expensive operations
+asynchronously, 89
+finding bottlenecks, 82
+using pagination, 97-102
+best practices, 102
+cursor-based pagination,
+99-101
+offset-based pagination, 97
+using rate-limiting, 102-114
+best practices, 112
+implementation strategies,
+105-110
+rate limits and developers,
+110-112
+scopes (OAuth), 32
+for sensitive information, 39
+for use in MyFiles API (example),
+66
+in MyFiles API (example)
+scopes, operations, and resour‐
+ces, 67
+Slack's move to granular OAuth
+scopes, lessons learned from,
+34
+SDKs (see software development kits)
+search filters, 96
+search operations in REST APIs, 12
+security, 27-46
+authentication and authorization,
+27
+for WebHooks, 20
+OAuth, 28-42
+best practices, 38
+listing and revoking authoriza‐
+tions, 37
+scopes, 32
+token and scope validation, 34
+token expiry and refresh
+tokens, 35
+token generation, 30
+WebHooks, 42-45
+semantic versioning specification
+(SemVer), 137
+server-sent events (SSE), streaming
+data via, 24
+short-lived authorization codes
+(OAuth), 39
+short-term targets and market poten‐
+tial (developer funnel indicators),
+155
+signatures (WebHook), 43
+Slack APIs, 4
+adding new API methods, 92
+addressing scalability challenges
+with Events API, 91
+API Metadata, 126
+214 | Index
+
+app credentials of Slack app with
+verification token, 42
+changelog, 170
+Conversations API, 132
+supporting bulk operations, 95
+developer segmentation for Slack,
+149
+early access/beta program, 189
+Flannel, application-level edge
+cache, 87
+inconsistency in, 118
+long-lived tokens, 37
+missing field on message pay‐
+loads, 127
+move to granular OAuth scopes,
+lessons learned from, 34
+rate-limiting, lessons learned
+from, 113
+RPC-style web API, 13
+translation layer to maintain
+backward compatibility, 57
+WebSocket-based real-time mes‐
+saging API, 22
+sliding-window counter (ratelimiting), 108
+snippets (code), 174
+software as a service (SaaS) compa‐
+nies, 4
+software development kits (SDKs),
+50, 148, 175-177
+developer SDKs, 114-116
+best practices, 115
+caching frequently used data,
+115
+error handling and exponen‐
+tial back-off, 115
+pagination support, 114
+rate-limiting support, 114
+using gzip compression, 114
+maintaining, 178
+SoundCloud API, value proposition,
+151
+speaking at developer events, 194
+specification (spec), writing for an
+API, 68-72
+MyFiles API WebHooks (exam‐
+ple), 74-77
+SQL databases, queries based on cur‐
+sor values, 99
+Stack Overflow, 196
+Stackdrivers, 83
+stakeholders, reviewing API specifi‐
+cation with, 77
+state parameter support (OAuth), 38
+streaming, 196
+Stripe
+online testing of API by develop‐
+ers without signing up, 49
+rate-limiting, 104
+value proposition, 151
+versioning case study, 139
+subresources in APIs, 11
+success tactics examples, 158
+support for developers, 196
+T
+task queues, 89
+TCP (Transport Control Protocol),
+22
+technology architecture, selecting
+scenario 1 for MyFiles API (exam‐
+ple), 65
+scenario 2 for MyFiles API (exam‐
+ple), 74
+terms of service (ToS)
+violations of Facebook ToS, 41
+writing, 171
+testing
+automated, 120-126
+describing and validating
+requests, 125
+describing and validating
+responses, 123-125
+sandboxes and API testers, 179
+Thrift, 14
+throughput, scaling, 82-90
+adding computing resources, 85
+best practices, 89
+caching, 87
+database indexes, 86
+doing expensive operations asyn‐
+chronously, 89
+finding bottlenecks, 82
+the Time to Hello World (TTHW),
+164
+Index | 215
+
+timestamps, using as cursors, 101
+TLS (Transport Layer Security), 44
+token bucket algorithm (ratelimiting), 105
+tokens (OAuth)
+and scope, validation of, 34
+expiry and refresh tokens, 35
+generation of, 30
+Slack's long-lived tokens, 37
+top partner program, 187
+train-the-trainer and ambassador
+programs, 195
+transformations between versions,
+137
+Transport Control Protocol (see
+TCP)
+transport patterns for MyFiles API
+(example), 65
+troubleshooting, making easy for
+developers, 52-56
+building tooling, 55
+meaningful errors, 52-55
+providing troubleshooting tools,
+179
+tutorials for APIs, 49, 167
+Twitch, deprecation of an API, 59
+Twitter, 90
+cursor-based pagination, 99
+U
+Uber developers and rate-limiting,
+109
+Unix timestamp as cursor, 99
+Update method, 10
+(see also CRUD operations)
+URI components, specifying versions
+in, 135
+URIs, specification for MyFiles API
+(example), 70
+usage tactics examples, 157
+user interfaces (UIs), 88
+user stories (key), outlining
+scenario 1 for MyFiles API (exam‐
+ple), 64
+scenario 2 for MyFiles API (exam‐
+ple), 73
+users, focusing on in API design, 2
+users.conversations API method
+(Slack), 94
+V
+value proposition, distilling for your
+API, 151
+verification tokens, 42
+versioning APIs, 57, 133-141
+additive-change strategy, 133
+case study, Google Hangouts, 140
+case study, Stripe, 139
+explicit-version strategy, 134-138
+policies for MAJOR and
+MINOR changes, 138
+process management, 141
+vertical scaling, 85
+videos
+creating, 180
+online videos and streaming, 196
+W
+WebHooks, 19-22, 90
+comparison with WebSockets and
+HTTP Streaming, 24
+considerations for use in MyFiles
+API (example), 66
+MyFiles API Webhooks Spec
+(example), 74-77
+polling vs., 19
+pros and cons for MyFiles eventdriven API (example), 74
+security, 42-45
+best practices, 45
+Mutual Transport Layer Secu‐
+rity, 44
+request signing and WebHook
+signatures, 43
+thin payloads and API
+retrieval, 44
+verification tokens, 42
+supporting, additional complexi‐
+ties added by, 20
+webinars and online training, 182
+WebSockets, 22-23, 90
+comparison with WebHooks and
+HTTP Streaming, 24
+216 | Index
+
+pros and cons for MyFiles eventdriven API (example), 74
+X
+XML responses, REST APIs, 11
+Y
+YouTube API, value proposition, 151
+Index | 217
+
+About the Authors
+Brenda Jin is an entrepreneur and software engineer. As a staff engi‐
+neer on the Slack developer platform team, she designed, built, and
+scaled  APIs  for  third-party  developers.  As  a  board  member  and

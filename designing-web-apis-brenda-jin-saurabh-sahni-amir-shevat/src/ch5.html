@@ -1,0 +1,93 @@
+<section class="chapter" id="ch5" data-ch="5" data-title="Kiến trúc Bảo mật Web API: Xác thực, Ủy quyền, OAuth 2.0 và WebHooks An toàn">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 5</p>
+    <h1>Designing Web APIs - Chapter 3: API Security <span class="vi">Kiến trúc Bảo mật Web API: Xác thực, Ủy quyền, OAuth 2.0 và WebHooks An toàn</span></h1>
+    <p class="lede">Thiết lập tường thành bảo mật cho Web API bằng tiêu chuẩn OAuth 2.0, phân quyền hạt mịn qua scopes, bảo vệ WebHooks và triệt tiêu các vector tấn công phổ biến.</p>
+    <div class="chapter-meta">
+      <span class="pill">2 bài học lý thuyết</span>
+      <span class="pill">2 sơ đồ tư duy tương tác</span>
+      <span class="pill">3 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch5-t1" data-num="5.1" data-short="Xác thực & OAuth 2.0">
+    <div class="topic-theory-card">
+      <p class="eyebrow">NGUYÊN LÝ CỐT LÕI</p>
+      <h2>Cơ chế Xác thực, Ủy quyền và Vòng đời Token trong OAuth 2.0</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>OAuth 2.0 giải quyết triệt điểm yếu của Basic Auth bằng cách sử dụng Access Token và ủy quyền phân đoạn.</p></div>
+      <div class="prose">
+        <p>Trong thiết kế <dfn data-term="Web API"><strong>Web API</strong></dfn hiện đại, việc định danh người dùng và cấp quyền cho ứng dụng bên thứ ba là bài toán kiến trúc tối quan trọng. Các hệ thống cũ thường lạm dụng <dfn data-term="Basic Authentication"><strong>Basic Authentication</strong></dfn>, buộc người dùng phải nộp thông tin định danh trực tiếp cho ứng dụng khách.</p><p>Các hình thức xác thực và quản lý token phổ biến trong các hệ thống phân tán chịu tải cao bao gồm:</p><ul><li><strong>Basic Authentication:</strong> Gửi chuỗi base64(user:pass) qua header; ưu điểm là cực kỳ đơn giản nhưng nhược điểm chí mạng là lộ mật khẩu gốc, không thể thu hồi riêng lẻ và không giới hạn tài nguyên.</li><li><strong>OAuth 2.0 Access Token:</strong> Chuẩn công nghiệp sử dụng mã thông báo ngắn hạn; ưu điểm tuyệt đối là không lộ mật khẩu, cô lập phạm vi truy cập và dễ dàng thu hồi quyền hạn.</li><li><strong>Refresh Token:</strong> Mã thông báo đặc biệt dùng để cấp lại Access Token mới; giúp duy trì phiên làm việc mà không bắt người dùng đăng nhập lại liên tục.</li></ul><p>Khi xây dựng máy chủ ủy quyền, kỹ sư trưởng phải ép buộc sử dụng HTTPS cho mọi endpoint, kiểm tra nghiêm ngặt <dfn data-term="Redirect URL"><strong>Redirect URL</strong></dfn> đã đăng ký để chặn đứng các lỗ hổng chuyển hướng độc hại.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại hệ thống thanh toán Việt Nam (MoMo / ZaloPay)</b>
+        <p>Khi người dùng liên kết ví điện tử với các sàn thương mại điện tử như Tiki hay Shopee, hệ thống không bao giờ lưu mật khẩu ví của bạn. Thay vào đó, giao thức OAuth 2.0 được kích hoạt để cấp một Access Token có thời hạn ngắn kèm theo scope chỉ cho phép thanh toán, tuyệt đối không cho phép rút tiền hay đọc lịch sử giao dịch cá nhân.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch5-w1">
+      <figcaption>
+        <span class="lab-tag">🔄 Vòng đời & Máy Trạng thái</span>
+        <strong>Mô phỏng Luồng Ủy quyền OAuth 2.0 và Xác thực Token</strong>
+        <small>Tương tác với tải lượng request đồng thời để quan sát hiệu năng kiểm tra token tại API Gateway và cơ sở dữ liệu.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch5-t2" data-num="5.2" data-short="OAuth Scopes & WebHooks">
+    <div class="topic-theory-card">
+      <p class="eyebrow">KIẾN TRÚC AN TOÀN</p>
+      <h2>Phân đoạn Scopes Hạt Mịn và Bảo mật WebHooks Bất Đồng Bộ</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Sử dụng scopes hạt mịn và chữ ký số HMAC cho WebHooks giúp ngăn chặn triệt để lạm dụng quyền và giả mạo dữ liệu.</p></div>
+      <div class="prose">
+        <p>Khi API của bạn bắt đầu mở rộng quy mô, việc cung cấp các quyền truy cập chung chung như 'read' hay 'write' sẽ tạo ra lỗ hổng lớn về bảo mật dữ liệu người dùng. Bài học từ Slack và GitHub cho thấy việc chia nhỏ thành các <dfn data-term="Granular Scopes"><strong>Granular Scopes</strong></dfn> giúp ứng dụng chỉ nhận được đúng đặc quyền tối thiểu cần thiết để vận hành.</p><p>Các phương pháp bảo mật kênh truyền sự kiện bất đồng bộ (<dfn data-term="WebHooks"><strong>WebHooks</strong></dfn>) bao gồm:</p><ul><li><strong>Verification Tokens:</strong> Mã bí mật đơn giản gửi kèm request; dễ triển khai nhưng có nhược điểm là gửi dưới dạng clear text trong mỗi request.</li><li><strong>HMAC Signatures:</strong> Ký số payload bằng hàm băm kết hợp khóa bí mật và timestamp; ưu điểm tuyệt đối là chống giả mạo và chống tấn công phát lại (replay attacks).</li><li><strong>Thin Payloads:</strong> Chỉ gửi thông báo định danh sự kiện tối giản qua WebHook, buộc ứng dụng phải gọi lại API chính thống để lấy dữ liệu đầy đủ qua kênh bảo mật.</li></ul><p>Kỹ sư trưởng cần lưu ý luôn cung cấp SDK và mã nguồn mẫu để nhà phát triển bên thứ ba dễ dàng cài đặt đúng chuẩn thuật toán xác thực chữ ký số, tránh tự phát minh cơ chế bảo mật dễ sinh lỗi.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại TikTok Shop / Shopee (Bão Sale 11.11)</b>
+        <p>Trong các đợt sale lớn, hàng nghìn nhà bán hàng tích hợp WebHook nhận thông báo đơn hàng mới. Nếu không áp dụng chữ ký số HMAC và timestamp trong header (như tiêu chuẩn Stripe/GitHub), kẻ xấu có thể gửi các HTTP POST giả mạo làm tê liệt hệ thống kho vận và tự động xác nhận đơn hàng ảo hàng loạt.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch5-w2">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô phỏng Xác thực WebHook bằng Chữ ký HMAC & Chống Replay Attack</strong>
+        <small>Điều chỉnh mức độ trễ thời gian (Timestamp Drift) để kiểm tra khả năng phòng chống tấn công phát lại của WebHook.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch5-review" data-num="5.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 5</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Bảo mật API là yếu tố sống còn đối với mọi hệ thống phân tán chịu tải cao. Chương này mổ xẻ nguyên lý cốt lõi từ cơ chế Xác thực (Authentication) đến Ủy quyền (Authorization). Hệ thống Basic Authentication truyền thống đã lỗi thời và gây rò rỉ thông tin đăng nhập diện rộng do lưu trữ mật khẩu dưới dạng clear text hoặc mã hóa thuận nghịch. OAuth 2.0 ra đời như một chuẩn công nghiệp giúp người dùng cấp quyền truy cập ứng dụng thứ ba mà không cần lộ mật khẩu. Bằng cách sử dụng access token ngắn hạn, refresh token một lần và phân tách rõ các phạm vi truy cập (OAuth Scopes) như Slack hay GitHub đã áp dụng, hệ thống hạn chế tối đa blast radius khi token bị xâm phạm. Bên cạnh đó, việc bảo mật luồng thông điệp bất đồng bộ (WebHooks) thông qua Verification Tokens, WebHook Signatures (HMAC) và Thin Payloads đóng vai trò quyết định trong việc ngăn chặn các cuộc tấn công giả mạo (spoofing) và tấn công phát lại (replay attacks).</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Tại sao giao thức OAuth 2.0 lại vượt trội hơn hẳn so với Basic Authentication trong thiết kế Web API hiện đại?</p>
+        <ol><li>Vì OAuth 2.0 không yêu cầu sử dụng mã hóa HTTPS khi truyền tải token.</li><li>Vì OAuth 2.0 cho phép người dùng cấp quyền truy cập cho ứng dụng mà không cần chia sẻ mật khẩu gốc, đồng thời hỗ trợ token ngắn hạn và thu hồi quyền dễ dàng.</li><li>Vì Basic Authentication sử dụng thuật toán băm SHA-256 phức tạp hơn OAuth 2.0.</li><li>Vì OAuth 2.0 loại bỏ hoàn toàn sự cần thiết của Access Token và Refresh Token.</li></ol>
+        <p class="explain">OAuth 2.0 giải quyết triệt để điểm yếu của Basic Auth bằng cách dùng Access Token ủy quyền phân đoạn, giữ kín mật khẩu người dùng và cho phép thu hồi quyền bất cứ lúc nào.</p>
+      </div>
+
+      <div class="q" data-answer="2">
+        <p><strong>Câu 2:</strong> Trong bảo mật WebHooks, mục đích chính của việc đưa một timestamp vào message payload cùng với chữ ký HMAC là gì?</p>
+        <ol><li>Để đồng bộ hóa múi giờ giữa máy chủ API provider và máy chủ của developer.</li><li>Để giúp ứng dụng tính toán kích thước gói tin JSON truyền qua mạng.</li><li>Để ngăn chặn các cuộc tấn công phát lại (replay attacks) bằng cách từ chối các request có timestamp quá cũ.</li><li>Để tăng tốc độ xử lý HTTP POST request tại tường lửa.</li></ol>
+        <p class="explain">Timestamp trong WebHook payload giúp ứng dụng kiểm tra độ tươi của request, từ đó loại bỏ các request cũ bị kẻ xấu bắt giữ và gửi lặp lại (replay attacks).</p>
+      </div>
+
+      <div class="q" data-answer="2">
+        <p><strong>Câu 3:</strong> Giải pháp 'Thin Payloads' khi thiết kế WebHooks đem lại lợi ích kiến trúc nào?</p>
+        <ol><li>Giúp truyền tải toàn bộ mật khẩu và thông tin thẻ tín dụng an toàn hơn qua mạng.</li><li>Giảm tải dung lượng đường truyền mạng bằng cách nén file gzip.</li><li>Hạn chế rò rỉ dữ liệu nhạy cảm khi ứng dụng đối tác bị lộ endpoint WebHook, buộc họ phải gọi API chính thống được xác thực để lấy dữ liệu đầy đủ.</li><li>Loại bỏ hoàn toàn việc sử dụng chữ ký HMAC.</li></ol>
+        <p class="explain">Thin Payload chỉ gửi thông báo tối giản rằng có thay đổi xảy ra, buộc ứng dụng phải gọi API authenticated để lấy dữ liệu, giảm thiểu rủi ro bảo mật nếu WebHook endpoint bị lộ.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

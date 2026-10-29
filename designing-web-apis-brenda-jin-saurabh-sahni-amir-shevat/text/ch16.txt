@@ -1,0 +1,521 @@
+CHAPTER 10
+Developer Programs
+So, you’ve built the basic resources developers will need to use your
+API  or  platform—are  you  done  yet?  Probably  not.  As  we  discussed
+in  Chapter  8,  driving  developers  through  the  funnel  and  helping
+them  to  become  aware,  proficient,  engaged,  and  successful  using
+your API is an ongoing process. Even well-adopted APIs, such as the
+most   commonly   used   ones   provided   by   Amazon   and   Google,
+require  ongoing  activity  by  their  developer  relations  teams.  Devel‐
+oper  programs  are  the  heart  and  soul  of  everyday  developer  rela‐
+tions and ecosystem building for an API.
+Defining Your Developer Programs
+Developer  programs  are  activities  that  help  and  drive  developers  of
+all  sizes  to  build  solutions  and  integrate  with  your  API.  Most  com‐
+panies  offer  multiple  developer  programs  through  their  developer
+relations  and  marketing  teams.  To  define  the  developer  programs
+that  you  need  to  run,  you  need  to  perform  a  breadth  and  depth
+analysis.
+Breadth and Depth Analysis
+Most developer ecosystems are composed of a few big players and a
+lot  of  midsize  and  small  players,  as  illustrated  in  Figure  10-1.  Con‐
+sider  the  following  about  the  mobile  ecosystem:  you  have  a  few  big
+mobile  app  developers—Uber,  Lyft,  Facebook,  Supercell,  and  so
+forth—as  well  as  many,  many  other  app  developers  working  in
+smaller companies building mobile apps.
+185
+
+Figure 10-1. Developer tiers
+Developers  (and  hence  developer  programs)  can  be  categorized
+along two axes, as shown in Figure 10-2:
+Depth axis
+The  deep  developer  audience  refers  to  the  top  partners  or  top
+clients that will use your API. You will need to spend more time
+with  these  top  partners  and  clients  to  get  them  to  use  it.  The
+programs across this axis deal with few developers, each with a
+big impact on your ecosystem but high demands on your API.
+Breadth axis
+The  broad  developer  audience  is  made  up  of  the  midsize  and
+small  companies  that  build  on  top  of  your  API.  It  can  also
+include  hobbyists  and  students  who  are  building  on  your  API
+for  nonprofessional  reasons.  The  individual  developers  across
+this  axis  have  a  small  impact  on  your  ecosystem,  but  together
+they have a potentially massive impact on your business.
+Figure 10-2. Deep and broad developer audiences
+The  following  sections  describe  developer  programs  for  both  audi‐
+ences in more detail.
+
+Deep Developer Programs
+Deep  developer  programs  try  to  motivate  a  small  group  of  big  cli‐
+ents or partners to use your API. These partners sometimes require
+a  lot  of  work  to  engage.  Many  API  and  platform  providers  have  a
+separate  team  of  developer  relations  experts,  called  partner  engi‐
+neers,  that  deal  with  these  top  partners.  Their  mission  is  to  work
+with this key audience to create exemplary large uses of your API.
+Let’s  take  a  look  at  some  of  the  kinds  of  programs  that  these  teams
+run.
+Top Partner Program
+The  goal  of  a  top  partner  program  is  to  identify  the  top  users,  or
+potential  top  users,  of  your  API  and  to  engage  with  them  to  build
+and use your platform. This usually begins with a use case analysis.
+In  this  analysis,  you  list  the  top  use  cases  of  your  API  and  map  the
+top partners for each of them.
+For  example,  suppose  that  you  are  building  an  API  to  resize,  filter,
+and  run  other  manipulations  of  images.  The  API  receives  an  origi‐
+nal  image,  along  with  transformation  parameters,  and  returns  the
+newly  modified  image.  What  are  the  top  use  cases  that  this  API
+might serve? Let’s list a few:
+Thumbnailing and resizing
+Developers  of  websites  should  provide  their  users  with  thumb‐
+nails of their merchandise and let them click the thumbnails to
+see the larger images.
+Watermarks
+Developers  might  like  to  overlay  watermarks  on  images,  either
+to prevent misuse or to enforce branding.
+Mobile optimizations
+Mobile  developers  should  compress  images  for  mobile  app
+usage.
+There could be many, many more use cases, but let’s work with these
+three for now. For each of these use cases, we list the top developers
+by  market  capitalization  (market  cap)  or  any  other  criteria  that  are
+important to the business. Table 10-1 shows what this list might look
+like.
+Deep Developer Programs | 187
+
+Table 10-1. Top developer partners per target use case
+Thumbnailing and resizingWatermarksMobile optimizations
+eBayGetty ImagesSnapchat
+AmazonShutterstockInstagram
+CNNiStockLightroom
+The  list  of  partners  is  usually  much  larger  than  this  and  has  more
+details  regarding  whether  the  developer  is  already  using  the  API,
+where they are in the funnel, and the impact on the business.
+If  there  are  too  many  use  cases  that  your  API  can  support,  you  can
+run  a  similar  analysis  but  focus  on  industries  rather  than  use  cases.
+Mapping  the  top  companies  per  industry  can  be  easier  than  map‐
+ping partners per use case in some instances. Table 10-2 shows how
+this might look.
+Table 10-2. Top developer partners per target industry
+Automobile imagesAdvertisingSocial networks
+FordWPP GroupFacebook
+HondaOmnicom GroupTwitter
+TeslaDentsuSnapchat
+After  mapping  your  partners  by  target  use  case  or  industries,  you
+need  to  engage  with  each  of  the  partners  (working  together  with
+sales or business development), build a relationship with them, and
+support  these  partners  in  their  use  of  the  API.  Sometimes  these
+types  of  activities  are  called  white-glove  activities,  because  they  are
+unique for each partner—some partners require a lot of on-site sup‐
+port,  some  require  design  or  architecture  assistance,  and  others
+might need to ask a question only once in a while. Because these are
+one-to-few  activities,  in  which  one  partner  engineer  works  with  a
+few  selected  developers,  it  is  easier  to  fit  the  activity  to  the  develo‐
+per’s needs.
+Beta Program
+As  you  develop  your  API,  you  need  your  top  developers  to  adopt
+your new functionality, give you feedback on it, and launch with you
+when  you  release  your  new  API  functionality  to  the  general  devel‐
+oper audience, as mentioned in Chapters 4 and 5.
+
+Pro Tip
+Launching   new   features   with   top   developers
+who  are  already  using  them  is  a  common  best
+practice.  It  shows  the  entire  developer  popula‐
+tion  that  these  top  developers  trust  and  find
+your new API useful.
+If you ever see a keynote address at Google I/O, Facebook F8, or any
+other  big  tech  event,  you  will  notice  that  every  developer  launch  is
+accompanied  by  a  slide  or  a  clip  that  shows  developers  already
+implementing  great  innovations  using  the  API.  This  is  the  result  of
+an early access and partner program.
+Here’s the way Slack has run this program in the past:
+1.
+Ideation.  About  two  months  before  releasing  new  API  func‐
+tionality,  engineering,  product  management,  marketing,  devel‐
+oper  relations,  and  business  development  gather  and  think
+about  who  their  top  developers  could  be.  At  the  end  of  this
+stage, they have a list of top developers and the desired use cases
+they want to implement with those developers.
+2.Recruitment. Their partner engineering team in developer rela‐
+tions,  together  with  business  development,  reaches  out  to  part‐
+ners  and  asks  them  to  join  the  beta  program  for  a  new  feature.
+The  partners  are  given  some  mock-ups  of  the  new  feature,  a
+pitch  about  how  they  might  use  it,  and  timelines  to  launch.  At
+the end of this stage, Slack’s team has a list of partners who have
+committed to the program.
+3.
+Onboarding. Each top developer then receives the specification
+of the new API and a draft of the documentation. This is a raw
+document created by the content team. At the end of this stage,
+Slack usually collects feedback from the partners on the specifi‐
+cation and feature.
+4.
+Joint building. For the next month or so, Slack personnel meet
+with  the  top  developers  on  a  weekly  basis  and  make  sure  they
+are able to solve their problems, fix bugs, and provide feedback
+on  design  and  implementation.  At  the  end  of  this  stage,  they
+have  a  set  of  two  to  five  good  integrations  and  uses  of  the  new
+API.
+Deep Developer Programs | 189
+
+5.Launch  prep.  Working  with  marketing  on  both  sides,  Slack
+coordinates  the  materials  needed  for  the  mutual  launch.  Slack
+also  publishes  a  blog  post,  collects  logos  and  quotes  for  a  press
+release,  and  so  forth.  At  the  end  of  this  stage,  the  Slack  team
+ready to launch.
+6.
+Launch  day.  On  launch  day,  Slack’s  team  gathers  in  a  “war
+room” (or, at Slack, a “peace room”) and coordinates (over email
+and Slack) with partners on when to launch their press releases
+and their product integrations with Slack’s platform.
+Running a good beta program not only guarantees a successful set of
+partners  to  launch  with  you  but  also  a  better  API  at  launch  time.
+Beta  partners  are  a  great  way  to  test,  validate  the  value  of,  and  get
+feedback on your new API.
+Pro Tip
+For  some  developers  who  sign  on,  your  project
+may  be  low  priority.  This  can  lead  to  delays  or
+even  cancellations  of  their  participation  in  the
+program.  To  make  sure  your  beta  program  is
+successful, it can be helpful to be very hands-on
+with  your  beta  developers  and  to  have  welldefined  expectations  and  well-aligned  goals.  Be
+sure to have several partners so as not to have all
+your eggs in one basket.
+Expert Advice
+The best APIs are treated like any other product that’s important
+to  a  business:  they’re  supported,  maintained,  improved,  and
+altered  to  fit  changing  customer  needs  and  expectations.  It’s
+important that API teams stay ahead of the demands of their cus‐
+tomers  and  anticipate  where  new  needs  are  cropping  up  and
+where competitive threats are appearing throughout the market‐
+place.  The  moment  you  tell  yourself  that  you’ve  achieved  “lockin” because your customers can’t afford to switch away from you
+is the moment that you’ve already started to lose.
+—Chris Messina, developer experience lead at Uber
+
+Design Sprints
+The  design  sprint  is  a  process  for  answering  critical  product  ques‐
+tions  through  design,  prototyping,  and  testing  ideas  with  develop‐
+ers.  Although  there  are  a  lot  of  different  things  you  can  do  with
+developers,  the  design  sprint  is  probably  one  of  our  favorites  and
+one  of  the  most  effective  activities  you  can  do  with  a  top  developer
+trying  to  figure  out  “what  to  build”  over  your  platform  or  API.
+We’ve  run  many  design  sprints  with  top  developers  at  Google  and
+Slack. A design sprint can take a few hours or even a few days. There
+are  books  and  courses  out  there  that  teach  about  design  sprints  in
+detail, but here are the steps at a high level:
+Understand
+Work with the developer to explain your API’s capabilities, and
+let  them  teach  you  about  their  technologies.  Invite  business
+stakeholders  who  can  talk  about  your  mutual  business  goals,
+and  invite  shared  users  to  figure  out  their  key  pain  points  and
+needs.  Bring  design,  product,  and  engineering  representatives
+into the room.
+Define
+Clearly define the problem that you want to tackle. What is the
+developer’s need or pain that you want to address? Do not focus
+on  a  solution,  just  define  what  the  problem  is  that  you  want  to
+solve.
+Diverge
+At  this  stage,  have  each  member  of  the  design  sprint  come  up
+with six to eight design solutions for the problem. The idea here
+is  to  quietly  brainstorm  ideas  and  designs.  Participants  should
+encapsulate  each  idea  on  a  small  sticky  note  that  captures  the
+essence.
+Decide
+Analyze  the  ideas  and  decide  on  the  one  you  want  to  imple‐
+ment. You can do this by having the group vote for the best idea
+or  through  a  risk–benefit  analysis  that  compares  how  difficult
+each solution is with how valuable is it to the end customer.
+Prototype
+Spend  time  prototyping  your  solution—this  can  be  just  mockups,  or  as  high-fidelity  as  a  working  prototype.  The  key  here  is
+Deep Developer Programs | 191
+
+to build enough for the end customer to be able to try it out and
+give feedback.
+Validate
+Bring  in  end  customers  to  try  out  the  prototype  and  provide
+feedback; bring in internal stakeholders to do this, as well. Cap‐
+ture the feedback, learn, and iterate as needed.
+The  key  benefit  of  a  design  sprint  is  the  ability  to  quickly  work
+together toward a mutual goal. Although design sprints require a lot
+of time and resources, the outcomes are usually useful because they
+stem  from  an  actual  problem  or  need  and  they  result  in  a  validated
+solution.
+Pro Tip
+Design  sprints  are  also  useful  because  they  con‐
+dense many partner meetings into one.
+Broad Developer Programs
+Broad developer programs are all about scale (a magical word in Sil‐
+icon  Valley).  These  programs  try  to  reach  as  many  developers  as
+possible and move them through the funnel discussed in Chapter 8.
+In contrast to deep programs, the engagement with the developers is
+not  high-touch—no  company  has  the  ability  to  personally  support
+every  developer.  Broad  programs  use  scalable,  low-touch  (one-tomany) tools, like videos, docs, events, and code labs, to achieve their
+targets.
+Let’s examine a few examples of these types of programs.
+Meetups and Community Events
+These  are  probably  the  most  well-known  developer  relations  pro‐
+grams. The goal is to build a community of self-sustaining develop‐
+ers,  teaching  and  supporting  one  another.  Google  has  one  of  the
+biggest  developer  communities,  called  Google  Developer  Groups
+(GDG),  with  more  than  250  independent  groups  of  developers
+around the world. Every GDG community meets on a regular basis
+(usually  monthly)  and  runs  evening  events  where  speakers  talk
+about  Google  technologies.  These  meetups  are  the  core  essence  of
+the   community,   and   community   leaders   are   measured   on   the
+
+meetup cadence. Many communities run hackathons, training days,
+and big events.
+Expert Advice
+It’s all about building community. You need a community to fuel
+large-scale  API  adoption.  A  lot  of  APIs,  like  ours,  are  self-serve.
+If  it’s  self-serve,  it  needs  to  be  super  easy  to  grasp  and  use.  The
+Facebook  SDK  got  wide  adoption  because  it  was  a  feature  that
+people  needed,  but  the  community  helped  to  make  it  what  it  is
+today.  You  want  to  respect  the  power  of  community—they  talk
+about  benefits,  they  help  each  other.  One  of  our  groups,  Face‐
+book  for  Developers,  has  six  million  members  and  is  moderated
+by  the  community.  It’s  a  strong  thing  to  have  this  in  our  ecosys‐
+tem.  While  solid  developer  support  and  documentation  are  cor‐
+nerstones  to  API  adoption,  the  power  of  community  should
+never be underestimated.
+—Desiree Motamedi Ward, head of product developer mar‐
+keting at Facebook
+One  of  the  key  values  of  a  good  community  is  that  it  does  not
+require  you  as  the  API  provider  to  run  each  of  the  meetups.  You
+might need to provide some technical content or food, or give prizes
+and  swag,  but  you  can  run  hundreds  of  meetups  around  the  world
+with  as  few  as  one  to  three  full-time  community  managers.  Your
+community  managers  scout  for  new  local  volunteer  community
+leaders, outline the community’s principles (community rules), cre‐
+ate  community  assets  (such  as  a  website  and  training  materials  for
+meetups),  communicate  with  each  local  community  to  monitor
+their health, and provide support when needed.
+Pro Tip
+Not every API requires a separate community of
+its  own.  You  can  offer  your  content  to  an  exist‐
+ing  community,  especially  if  its  members  would
+benefit from that content. For example, Unity is
+a  game  development  platform  that  might  pro‐
+vide  tutorials  or  guides  hosted  by  an  Android
+developer for a community game hackathon.
+Broad Developer Programs | 193
+
+Hackathons
+Hackathons are another very popular and well-known type of devel‐
+oper  program.  A  hackathon  is  a  gathering  of  developers  to  brain‐
+storm  and  develop  solutions  around  a  specific  topic  (e.g.,  software
+for healthcare) or technology (e.g., Amazon Alexa skills).
+The  word  hackathon  is  derived  from  the  word  marathon,  but  it
+requires  more  mental  than  physical  effort.  Hackathons  usually  last
+24  to  48  hours,  during  which  developers  form  into  groups,  decide
+what  to  build,  prototype,  and  then  present  their  results  to  one
+another at the end of the event.
+It  is  important  to  be  very  clear  about  the  structure,  time  frame,
+topic,  and  desired  outcome  of  the  hackathon,  and  to  provide  the
+tools for the groups to connect (a spreadsheet of ideas, for example).
+Many  unstructured  hackathons  fail  because  people  come  to  the
+event not knowing what to do, or they spend a lot of time coordinat‐
+ing  instead  of  coding.  Hackathons  are  also  expensive  in  terms  of
+time  and  resources,  so  if  you  do  not  invite  the  right  people,  track
+signups,  and  gather  product  insights,  your  management  might  see
+this effort as a waste of time and money.
+Hackathons  can  be  very  big,  with  a  lot  of  API  companies  working
+together  to  help  developers  innovate.  Slack  has  sponsored  a  hacka‐
+thon  with  2,000  developers,  together  with  companies  such  as  Lyft,
+Stripe,  Google,  Amazon,  and  Microsoft.  Each  company  provided
+training  materials,  engineers  to  support  the  hackers,  and  prizes  for
+the best projects.
+Hackathons contribute to developer awareness and proficiency, they
+connect the API product team and developers at large, and they help
+collect product feedback and build empathy for developer problems.
+Speaking at Events and Event Sponsorships
+A  lot  of  companies  hire  full-time  advocates  to  speak  at  events
+around  the  world.  Big  companies,  like  Oracle,  Facebook,  and  Goo‐
+gle,  run  multiday  developer  events  with  hundreds  of  sessions  and
+training seminars. These types of activities are usually effective ways
+to reach developers at scale because a lot of these sessions are recor‐
+ded and viewed thousands of times after the event takes place.
+Developer events can be very expensive and time-consuming to cre‐
+ate if you are a small startup or an independent developer. But if you
+
+like to present at third-party events, it is not difficult to find a speak‐
+ing opportunity at an event that somebody else is hosting.
+Pro Tip
+Many  speaking  opportunities  come  contingent
+with an event sponsorship agreement, which can
+be very costly. Make sure you are getting in front
+of  an  audience  of  the  right  type  (developers
+rather  than  businesspeople,  for  example)  and
+size to ensure that you are getting your money’s
+worth. Remember that there are a lot of commu‐
+nity  events  that  will  be  happy  to  let  you  speak
+for free.
+Train-the-Trainer and Ambassador Programs
+This type of program is called by a different name by each company.
+For example, Microsoft has its it Microsoft Most Valuable Professio‐
+nal (Microsoft MVP) program, and Google calls it Google Develop‐
+ers  Experts.  Regardless  of  the  name,  the  essence  of  the  program  is
+the  same:  API  providers  reach  out  to  a  set  of  very  proficient  mem‐
+bers  of  the  developer  community  and  build  a  special  relationship
+with them so that these developers can become ambassadors within
+the developer community at large.
+Storytime: Google Developers Experts
+I  started  the  Google  Developers  Experts  program  at  Google  in  a
+very frugal way—I mapped the top five developers in my region,
+reached out to them, and told them I wanted to meet. I gathered
+them all together for dinner, gave them all Google shirts, and told
+them  I  would  really  like  to  work  with  them  to  teach  developers
+how to build on Google technologies. All of them agreed. I then
+asked  my  product  teams  to  share  presentations,  code  labs,  and
+training  content  with  my  newly  formed  experts,  and  asked  my
+experts  to  use  this  content  to  go  to  events,  present,  and  train
+developers. We met on a monthly basis for dinner and talk about
+our progress. I was the only person who actually worked at Goo‐
+gle at those dinners, but by far not the most proficient person in
+Google  technologies  at  the  table.  We  all  worked  together  for  a
+shared goal: to make our developer community awesome.
+Today,  the  Google  Developers  Experts  program  is  a  global  pro‐
+gram  with  more  than  300  experts  around  the  world.  From  time
+Broad Developer Programs | 195
+
+to  time,  I  see  a  person  in  San  Francisco  walking  proudly  in  an
+Expert T-shirt, and I smile to myself.
+—Amir Shevat
+Online Videos and Streaming
+We  talked  about  videos  in  Chapter  9,  but  we  need  to  explain  the
+programmatic  approach  to  videos  and  streaming.  Creating  a  set  of
+videos that explain how to use your API or platform can be a useful
+practice. Building a program around online content is all about pro‐
+viding developers with an ongoing cadence of content. Google has a
+show  called  (TL;DR)  
+The  Developer  Show  that  resembles  a  weekly
+TV show for developers who want to keep up with Google technolo‐
+gies.
+Building a high-end video program can be expensive, but you might
+want  to  consider  using  platforms  like  YouTube  or  Twitch  to  do  a
+monthly  casual  streaming  show.  In  this  show,  you  simply  stream
+yourself  building  over  your  API  and  answer  viewers’  questions  as
+they  come  in.  For  example,  Stripe’s  developer  relations  team  runs  a
+Twitch stream about its payments API and engages with its develop‐
+ers via live chat.
+Support, Forums, and Stack 
+Overflow
+An important program that is sometimes overlooked is a solid sup‐
+port program, which answers the question, “How do developers get
+support when they become stuck using your API?”
+Slack takes the approach of company-operated support for develop‐
+ers—developers  can  email  questions  to  developers@slack.com,  and
+this  opens  a  Zendesk  ticket  for  Slack’s  support  organization.  Slack
+has  a  large  support  team  with  different  product  specializations,  so
+these tickets get routed to the developer support team.
+Other  companies  provide  online  support  via  forums.  Twitch  has  a
+very active support forum that enables Twitch employees and com‐
+munity members to answer questions that are raised in the forum.
+Another  approach  is  supporting  developers  on  Stack  Overflow,  an
+online  platform  where  anyone  can  ask  programming-related  ques‐
+tions  and  find  answers.  Developers  submit  questions  and  other
+developers  answer  them.  The  community  moderates  the  questions
+
+and  upvotes  the  answers,  creating  a  high-quality,  highly  searchable
+database of questions and answers. The Android developer support
+program  was  run  on  Stack  Overflow.  They  used  Stack  Overflow’s
+API  to  retrieve  new  questions  that  were  relevant  to  Android  devel‐
+opment and answered every question.
+Credit Program
+If your API costs money to use, you might want to consider provid‐
+ing  free  credits  for  selected  developers.  Microsoft,  Amazon,  and
+Google all have credit programs for their APIs. Credit programs are
+usually  easy  to  maintain  and  track,  but  they  are  not  useful  if  your
+API is free.
+Selecting the right developers to give credits to is not easy, and your
+credits  can  be  abused  by  the  wrong  developers.  You  want  to  give
+credits  to  developers  who  will  convert  into  paying  customers  with
+time.  Some  companies  allocate  them  to  developers  based  on  their
+company  size,  while  others  use  startup  incubators  as  a  way  to  dis‐
+tribute the credits to companies that are likely to grow. The key here
+is  that  credits  are  like  money:  think  carefully  about  who  to  give
+them to and what value you are getting back.
+Measuring Developer Programs
+Determining which programs move which needles in your measure‐
+ments  and  how  they  affect  your  ecosystem  is  probably  one  of  the
+most important activities you can do. Programs might be impactful
+but  can  also  be  useless,  and  without  measurements  you  will  not  be
+able  to  tell  the  difference.  For  each  program,  you  need  to  under‐
+stand the following:
+•
+What does this program do?
+•
+What are the expected inputs?
+•
+How is it performing for the expected outcomes?
+Table  10-3  presents  an  example  of  such  measurements  for  some  of
+the outlined programs.
+Measuring Developer Programs | 197
+
+Table 10-3. Developer programs measurement report
+NameDescriptionInputsOutcomes
+Top partner
+program
+Map and drive top
+partners to build with our
+API.
+Map 15 partners and
+work with 10 of them
+this quarter.
+Five top partners actively use
+our API this quarter.
+Beta programProvide feedback on beta
+features and launch
+features with partners
+using our new API
+capabilities from day one.
+Work with seven beta
+partners to launch
+feature X.
+Capture 10 feature requests
+and 10 bugs reported by
+partners. Launch feature X
+with five partners who use
+the feature from day one.
+HackathonsMake developers aware of
+and proficient with our
+API.
+Run five hackathons
+this quarter.
+1,000 developers create an
+API token during the
+hackathon.
+Speaking at
+events
+Make developers aware of
+our platform.
+Speak at seven big
+developer events this
+quarter.
+15,000 developers are
+reached via events or
+subsequent videos; 5,000 new
+visitors to our developer site.
+As  you  can  see,  each  program  has  its  own  inputs  and  desired  out‐
+comes,  and  it  is  easy  to  mix  them  up.  Some  people  complain  that
+hackathons  are  useless  because  they  do  not  lead  to  paying  custom‐
+ers,  but  increasing  the  number  of  paying  customers  is  not  actually
+the expected outcome of a hackathon. Know what impact you want
+to have on your ecosystem of developers, and then choose the right
+program to help you drive that.
+Closing Thoughts
+There  are  many  other  types  of  programs  and  subprograms  out
+there,  each  with  different  measurements  and  outcomes.  There  are
+also  countless  new  experimental  programs  that  you  can  run.  At
+Slack and Twitch, we ran a set of developer tours in Europe and Asia
+in  which  our  entire  team  would  go  and  meet  developers  and  part‐
+ners  and  speak  at  local  events.  When  building  your  developer  pro‐
+grams, it is important to map the current state and the desired state
+of your developer ecosystem and then to launch a few experimental
+programs  and  see  what  works  for  both  your  developers  and  your
+business.
+Remember that a developer community is a delicate ecosystem that
+requires  attention  and  support.  Listen  to  your  developers  and  keep
+improving your API, resources, and developer programs to fit their
+needs.

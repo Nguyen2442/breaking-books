@@ -1,0 +1,180 @@
+{
+  "id": "designing-web-apis-brenda-jin-saurabh-sahni-amir-shevat",
+  "title": "Designing Web APIs Brenda Jin Saurabh Sahni Amir Shevat",
+  "subtitle": "",
+  "author": "Brenda  Jin",
+  "coverUrl": "/covers/designing-web-apis-brenda-jin-saurabh-sahni-amir-shevat.jpg",
+  "coverStoragePath": "storage/covers/designing-web-apis-brenda-jin-saurabh-sahni-amir-shevat.jpg",
+  "edition": "232 trang · Nguồn: Designing Web APIs - Brenda Jin_ Saurabh Sahni_ Amir Shevat.pdf",
+  "description": "Sổ tay đọc tương tác cho Designing Web APIs Brenda Jin Saurabh Sahni Amir Shevat: tóm tắt, giải nghĩa và ví dụ thao tác được.",
+  "sourcePdfs": [
+    "Designing Web APIs - Brenda Jin_ Saurabh Sahni_ Amir Shevat.pdf"
+  ],
+  "ownerId": "usr_1793247435709_0287e56c",
+  "isSample": false,
+  "status": "ready",
+  "chapters": [
+    {
+      "n": 1,
+      "num": 1,
+      "id": "ch1",
+      "en": "Chương 1",
+      "vi": "Chương 1",
+      "src": "PDF",
+      "wordCount": 2641
+    },
+    {
+      "n": 2,
+      "num": 2,
+      "id": "ch2",
+      "en": "Chương 1",
+      "vi": "Chương 1",
+      "src": "PDF",
+      "wordCount": 506
+    },
+    {
+      "n": 3,
+      "num": 3,
+      "id": "ch3",
+      "en": ", we talk about different types of developers and use cases",
+      "vi": ", we talk about different types of developers and use cases",
+      "src": "PDF",
+      "wordCount": 1914
+    },
+    {
+      "n": 4,
+      "num": 4,
+      "id": "ch4",
+      "en": "Chương 2",
+      "vi": "Chương 2",
+      "src": "PDF",
+      "wordCount": 3652
+    },
+    {
+      "n": 5,
+      "num": 5,
+      "id": "ch5",
+      "en": "Chương 3",
+      "vi": "Chương 3",
+      "src": "PDF",
+      "wordCount": 4630
+    },
+    {
+      "n": 6,
+      "num": 6,
+      "id": "ch6",
+      "en": "Chương 4",
+      "vi": "Chương 4",
+      "src": "PDF",
+      "wordCount": 2252
+    },
+    {
+      "n": 7,
+      "num": 7,
+      "id": "ch7",
+      "en": ")  or  documentation  mechanism.  Think  about  the  various",
+      "vi": ")  or  documentation  mechanism.  Think  about  the  various",
+      "src": "PDF",
+      "wordCount": 1485
+    },
+    {
+      "n": 8,
+      "num": 8,
+      "id": "ch8",
+      "en": "Chương 5",
+      "vi": "Chương 5",
+      "src": "PDF",
+      "wordCount": 1732
+    },
+    {
+      "n": 9,
+      "num": 9,
+      "id": "ch9",
+      "en": "Because  some  customers  have  sensitive  files,  we  want",
+      "vi": "Because  some  customers  have  sensitive  files,  we  want",
+      "src": "PDF",
+      "wordCount": 3595
+    },
+    {
+      "n": 10,
+      "num": 10,
+      "id": "ch10",
+      "en": "Chương 6",
+      "vi": "Chương 6",
+      "src": "PDF",
+      "wordCount": 8495
+    },
+    {
+      "n": 11,
+      "num": 11,
+      "id": "ch11",
+      "en": "Chương 9",
+      "vi": "Chương 9",
+      "src": "PDF",
+      "wordCount": 761
+    },
+    {
+      "n": 12,
+      "num": 12,
+      "id": "ch12",
+      "en": "Chương 7",
+      "vi": "Chương 7",
+      "src": "PDF",
+      "wordCount": 679
+    },
+    {
+      "n": 13,
+      "num": 13,
+      "id": "ch13",
+      "en": ")  Now,  API  requests  to  repositories.fetch  are  timing",
+      "vi": ")  Now,  API  requests  to  repositories.fetch  are  timing",
+      "src": "PDF",
+      "wordCount": 6399
+    },
+    {
+      "n": 14,
+      "num": 14,
+      "id": "ch14",
+      "en": "Chương 8",
+      "vi": "Chương 8",
+      "src": "PDF",
+      "wordCount": 5515
+    },
+    {
+      "n": 15,
+      "num": 15,
+      "id": "ch15",
+      "en": "Chương 9",
+      "vi": "Chương 9",
+      "src": "PDF",
+      "wordCount": 5369
+    },
+    {
+      "n": 16,
+      "num": 16,
+      "id": "ch16",
+      "en": "Chương 10",
+      "vi": "Chương 10",
+      "src": "PDF",
+      "wordCount": 4242
+    },
+    {
+      "n": 17,
+      "num": 17,
+      "id": "ch17",
+      "en": "Chương 11",
+      "vi": "Chương 11",
+      "src": "PDF",
+      "wordCount": 3703
+    },
+    {
+      "n": 18,
+      "num": 18,
+      "id": "ch18",
+      "en": "eader   for   Girl   Develop   It,   Brenda   has   contributed   to",
+      "vi": "eader   for   Girl   Develop   It,   Brenda   has   contributed   to",
+      "src": "PDF",
+      "wordCount": 281
+    }
+  ]
+}

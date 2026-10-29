@@ -1,0 +1,56 @@
+<section class="chapter" id="ch8" data-ch="8" data-title="Thiết Kế API Thực Chiến: Từ Mục Tiêu Kinh Doanh Đến Lựa Chọn Kiến Trúc">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 8</p>
+    <h1>Design in Practice: From Business Objectives to Architectural Selection <span class="vi">Thiết Kế API Thực Chiến: Từ Mục Tiêu Kinh Doanh Đến Lựa Chọn Kiến Trúc</span></h1>
+    <p class="lede">Chuyển hóa nhu cầu người dùng và mục tiêu kinh doanh thành các user story cốt lõi và lựa chọn kiến trúc API tối ưu.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">1 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch8-t1" data-num="8.1" data-short="Mục tiêu & Vấn đề">
+    <div class="topic-theory-card">
+      <p class="eyebrow">NGUYÊN LÝ CỐT LÕI</p>
+      <h2>Định Nghĩa Mục Tiêu Kinh Doanh Và Phát Biểu Vấn Đề</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Thiết kế API phải bắt đầu bằng việc giải quyết nỗi đau của khách hàng và định nghĩa rõ ràng tác động kinh doanh.</p></div>
+      <div class="prose">
+        <p>Trước khi gõ bất kỳ dòng mã <dfn data-term="API Specification"><strong>đặc tả API</strong></dfn> nào, kỹ sư trưởng phải trả lời chính xác vấn đề hệ thống đang gặp phải. Việc không làm rõ mục tiêu ngay từ đầu sẽ đẩy toàn bộ tổ chức vào <dfn data-term="Ideological Limbo"><strong>vũng lầy ý thức hệ</strong></dfn> nơi các bên tranh cãi về công nghệ thay vì giải pháp.</p><p>Các phương án tiếp cận khi phân tích bài toán thiết kế hệ thống:</p><ul><li><strong>Problem Statement:</strong> Mô tả hiện trạng thủ công của khách hàng (ví dụ: tải xuống/tải lên tệp CSV thủ công) và sự thiếu hụt kết nối lập trình.</li><li><strong>Impact Statement:</strong> Đo lường sự thay đổi hành vi của lập trình viên và doanh nghiệp sau khi API được phát hành.</li><li><strong>Stakeholder Alignment:</strong> Thống nhất quan điểm giữa các phòng ban sản phẩm, kỹ thuật và kinh doanh để tránh mâu thuẫn thiết kế.</li></ul><p>Luôn thiết kế cho hiện tại nhưng chừa lại ô cửa nhỏ cho tương lai, bởi vì API sẽ phát triển song song với vòng đời sản phẩm.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại hệ thống Logistics Việt Nam</b>
+        <p>Khi các hãng vận chuyển như Giao Hàng Tiết Kiệm hay ViettelPost xây dựng API cho đối tác thương mại điện tử (Shopee/TikTok Shop), họ bắt đầu bằng việc giải quyết bài toán đồng bộ trạng thái đơn hàng thủ công thành tự động hóa hoàn toàn qua webhook và REST API.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch8-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Cây Quyết Định Định Hình Thiết Kế API</strong>
+        <small>Mô phỏng luồng phân tích từ bài toán kinh doanh đến lựa chọn kiến trúc kỹ thuật</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch8-review" data-num="8.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 8</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Chương này cung cấp một khuôn khổ thực chiến để thiết kế API dựa trên trải nghiệm người dùng, lấy ví dụ từ công ty lưu trữ ảnh MyFiles. Quá trình bắt đầu bằng việc xác định rõ ràng <dfn data-term="Business Objectives"><strong>Mục tiêu kinh doanh</strong></dfn> thông qua phát biểu Vấn đề và Tác động (Problem & Impact Statements). Tiếp theo, kỹ sư kiến trúc cần phác thảo <dfn data-term="User Stories"><strong>User Stories</strong></dfn> để thấu hiểu hành động của nhà phát triển bên thứ ba. Cuối cùng, việc lựa chọn <dfn data-term="API Paradigm"><strong>Kiến trúc API</strong></dfn> như REST thay vì RPC hay GraphQL được quyết định dựa trên bản chất hướng tài nguyên (resource-oriented) của hệ thống.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="0">
+        <p><strong>Câu 1:</strong> Tại sao việc xác định Problem và Impact Statements lại cực kỳ quan trọng trước khi viết mã API?</p>
+        <ol><li>Giúp đội ngũ kỹ thuật tránh được các cuộc tranh cãi ý thức hệ về công nghệ và tập trung vào nhu cầu người dùng.</li><li>Giúp tăng tốc độ xử lý của máy chủ web lên gấp đôi.</li><li>Loại bỏ hoàn toàn sự cần thiết phải viết tài liệu Swagger/OpenAPI.</li><li>Giúp giảm dung lượng băng thông mạng truyền tải.</li></ol>
+        <p class="explain">Problem và Impact statements giúp neo giữ các quyết định thiết kế vào nhu cầu thực tế của người dùng, ngăn ngừa việc tranh cãi vô bổ về công nghệ như REST hay RPC khi chưa rõ bài toán.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

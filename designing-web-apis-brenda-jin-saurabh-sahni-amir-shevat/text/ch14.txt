@@ -1,0 +1,686 @@
+CHAPTER 8
+Building a Developer
+Ecosystem Strategy
+Building  a  scalable,  well-designed  API  is  a  great  start,  but  if  you
+want developers to use the API, you need to do much more than just
+release it. “If you build it, they will come” is a common misconcep‐
+tion,  as  evidenced  by  the  many  companies  that  release  APIs  but  do
+not understand why developers are not rushing to use them.
+The  profession  of  building  a  developer  and  partner  ecosystem  is
+called  developer  relations.  Let’s  define  what  an  ecosystem  is  in  the
+context of a developer platform or an API.
+Very  much  like  an  ecosystem  in  nature,  a  developer  ecosystem  is  a
+virtual  system  of  members  that  are  collaborating,  depending,  and
+sometimes competing on the same platform, technology, or API.
+There are many examples of developer ecosystems, and some of the
+best  ones  are  self-organizing—Google  and  Android  have  an  amaz‐
+ing  developer  ecosystem  and  community;  iOS  developers  flock  to
+meetups and collaborate together; and Microsoft has a strong, mul‐
+tifaceted developer and partner ecosystem.
+Expert Advice
+Developer  platforms  and  APIs  have  become  ubiquitous.  They
+enable  developers  to  be  more  efficient,  leverage  existing  infra‐
+structure,  and  future-proof  their  products  and  services.  As  the
+API economy continues to mature, providing an API is no longer
+143
+
+enough: companies must offer a truly great developer experience
+and keep pace with developers’ needs.
+—Romain Huet, head of developer relations at Stripe
+In  this  chapter,  we  discuss  what  composes  a  great  ecosystem  and
+how  companies  building  these  ecosystems  around  their  APIs  do  so
+successfully.
+Developers, Developers, Developers
+Developers  can  do  great  things  with  an  API.  They  can  extend  and
+improve  your  company’s  product  (Slack  apps  make  Slack  better);
+they can use it and be your clients (Google Cloud Platform is a great
+example); and they can help with the adoption of your platform/OS
+(iOS became popular due to the millions of apps on it).
+Many  companies  come  to  the  conclusion  that  they  need  an  ecosys‐
+tem  after  realizing  that  they  cannot  build  everything  themselves.
+Microsoft  cannot  build  all  of  the  extensions  for  SharePoint;  Google
+and Apple can’t build all the mobile apps themselves; and Slack can‐
+not build all the bots and integrations to its product. These compa‐
+nies  open  their  APIs  to  developers  in  order  to  extend  the  value  of
+their products.
+Other  companies  use  the  API  as  a  main  way  to  generate  revenue.
+Companies like Stripe and Cloudinary have the API as the core pil‐
+lar  of  their  business;  they  either  sell  the  use  of  it  or  charge  a  fee  for
+certain  transactions.  In  this  case,  it  is  really  easy  to  articulate  the
+value of the developer ecosystem.
+In this book, developers is a general term for people with the techni‐
+cal  chops  to  use  your  API.  They  might  not  identify  themselves  as
+developers—they might call themselves an IT person, designer, techsavvy businessperson, or any variation of engineer. We’ll take a look
+at a few common examples of developers in the subsections that fol‐
+low.
+The Hobbyist
+This  type  of  API  user  is  an  early  adopter  who  does  not  necessarily
+want  to  use  your  API  professionally.  They  find  joy  in  playing  with
+
+the  API,  creating  examples,  and  trying  to  find  the  edge  cases  and
+limitations, and they are usually quick to vocalize their opinions.
+Hobbyists  are  usually  eager  to  adopt  new  features  of  your  API  and
+to  give  you  feedback  on  its  usefulness  and  quality.  The  challenge
+with hobbyists is that sometimes their use cases are not what you are
+building your API for. If you build an API for facial recognition, the
+hobbyist will try to use it on cats and dogs. Although this is delight‐
+ful, it is not your main use case, and you might end up wasting time
+and resources trying to support low-impact edge uses of your API.
+The Hacker
+Also  called  the  early-adopter  professional  developer  or  entrepreneur,
+this is a developer who is trying to put your API to professional use
+and  to  potentially  make  money  out  of  it.  The  hacker  is  different
+from  the  professional  developer  who  is  interested  in  solving  a  spe‐
+cific use case and evaluates the API based on product fit adn matur‐
+ity. In many cases, hackers are the most important audience for your
+API  at  its  early  stage—professional  developers,  like  hobbyists,  are
+eager for new features and willing to deal with changes, but they are
+also  highly  focused  on  solving  a  concrete  use  case  that  is  usually
+aligned with what you thought your API would be used for.
+Hackers are motivated by innovation; they follow Twitter and scout
+Medium  and  Product  Hunt  to  look  for  new  technologies.  They
+might  play  with  a  technology  because  it’s  cool,  but  they  will  always
+put it to practical use. They are also highly proficient—they can usu‐
+ally deal with a high learning curve and do not need the comfort of
+SDKs, debugging, or WYSIWYG tools to make use of your API.
+The Business-Focused, Tech-Savvy User
+This  is  an  audience  that  is  worth  mentioning  because  of  its  unique
+characteristics.  This  developer  is  interested  in  only  one  thing:  solv‐
+ing their use case. They might not even consider themselves a devel‐
+oper. They might be a financial person who wants to use your stock
+price  API  for  their  Excel  calculations,  an  IT  person  who  wants  to
+write  a  script  to  automate  simple  workflows,  or  a  businessperson
+trying   to   build   a   website   for   their   company.   This   audience   is
+extremely sensitive to breaking changes—although using the API is
+not their day job, they nevertheless need tools and services that will
+Developers, Developers, Developers | 145
+
+make  using  your  APIs  easier,  and  they  will  not  be  following  your
+API news feed on a daily basis.
+This  audience  is  important  to  many  companies  because  it  is  much
+larger  than  the  developer  audience;  there  are  a  lot  more  business
+people than developers. If you are targeting this audience, you need
+to take a very different approach for education and enablement.
+The Professional Developer
+This type of developer is interested in solving their use case and sees
+your technology as a means to that end. The professional developer
+will evaluate your API based on product fit and maturity. They will
+compare your API to others to see which one meets their needs bet‐
+ter. In many use cases this will be the core audience of your API as it
+matures.
+Professional  developers  are  more  willing  to  pay  for  an  API  because
+it solves a problem that would otherwise be a pain to solve. They are
+eager  to  see  new  features  but  are  not  keen  on  changes  to  the  API,
+especially if these are breaking changes. Professional developers are
+more sensitive to stability because they recognize the cost associated
+with  getting  back  and  rewriting  their  code  to  accommodate  your
+changes.  These  developers  might  also  have  limitations  to  the  time
+that  they  can  spend  building  on  your  API,  so  they  really  appreciate
+tools and services that make doing so easier and faster.
+And Many More
+There  are  numerous  variations  of  these  audiences—the  enterprise
+developer  trying  to  build  internal  solutions  for  their  organization,
+the independent software vendor trying to build software using your
+API,  the  contractor  whose  job  is  to  implement  a  specification,  and
+many  more.  They  all  have  different  proficiency  levels,  needs,  and
+wants.  As  your  API  matures,  you  will  need  to  dive  in  and  under‐
+stand  your  developer  audience  and  its  various  segments  in  more
+depth.
+These  are  just  a  few  examples  of  the  types  of  developers  you  might
+be  targeting  as  the  audience  for  your  API.  Some  APIs  target  hard‐
+ware  developers;  others  are  geared  for  domain-specific  developers,
+such as mobile game developers. It is important to know your audi‐
+ence,  the  use  cases  they  want  to  implement  using  your  API,  and
+
+their preferred means of communication. We cover this type of seg‐
+mentation work in greater depth later on in this chapter.
+Next,  let’s  explore  how  to  build  a  developer  relations  strategy.  We
+outline the high-level steps and offer tips and tricks for specific out‐
+reach tactics.
+Building a Developer Strategy
+There are a few basic stages in building a productive developer strat‐
+egy,  beginning  with  segmenting  your  developers,  determining  who
+your  audience  is,  and  defining  its  attributes.  It’s  also  important  to
+distill  the  value  proposition  and  articulate  why  developers  should
+use  your  API/platform.  Additionally,  you  need  to  outline  your
+developer  funnel  and  itemize  the  steps  that  developers  should  take
+to be successful with your API.
+Next steps include mapping the current and future state of the eco‐
+system, from where it stands right now to where you’d like to take it.
+Then  you  should  outline  your  tactics,  such  as  steps,  resources,  and
+actions  to  move  developers  through  the  funnel.  Be  sure  to  gather
+measurements so you can verify that your tactics are working.
+Let’s dive into each one of these important stages and get the details.
+Developer Segmentation
+It’s  time  to  move  on  from  the  anecdotal  examples  of  the  different
+types of developers to a more concrete definition. Ask yourself: who
+is  your  audience?  In  the  following  subsections,  we  look  at  the  key
+attributes you might want to consider.
+Identity
+How  do  these  developers  identify  themselves?  Frontend?  Backend?
+Full stack? Mobile? Enterprise?
+Granular  identity  can  also  be  very  important.  In  some  cases,  iOS
+developers will often connect with other iOS developers at meetups
+and  events,  but  not  as  often  with  Android  developers.  Some  devel‐
+opers, like the members of Google’s GDGs, develop a strong sense of
+identity, whereas others might not be so strongly affiliated.
+Building a Developer Strategy | 147
+
+Developer proficiency
+How proficient should a developer be to use your API? Some APIs,
+such as those for augmented reality and artificial intelligence, might
+require a steeper learning curve. Sometimes the API is rather simple
+but requires a complex OAuth and security setup.
+Some  APIs  target  developers  who  are  highly  proficient,  like  game
+developers, whereas others, such as the Google Apps Script API, tar‐
+get a broader audience.
+Platform of choice
+Mobile developers are very different from web developers, and Xbox
+and PlayStation game developers are very different from cloud back‐
+end  developers.  Even  within  the  mobile  sphere,  iOS  developers  are
+quite different from Android developers in the way they build their
+apps. It is important to understand the platform your developers are
+on,  what  the  constraints  and  capabilities  of  that  platform  are,  and
+what needs these developers have in common.
+Developers tend to identify themselves around platforms—it is very
+common for Android developers to go to Android Developer Meet‐
+ups  where  they  encounter  like-minded  peers.  Understanding  this
+will  help  you  engage  with  your  developers  where  they  are—go  and
+give a presentation at their meetup, for example.
+Preferred development language, framework, and development tools
+Which  tools  and  services  does  your  developer  audience  use  every
+day  to  achieve  key  tasks?  If  you  know  their  preferred  set  of  pro‐
+gramming   languages,   you   may   also   discover   which   SDKs   you
+should  invest  in,  for  example.  The  fact  that  your  developers  are
+using Eclipse might be worth knowing when considering building a
+plug-in  to  that  integrated  development  environment  (IDE).  If  your
+developers  are  avid  users  of  an  open  source  framework,  this  might
+lead  you  to  the  strategy  of  becoming  a  contributor  for  that  frame‐
+work.
+Common use cases and tasks
+Even if you are building a very general-purpose API, it is important
+to  know  the  common  use  cases  are  that  your  developers  are  trying
+to  accomplish.  This  can  help  with  building  the  messaging  to  these
+developers  and  can  give  you  good  ideas  about  how  to  extend  your
+
+API  or  how  to  build  additional  tools  or  services  that  can  help  your
+developers to achieve their goals. If you do not know which tasks or
+workloads your developers are trying to accomplish, go out and ask
+them!  You  might  also  use  this  time  to  explore  key  challenges  in
+building these use cases.
+Preferred means of communication
+This  is  a  critical  piece  of  information  if  you  want  to  reach  your
+developers. Do they follow your API news on Twitter? Do they pre‐
+fer  email  notification?  Do  they  hear  about  new  technologies  at
+events?  Do  they  read  an  industry  news  outlet?  You  need  to  map
+ways to communicate day-to-day news and updates and to establish
+communication  channels  in  case  you  need  to  urgently  reach  your
+developers.
+Market size and geographical distribution
+You  need  to  determine  how  many  developers  you  have  right  now,
+and what is the addressable market. You also need to map important
+centers  of  developers  around  the  world.  This  information  contrib‐
+utes to the understanding of whether you need to localize your con‐
+tent or run global events, and where to do so.
+This is a tricky exercise. It might be difficult or expensive to acquire
+this  information.  In  many  cases  a  semi-educated  guess  will  work  in
+the  beginning,  with  a  more  informative  analysis  conducted  as  time
+passes.
+Real-life example
+Now  that  we  have  described  the  different  aspects  of  audience  seg‐
+mentation, let’s examine a concrete example of segmentation analy‐
+sis.
+Table 8-1 shows how the developer segmentation looks for Slack.
+Table 8-1. Developer audience segmentation
+AttributeDescription
+IdentityEnterprise developer (aka IT developer, corporate engineer, internal
+developer).
+Developer 
+proficiency
+Proficient
+ at implementing business processes, but not necessarily on the
+Slack platform. Enterprise developers are used to SDKs and frameworks
+rather than using the raw APIs.
+Building a Developer Strategy | 149
+
+AttributeDescription
+Platform of choiceWindows and Linux scripting, web developers, SharePoint or Confluence.
+Preferred
+development
+language and
+frameworks
+Java, .NET. Many work with Amazon Web Services (AWS; e.g., AWS Step
+Functions), some integrate with Slack for reporting. Some developers are
+exploring Node.js.
+Common use casesInternal use cases—approval processes (time off, expenses, general),
+reports, and looking up clients in the customer relationship management
+(CRM) and ticketing systems seem like the most requested set of use cases.
+Key challenges are that enterprise developers are under a lot of pressure
+from the business to implement a lot of processes. The current solutions,
+such as SharePoint, are cumbersome and not developer-friendly, according
+to them.
+Preferred means of
+communication
+Enterprise developers prefer to be notified by email about important
+changes in our API. They follow Slack’s API blog but not the Twitter feed.
+Major events they are attending are by enterprise software vendors, such as
+Amazon and IBM.
+Market size and
+geographical
+distribution
+As of May 2018, Slack has more than 200,000 weekly active developers
+building on the platform (including internal integrations). Major
+geographical distribution: San Francisco, New York, Tokyo, Berlin, London,
+Seattle, Bangalore.
+Slack actually has two types of developers: app developers (building
+Slack  apps  that  other  teams  can  use)  and  enterprise  developers
+(building internal integrations for their own Slack teams).
+As with the Slack example, you need to segment each of your audi‐
+ence groups because they might be very different and require differ‐
+ent strategies.
+This analysis can be much more detailed (and in reality, it usually is)
+but  we  hope  this  demonstrates  the  different  aspects  to  analyze  and
+the types of answers you are looking for.
+Pro Tip
+Many  startups  think  that  “everyone”  is  a  good
+segment.  It’s  not!  Even  the  most  widely  used
+APIs  segment  their  users;  defining  your  devel‐
+oper  audience  as  “all  developers”  is  not  produc‐
+tive.
+
+Distilling the Value Proposition
+This  could  either  be  very  easy  or  quite  difficult,  depending  on  the
+business you are in. You need to write down the key value proposi‐
+tion  of  your  API.  Why  should  developers  use  your  API,  and  for
+what purpose? What is your competitive advantage, and why should
+developers care about it?
+In  some  cases,  platforms  put  emphasis  on  different  advantages.
+Google highlights the vast distribution Android has and the number
+of users with which Android developers can engage, whereas Apple
+emphasizes  the  strong  ability  to  monetize  iOS  and  that  Apple  users
+are more inclined to pay.
+Some APIs provide an easier or more cost-effective way to do some‐
+thing.  Cloudinary  helps  developers  create  thumbnails  and  resize
+images on the fly, and the Google Vision API provides easy access to
+complex image-recognition functionality.
+Here are a few examples of value propositions:
+Stripe API
+Provides an easier and more standard way to receive online pay‐
+ments
+YouTube API
+Allows you to embed video players in your site or to offer You‐
+Tube search capabilities
+SoundCloud API
+Lets  you  develop  apps  that  allow  users  to  upload  and  share
+songs online
+Some   companies   have   distinct   value   propositions   for   different
+developer  segments,  and  that’s  fine.  For  example,  AWS  can  be  a
+place  for  rapid  prototyping  for  startups,  as  well  as  a  way  to  drive
+technical transformation in big enterprises.
+Your  value  proposition  is  closely  related  to  the  use  case  your  devel‐
+opers are trying to implement. If you do not know what your major
+use cases are going to look like, try to find out; it will help you home
+in on a value proposition.
+After you define your value proposition, you can validate whether it
+is  compelling.  One  company,  for  example,  said  that  it  could  run  an
+operation  in  less  than  10  milliseconds,  whereas  all  its  competitors
+Building a Developer Strategy | 151
+
+took  30  milliseconds.  Although  this  sounds  impressive,  it  requires
+validation  because  it  might  not  be  important  to  developers  imple‐
+menting  common  web  use  cases—30  milliseconds  might  be  suffi‐
+cient,   and   the   performance   improvement   might   not   merit   the
+migration cost. Alternatively, this might be a key enabling feature for
+some use cases that might be worth a lot of money.
+A  value  proposition  is  not  the  same  as  marketing  “positioning.”
+Whereas  market  position  refers  to  the  consumer’s  perception  of  a
+brand  or  product,  value  proposition  should  be  concrete  and,  pref‐
+erably,  something  the  developers  care  deeply  about.  The  words  you
+pick are not that important at this stage; the actual value is.
+A common mistake that many companies initially make is creating a
+lot of low-value statements—the product is “a little cheaper in some
+cases” or “a little easier to use on X.” Although these are useful bene‐
+fits, you should strive for a big and compelling value for your devel‐
+opers, when possible.
+Expert Advice
+There  should  be  a  significant  amount  of  value  offered  to  those
+building  on  your  API.  That  value  doesn’t  have  to  be  directly
+monetizable,  but  the  API  has  to  do  something  better,  faster,  or
+more cheaply than if the third-party developer or partner were to
+build the same thing in house.
+—Chris Messina, developer experience lead at Uber
+Defining Your Developer Funnel
+The  developer  funnel  is  a  simple  but  effective  concept  that  outlines  
+the journey that a developer goes through, from not knowing about
+your API to becoming an avid and successful user.
+Figure 8-1 depicts an example of a developer funnel.
+
+Figure 8-1. The developer funnel
+As  you  can  see  in  Figure  8-1,  in  each  step  of  the  funnel,  there  are
+fewer and fewer developers. Your job is to get more developers into
+the funnel and to then move them down through it. Let’s explore the
+different stages:
+Aware
+Creating developer awareness is an ongoing and important first
+step in the developer funnel. After you build your API, making
+developers  aware  of  it  and  its  unique  and  compelling  value
+proposition  is  the  beginning  of  the  developer  funnel.  Many
+organizations  with  mature  and  successful  APIs  still  work  to
+ensure their visibility to the developer community. The creators
+of  Twilio,  a  popular  API  providing  a  cloud  communications
+platform  for  building  SMS,  voice,  and  messaging  applications,
+still pay for advertisements across Silicon Valley.
+Proficient
+Next, developers need to know how to use the API. They could
+reference  your  guide  on  how  to  build  a  simple  “Hello  World”
+app or take a comprehensive training and certification program.
+(We  explore  these  in  Chapter  9.)  The  end  game  in  this  step  is
+that  the  developer  can  easily  use  your  API  according  to  your
+documented best practices.
+Building
+At this stage, the developer is actively building apps using your
+API. For example, the code might not yet be in production, but
+the  API  keys  are  actively  used.  This  is  an  important  step  in  the
+Building a Developer Strategy | 153
+
+funnel  because  it  signals  that  the  value  proposition  that  you
+have outlined is the right one.
+Successful
+For  each  developer,  this  could  mean  something  different.  The
+definition  of  success  could  also  vary  for  each  API  usage.  The
+successful usage of your API could mean making money out of
+it or passing a certain threshold of usage. Or it might be defined
+as passing transactions in production or even the API’s integra‐
+tion  with  other  systems.  You  need  to  determine  what  success
+means for your API and your developer audience. We talk about
+measurements in “Deriving Measurements” on page 160.
+Funnel indicators
+Not  all  developer  funnels  have  the  same  milestones.  Some  funnels
+might have a “Developer Registered” stage, while others might have
+“Developer  Signed  the  Terms”  or  “Developer  Paid  for  the  API”  as
+significant events that separately mark the various phases of the fun‐
+nel.  You  need  to  build  your  own  developer  funnel  and  define  its
+steps for your specific API.
+No  matter  which  milestone  steps  you  choose  in  your  funnel,  it  is
+important that you outline the funnel and understand the key indi‐
+cators that reflect these steps. Table 8-2 presents some example indi‐
+cators.
+Table 8-2. Funnel indicators
+AspectIndicator examples
+AwarenessGetting into your API website, registering for a newsletter, attending a meetup
+ProficiencyCompleting a hands-on lab, building a fun hackathon project, creating an open source
+example, executing a “Hello World” sample
+UsageCreating an API key and using it, deploying a sample app and modifying it, creating
+and running a preproduction environment
+SuccessGenerating revenue, moving code to production, getting users, building a business,
+actively using the API 150 times per day
+We  use  these  examples  to  build  the  strategy  measurements  later  in
+this  chapter,  but  you  can  already  see  that  these  indicators  are  mov‐
+ing the needle in your developer strategy dashboard.
+
+Mapping the Current and Future State
+Now  that  you  have  a  good  understanding  of  the  developer  funnel
+and the indicators that tie to it, you need to know the current actual
+numbers for each indicator.
+Table  8-3  offers  an  example  of  a  report  that  you  might  be  able  to
+generate for an API that adds a filter to images as a service.
+Table 8-3. Key indicators status report
+AspectMonthly ongoing statusTotals
+Awareness500 unique users a month on api.imagefilters.com10,000 unique developers to
+date
+Proficiency200 developers have gone through the getting
+started stage
+5,000 unique developers to
+date
+Usage50 developers have moved to the Pro edition1,500 paying developers to
+date
+Success500,000 images processed by new developers250 million images processed
+to date
+As  you  can  see,  some  of  the  measurements  might  be  directly  con‐
+nected to a number of developers, whereas others might be derived
+from  developer  usage.  In  this  example,  the  number  of  images  pro‐
+cessed is derived from the success of the developers using the API.
+Sometimes,  the  funnel  indicator  is  derived  rather  than  direct—you
+can see in Table 8-3 that you might be able to affect the last number
+(250 million images processed to date) without getting new develop‐
+ers.  You  might  be  able  to  work  with  current  developers  to  get  them
+to  use  your  API  more.  That  is  true  with  a  lot  of  APIs,  and  some  of
+the  tactics  that  we  outline  in  the  next  section  should  target  current
+developers, not necessarily new ones.
+Next, we need to add two additional columns:
+Market potential
+What are the long-term goals for each indicator?
+Short-term targets
+What are we trying to achieve in the short term?
+Mapping  the  market  potential  is  somewhat  of  a  guess.  It  is  some‐
+times  really  difficult  to  determine  what  the  addressable  market  is.
+You  can  buy  market  research,  go  to  developer  communities  that
+might be potential users and assess their size, or ask colleagues who
+Building a Developer Strategy | 155
+
+have similar addressable markets. Big companies like Google, Ama‐
+zon,  and  Facebook  release  developer  size  and  usage  metrics  that
+might  be  good  benchmarks  for  you  if  you  are  addressing  the  same
+developers.  You  can  also  use  the  sizing  determinations  you  made
+when  segmenting  your  developer  audiences.  See  “Market  size  and
+geographical distribution” on page 149.
+Now that you know what the market potential is, you can set shortterm  targets.  These  targets  will  influence  the  tactics  you  use  in  the
+next section of this chapter.
+Let’s  add  the  short-term  targets  and  market  potential  columns  to
+Table 8-3. Table 8-4 presents the results.
+Table 8-4. Key indicators with short-term targets and market potential
+AspectMonthly ongoing statusQ2 targetsMarket
+potential
+Awareness500 unique users a month on
+api.imagefilters.com
+Grow to 700500,000
+developers
+Proficiency200 developers have gone through the getting
+started stage
+Grow to 400250,000
+developers
+Usage50 developers have moved to the Pro editionGrow to 70150,000
+developers
+Success500,000 images processed by new developersGrow to 700,00050,000
+developers
+Outlining Your Tactics
+Now  that  you  know  what  the  current  status  is  and  where  you  want
+to be in the short and long term, it is time to map the tactical steps 
+you  are  planning  to  take  to  move  developers  through  the  funnel.
+Here are a set of examples of tactics to use in each step in the funnel
+that we previously outlined.
+Awareness tactics examples
+Awareness tactics need to move developers from not knowing about
+an API to knowing about it and hopefully being excited about using
+it. Here are some examples of activities that can drive awareness:
+•
+Build an API documentation site.
+•
+Run a Facebook ad campaign to drive developers to the site.
+
+•Create swag that developers love, adorned with the logo of your
+API/platform.
+•Have a booth at a big developer event.
+•
+Contribute  to  a  popular  open  source  project  with  content  rele‐
+vant to your API.
+•
+Write an article in an industry news outlet.
+•Run a Product Hunt campaign.
+•
+Speak at events.
+Proficiency tactics examples
+Proficiency  tactics  aim  to  educate  developers  about  how  to  use  the
+API,  from  the  basics  to  the  best  practices.  Here  are  some  examples
+of activities that can drive proficiency:
+•Write  tutorials  about  getting  started  and  different  aspects  of
+your API.
+•Create hands-on code labs.
+•
+Build code samples, templates, and SDKs.
+•Run hackathons.
+•
+Build a certification program for developers.
+•
+Write whitepapers.
+•
+Run webinars.
+Usage tactics examples
+Usage tactics drive developers to use the API in production, expand‐
+ing the current use cases and promoting new types of API use. Here
+are some examples of activities that can drive usage:
+•
+Build  a  registration  system  with  which  developers  can  manage
+their API usage.
+•
+Build  a  coupon  or  free-tier  system  to  incentivize  production
+usage.
+•
+Run  a  design  sprint  with  a  partner  to  build  product-level  API
+usage.
+•
+Run a beta program for new API features.
+Building a Developer Strategy | 157
+
+•Run a feedback program to capture ways to improve usage.
+Success tactics examples
+Success  tactics  drive  the  developer’s  own  goals,  whether  those  are
+making money, improving their business, or technical goals such as
+high  availability.  One  useful  strategy  is  to  let  successful  developers
+teach  other  developers  how  your  API  helped  them  to  reach  their
+own goals. Here are some examples of activities that can drive devel‐
+oper success:
+•
+Run a comarketing campaign with selected developers.
+•
+Write content with successful developers to share tips and tricks
+for using your API.
+•Add a best practices section to your developer site.
+•Run API optimization workshops.
+•Create a top developer program that identifies successful devel‐
+opers and highlights their achievements.
+These are just a few examples of developer relations tactics; in Chap‐
+ter  9,  we  discuss  building  and  running  such  developer  programs  at
+greater  length.  You  might  have  a  totally  different  set  of  steps  to  get
+your  ecosystem  going  and  flourishing.  The  important  part  is  that
+you are strategic and thoughtful in outlining your tactics.
+Pro Tip
+It is easy to confuse tactics and the steps associ‐
+ated  with  them.  Some  people  might  think  that
+they   can   achieve   developer   success   through
+hackathons,  while  hackathons  actually  contrib‐
+ute  to  developer  proficiency,  for  example.  This
+leads   to   frustration   and   loss   of   productivity.
+Make  sure  you  do  the  proper  actions  to  move
+the right metrics.
+You  probably  don’t  want  to  immediately  execute  all  the  tactics  we
+just outlined. Some things, like providing documentation and a way
+to  register  for  API  keys,  are  usually  table  stakes,  but  a  lot  of  these
+activities  are  optional.  Next,  you  need  to  pick  and  choose  the  right
+set of activities to help you achieve your short-term goals.
+
+Here is an example of a developer relations high-level quarterly plan
+that maps targets to tactics:
+•Increase developer awareness to 5,000 new developers.
+—Tactic: Run a developer marketing campaign.
+—Tactic: Release two articles in major news outlet(s).
+•
+Increase developer proficiency to 1,000 new developers.
+—Tactic:  Run  two  workshops  in  developer  events,  with  300
+developers in each.
+—Tactic:  Build  a  new  front  page  to  the  developer  site,  with  a
+better call to action to get started.
+—Tactic: Create five tutorials that outline common use cases.
+•Drive 40 new developers to use their API keys in production.
+—Tactic:  Work  with  sales  to  identify  20  candidates  and  run
+design sprints with these developers.
+—
+Tactic:  Run  a  beta  program  for  our  new  Thumbnail  feature
+with 20 launch partners.
+•Grow the number of image process API calls to 150,000.
+—Tactic:  Work  with  the  top  five  developers  to  increase  their
+API usage.
+—
+Tactic: Write an article with two developers that are success‐
+fully using our API.
+Many  companies  go  through  prioritization  exercises  and  pick  the
+top goals and activities every quarter. Many organizations, including
+Google,  highly  recommend  and  find  it  effective  to  structure  these
+plans in a format called objective key results (OKRs).
+When you first build your API, the plan should be very straightfor‐
+ward.  You  need  to  ask  yourself,  “What  are  the  things  developers
+must have before using our API?” These will probably include docu‐
+mentation,  basic  samples,  and  a  developer  landing  page.  As  time
+passes and you get these initial table-stakes tasks done, you can start
+asking  yourself,  “What  are  the  things  developers  should  have  in
+order to be proficient  and successful at using our API?” 
+Building a Developer Strategy | 159
+
+Deriving Measurements
+You  have  a  plan  and  you  can  now  begin  executing  it,  right?  Well...
+yes,  but  we  recommend  one  additional  step  before  you  get  started.
+One  of  the  most  difficult  challenges  is  connecting  developer  activi‐
+ties  to  measurements.  We  talked  about  the  current  state  and  future
+state, but how do you know that you are going in the right direction
+and that what you are doing is impactful?
+The key here is to think hard about what the metric is that you want
+to  affect  when  running  each  activity  and  then  to  measure  whether
+you actually hit your targets at the end of each activity. For example,
+when  hosting  an  event,  you  can  measure  the  number  of  developers
+who actually run a hands-on lab and follow up on that cohort to see
+if they turn into active developers. After a design sprint (a structured
+activity  in  which  the  team  brainstorms  and  prototypes  solutions),
+you can measure whether the partner has actually implemented the
+sprint’s  recommendation,  thus  improving  or  extending  their  API
+usage. Some activities are more difficult to track, but it is critical to
+try to measure each of the activities and to evaluate whether they’ve
+moved the needle.
+Table 8-5 lists a few examples of key performance indicators (KPIs)
+and how you can connect them to activities.
+Table 8-5. Developer activities measurement report
+MeasurementKPICurrentGoalActivityExpected
+impact
+Actual
+Developer
+awareness
+Website
+entry
+10,000100,000Speak at SXSW5,000 new
+developers
+7,000
+ProficiencyToken
+created
+5,00010,000Run a technical
+webcast
+5,000 new
+tokens
+3,000
+You  can  be  creative  with  your  activities  and  explore  many  ways  to
+affect  your  KPIs,  but  we  recommend  keeping  them  consistent  so
+that you can track your impact over time.
+
+Pro Tip
+Building  a  thriving  ecosystem  is  like  gardening.
+You  cannot  be  sure  which  activity  will  be  suc‐
+cessful with a particular set of circumstances. By
+measuring,  iterating,  and  improving,  you  can
+learn what is impactful and what is not.
+Closing Thoughts
+Building a developer strategy is all about knowing what to measure
+and  which  actions  affect  your  measurements  and  goals.  Following
+the  process  that  we  have  outlined  in  this  chapter  will  help  you  to
+clearly define your developer strategy, and all the rest will be build‐
+ing and executing it.
+Expert Advice
+You need to know your users, their needs and use cases, and tune
+the API accordingly.
+It’s  important  to  keep  the  communication  channels  with  your
+users  open  and  transparent.  This  is  critical  to  get  feedback  and
+improve the API. You need to nurture your ecosystem and put in
+a lot of effort in order to make it grow and be successful.
+—Ido Green, developer advocate at Google
+In  Chapter  9,  we  discuss  how  to  build  and  execute  developer  rela‐
+tions  programs.  We  cover  community  programs  and  documenta‐
+tion,  and  we  learn  from  the  experience  of  companies  such  as
+Facebook, Google, and others about what works and what doesn’t.
+Closing Thoughts | 161
