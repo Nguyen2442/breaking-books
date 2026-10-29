@@ -1,0 +1,56 @@
+<section class="chapter" id="ch16" data-ch="16" data-title="Mẫu thiết kế Proxy: Kiểm soát và Quản lý Truy cập Đối tượng">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 16</p>
+    <h1>The Proxy Pattern: Controlling Object Access <span class="vi">Mẫu thiết kế Proxy: Kiểm soát và Quản lý Truy cập Đối tượng</span></h1>
+    <p class="lede">Sử dụng Proxy Pattern để làm đại diện cho đối tượng thực, kiểm soát quyền truy cập, vượt qua ranh giới mạng hoặc gánh vác các đối tượng nặng tốn tài nguyên.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">1 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch16-t1" data-num="16.1" data-short="Remote Proxy & RMI">
+    <div class="topic-theory-card">
+      <p class="eyebrow">KIẾN TRÚC PHÂN TÁN</p>
+      <h2>Xây dựng Remote Proxy và Ứng dụng Java RMI trong Hệ thống Phân tán</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Remote Proxy cho phép client gọi phương thức trên đối tượng ở một JVM khác thông qua mạng một cách trong suốt.</p></div>
+      <div class="prose">
+        <p>Trong hệ thống phân tán, việc gọi phương thức trực tiếp giữa các đối tượng ở các địa chỉ heap khác nhau là bất khả thi. <dfn data-term="Remote Proxy"><strong>Remote Proxy</strong></dfn> giải quyết bài toán này bằng cách đóng gói các tham số, đẩy qua giao thức mạng và nhận kết quả trả về, làm cho client có cảm giác như đang gọi hàm cục bộ.</p><p>Các trường phái và cơ chế triển khai trong các hệ thống lớn:</p><ul><li><strong>Java RMI (Remote Method Invocation):</strong> Cơ chế nguyên thủy của Java sử dụng Stub và Skeleton để tự động hóa việc truyền tải qua Socket.</li><li><strong>gRPC / Protocol Buffers:</strong> Chuẩn hiện đại cho hệ thống microservices hiệu năng cao, tối ưu hóa băng thông bằng định dạng nhị phân.</li><li><strong>RESTful API / GraphQL Gateways:</strong> Phổ biến trong các hệ thống web đa ngôn ngữ, đánh đổi một phần hiệu năng lấy sự linh hoạt.</li></ul><p>Khi thiết kế hệ thống phân tán, luôn phải chuẩn bị tinh thần cho việc mạng có thể đứt hoặc chậm, do đó các phương thức gọi từ xa bắt buộc phải xử lý ngoại lệ và cơ chế timeout rõ ràng.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại hệ thống thanh toán MoMo / ZaloPay</b>
+        <p>Khi ứng dụng ví điện tử gọi dịch vụ xác thực thẻ ngân hàng bên thứ ba, hệ thống sử dụng các Remote Proxy bọc trong các client HTTP có cài đặt Circuit Breaker. Nếu ngân hàng đối tác quá tải, Proxy sẽ ngay lập tức trả về lỗi fallback thay vì treo luồng xử lý của người dùng.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch16-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô phỏng luồng gọi Remote Proxy qua mạng (RMI / RPC)</strong>
+        <small>Điều chỉnh tải lượng request đồng thời để quan sát độ trễ và khả năng chịu tải của Stub/Skeleton</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch16-review" data-num="16.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 16</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Trong kiến trúc phần mềm chịu tải cao, <dfn data-term="Proxy Pattern"><strong>Mẫu thiết kế Proxy</strong></dfn> đóng vai trò như một lớp đệm trung gian bảo vệ đối tượng thực khỏi các yêu cầu trực tiếp quá tải. Thông qua việc tạo ra một đại diện có cùng giao diện với đối tượng gốc, hệ thống có thể điều hướng các lệnh gọi phương thức qua mạng (Remote Proxy), kiểm soát quyền hạn (Protection Proxy), hoặc trì hoãn việc khởi tạo tốn kém (Virtual Proxy). Cơ chế này tách biệt hoàn toàn logic mạng, bảo mật và hiệu năng khỏi logic nghiệp vụ cốt lõi, đảm bảo tính loosely coupled và khả năng mở rộng quy mô hệ thống phân tán.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Mục đích chính của việc sử dụng Proxy Pattern trong kiến trúc phần mềm là gì?</p>
+        <ol><li>Tăng tốc độ xử lý của CPU bằng đa luồng</li><li>Kiểm soát và quản lý quyền truy cập đến đối tượng thực một cách gián tiếp</li><li>Thay thế hoàn toàn cơ sở dữ liệu quan hệ bằng NoSQL</li><li>Tự động nén dữ liệu khi lưu trữ xuống ổ đĩa</li></ol>
+        <p class="explain">Proxy Pattern đóng vai trò là lớp trung gian đại diện cho đối tượng thực nhằm kiểm soát truy cập, bảo vệ hoặc quản lý các tác vụ tốn kém như gọi mạng.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

@@ -4,6 +4,7 @@
   "subtitle": "A Brain-Friendly Guide",
   "author": "Eric Freeman & Elisabeth Robson",
   "coverUrl": "/covers/head-first-javascript-programming-a-brain-friendly-guide.jpg",
+  "coverStoragePath": "storage/covers/head-first-javascript-programming-a-brain-friendly-guide.jpg",
   "edition": "704 trang · O'Reilly Media",
   "description": "Sổ tay đọc tương tác làm chủ JavaScript toàn diện: từ cú pháp nền tảng, tư duy giải thuật, DOM & Sự kiện bất đồng bộ, đến hàm bậc cao Closures và Hướng đối tượng Prototype.",
   "sourcePdfs": [

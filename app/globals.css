@@ -49,6 +49,11 @@
   --t-xl: 2.05rem;
   --t-2xl: 2.5rem;
   --read-w: 68ch;
+
+  /* Book 3D Deckle Paper Tokens */
+  --book-paper: rgb(245, 239, 230);
+  --book-paper-edge: rgb(232, 223, 209);
+  --book-paper-light: rgb(250, 245, 238);
 }
 
 html.font-serif-mode {
@@ -89,12 +94,29 @@ html {
   font-family: var(--f-body);
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
 }
 
 body {
   background: var(--bg);
   color: var(--ink);
-  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+/* Hallmark Floor: Focus-visible styling on all interactive elements */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Hallmark Floor: Motion-reduce fallback */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Subtle Mintlify Grid Background Utility */

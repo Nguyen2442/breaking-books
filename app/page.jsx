@@ -25,7 +25,10 @@ import {
   FolderLock,
   Play,
   RotateCcw,
+  Atom,
 } from "lucide-react";
+import Interactive3DBook from "@/components/Interactive3DBook";
+import Interactive3DHologram from "@/components/Interactive3DHologram";
 
 export default function LandingPage() {
   const router = useRouter();
@@ -65,64 +68,85 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#090D13] text-slate-900 dark:text-slate-100 font-sans selection:bg-orange-500/20 selection:text-orange-700 dark:selection:text-orange-300 transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-orange-500/20 selection:text-orange-700 dark:selection:text-orange-300 transition-colors duration-200">
       {/* Background Ambience */}
-      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-orange-500/10 via-amber-500/5 to-transparent pointer-events-none" />
-      <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-orange-600/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-0 inset-x-0 h-96 bg-gradient-to-b from-orange-500/5 to-transparent pointer-events-none" />
 
       {/* Navigation Header */}
       <Navbar />
 
-      {/* Hero Section */}
-      <section className="relative pt-16 sm:pt-24 pb-20 px-4 sm:px-8 max-w-5xl mx-auto text-center space-y-6">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 text-xs font-semibold">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>Nền tảng Đọc Sách Tương Tác AI & Trực Quan Hóa Tri Thức Cho Mọi Người</span>
-        </div>
+      {/* Hero Section with 3D Interactive Book Showcase */}
+      <section className="relative pt-12 sm:pt-20 pb-20 px-4 sm:px-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          {/* Left: Typography & CTAs */}
+          <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
+            <div>
+              <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">
+                Nền tảng đọc sách thực hành và mô phỏng kiến trúc
+              </span>
+            </div>
 
-        <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.12]">
-          Đừng đọc sách thụ động. <br />
-          <span className="bg-gradient-to-r from-orange-600 via-amber-500 to-orange-500 bg-clip-text text-transparent">
-            Hãy chạm, tương tác và làm chủ tri thức.
-          </span>
-        </h1>
+            <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.12]">
+              Đừng đọc sách thụ động. <br />
+              <span className="text-orange-600 dark:text-orange-400">
+                Làm chủ tri thức qua thực hành tương tác.
+              </span>
+            </h1>
 
-        <p className="text-base sm:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-          Dù bạn là học sinh, sinh viên, người đi làm hay người tự học: Breaking Books bóc tách mọi cuốn sách dày cộp thành các Topic 5-10 phút cô đọng, kèm <b>sơ đồ tương tác trực quan</b> và thẻ ôn tập flashcards thông minh.
-        </p>
+            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed mx-auto lg:mx-0">
+              Breaking Books bóc tách mọi cuốn sách dày cộp thành các Topic 5-10 phút cô đọng, kèm sơ đồ tư duy 3D, phòng thí nghiệm trực quan và thẻ ôn tập flashcards thông minh.
+            </p>
 
-        {/* CTA Buttons */}
-        <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3.5">
-          <Link
-            href={currentUser ? "/library" : "/register?redirect=/library"}
-            className="w-full sm:w-auto px-7 py-3.5 rounded-2xl text-sm font-bold bg-gradient-to-r from-orange-600 via-amber-600 to-orange-600 hover:from-orange-500 hover:to-amber-500 text-white shadow-xl shadow-orange-600/25 flex items-center justify-center gap-2.5 transition-all transform hover:-translate-y-0.5 cursor-pointer"
-          >
-            <span>{currentUser ? "Truy cập Thư viện cá nhân" : "Bắt đầu dùng thử miễn phí"}</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+            {/* CTA Buttons */}
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5">
+              <Link
+                href={currentUser ? "/library" : "/register?redirect=/library"}
+                className="w-full sm:w-auto px-7 py-3.5 rounded-2xl text-sm font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-lg shadow-orange-600/20 flex items-center justify-center gap-2.5 transition-colors cursor-pointer"
+              >
+                <span>{currentUser ? "Truy cập Thư viện cá nhân" : "Bắt đầu dùng thử miễn phí"}</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
 
-          <Link
-            href="/library"
-            className="w-full sm:w-auto px-6 py-3.5 rounded-2xl text-sm font-semibold bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-white/10 flex items-center justify-center gap-2 transition-all cursor-pointer"
-          >
-            <BookOpen className="w-4 h-4 text-orange-500" />
-            <span>Khám phá 3 sách mẫu có sẵn</span>
-          </Link>
-        </div>
+              <Link
+                href="/library"
+                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl text-sm font-semibold bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-slate-800 flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <BookOpen className="w-4 h-4 text-orange-500" />
+                <span>Khám phá 3 sách mẫu</span>
+              </Link>
+            </div>
 
-        {/* Highlights Badges */}
-        <div className="pt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-xs text-slate-500 dark:text-slate-400">
-          <div className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-            <span>100% Visual Lab tương tác</span>
+            {/* Highlights Badges */}
+            <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 text-xs text-slate-500 dark:text-slate-400">
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                <span>100% Visual Lab tương tác</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                <span>Sơ đồ tư duy 3D trực quan</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                <span>Bảo mật dữ liệu cá nhân</span>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-            <span>Bóc tách bằng AI thông minh</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-            <span>Phân quyền riêng tư từng thành viên</span>
+
+          {/* Right: Interactive 3D Book Model with Physics Tilt */}
+          <div className="lg:col-span-5 flex flex-col items-center justify-center relative">
+            <Interactive3DBook
+              title="Designing Data-Intensive Applications"
+              subtitle="Cẩm nang Thiết kế Hệ thống Đáng tin cậy"
+              author="Martin Kleppmann"
+              size="lg"
+              badge="Mô hình 3D tương tác"
+              coverGradient="from-amber-600 via-orange-600 to-slate-900"
+              spineColor="#9a3412"
+            />
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 text-center">
+              Xoay góc nhìn 3D bằng chuột để quan sát mô hình cấu trúc sách
+            </p>
           </div>
         </div>
       </section>
@@ -133,9 +157,9 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
             <div>
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-xs font-mono font-bold text-orange-400 uppercase tracking-wider">
-                  Trải nghiệm thử Live Lab ngay trên trang chủ
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 motion-safe:animate-pulse" />
+                <span className="text-xs font-semibold text-orange-400">
+                  Trải nghiệm thử Live Lab trực tiếp
                 </span>
               </div>
               <h3 className="text-lg font-bold text-white mt-1">
@@ -188,7 +212,8 @@ export default function LandingPage() {
 
               <button
                 onClick={triggerDemoPacket}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-lg shadow-orange-600/30 inline-flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer"
+                disabled={demoPacketSent && !demoAckReceived}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-lg shadow-orange-600/30 inline-flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer whitespace-nowrap focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
                 <span>Gửi 1 Ghi dữ liệu (Write Request)</span>
@@ -215,10 +240,10 @@ export default function LandingPage() {
           </div>
 
           <div className="border-t border-slate-800 pt-4 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
-            <span>💡 Đây là 1 trong hơn 100 phòng thí nghiệm tương tác được tích hợp sẵn trong sách.</span>
+            <span>Hơn 100 phòng thí nghiệm tương tác được tích hợp sẵn trong các chương sách.</span>
             <Link
               href="/library"
-              className="font-bold text-orange-400 hover:text-orange-300 inline-flex items-center gap-1"
+              className="font-semibold text-orange-400 hover:text-orange-300 inline-flex items-center gap-1 transition-colors"
             >
               <span>Xem đầy đủ các chương sách</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -234,26 +259,26 @@ export default function LandingPage() {
             Được thiết kế cho tất cả mọi người: Học tập, Nghiên cứu & Sự nghiệp
           </h2>
           <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xl mx-auto">
-            Từ sách công nghệ, kinh tế, quản trị kinh doanh đến kỹ năng mềm — kết hợp tri thức sâu sắc với trải nghiệm tương tác trực quan.
+            Từ sách công nghệ, kinh tế, quản trị kinh doanh đến kỹ năng mềm, kết hợp tri thức sâu sắc với trải nghiệm tương tác trực quan.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Feature 1 */}
-          <div className="p-7 rounded-3xl bg-slate-50 dark:bg-[#10161D] border border-slate-200/80 dark:border-white/10 space-y-3">
+          <div className="p-7 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 space-y-3">
             <div className="w-11 h-11 rounded-2xl bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center font-bold">
               <Zap className="w-5 h-5" />
             </div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white">
-              Bóc tách tự động bằng Trí tuệ Nhân tạo (AI)
+              Bóc tách tự động bằng Trí tuệ Nhân tạo
             </h3>
             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-              Bạn tải lên file PDF sách bất kỳ. AI tự động chia chương, cấu trúc thành các Topic cô đọng 5-10 phút, giữ nguyên thuật ngữ tiếng Anh gốc và giải nghĩa tiếng Việt chuẩn xác.
+              Bạn tải lên file PDF sách bất kỳ. Hệ thống tự động chia chương, cấu trúc thành các Topic cô đọng 5-10 phút, giữ nguyên thuật ngữ tiếng Anh gốc và giải nghĩa tiếng Việt chuẩn xác.
             </p>
           </div>
 
           {/* Feature 2 */}
-          <div className="p-7 rounded-3xl bg-slate-50 dark:bg-[#10161D] border border-slate-200/80 dark:border-white/10 space-y-3">
+          <div className="p-7 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 space-y-3">
             <div className="w-11 h-11 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
               <Sliders className="w-5 h-5" />
             </div>
@@ -266,7 +291,7 @@ export default function LandingPage() {
           </div>
 
           {/* Feature 3 */}
-          <div className="p-7 rounded-3xl bg-slate-50 dark:bg-[#10161D] border border-slate-200/80 dark:border-white/10 space-y-3">
+          <div className="p-7 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 space-y-3">
             <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold">
               <GraduationCap className="w-5 h-5" />
             </div>
@@ -279,7 +304,7 @@ export default function LandingPage() {
           </div>
 
           {/* Feature 4 */}
-          <div className="p-7 rounded-3xl bg-slate-50 dark:bg-[#10161D] border border-slate-200/80 dark:border-white/10 space-y-3">
+          <div className="p-7 rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 space-y-3">
             <div className="w-11 h-11 rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center font-bold">
               <FolderLock className="w-5 h-5" />
             </div>
@@ -306,7 +331,7 @@ export default function LandingPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Book 1 */}
-          <div className="rounded-3xl bg-slate-50 dark:bg-[#10161D] border border-slate-200/80 dark:border-white/10 p-5 flex flex-col justify-between hover:shadow-xl transition-all">
+          <div className="rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 p-5 flex flex-col justify-between hover:shadow-xl transition-shadow duration-200">
             <div className="space-y-3">
               <div className="h-44 rounded-2xl overflow-hidden bg-slate-900 shadow-md">
                 <img
@@ -322,7 +347,7 @@ export default function LandingPage() {
             </div>
             <Link
               href="/books/ddia-2e"
-              className="mt-4 py-2 px-3.5 rounded-xl text-xs font-bold bg-orange-600/10 hover:bg-orange-600 text-orange-600 hover:text-white transition-all flex items-center justify-between"
+              className="mt-4 py-2 px-3.5 rounded-xl text-xs font-semibold bg-orange-600/10 hover:bg-orange-600 text-orange-600 hover:text-white transition-colors duration-150 flex items-center justify-between"
             >
               <span>Khám phá 12 chương</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -330,7 +355,7 @@ export default function LandingPage() {
           </div>
 
           {/* Book 2 */}
-          <div className="rounded-3xl bg-slate-50 dark:bg-[#10161D] border border-slate-200/80 dark:border-white/10 p-5 flex flex-col justify-between hover:shadow-xl transition-all">
+          <div className="rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 p-5 flex flex-col justify-between hover:shadow-xl transition-shadow duration-200">
             <div className="space-y-3">
               <div className="h-44 rounded-2xl overflow-hidden bg-slate-900 shadow-md">
                 <img
@@ -346,7 +371,7 @@ export default function LandingPage() {
             </div>
             <Link
               href="/books/building-microservices-2nd-edition-sam-newman"
-              className="mt-4 py-2 px-3.5 rounded-xl text-xs font-bold bg-orange-600/10 hover:bg-orange-600 text-orange-600 hover:text-white transition-all flex items-center justify-between"
+              className="mt-4 py-2 px-3.5 rounded-xl text-xs font-semibold bg-orange-600/10 hover:bg-orange-600 text-orange-600 hover:text-white transition-colors duration-150 flex items-center justify-between"
             >
               <span>Khám phá 7 chương</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -354,7 +379,7 @@ export default function LandingPage() {
           </div>
 
           {/* Book 3 */}
-          <div className="rounded-3xl bg-slate-50 dark:bg-[#10161D] border border-slate-200/80 dark:border-white/10 p-5 flex flex-col justify-between hover:shadow-xl transition-all">
+          <div className="rounded-3xl bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 p-5 flex flex-col justify-between hover:shadow-xl transition-shadow duration-200">
             <div className="space-y-3">
               <div className="h-44 rounded-2xl overflow-hidden bg-slate-900 shadow-md">
                 <img
@@ -370,7 +395,7 @@ export default function LandingPage() {
             </div>
             <Link
               href="/books/head-first-javascript-programming-a-brain-friendly-guide"
-              className="mt-4 py-2 px-3.5 rounded-xl text-xs font-bold bg-orange-600/10 hover:bg-orange-600 text-orange-600 hover:text-white transition-all flex items-center justify-between"
+              className="mt-4 py-2 px-3.5 rounded-xl text-xs font-semibold bg-orange-600/10 hover:bg-orange-600 text-orange-600 hover:text-white transition-colors duration-150 flex items-center justify-between"
             >
               <span>Khám phá 13 chương</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -381,9 +406,7 @@ export default function LandingPage() {
 
       {/* Bottom CTA Banner */}
       <section id="pricing" className="max-w-5xl mx-auto px-4 sm:px-8 py-16">
-        <div className="rounded-3xl bg-gradient-to-br from-orange-600 via-amber-600 to-orange-700 p-8 sm:p-12 text-center text-white space-y-6 shadow-2xl relative overflow-hidden">
-          <div className="w-80 h-80 rounded-full bg-white/10 blur-3xl absolute -top-20 -right-20 pointer-events-none" />
-
+        <div className="rounded-3xl bg-gradient-to-br from-orange-600 via-amber-600 to-orange-700 p-8 sm:p-12 text-center text-white space-y-6 shadow-xl relative overflow-hidden">
           <h2 className="text-3xl sm:text-4xl font-black tracking-tight max-w-xl mx-auto leading-tight">
             Sẵn sàng làm chủ tri thức và chinh phục cuốn sách tiếp theo?
           </h2>
@@ -395,7 +418,7 @@ export default function LandingPage() {
           <div className="pt-2">
             <Link
               href={currentUser ? "/library" : "/register?redirect=/library"}
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl text-sm font-black bg-white text-orange-700 hover:bg-orange-50 shadow-xl transition-all transform hover:scale-105"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl text-sm font-bold bg-white text-orange-700 hover:bg-orange-50 shadow-xl transition-colors cursor-pointer"
             >
               <span>{currentUser ? "Vào Thư viện của tôi ngay" : "Tạo tài khoản miễn phí"}</span>
               <ArrowRight className="w-4 h-4" />

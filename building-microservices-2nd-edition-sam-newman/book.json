@@ -5,6 +5,7 @@
   "subtitle": "Designing Fine-Grained Systems — Sam Newman",
   "author": "Sam Newman",
   "coverUrl": "/covers/building-microservices-2nd-edition-sam-newman.jpg",
+  "coverStoragePath": "storage/covers/building-microservices-2nd-edition-sam-newman.jpg",
   "edition": "O'Reilly · 2nd Edition · 446 trang",
   "description": "Sổ tay đọc tương tác cho Building Microservices (2nd Edition — Sam Newman): giải phẫu kiến trúc Microservices từ mô hình hóa Domain, giao tiếp đồng bộ/bất đồng bộ, Saga Workflow đến CI/CD và triển khai Kubernetes/Serverless.",
   "sourcePdfs": [

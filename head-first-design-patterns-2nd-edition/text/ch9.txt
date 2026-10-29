@@ -1,0 +1,3423 @@
+this is a new chapter     191
+In this chapter, we take encapsulation to a whole new level: 
+we’re going to encapsulate method invocation. That’s right—by 
+encapsulating method invocation, we can crystallize pieces of computation so that 
+the object invoking the computation doesn’t need to worry about how to do things, it 
+just uses our crystallized method to get it done. We can also do some wickedly smart 
+things with these encapsulated method invocations, like save them away for logging 
+or reuse them to implement undo functionality in our code. 
+Encapsulating  Invocation          
+6  the Command Pattern
+These top secret drop 
+boxes have revolutionized the spy 
+industry. I just drop in my request and 
+people disappear, governments change 
+overnight, and my dry cleaning gets done. I 
+don’t have to worry about when, where, or 
+how; it just happens!
+
+192        Chapter    6
+home automation or bust
+Home Automation or Bust, Inc.
+1221 Industrial Avenue, Suite 2000
+Future City, IL 62914
+Greetings!
+I recently received a demo and briefing from Johnny 
+Hurricane, CEO of Weather-O-Rama, on their new 
+expandable weather station. I have to say, I was so 
+impressed with the software architecture that I’d like to 
+ask you to design the API for our new Home Automation 
+Remote Control. In return for your services we’d be happy 
+to handsomely reward you with stock options in Home 
+Automation or Bust, Inc.
+You should have already received a prototype of our 
+ground-breaking remote control for your perusal. The 
+remote control features seven programmable slots (each 
+can be assigned to a  different household device) along with 
+corresponding on/off buttons for each. The remote also has 
+a global undo button.   
+I’m also attaching to this email a set of  Java classes 
+that were created by various vendors to control home 
+automation devices such as lights, fans, hot tubs, audio 
+equipment, and other similar controllable appliances. 
+We’d like you to create an API for programming the remote 
+so that each slot can be assigned to control a device or set of 
+devices. Note that it is important that we be able to control 
+all the current devices, and also any future devices that the 
+vendors may supply.
+Given the work you did on the Weather-O-Rama weather 
+station, we know you’ll do a great job on our remote control!
+We look forward to seeing your design.
+Sincerely,
+Bill Thompson, CEO
+
+you are here 4        193
+the command pattern
+There are on and off 
+buttons for each of 
+the seven slots.
+ We’ve
+ got seven slots to program.  We 
+can put a different device in each 
+slot and control it via the buttons.
+Here’s the global undo button that 
+undoes the operation of the last 
+button pressed.
+These two buttons are 
+used to control the 
+household device stored 
+in slot one...
+...and these two control 
+the household device 
+stored in slot two...
+...and so on.
+Free hardware! Let’s check out the Remote Control...
+Get your Sharpie out and 
+write your device names here.
+
+194        Chapter    6
+vendor classes from home automation
+Taking a look at the vendor classes
+Let’s check out the vendor classes the CEO attached to his email. 
+These should give you some idea of  the interfaces of  the objects 
+we need to control from the remote.
+CeilingLight
+on()
+off()
+dim()
+Hottub
+circulate()
+jetsOn()
+jetsOff()
+setTemperature()
+on()
+off()
+setInputChannel()
+setVolume()
+TV
+OutdoorLight
+on()
+off()
+GarageDoor
+up()
+down()
+stop()
+lightOn()
+lightOff()
+Stereo
+on()
+off()
+setCd()
+setDvd()
+setRadio()
+setVolume()
+FaucetControl
+openValve()
+closeValve()
+Thermostat
+setTemperature()
+()
+GardenLight
+setDuskTime()
+setDawnTime()
+manualOn()
+manualOff()
+CeilingFan
+high()
+medium()
+low()
+off()
+getSpeed()
+ApplianceControl
+on()
+off()
+SecurityControl
+arm()
+disarm()
+Sprinkler
+waterOn()
+waterOff()
+Light
+on()
+off()
+It looks like we have quite a set of  classes here, and not a lot of  
+industry effort to come up with a set of  common interfaces. Not 
+only that, it sounds like we can expect more of  these classes in the 
+future. Designing a remote control API is going to be interesting.  
+Let’s get on to the design.
+Wow, lots of different kinds 
+of devices that we’re going 
+to need to be able to control.
+And some very different 
+kinds of interfaces across 
+these devices.
+
+you are here 4        195
+the command pattern
+Mary: Yes, I thought we’d see a bunch of  classes with on() and off() 
+methods, but here we’ve got methods like dim(), setTemperature(), 
+setVolume(), and setInputChannel(), and waterOn().
+Sue: Not only that, it sounds like we can expect more vendor classes in 
+the future with methods just as diverse.
+Mary: I think it’s important we view this as a separation of  concerns.
+Sue: Meaning?
+Mary: What I mean is that the remote should know how to interpret 
+button presses and make requests, but it shouldn’t know a lot about 
+home automation or how to turn on a hot tub.
+Sue: But if  the remote is dumb and just knows how to make generic 
+requests, how do we design the remote so that it can invoke an action 
+that, say, turns on a light or opens a garage door?
+Mary: I’m not sure, but we don’t want the remote to have to know the 
+specifics of  the vendor classes.
+Sue: What do you mean?
+Mary: We don’t want the remote to consist of  a set of  if  statements, 
+like “if  slot1 == Light, then light.on(), else if  slot1 == Hottub then  
+hottub.jetsOn()”. We know that is a bad design.
+Sue: I agree. Whenever a new vendor class comes out, we’d have to go 
+in and modify the code, potentially creating bugs and more work for 
+ourselves!
+Cubicle Conversation
+Sue
+Your teammates are already discussing how to design the remote control API...
+Well, we’ve got another design to 
+do. My first observation is that we’ve 
+got a simple remote with on and off 
+buttons but a set of vendor classes 
+that are quite diverse.
+
+196        Chapter    6
+command pattern might work
+Mary: Yeah? Tell us more.
+Joe: The Command Pattern allows you to decouple the requester of  an action from 
+the object that actually performs the action. So, here the requester would be the remote 
+control and the object that performs the action would be an instance of  one of  your 
+vendor classes.
+Sue: How is that possible? How can we decouple them? After all, when I press a button, 
+the remote has to turn on a light.
+Joe: You can do that by introducing command objects into your design. A command object 
+encapsulates a request to do something (like turn on a light) on a specific object (say, the 
+living room light object). So, if  we store a command object for each button, when the 
+button is pressed we ask the command object to do some work. The remote doesn’t have 
+any idea what the work is, it just has a command object that knows how to talk to the right 
+object to get the work done. So, you see, the remote is decoupled from the light object!
+Sue: This certainly sounds like it’s going in the right direction.
+Mary: Still, I’m having a hard time wrapping my head around the pattern.
+Joe: Given that the objects are so decoupled, it’s a little difficult to picture how the pattern 
+actually works.
+Mary: Let me see if  I at least have the right idea: using this pattern, we could create 
+an API in which these command objects can be loaded into button slots, allowing the 
+remote code to stay very simple. And the command objects encapsulate how to do a home 
+automation task along with the object that needs to do it.
+Joe: Yes, I think so. I also think this pattern can help you with that undo button, but I 
+haven’t studied that part yet.
+Mary: This sounds really encouraging, but I think I have a bit of  work to do to really 
+“get” the pattern.
+Sue: Me too.
+Hey, I couldn’t help 
+overhearing. Since Chapter 1 
+I’ve been boning up on Design 
+Patterns. There’s a pattern 
+called “Command Pattern” I think 
+might help.
+Joe
+
+you are here 4        197
+the command pattern
+Meanwhile, back at the Diner..., 
+or, 
+A brief introduction to the Command Pattern
+Okay, we all know how the Diner operates:
+You, the Customer, 
+give the Waitress 
+your Order.
+1
+The Waitress 
+takes the Order, 
+places it on the 
+order counter, 
+and says “Order 
+up!”
+The Short-Order Cook prepares your meal 
+from the Order.
+As Joe said, it is a little hard to understand the Command Pattern by just hearing its 
+description. But don’t fear, we have some friends ready to help: remember 
+our friendly diner from Chapter 1? It’s been a while since we visited Alice, 
+Flo, and the short-order cook, but we’ve got good reason for returning 
+(beyond the food and great conversation): the diner is going to help us 
+understand the Command Pattern. 
+So, let’s take a short detour back to the diner and study the interactions 
+between the customers, the waitress, the orders, and the short-order 
+cook. Through these interactions, you’re going to understand the 
+objects involved in the Command Pattern and also get a feel for how the 
+decoupling works. After that, we’re going to knock out that remote control 
+API.
+Checking in at the Objectville Diner...
+2
+3
+Objectville Diner
+Wish you were here...
+Burger with Cheese
+  Malt Shake
+
+198        Chapter    6
+the diner
+Burger with Cheese
+  Malt Shake
+createOrder()
+takeOrder()
+Burger with Cheese
+  Malt Shake
+orderUp()
+makeBurger(), makeShake()
+output
+The Order consists of an rder 
+Slip and the Customer’s menu 
+items that are written on it.
+The Customer knows 
+what he wants and 
+creates an Order.
+The Waitress takes the Order, and when she 
+gets around to it, she calls its orderUp() 
+method to begin the Order’s preparation.
+The Order has all 
+the instructions 
+needed to 
+prepare the 
+meal. The Order 
+directs the 
+Short-Order 
+Cook with 
+methods like 
+makeBurger().
+The Short-Order 
+Cook follows the 
+instructions of the 
+Order and produces 
+the meal.
+Let’s study the interaction in a little more detail...
+...and given this Diner is in Objectville, let’s think about 
+the object and method calls involved, too!
+Start Here
+I’ll have a Burger 
+with Cheese and a 
+Malt Shake.
+
+you are here 4        199
+the command pattern
+The Objectville Diner roles and responsibilities
+An Order Slip encapsulates a request to prepare a meal.
+Think of  the Order Slip as an object that acts as a 
+request to prepare a meal.  Like any object, it can be passed 
+around—from the Waitress to the order counter, or to the next 
+Waitress taking over her shift. It has an interface that consists 
+of  only one method, orderUp(), that encapsulates the actions 
+needed to prepare the meal. It also has a reference to the object 
+that needs to prepare it (in our case, the Short-Order Cook). It’s 
+encapsulated in that the Waitress doesn’t have to know what’s in 
+the Order or even who prepares the meal; she only needs to pass 
+the slip through the order window and call “Order up!”
+Okay, in real life a waitress would probably 
+care what is on the order slip and who cooks 
+it, but this is Objectville...work with us here!
+public void orderUp() {
+    cook.makeBurger();
+    cook.makeShake();
+}
+The Waitress’s job is to take Order Slips and 
+invoke the orderUp() method on them.
+The Waitress has it easy: take an Order from the Customer, 
+continue helping customers until she makes it back to the 
+order counter, and then invoke the orderUp() method to have 
+the meal prepared.  As we’ve already discussed, in Objectville, the 
+Waitress really isn’t worried about what’s on the Order or who is going 
+to prepare it; she just knows Order Slips have an orderUp() method she 
+can call to get the job done.
+Now, throughout the day, the Waitress’s takeOrder() method gets 
+parameterized with different Order Slips from different customers, but 
+that doesn’t faze her; she knows all Order Slips support the orderUp() 
+method and she can call orderUp() any time she needs a meal prepared.
+The Short-Order Cook has the knowledge 
+required to prepare the meal.
+The Short-Order Cook is the object that really knows 
+how to prepare meals. Once the Waitress has invoked 
+the orderUp() method; the Short-Order Cook takes over and 
+implements all the methods that are needed to create meals. 
+Notice the Waitress and the Cook are totally decoupled: the 
+Waitress has Order Slips that encapsulate the details of  the 
+meal; she just calls a method on each Order to get it prepared. 
+Likewise, the Cook gets his instructions from the Order Slip; he 
+never needs to directly communicate with the Waitress.
+Don’t ask me to cook, 
+I just take orders and 
+yell “Order up!”
+You can definitely 
+say the Waitress and I 
+are decoupled. She’s not 
+even my type!
+
+200        Chapter    6
+the diner is a model for command pattern
+Patience, we’re getting there...  
+Think of  the Diner as a model for an OO design pattern that allows 
+us to separate an object making a request from the objects that receive 
+and execute those requests. For instance, in our remote control API, 
+we need to separate the code that gets invoked when we press a button 
+from the objects of  the vendor-specific classes that carry out those 
+requests. What if  each slot of  the remote held an object like the Diner’s 
+Order Slip object? Then, when a button is pressed, we could just call 
+the equivalent of  the orderUp() method on this object and have the 
+lights turn on without the remote knowing the details of  how to make 
+those things happen or what objects are making them happen.
+Now, let’s switch gears a bit and map all this Diner talk to the 
+Command Pattern...
+Okay, we have a Diner with 
+a Waitress who is decoupled 
+from the Short-Order Cook 
+by an Order Slip, so what? 
+Get to the point!
+Before we move on, spend some time studying 
+the diagram two pages back along with Diner 
+roles and responsibilities until you think you’ve 
+got a handle on the Objectville Diner objects and 
+relationships. Once you’ve done that, get ready 
+to nail the Command Pattern!
+
+you are here 4        201
+the command pattern
+createCommandObject()
+setCommand()
+execute()
+action1(), action2()
+The Client is responsible for 
+creating the Command object.  
+The command object consists of 
+a set of actions on a Receiver.
+The Client calls setCommand() on 
+an Invoker object and passes it the 
+Command object, where it gets 
+stored until it is needed.
+At some point in the future 
+the Invoker calls the Command 
+object’s execute() method...
+...which results 
+in the actions 
+being invoked 
+on the Receiver.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+R
+e
+c
+e
+i
+v
+e
+r
+ 
+ 
+ 
+ 
+ 
+C
+o
+m
+m
+a
+n
+d
+execute()
+ 
+ 
+I
+n
+v
+o
+k
+e
+r
+setCommand()
+action1()
+action2()
+     ...
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+C
+l
+i
+e
+n
+t
+create
+Command
+Object()
+ 
+ 
+ 
+ 
+ 
+C
+o
+m
+m
+a
+n
+d
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+R
+e
+c
+e
+i
+v
+e
+r
+action1()
+action2()
+     ...
+public void execute {
+    receiver.action1();
+    receiver.action2();
+}
+The
+ Command object provides 
+one method, execute(), that 
+encapsulates the actions and 
+can be called to invoke the 
+actions on the Receiver.
+The actions and the Receiver 
+are bound together in the 
+command object.
+From the Diner to the Command Pattern
+Okay, we’ve spent enough time in the Objectville Diner that we know all the 
+personalities and their responsibilities quite well. Now we’re going to rework 
+the Diner diagram to reflect the Command Pattern. You’ll see that all the 
+players are the same; only the names have changed.  
+Start Here
+1
+2
+3
+The client creates a 
+command object.
+The client does a 
+setCommand() to store 
+the command object in 
+the invoker.
+Later...the client asks 
+the invoker to execute 
+the command. Note: 
+as you’ll see later in 
+the chapter, once the 
+command is loaded into 
+the invoker, it may be 
+used and discarded, or it 
+may remain and be used 
+many times.
+1
+2
+3
+Loading the Invoker
+
+202        Chapter    6
+who does what
+Match the diner objects and methods with the corresponding names from the 
+Command Pattern.
+Diner
+Command Pattern
+Waitress
+Short-Order Cook
+orderUp()
+Order
+Customer
+takeOrder()
+Command 
+execute()
+Client
+Invoker
+Receiver
+setCommand()
+
+you are here 4        203
+the command pattern
+public class LightOnCommand implements Command {
+    Light light;
+  
+    public LightOnCommand(Light light) {
+        this.light = light;
+    }
+ 
+    public void execute() {
+        light.on();
+    }
+}
+public interface Command {
+    public void execute();
+}
+Our first command object
+Isn’t it about time we built our first command object? Let’s go ahead and write some 
+code for the remote control. While we haven’t figured out how to design the remote 
+control API yet, building a few things from the bottom up may help us...
+Implementing the Command interface
+First things first: all command objects implement the same interface, which 
+consists of  one method. In the Diner we called this method orderUp(); however, 
+we typically just use the name execute().
+Here’s the Command interface:
+Now, let’s say you want to implement a command for turning a light on.  
+Referring to our set of  vendor classes, the Light class has two methods: on() 
+and off(). Here’s how you can implement this as a command:
+Simple. All we need is one method called execute().
+The execute() method calls 
+the on() method on the 
+receiving object, which is 
+the light we are controlling.
+The constructor is passed the specific 
+light that this command is going to 
+control—say the living room light—
+and stashes it in the light instance 
+variable. When execute gets called, 
+this is the light object that is going 
+to be the receiver of the request.
+Now that you’ve got a LightOnCommand class, let’s see if  we can put it to use...
+Implementing a command to turn a light on
+This is a command, so we need to 
+implement the Command interface.
+Light
+on()
+off()
+
+204        Chapter    6
+using the command object
+public class SimpleRemoteControl {
+    Command slot;
+    public SimpleRemoteControl() {}
+ 
+    public void setCommand(Command command) {
+        slot = command;
+    }
+    public void buttonWasPressed() {
+        slot.execute();
+    }
+}
+public class RemoteControlTest {
+    public static void main(String[] args) {
+        SimpleRemoteControl remote = new SimpleRemoteControl();
+        Light light = new Light();
+        LightOnCommand lightOn = new LightOnCommand(light);
+ 
+        remote.setCommand(lightOn);
+        remote.buttonWasPressed();
+    }
+}
+Using the command object
+Okay, let’s make things simple: say we’ve got a remote control with only one 
+button and corresponding slot to hold a device to control:
+Here’s just a bit of  code to test out the simple remote control. Let’s take a look and 
+we’ll point out how the pieces match the Command Pattern diagram:
+File  Edit   Window  Help  DinerFoodYum
+%java RemoteControlTest
+Light is On
+%
+We have one slot to hold our command, 
+which will control one device.
+Creating a simple test to use the Remote Control
+We have a method for setting the 
+command the slot is going to control.  
+This could be called multiple times if the 
+client of this code wanted to change 
+the behavior of the remote button.
+This method is called when the button 
+is pressed. All we do is take the 
+current command bound to the slot 
+and call its execute() method.
+This is our Client in Command Pattern-speak.
+The remote is our Invoker; 
+it will be passed a command 
+object that can be used to 
+make requests.
+Now we create a Light 
+object. This will be the 
+Receiver of the request.
+Here, create a command and 
+pass the Receiver to it.
+Here, pass the command 
+to the Invoker.
+And then we simulate the 
+button being pressed.
+Here’s the output of 
+running this test code.
+
+you are here 4        205
+the command pattern
+public class RemoteControlTest {
+    public static void main(String[] args) {
+        SimpleRemoteControl remote = new SimpleRemoteControl();
+        Light light = new Light();
+        GarageDoor garageDoor = new GarageDoor();
+        LightOnCommand lightOn = new LightOnCommand(light);
+        GarageDoorOpenCommand garageOpen = 
+            new GarageDoorOpenCommand(garageDoor);
+ 
+        remote.setCommand(lightOn);
+        remote.buttonWasPressed();
+        remote.setCommand(garageOpen);
+        remote.buttonWasPressed();
+    }
+}
+GarageDoor
+up()
+down()
+stop()
+lightOn()
+lightOff()
+public class GarageDoorOpenCommand 
+        implements Command {
+}
+Your output here.
+Your code here
+Okay, it’s time for you to implement the 
+GarageDoorOpenCommand class. First, supply the code for the 
+class below. You’ll need the GarageDoor class diagram.
+Now that you’ve got your class, what is the output of the 
+following code? (Hint: the GarageDoor up() method prints out 
+“Garage Door is Open” when it is complete.)
+File  Edit   Window  Help  GreenEggs&Ham
+%java RemoteControlTest
+
+206        Chapter    6
+command pattern defined
+The Command Pattern defined
+You’ve done your time in the Objectville Diner, you’ve partly 
+implemented the remote control API, and in the process you’ve 
+got a fairly good picture of  how the classes and objects interact in 
+the Command Pattern. Now we’re going to define the Command 
+Pattern and nail down all the details. 
+Let’s start with its official definition:
+Let’s step through this. We know that a command object 
+encapsulates a request by binding together a set of  actions on a 
+specific receiver. To achieve this, it packages the actions and the 
+receiver into an object that exposes just one method, execute(). 
+When called, execute() causes the actions to be invoked on the 
+receiver. From the outside, no other objects really know what 
+actions get performed on what receiver; they just know that if  they 
+call the execute() method, their request will be serviced.
+We’ve also seen a couple examples of  parameterizing an object with a 
+command. Back at the diner, the Waitress was parameterized with 
+multiple orders throughout the day. In the simple remote control, 
+we first loaded the button slot with a “light on” command and 
+then later replaced it with a “garage door open” command. Like 
+the Waitress, your remote slot didn’t care what command object it 
+had, as long as it implemented the Command interface.
+What we haven’t encountered yet is using commands to 
+implement queues and logs and support undo operations. Don’t worry, 
+those are pretty straightforward extensions of  the basic Command 
+Pattern, and we’ll get to them soon. We can also easily support 
+what’s known as the Meta Command Pattern once we have the 
+basics in place. The Meta Command Pattern allows you to create 
+macros of  commands so that you can execute multiple commands 
+at once.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+C
+o
+m
+m
+a
+n
+d
+execute() {
+  receiver.action();
+}
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+R
+e
+c
+e
+i
+v
+e
+r
+action()
+An encapsulated request.
+ 
+ 
+ 
+ 
+ 
+L
+i
+g
+h
+t
+O
+n
+C
+o
+m
+m
+a
+n
+d
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+R
+e
+m
+o
+t
+e
+ 
+S
+l
+o
+t
+ 
+ 
+ 
+ 
+ 
+ 
+G
+a
+r
+a
+g
+e
+D
+o
+o
+r
+O
+p
+e
+n
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+C
+e
+i
+l
+i
+n
+g
+F
+a
+n
+H
+i
+g
+h
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+S
+t
+e
+r
+e
+o
+O
+f
+f
+execute()
+An  invoker — for  instance, 
+one slot of the remote 
+—
+can be parameterized with 
+different requests.
+The Command Pattern encapsulates a request as an 
+object, thereby letting you parameterize other objects 
+with different requests, queue or log requests, and 
+support undoable operations.
+
+you are here 4        207
+the command pattern
+The ConcreteCommand defines a binding between an 
+action and a Receiver. The Invoker makes a request by 
+calling execute() and the ConcreteCommand carries it 
+out by calling one or more actions on the Receiver.
+The Receiver knows how to 
+perform the work needed to 
+carry out the request. Any class 
+can act as a Receiver.
+Command
+ declares an interface for all commands. As 
+you already know, a command is invoked through its 
+execute() method, which asks a receiver to perform an 
+action. You’ll also notice this interface has an undo() 
+method, which we’ll cover a bit later in the chapter.
+The 
+Client is responsible for 
+creating a ConcreteCommand and 
+setting its Receiver.
+The Command Pattern defined: 
+the class diagram
+The Invoker holds 
+a command and at 
+some point asks the 
+command to carry 
+out a request by 
+calling its execute() 
+method.
+Invoker
+<<interface>>
+Command
+execute()
+undo()
+action()
+Receiver
+Client
+ConcreteCommand
+execute()
+undo()
+public void execute() {
+    receiver.action()
+}
+The execute() 
+method invokes 
+the action(s) 
+on the receiver 
+needed to fulfill 
+the request.
+setCommand()
+How does the design of the Command Pattern support the decoupling 
+of the invoker of a request and the receiver of the request?
+
+208        Chapter    6
+where do we begin?
+Mary: Me too. So where do we begin?
+Sue:  Like we did in the SimpleRemote, we need to provide a 
+way to assign commands to slots. In our case we have seven slots, 
+each with an on and off  button. So we might assign commands to 
+the remote something like this:  
+onCommands[0] = onCommand;  
+offCommands[0] = offCommand; 
+and so on for each of  the seven command slots.
+Mary: That makes sense, except for the Light objects. How does 
+the remote know the living room from the kitchen light?
+Sue: Ah, that’s just it—it doesn’t! The remote doesn’t know 
+anything but how to call execute() on the corresponding 
+command object when a button is pressed.
+Mary: Yeah, I sorta got that, but in the implementation, how do 
+we make sure the right objects are turning on and off  the right 
+devices?
+Sue: When we create the commands to be loaded into the 
+remote, we create one LightCommand that is bound to the living 
+room light object and another that is bound to the kitchen light 
+object. Remember, the receiver of  the request gets bound to 
+the command it’s encapsulated in. So, by the time the button is 
+pressed, no one cares which light is which; the right thing just 
+happens when the execute() method is called.
+Mary: I think I’ve got it. Let’s implement the remote and I think 
+this will get clearer!
+Sue: Sounds good. Let’s give it a shot...
+Okay, I think I’ve got a good 
+feel for the Command Pattern now.  
+Great tip, Joe, I think we’re going to 
+look like superstars after finishing off 
+the Remote Control API.
+
+you are here 4        209
+the command pattern
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+C
+e
+i
+l
+i
+n
+g
+F
+a
+n
+O
+f
+f
+execute()
+ 
+ 
+ 
+ 
+ 
+L
+i
+g
+h
+t
+O
+n
+C
+o
+m
+m
+a
+n
+d
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+G
+a
+r
+a
+g
+e
+D
+o
+o
+r
+O
+p
+e
+n
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+C
+e
+i
+l
+i
+n
+g
+F
+a
+n
+H
+i
+g
+h
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+S
+t
+e
+r
+e
+o
+O
+f
+f
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+G
+a
+r
+a
+g
+e
+D
+o
+o
+r
+C
+l
+o
+s
+e
+execute()
+ 
+ 
+ 
+ 
+ 
+L
+i
+g
+h
+t
+O
+f
+f
+C
+o
+m
+m
+a
+n
+d
+execute()
+ 
+ 
+ 
+ 
+ 
+L
+i
+g
+h
+t
+O
+n
+C
+o
+m
+m
+a
+n
+d
+execute()
+ 
+ 
+ 
+ 
+ 
+L
+i
+g
+h
+t
+O
+f
+f
+C
+o
+m
+m
+a
+n
+d
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+S
+t
+e
+r
+e
+o
+O
+n
+F
+o
+r
+C
+D
+execute()
+Assigning Commands to slots
+So we have a plan: we’re going to assign a command to each slot in the 
+remote control. This makes the remote control our invoker. When a button 
+is pressed, the execute() method will be called on the corresponding 
+command, which results in actions being invoked on the receiver (like 
+lights, ceiling fans, and stereos).
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+S
+t
+e
+r
+e
+o
+  off()
+   on()
+(1) Each slot gets a command.
+(2) When the button is pressed, the 
+execute() method is called on the 
+corresponding command.
+(3) In the execute() method, 
+actions are invoked on the receiver.
+The Invoker
+We’ll worry about the 
+remaining slots in a bit.
+In our code you’ll find that each 
+command name has “Command” 
+appended to it, but in print, 
+we’ve unfortunately run out of 
+space for a few of them.
+
+210        Chapter    6
+implementing the remote control
+public class RemoteControl {
+    Command[] onCommands;
+    Command[] offCommands;
+ 
+    public RemoteControl() {
+        onCommands = new Command[7];
+        offCommands = new Command[7];
+ 
+        Command noCommand = new NoCommand();
+        for (int i = 0; i < 7; i++) {
+            onCommands[i] = noCommand;
+            offCommands[i] = noCommand;
+        }
+    }
+  
+    public void setCommand(int slot, Command onCommand, Command offCommand) {
+        onCommands[slot] = onCommand;
+        offCommands[slot] = offCommand;
+    }
+ 
+    public void onButtonWasPushed(int slot) {
+        onCommands[slot].execute();
+    }
+ 
+    public void offButtonWasPushed(int slot) {
+        offCommands[slot].execute();
+    }
+  
+    public String toString() {
+        StringBuffer stringBuff = new StringBuffer();
+        stringBuff.append("\n------ Remote Control -------\n");
+        for (int i = 0; i < onCommands.length; i++) {
+            stringBuff.append("[slot " + i + "] " + onCommands[i].getClass().getName()
+                + "    " + offCommands[i].getClass().getName() + "\n");
+        }
+        return stringBuff.toString();
+    }
+}
+In the constructor, all we need to 
+do is instantiate and initialize the 
+On and Off arrays.
+This
+ time around, the remote is going 
+to handle seven On and Off commands, 
+which we’ll hold in corresponding arrays.
+The setCommand() method takes a slot 
+position and an On and Off command to 
+be stored in that slot.  
+When an On or Off button is 
+pressed, the hardware takes 
+care of calling the corresponding 
+methods onButtonWasPushed() or 
+offButtonWasPushed().
+We override toString() to print out each slot and 
+its corresponding command. You’ll see us use this 
+when we test the remote control.  
+Implementing the Remote Control
+It puts these commands in the 
+On and Off arrays for later use.
+
+you are here 4        211
+the command pattern
+public class StereoOnWithCDCommand implements Command {
+    Stereo stereo;
+ 
+    public StereoOnWithCDCommand(Stereo stereo) {
+        this.stereo = stereo;
+    }
+ 
+    public void execute() {
+        stereo.on();
+        stereo.setCD();
+        stereo.setVolume(11);
+    }
+}
+public class LightOffCommand implements Command {
+    Light light;
+ 
+    public LightOffCommand(Light light) {
+        this.light = light;
+    }
+ 
+    public void execute() {
+        light.off();
+    }
+}
+Implementing the Commands
+Well, we’ve already gotten our feet wet implementing the LightOnCommand for the 
+SimpleRemoteControl. We can plug that same code in here and everything works 
+beautifully. Off  commands are no different; in fact, the LightOffCommand looks like this:
+The LightOffCommand works exactly 
+the same way as the LightOnCommand, 
+except that we’re binding the receiver to 
+a different action: the off() method.
+Let’s try something a little more challenging; how about writing on and off  
+commands for the Stereo? Okay, off  is easy, we just bind the Stereo to the off() 
+method in the StereoOffCommand. On is a little more complicated; let’s say we 
+want to write a StereoOnWithCDCommand...
+Stereo
+on()
+off()
+setCd()
+setDvd()
+setRadio()
+setVolume()
+Just like the LightOnCommand, we 
+get passed the instance of the stereo 
+we’re going to be controlling and we 
+store it in an instance variable.
+To carry out this request, we need to call three 
+methods on the stereo: first, turn it on, then set 
+it to play the CD, and finally set the volume to 11.  
+Why 11? Well, it’s better than 10, right?
+Not too bad. Take a look at the rest of  the vendor classes; by now, you can definitely 
+knock out the rest of  the Command classes we need for those.
+
+212        Chapter    6
+testing the remote control
+public class RemoteLoader {
+ 
+    public static void main(String[] args) {
+        RemoteControl remoteControl = new RemoteControl();
+ 
+        Light livingRoomLight = new Light("Living Room");
+        Light kitchenLight = new Light("Kitchen");
+        CeilingFan ceilingFan = new CeilingFan("Living Room");
+        GarageDoor garageDoor = new GarageDoor("Garage");
+        Stereo stereo = new Stereo("Living Room");
+  
+        LightOnCommand livingRoomLightOn = 
+                new LightOnCommand(livingRoomLight);
+        LightOffCommand livingRoomLightOff = 
+                new LightOffCommand(livingRoomLight);
+        LightOnCommand kitchenLightOn = 
+                new LightOnCommand(kitchenLight);
+        LightOffCommand kitchenLightOff = 
+                new LightOffCommand(kitchenLight);
+  
+        CeilingFanOnCommand ceilingFanOn = 
+                new CeilingFanOnCommand(ceilingFan);
+        CeilingFanOffCommand ceilingFanOff = 
+                new CeilingFanOffCommand(ceilingFan);
+ 
+        GarageDoorUpCommand garageDoorUp =
+                new GarageDoorUpCommand(garageDoor);
+        GarageDoorDownCommand garageDoorDown =
+                new GarageDoorDownCommand(garageDoor);
+ 
+        StereoOnWithCDCommand stereoOnWithCD =
+                new StereoOnWithCDCommand(stereo);
+        StereoOffCommand stereoOff =
+                new StereoOffCommand(stereo);
+ 
+Putting the Remote Control through its paces
+Our job with the remote is pretty much done; all we need to do is run some tests and get 
+some documentation together to describe the API. Home Automation or Bust, Inc., sure 
+is going to be impressed, don’t ya think? We’ve managed to come up with a design 
+that will allow them to produce a remote that is easy to maintain, and they’re going 
+to have no trouble convincing the vendors to write some simple command classes in 
+the future since those are so easy to write.
+Let’s get to testing this code!  
+Create all the devices in 
+their proper locations.
+Create all the Light 
+Command objects.
+Create the On and Off 
+for the ceiling fan.
+Create the Up and Down 
+commands for the Garage.
+Create the stereo On 
+and Off commands.
+
+you are here 4        213
+the command pattern
+        remoteControl.setCommand(0, livingRoomLightOn, livingRoomLightOff);
+        remoteControl.setCommand(1, kitchenLightOn, kitchenLightOff);
+        remoteControl.setCommand(2, ceilingFanOn, ceilingFanOff);
+        remoteControl.setCommand(3, stereoOnWithCD, stereoOff);
+  
+        System.out.println(remoteControl);
+ 
+        remoteControl.onButtonWasPushed(0);
+        remoteControl.offButtonWasPushed(0);
+        remoteControl.onButtonWasPushed(1);
+        remoteControl.offButtonWasPushed(1);
+        remoteControl.onButtonWasPushed(2);
+        remoteControl.offButtonWasPushed(2);
+        remoteControl.onButtonWasPushed(3);
+        remoteControl.offButtonWasPushed(3);
+    }
+}
+File  Edit   Window  Help  CommandsGetThingsDone
+% java RemoteLoader
+------ Remote Control -------
+[slot 0] LightOnCommand            LightOffCommand
+[slot 1] LightOnCommand            LightOffCommand
+[slot 2] CeilingFanOnCommand       CeilingFanOffCommand
+[slot 3] StereoOnWithCDCommand     StereoOffCommand
+[slot 4] NoCommand                 NoCommand
+[slot 5] NoCommand                 NoCommand
+[slot 6] NoCommand                 NoCommand
+Living Room light is on
+Living Room light is off
+Kitchen light is on
+Kitchen light is off
+Living Room ceiling fan is on high
+Living Room ceiling fan is off
+Living Room stereo is on
+Living Room stereo is set for CD input
+Living Room stereo volume set to 11
+Living Room stereo is off
+%
+Now that we’ve got 
+all our commands, we 
+can load them into 
+the remote slots.
+Here’s where we use our toString() method 
+to print each remote slot and the command 
+assigned to it. (Note that toString() gets 
+called automatically here, so we don’t have 
+to call toString() explicitly.)
+All right, we are ready to roll!  
+Now, we step through each slot 
+and push its On and Off buttons.
+Now, let’s check out the execution of our remote control test...
+On slots    Off slots
+Our commands in action! Remember, the output 
+from each device comes from the vendor classes. 
+For instance, when a light object is turned on, it 
+prints “Living Room light is on.”
+
+214        Chapter    6
+null object
+Command noCommand = new NoCommand();
+for (int i = 0; i < 7; i++) {
+    onCommands[i] = noCommand;
+    offCommands[i] = noCommand;
+}
+public class NoCommand implements Command {
+    public void execute() { }
+}
+Good catch. We did sneak a little something in there. In the remote 
+control, we didn’t want to check to see if  a command was loaded every 
+time we referenced a slot. For instance, in the onButtonWasPushed() 
+method, we would need code like this:
+public void onButtonWasPushed(int slot) {
+    if (onCommands[slot] != null) {
+        onCommands[slot].execute();
+    }
+}
+So, how do we get around that? Implement a command that does nothing!
+Then, in our RemoteControl constructor, we assign every slot a 
+NoCommand object by default and we know we’ll always have some 
+command to call in each slot.
+So, in the output of  our test run, you’re seeing only slots that have been 
+assigned to a command other than the default NoCommand object, 
+which we assigned when we created the RemoteControl constructor.
+Pattern             
+Honorable 
+Mention
+Head First
+Honorable 
+Mention
+The NoCommand object is an example of a null object. A null object is useful when 
+you don’t have a meaningful object to return, and yet you want to remove the 
+responsibility for handling null from the client. For instance, in our remote control we 
+didn’t have a meaningful object to assign to each slot out of the box, so we provided 
+a NoCommand object that acts as a surrogate and does nothing when its execute() 
+method is called.
+You’ll find uses for Null Objects in conjunction with many Design Patterns, and 
+sometimes you’ll even see “Null Object” listed as a Design Pattern.
+ Wait a second, what’s 
+with that NoCommand 
+that’s loaded in slots 4 
+through 6? Trying to pull a 
+fast one?
+
+you are here 4        215
+the command pattern
+Time to write that documentation...
+Remote Control API Design for Home Automation or Bust, Inc.
+We are 
+pleased to present you with the following design and application programming interface for your Home 
+Automation Remote Control.  Our primary design goal was to keep the remote control code as simple as possible so that 
+it doesn’t require changes as new vendor classes are produced.  To this end we have employed the Command Pattern to 
+logically decouple the RemoteControl class from the Vendor Classes.  We believe this will reduce the cost of producing 
+the remote as well as drastically reduce your ongoing maintenance costs.
+The following class diagram provides an overview of our design:
+Using the Command Interface, we implement each action 
+that can be invoked by pressing a button on the remote 
+with a simple Command object.  The Command object holds 
+a reference to an object that is an instance of a Vendor Class 
+and implements an execute() method that calls one or more 
+methods on that object.  Here we show two such classes 
+that turn a light on and off, respectively.
+The Vendor Classes are used to perform 
+the actual home automation work of 
+controlling devices. Here, we’re using the 
+Light class as an example.
+All RemoteControl commands 
+implement the Command 
+interface, which consists of one 
+method: execute(). Commands 
+encapsulate a set of actions on a 
+specific vendor class. The remote 
+invokes these actions by calling 
+the execute() method.
+The RemoteLoader creates a 
+number of Command objects 
+that are loaded into the slots 
+of the Remote Control.  Each 
+command object encapsulates 
+a request of a home 
+automation device.  
+RemoteControl
+setCommand()
+onButtonWasPushed()
+offButtonWasPushed()
+<<interface>>
+Command
+execute()
+on()
+off()
+Light
+RemoteLoader
+LightOnCommand
+execute()
+LightOffCommand
+execute()
+public void execute() {
+    light.on()
+}
+public void execute() {
+    light.off()
+}
+onCommands
+offCommands
+The RemoteControl class manages a set of 
+Command objects, one per button. When a button 
+is pressed, the corresponding ButtonWasPushed() 
+method is called, which invokes the execute() 
+method on the command. That is the full extent of 
+the remote’s knowledge of the classes it’s invoking 
+as the Command object decouples the remote from 
+the classes doing the actual home automation work.
+
+216        Chapter    6
+public class RemoteLoader {
+ 
+   public static void main(String[] args) {
+      RemoteControl remoteControl = new RemoteControl();
+      Light livingRoomLight = new Light("Living Room");
+      ... 
+      
+LightOnCommand livingRoomLightOn =
+ 
+                            
+new LightOnCommand(livingRoomLight);
+      
+LightOffCommand livingRoomLightOff =
+ 
+                            
+new LightOffCommand(livingRoomLight);
+      ...
+      remoteControl.setCommand(0,() -> livingRoomLight.on(), 
+                                 () -> livingRoomLight.off());
+      ...
+   }
+}
+The updated code, using lambda expressions:
+We create the Light 
+object like normal...
+Want to take your Command Pattern coding to the next level? You can use Java’s lambda expressions 
+to skip the step of  creating all those concrete command objects. With lambda expressions, instead of  
+instantiating the concrete command objects, you can use 
+function objects
+ in their place. In other words, 
+we can use a function object 
+as a command
+. And, while we’re at it, we can delete all those concrete 
+Command classes, too. 
+Let’s take a look at how you’d use lambda expressions as commands to simplify our previous code:
+Once we’ve replaced the concrete commands with lambda expressions, we can delete all those 
+concrete command classes (LightOnCommand, LightOffCommand, HottubOnCommand, 
+HottubOffCommand, etc.). If  you do this for every concrete command, you’ll reduce the total number 
+of  classes in the remote control application from 22 to 9. 
+Note that you can only do this if  your Command interface has 
+one
+ abstract method. As soon as we add a 
+second abstract method, the lambda shorthand no longer works. 
+If  you like this technique, check out your favorite Java reference for more information on the lambda 
+expression.
+But we can remove 
+the concrete 
+LightOnCommand and 
+LightOffCommand 
+objects.
+Instead we'll write the concrete commands as lambda 
+expressions that do the same work as the concrete 
+command’s execute() method was doing: that is, turning 
+the light on or turning the light off. 
+represent commands with lambdas
+Later, when you click one of the remote’s 
+buttons, the remote calls the execute() 
+method of the command object in the 
+slot for that button, which is represented 
+by this lambda expression.
+
+you are here 4        217
+the command pattern
+public interface Command {
+    public void execute();
+    public void undo();
+}
+Whoops! We almost forgot...luckily, once 
+we have our basic Command classes, 
+undo is easy to add. Let’s step through 
+adding undo to our commands and to the 
+remote control...
+Here’s the new undo() method.
+What are we doing?
+Okay, we need to add functionality to support the undo button on the remote. It works like 
+this: say the Living Room Light is off  and you press the on button on the remote. Obviously 
+the light turns on. Now if  you press the undo button, then the last action will be reversed—in 
+this case, the light will turn off. Before we get into more complex examples, let’s get the light 
+working with the undo button:
+1
+When commands support undo, they have an undo() method that mirrors the execute() 
+method. Whatever execute() last did, undo() reverses. So, before we can add undo to our 
+commands, we need to add an undo() method to the Command interface:
+That was simple enough.
+Now, let’s dive into the Light commands and implement the undo() method.
+Great job; it looks like 
+you’ve come up with a terrific 
+design, but aren’t you forgetting one 
+little thing the customer asked for?  
+LIKE THE UNDO BUTTON?!
+
+218        Chapter    6
+public class LightOffCommand implements Command {
+    Light light;
+ 
+    public LightOffCommand(Light light) {
+        this.light = light;
+    }
+ 
+    public void execute() {
+        light.off();
+    }
+ 
+    public void undo() {
+        light.on();
+    }
+}
+public class LightOnCommand implements Command {
+    Light light;
+ 
+    public LightOnCommand(Light light) {
+        this.light = light;
+    }
+ 
+    public void execute() {
+        light.on();
+    }
+ 
+    public void undo() {
+        light.off();
+    }
+}
+Could this be any easier? Okay, we aren’t done yet; we need to work a little 
+support into the Remote Control to handle tracking the last button pressed 
+and the undo button press.
+Piece of  cake! Now for the LightOffCommand. Here the undo() method just 
+needs to call the Light’s on() method.
+2
+Let’s start with the LightOnCommand: if  the LightOnCommand’s execute() method 
+was called, then the on() method was last called. We know that undo() needs to do the 
+opposite of  this by calling the off() method.
+And here, undo() turns 
+the light back on.
+execute() turns the light 
+on, so undo() simply turns 
+the light back off.
+implementing undo
+
+you are here 4        219
+the command pattern
+public class RemoteControlWithUndo {
+    Command[] onCommands;
+    Command[] offCommands;
+    Command undoCommand;
+ 
+    public RemoteControlWithUndo() {
+        onCommands = new Command[7];
+        offCommands = new Command[7];
+ 
+        Command noCommand = new NoCommand();
+        for(int i=0;i<7;i++) {
+            onCommands[i] = noCommand;
+            offCommands[i] = noCommand;
+        }
+        undoCommand = noCommand;
+    }
+  
+    public void setCommand(int slot, Command onCommand, Command offCommand) {
+        onCommands[slot] = onCommand;
+        offCommands[slot] = offCommand;
+    }
+ 
+    public void onButtonWasPushed(int slot) {
+        onCommands[slot].execute();
+        undoCommand = onCommands[slot];
+    }
+ 
+    public void offButtonWasPushed(int slot) {
+        offCommands[slot].execute();
+        undoCommand = offCommands[slot];
+    }
+ 
+    public void undoButtonWasPushed() {
+        undoCommand.undo();
+    }
+  
+    public String toString() {
+        // toString code here...
+    }
+}
+3
+To add support for the undo button, we only have to make a few small changes to the Remote 
+Control class. Here’s how we’re going to do it: we’ll add a new instance variable to track the last 
+command invoked; then, whenever the undo button is pressed, we retrieve that command and 
+invoke its undo() method.
+This is where we’ll stash the last 
+command executed for the undo button.
+Just like the other slots, undo 
+starts off with a noCommand, so 
+pressing undo before any other 
+button won’t do anything at all.
+When a button is pressed, we take 
+the command and first execute 
+it; then we save a reference to 
+it in the undoCommand instance 
+variable. We do this for both on 
+commands and off commands.
+When the undo button is pressed, we 
+invoke the undo() method of the 
+command stored in undoCommand.  
+This undoes the operation of the last 
+command executed.
+Update to add undoCommands.
+
+220        Chapter    6
+public class RemoteLoader {
+ 
+    public static void main(String[] args) {
+        RemoteControlWithUndo remoteControl = new RemoteControlWithUndo();
+ 
+        Light livingRoomLight = new Light("Living Room");
+ 
+        LightOnCommand livingRoomLightOn = 
+                new LightOnCommand(livingRoomLight);
+        LightOffCommand livingRoomLightOff = 
+                new LightOffCommand(livingRoomLight);
+ 
+        remoteControl.setCommand(0, livingRoomLightOn, livingRoomLightOff);
+ 
+        remoteControl.onButtonWasPushed(0);
+        remoteControl.offButtonWasPushed(0);
+        System.out.println(remoteControl);
+        remoteControl.undoButtonWasPushed();
+        remoteControl.offButtonWasPushed(0);
+        remoteControl.onButtonWasPushed(0);
+        System.out.println(remoteControl);
+        remoteControl.undoButtonWasPushed();
+    }
+}
+Time to QA that Undo button!
+Create a Light, and our new undo() 
+enabled Light On and Off Commands.
+Add the light Commands 
+to the remote in slot 0.
+And here are the test results...
+Okay, let’s rework the test harness a bit to test the undo button:
+Turn the light on, then 
+off, and then undo.
+Then, turn the light off, back on, and undo.
+File  Edit   Window  Help  UndoCommandsDefyEntropy
+% java RemoteLoader
+Light is on
+Light is off
+------ Remote Control -------
+[slot 0] LightOnCommand        LightOffCommand
+[slot 1] NoCommand             NoCommand
+[slot 2] NoCommand             NoCommand
+[slot 3] NoCommand             NoCommand
+[slot 4] NoCommand             NoCommand
+[slot 5] NoCommand             NoCommand
+[slot 6] NoCommand             NoCommand
+[undo] LightOffCommand
+Light is on
+Light is off
+Light is on
+------ Remote Control -------
+[slot 0] LightOnCommand        LightOffCommand
+[slot 1] NoCommand             NoCommand
+[slot 2] NoCommand             NoCommand
+[slot 3] NoCommand             NoCommand
+[slot 4] NoCommand             NoCommand
+[slot 5] NoCommand             NoCommand
+[slot 6] NoCommand             NoCommand
+[undo] LightOnCommand
+Light is off
+Undo was pressed... 
+the LightOffCommand 
+undo() turns the light back on.
+Here are the Light commands.
+Turn the light on, then off.
+Now undo holds the 
+LightOffCommand, the 
+last command invoked.
+Then we turn the light off and back on.
+Undo was pressed, so the light is back off.
+Now undo holds the LightOnCommand, the last 
+command invoked.
+test drive undo
+
+you are here 4        221
+the command pattern
+public class CeilingFan {
+    public static final int HIGH = 3;
+    public static final int MEDIUM = 2;
+    public static final int LOW = 1;
+    public static final int OFF = 0;
+    String location;
+    int speed;
+ 
+    public CeilingFan(String location) {
+        this.location = location;
+        speed = OFF;
+    }
+  
+    public void high() {
+        speed = HIGH;
+        // code to set fan to high
+    } 
+ 
+    public void medium() {
+        speed = MEDIUM;
+        // code to set fan to medium 
+    }
+ 
+    public void low() {
+        speed = LOW;
+        // code to set fan to low
+    }
+  
+    public void off() {
+        speed = OFF;
+        // code to turn fan off
+    }
+  
+    public int getSpeed() {
+        return speed;
+    }
+}
+Using state to implement Undo
+Okay, implementing undo on the Light was instructive but a little too easy. Typically, 
+we need to manage a bit of  state to implement undo. Let’s try something a little more 
+interesting, like the CeilingFan from the vendor classes. The CeilingFan class allows a 
+number of  speeds to be set along with an off  method.
+Here’s the source code for the CeilingFan class:
+CeilingFan
+high()
+medium()
+low()
+off()
+getSpeed()
+Notice that the CeilingFan class 
+holds local state representing the 
+speed of the ceiling fan.
+These methods set the 
+speed of the ceiling fan.
+We can get the current 
+speed of the ceiling fan 
+using getSpeed().
+Hmm, so to properly 
+implement undo, I’d have 
+to take the previous speed of 
+the ceiling fan into account...
+
+222        Chapter    6
+public class CeilingFanHighCommand implements Command {
+    CeilingFan ceilingFan;
+    int prevSpeed;
+  
+    public CeilingFanHighCommand(CeilingFan ceilingFan) {
+        this.ceilingFan = ceilingFan;
+    }
+ 
+    public void execute() {
+        prevSpeed = ceilingFan.getSpeed();
+        ceilingFan.high();
+    }
+ 
+    public void undo() {
+        if (prevSpeed == CeilingFan.HIGH) {
+            ceilingFan.high();
+        } else if (prevSpeed == CeilingFan.MEDIUM) {
+            ceilingFan.medium();
+        } else if (prevSpeed == CeilingFan.LOW) {
+            ceilingFan.low();
+        } else if (prevSpeed == CeilingFan.OFF) {
+            ceilingFan.off();
+        }
+    }
+}
+Now let’s tackle adding undo to the various Ceiling Fan commands. To 
+do so, we need to track the last speed setting of  the fan and, if  the undo() 
+method is called, restore the fan to its previous setting. Here’s the code for 
+the CeilingFanHighCommand:
+We’ve added local state to 
+keep track of the previous 
+speed of the fan.
+In execute(), before we 
+change the speed of the 
+fan, we need to first 
+record its previous state, 
+just in case we need to 
+undo our actions.
+To undo, we set the 
+speed of the fan back 
+to its previous speed.
+Adding Undo to the Ceiling Fan commands
+We’ve got three more ceiling fan commands to write: low, 
+medium, and off. Can you see how these are implemented?
+add undo to the ceiling fan
+
+you are here 4        223
+the command pattern
+public class RemoteLoader {
+ 
+    public static void main(String[] args) {
+        RemoteControlWithUndo remoteControl = new RemoteControlWithUndo();
+ 
+        CeilingFan ceilingFan = new CeilingFan("Living Room");
+   
+        CeilingFanMediumCommand ceilingFanMedium = 
+                new CeilingFanMediumCommand(ceilingFan);
+        CeilingFanHighCommand ceilingFanHigh = 
+                new CeilingFanHighCommand(ceilingFan);
+        CeilingFanOffCommand ceilingFanOff = 
+                new CeilingFanOffCommand(ceilingFan);
+  
+        remoteControl.setCommand(0, ceilingFanMedium, ceilingFanOff);
+        remoteControl.setCommand(1, ceilingFanHigh, ceilingFanOff);
+   
+        remoteControl.onButtonWasPushed(0);
+        remoteControl.offButtonWasPushed(0);
+        System.out.println(remoteControl);
+        remoteControl.undoButtonWasPushed();
+  
+        remoteControl.onButtonWasPushed(1);
+        System.out.println(remoteControl);
+        remoteControl.undoButtonWasPushed();
+    }
+}
+Get ready to test the ceiling fan
+Time to load up our remote control with the ceiling fan 
+commands. We’re going to load slot 0’s on button with the 
+medium setting for the fan and slot 1 with the high setting. 
+Both corresponding off  buttons will hold the ceiling fan off  
+command.
+Here’s our test script:
+Here we instantiate three 
+commands: medium, high, and off.
+Here we put medium in 
+slot 0, and high in slot 
+1. We also load up the 
+off command.
+First, turn the fan on medium.
+Then turn it off. 
+Undo! It should go back to medium...
+ 
+Turn it on to high this time.
+And, one more undo; it should go back 
+to medium.
+
+224        Chapter    6
+v
+% java RemoteLoader
+Living Room ceiling fan is on medium
+Living Room ceiling fan is off
+------ Remote Control -------
+[slot 0] CeilingFanMediumCommand    CeilingFanOffCommand
+[slot 1] CeilingFanHighCommand      CeilingFanOffCommand
+[slot 2] NoCommand                  NoCommand
+[slot 3] NoCommand                  NoCommand
+[slot 4] NoCommand                  NoCommand
+[slot 5] NoCommand                  NoCommand
+[slot 6] NoCommand                  NoCommand
+[undo] CeilingFanOffCommand
+Living Room ceiling fan is on medium
+Living Room ceiling fan is on high
+------ Remote Control -------
+[slot 0] CeilingFanMediumCommand    CeilingFanOffCommand
+[slot 1] CeilingFanHighCommand      CeilingFanOffCommand
+[slot 2] NoCommand                  NoCommand
+[slot 3] NoCommand                  NoCommand
+[slot 4] NoCommand                  NoCommand
+[slot 5] NoCommand                  NoCommand
+[slot 6] NoCommand                  NoCommand
+[undo] CeilingFanHighCommand
+Living Room ceiling fan is on medium
+%
+File  Edit   Window  Help  UndoThis!
+One more undo, and the ceiling 
+fan goes back to medium speed.
+Turn the ceiling fan on 
+medium, then turn it off.
+...and undo has the last command 
+executed, the CeilingFanOffCommand, 
+with the previous speed of medium.
+Here are the commands 
+in the remote control...
+Undo the last command, and it goes back to medium.
+Now, turn it on high.
+Now, high is the last 
+command executed.
+Testing the ceiling fan...
+Okay, let’s fire up the remote, load it with commands, and push some buttons!
+test drive the ceiling fan
+
+you are here 4        225
+the command pattern
+public class MacroCommand implements Command {
+    Command[] commands;
+ 
+    public MacroCommand(Command[] commands) {
+        this.commands = commands;
+    }
+ 
+    public void execute() {
+        for (int i = 0; i < commands.length; i++) {
+            commands[i].execute();
+        }
+    }
+}
+Every remote needs a Party Mode!
+Hottub
+on()
+off()
+circulate()
+jetsOn()
+jetsOff()
+setTemperature()
+Stereo
+on()
+off()
+setCd()
+setDvd()
+setRadio()
+setVolume()
+Light
+on()
+off()
+dim()
+on()
+off()
+setInputChannel()
+setVolume()
+TV
+Mary’s idea is to make a new 
+kind of Command that can 
+execute other Commands... 
+and more than one of them!  
+Pretty good idea, huh?
+Take an array of Commands and store 
+them in the MacroCommand.
+When the macro gets executed by the remote, 
+execute those commands one at a time.
+What’s the point of having a remote if you 
+can’t push one button and have the lights 
+dimmed, the stereo and TV turned on, and 
+the hot tub fired up?
+Hmm, our remote 
+control would need a 
+button for each device, so 
+I don’t think we can do this.
+Hold on, Sue, don’t be 
+so sure. I think we can do 
+this without changing the 
+remote at all!
+
+226        Chapter    6
+remoteControl.setCommand(0, partyOnMacro, partyOffMacro);
+Command[] partyOn = { lightOn, stereoOn, tvOn, hottubOn};
+Command[] partyOff = { lightOff, stereoOff, tvOff, hottubOff};
+  
+MacroCommand partyOnMacro = new MacroCommand(partyOn);
+MacroCommand partyOffMacro = new MacroCommand(partyOff);
+Light light = new Light("Living Room");
+TV tv = new TV("Living Room");
+Stereo stereo = new Stereo("Living Room");
+Hottub hottub = new Hottub();
+ 
+LightOnCommand lightOn = new LightOnCommand(light);
+StereoOnCommand stereoOn = new StereoOnCommand(stereo);
+TVOnCommand tvOn = new TVOnCommand(tv);
+HottubOnCommand hottubOn = new HottubOnCommand(hottub);
+Using a macro command
+Let’s step through how we use a macro command:
+1
+First we create the set of  commands we want to go into the macro:
+Next we create two arrays, one for the On commands and one for the Off  
+commands, and load them with the corresponding commands:
+3
+Then we assign MacroCommand to a button like we always do:
+Create all the devices: a light, 
+tv, stereo, and hot tub.
+Now create all the On 
+commands to control them.
+Create an array for 
+On commands and 
+an array for Off 
+commands...
+...and  create two 
+corresponding macros 
+to hold them.
+Assign the macro 
+command to a button as 
+you would any command.
+We’ll also need commands for the off buttons. 
+Write the code to create those here:
+2
+create a macro command
+
+you are here 4        227
+the command pattern
+System.out.println(remoteControl);
+System.out.println("--- Pushing Macro On---");
+remoteControl.onButtonWasPushed(0);
+System.out.println("--- Pushing Macro Off---");
+remoteControl.offButtonWasPushed(0);
+File  Edit   Window  Help  You Can’tBeatABabka
+% java RemoteLoader
+------ Remote Control -------
+[slot 0] MacroCommand    MacroCommand
+[slot 1] NoCommand       NoCommand
+[slot 2] NoCommand       NoCommand
+[slot 3] NoCommand       NoCommand
+[slot 4] NoCommand       NoCommand
+[slot 5] NoCommand       NoCommand
+[slot 6] NoCommand       NoCommand
+[undo] NoCommand
+--- Pushing Macro On---
+Light is on
+Living Room stereo is on
+Living Room TV is on
+Living Room TV channel is set for DVD
+Hottub is heating to a steaming 104 degrees
+Hottub is bubbling!
+--- Pushing Macro Off---
+Light is off
+Living Room stereo is off
+Living Room TV is off
+Hottub is cooling to 98 degrees
+Here are the two macro commands.
+All the Commands in the 
+macro are executed when we 
+invoke the on macro...
+...and when we invoke the off 
+macro. Looks like it works.
+4
+Finally, we just need to push some buttons and see if  this works. 
+Here’s the output.
+
+228        Chapter    6
+exercise with macro commands
+The only thing our MacroCommand is missing is its undo functionality. When the undo 
+button is pressed after a macro command, all the commands that were invoked in the 
+macro must undo their previous actions. Here’s the code for MacroCommand; go ahead 
+and implement the undo() method:
+public class MacroCommand implements Command {
+    Command[] commands;
+    public MacroCommand(Command[] commands) {
+        this.commands = commands;
+    }
+    public void execute() {
+        for (int i = 0; i < commands.length; i++) {
+            commands[i].execute();
+        }
+    }
+    public void undo() {
+    }
+}
+Q:
+ Do I always need a receiver? Why 
+can’t the command object implement the 
+details of the execute() method?
+A: In general, we strive for “dumb” 
+command objects that just invoke an action 
+on a receiver; however, there are many 
+examples of “smart” command objects 
+that implement most, if not all, of the logic 
+needed to carry out a request. Certainly you 
+can do this; just keep in mind you’ll no longer 
+have the same level of decoupling between 
+the invoker and receiver, nor will you be 
+able to parameterize your commands with 
+receivers.
+Q:
+ How can I implement a history 
+of undo operations? In other words, I 
+want to be able to press the undo button 
+multiple times.
+A: Great question. It’s pretty easy 
+actually; instead of keeping just a reference 
+to the last Command executed, you keep 
+a stack of previous commands. Then, 
+whenever undo is pressed, your invoker 
+pops the first item off the stack and calls its 
+undo() method. 
+ 
+Q:
+ Could I have just implemented 
+party mode as a Command by creating 
+a PartyCommand and putting the calls 
+to execute the other Commands in 
+PartyCommand’s execute() method?
+A: You could; however, you’d essentially 
+be  “hardcoding” the party mode into 
+PartyCommand. Why go to the trouble?  
+With MacroCommand, you can decide 
+dynamically which Commands you want to 
+go into PartyCommand, so you have more 
+flexibility using MacroCommands. In general, 
+MacroCommand is a more elegant solution 
+and requires less new code.
+
+you are here 4        229
+the command pattern
+More uses of the Command Pattern: queuing requests
+Note that the job queue classes are totally decoupled from 
+the objects that are doing the computation. One minute a 
+thread may be computing a financial computation, and the 
+next it may be retrieving something from the network. The 
+job queue objects don’t care; they just retrieve commands 
+and call execute(). Likewise, as long as you put objects into 
+the queue that implement the Command Pattern, your 
+execute() method will be invoked when a thread is available.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+T
+h
+r
+e
+a
+d
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+R
+a
+y
+T
+r
+a
+c
+e
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+C
+o
+m
+p
+i
+l
+e
+r
+T
+a
+s
+k
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+T
+h
+r
+e
+a
+d
+Threads computing 
+jobs
+Objects implementing the 
+command interface are 
+added to the queue.
+Threads remove commands 
+from the queue one by one 
+and call their execute() 
+method. Once complete, 
+they go back for a new 
+command object.
+This gives us an effective way 
+to limit computation to a 
+fixed number of threads.
+F
+i
+n
+a
+n
+c
+i
+a
+l
+C
+o
+m
+p
+u
+t
+a
+t
+i
+o
+n
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+C
+o
+m
+p
+i
+l
+e
+r
+T
+a
+s
+k
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+D
+o
+w
+n
+l
+o
+a
+d
+R
+e
+q
+u
+e
+s
+t
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+C
+o
+m
+p
+i
+l
+e
+r
+T
+a
+s
+k
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+N
+e
+t
+w
+o
+r
+k
+F
+e
+t
+c
+h
+execute()
+F
+i
+n
+a
+n
+c
+i
+a
+l
+ 
+C
+o
+m
+p
+u
+t
+a
+t
+i
+o
+n
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+R
+a
+y
+T
+r
+a
+c
+e
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+D
+i
+s
+t
+r
+i
+b
+u
+t
+e
+d
+C
+o
+m
+p
+u
+t
+a
+t
+i
+o
+n
+execute()
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+D
+o
+w
+n
+l
+o
+a
+d
+R
+e
+q
+u
+e
+s
+t
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+C
+o
+m
+p
+i
+l
+e
+r
+T
+a
+s
+k
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+N
+e
+t
+w
+o
+r
+k
+F
+e
+t
+c
+h
+execute()
+F
+i
+n
+a
+n
+c
+i
+a
+l
+C
+o
+m
+p
+u
+t
+a
+t
+i
+o
+n
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+R
+a
+y
+T
+r
+a
+c
+e
+execute()
+execute()
+Job queue
+Commands
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+D
+o
+w
+n
+l
+o
+a
+d
+R
+e
+q
+u
+e
+s
+t
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+T
+h
+r
+e
+a
+d
+execute()
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+N
+e
+t
+w
+o
+r
+k
+F
+e
+t
+c
+h
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+T
+h
+r
+e
+a
+d
+execute()
+Commands give us a way to package a piece of  
+computation (a receiver and a set of  actions) and pass 
+it around as a first-class object. Now, the computation 
+itself  may be invoked long after some client application 
+creates the command object. In fact, it may even be 
+invoked by a different thread. We can take this scenario 
+and apply it to many useful applications, such as 
+schedulers, thread pools, and job queues, to name a few.
+Imagine a job queue: you add commands to the 
+queue on one end, and on the other end sits a group 
+of  threads. Threads run the following script: they 
+remove a command from the queue, call its execute() 
+method, wait for the call to finish, and then discard the 
+command object and retrieve a new one.
+How might a web server make 
+use of such a queue? What other 
+applications can you think of?
+
+230        Chapter    6
+using the command pattern for logging requests
+The semantics of  some applications require that we log all actions and be able to 
+recover after a crash by reinvoking those actions. The Command Pattern can support 
+these semantics with the addition of  two methods: store() and load(). In Java we could 
+use object serialization to implement these methods, but the normal caveats for using 
+serialization for persistence apply.
+How does this work? As we execute commands, we store a history of  them on disk. 
+When a crash occurs, we reload the command objects and invoke their execute() 
+methods in batch and in order.
+Now, this kind of  logging wouldn’t make sense for a remote control; however, there 
+are many applications that invoke actions on large data structures that can’t be 
+quickly saved each time a change is made. By using logging, we can save all the 
+operations since the last checkpoint, and if  there is a system failure, apply those 
+operations to our checkpoint. Take, for example, a  spreadsheet application: we might 
+want to implement our failure recovery by logging the actions on the spreadsheet rather 
+than writing a copy of  the spreadsheet to disk every time a change occurs. In more 
+advanced applications, these techniques can be extended to apply to sets of  operations 
+in a transactional manner so that all of  the operations complete, or none of  them do.
+<<interface>>
+Command
+execute()
+undo()
+store()
+load()
+As each command 
+is executed, it is 
+stored on disk.
+More uses of the Command Pattern: logging requests
+C
+o
+m
+m
+a
+n
+d
+O
+n
+e
+execute()
+store()
+load()
+ 
+ 
+ 
+C
+o
+m
+m
+a
+n
+d
+T
+w
+o
+execute()
+store()
+load()
+ 
+C
+o
+m
+m
+a
+n
+d
+T
+h
+r
+e
+e
+execute()
+store()
+load()
+store
+store
+store
+1. execute()
+ 
+ 
+I
+n
+v
+o
+k
+e
+r
+2. execute()
+3. execute()
+ 
+ 
+C
+o
+m
+m
+a
+n
+d
+O
+n
+e
+execute()
+store()
+load()
+ 
+ 
+ 
+C
+o
+m
+m
+a
+n
+d
+T
+w
+o
+execute()
+store()
+load()
+ 
+C
+o
+m
+m
+a
+n
+d
+T
+h
+r
+e
+e
+execute()
+store()
+load()
+load
+load
+load
+ 
+ 
+I
+n
+v
+o
+k
+e
+r
+3. execute()
+2. execute()
+1. execute()
+Crash!
+Restore
+After a system 
+failure, the objects are 
+reloaded and executed 
+in the correct order.
+We add two methods 
+for logging.
+
+you are here 4        231
+the command pattern
+Command Pattern in the Real World
+Remember the little life-changing application from Chapter 2?
+%java SwingObserverExample
+Come on, do it!
+Don’t do it, you might regret it!
+%
+And here’s the output when 
+we click on the button.
+Here’s our fancy interface.
+Angel answer
+Devil answer
+public class SwingObserverExample {
+ // Set up ...
+        JButton button = new JButton("Should I do it?");
+        button.addActionListener(new AngelListener());
+        button.addActionListener(new DevilListener());
+        // Set frame properties here
+    }
+    class AngelListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            System.out.println("Don't do it, you might regret it!");
+        }
+    }
+    class DevilListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            System.out.println("Come on, do it!");
+        }
+    }
+}
+In that chapter we saw how Java’s Swing 
+library is chock full of  Observers in the 
+form of  ActionListeners that listen in (or 
+observe) events on user interface components. 
+Well, it turns out that ActionListener  is 
+not just an Observer interface, it’s also a 
+Command interface, and our AngelListener 
+and DevilListener classes are not just 
+Observers, but also concrete Commands. 
+That’s right, we have two patterns in one 
+example! 
+Here’s the code (the important bits anyway) for the little life-changing 
+application from Chapter 2. See if you can identify who is the Client, who are 
+the Commands, who is the Invoker, and who is the Receiver.
+File  Edit  Window  Help  HeMadeMeDoIt
+
+232        Chapter    6
+exercise solution
+public class SwingObserverExample {
+ // Set up ...
+        JButton button = new JButton("Should I do it?");
+        button.addActionListener(new AngelListener());
+        button.addActionListener(new DevilListener());
+        // Set frame properties here
+    }
+    class AngelListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            System.out.println("Don't do it, you might regret it!");
+        }
+    }
+    class DevilListener implements ActionListener {
+        public void actionPerformed(ActionEvent event) {
+            System.out.println("Come on, do it!");
+        }
+    }
+}
+Here’s the code (the important bits anyway) for the little life-changing 
+application from Chapter 2. See if you can identify who is the Client, who are 
+the Commands, who is the Invoker, and who is the Receiver?
+Here’s our solution.
+The Client is the class that sets up the 
+Swing components and sets the commands 
+(AngelListener and DevilListener) in the 
+Invoker (the Button).
+The button is our Invoker. The button 
+calls the actionPerformed() (like 
+execute()) methods in the commands (the 
+ActionListeners) when you click the button.
+ActionListener is the Command 
+Interface: it has one method, 
+actionPerformed() that, like 
+execute(), is executed when the 
+command is invoked.
+AngelListener and DevilListener 
+are our concrete Commands. They 
+implement the command interface (in 
+this case, ActionListener).
+The Receiver in this example is the System object. 
+Remember, invoking a command results in actions on 
+the Receiver. In a typical Swing application this would 
+result in calling actions on other components in the UI. 
+
+you are here 4        233
+the command pattern
+Tools for your Design Toolbox
+Your toolbox is starting to get heavy! In this chapter 
+we’ve added a pattern that allows us to encapsulate 
+methods into Command objects: store them, pass them 
+around, and invoke them when you need them.
+Abstraction
+Encapsulation
+Polymorphism
+Inheritance
+OO Basics
+Encapsulate what varies.
+Favor composition over inheritance.
+Program to interfaces, not 
+implementations.
+Strive for loosely coupled designs 
+between objects that interact.
+Classes should be open for extension 
+but closed for modification.
+Depend on abstractions. Do not 
+depend on concrete classes.
+OO Principles
+Strategy
+ - 
+defines a family of algorithms, 
+encapsulates each one, and makes them 
+interchangeable.  Strategy lets the algorithm 
+vary independently from clients that use it.
+OO Patterns
+Observer
+ - 
+defines a one-to-many 
+dependency between objects so that 
+when one object changes state, all its 
+dependents are notified and updated 
+automatically
+Decorator
+ - 
+Attach additional 
+responsibilities to an object dynamically.  
+Decorators provide a flexible 
+alternative to subclassing for extending 
+functionality.
+Abstract Factory
+ - 
+Provide 
+an interface for creating families of 
+related or depedent objects without 
+specifying their concrete classes.
+Factory Method 
+ - 
+Define an 
+interface for creating an object, but 
+let subclasses decide which class to 
+instantiate.  Factory Method lets 
+a class defer instantiation to the 
+subclasses.
+Singleton
+ - 
+Ensure a class only has 
+one instance and provide a global point 
+of access to it.
+Command
+ - 
+Encapsulates a request 
+as an object, thereby letting you 
+parameterize clients with different 
+requests, queue or log requests, and 
+support undoable operations.
+When you need to decouple an 
+object making requests from 
+the objects that know how to 
+perform the requests, use the 
+Command Pattern.
+ The Command Pattern 
+decouples an object making 
+a request from the one that 
+knows how to perform it.
+ A Command object is at the 
+center of this decoupling and 
+encapsulates a receiver with 
+an action (or set of actions).
+ An invoker makes a request 
+of a Command object by 
+calling its execute() method, 
+which invokes those actions 
+on the receiver.
+ Invokers can be 
+parameterized with 
+Commands, even 
+dynamically at runtime.
+ Commands may support 
+undo by implementing an 
+undo() method that restores 
+the object to its previous 
+state before the execute() 
+method was last called.
+ MacroCommands are a 
+simple extension of the 
+Command Pattern that 
+allow multiple commands 
+to be invoked. Likewise, 
+MacroCommands can easily 
+support undo().
+ In practice, it’s not 
+uncommon for “smart” 
+Command objects to 
+implement the request 
+themselves rather than 
+delegating to a receiver.
+ Commands may also be 
+used to implement logging 
+and transactional systems.
+
+234        Chapter    6
+design patterns crossword
+Design Patterns Crossword
+Time to take a breather and let it all sink in.
+It’s another crossword; all of the solution words are from 
+this chapter.
+ACROSS
+5. Our favorite city.
+6. Company that got us word-of-mouth business.
+7. Role of customer in the Command Pattern.
+9. Object that knows the actions and the receiver.
+12. Invoker and receiver are _________.
+15. The Waitress was one.
+16. Dr. Seuss diner food (four words).
+17. Another thing Command can do.
+ 
+DOWN
+1. The Cook and this person were definitely decoupled.
+2. The Waitress didn’t do this.
+3. A command encapsulates this.
+4. Act as the receivers in the remote control (two words).
+8. Object that knows how to get things done.
+10. Carries out a request.
+11. All commands provide this.
+13. Our first command object controlled this.
+14. A command __________ a set of actions and a 
+receiver.
+1
+234
+5
+6
+789
+1011
+1213
+1415
+1617
+Across
+5. Our favorite city
+6. Company that got us word of mouth business
+7. Role of customer in the command pattern
+9. Object that knows the actions and the receiver
+12. Invoker and receiver are ______________
+15. The Waitress was one
+16. Dr. Seuss diner food
+17. Another thing Command can do
+Down
+1. The cook and this person were definitely 
+decoupled
+2. Waitress didn't do this
+3. A command encapsulates this
+4. Act as the receivers in the remote control (two 
+words)
+8. Object that knows how to get things done
+10. Carries out a request
+11. All commands provide this
+13. Our first command object controlled this
+14. A command ____ a set of actions and a receiver
+
+you are here 4        235
+the command pattern
+SOlUTion
+Match the diner objects and methods with the corresponding 
+names from the Command Pattern.
+DinerCommand Pattern
+Waitress
+Short-Order Cook
+orderUp()
+Order
+Customer
+takeOrder()
+Command 
+execute()
+Client
+Invoker
+Receiver
+setCommand()
+File  Edit   Window  Help  GreenEggs&Ham
+%java RemoteControlTest
+Light is on
+Garage Door is Open
+%
+Here’s the code for the GarageDoorOpenCommand class.  
+Here’s the output:
+public class GarageDoorOpenCommand implements Command {
+    GarageDoor garageDoor;
+    public GarageDoorOpenCommand(GarageDoor garageDoor) {
+        this.garageDoor = garageDoor;
+    }
+    public void execute() {
+        garageDoor.up();
+    }
+}
+
+236        Chapter    6
+exercise solutions
+Here’s the code to create commands for the off button.
+LightOffCommand lightOff = new LightOffCommand(light);
+StereoOffCommand stereoOff = new StereoOffCommand(stereo);
+TVOffCommand tvOff = new TVOffCommand(tv);
+HottubOffCommand hottubOff = new HottubOffCommand(hottub);
+Here is the undo() 
+method for the 
+MacroCommand.
+public class MacroCommand implements Command {
+    Command[] commands;
+    public MacroCommand(Command[] commands) {
+        this.commands = commands;
+    }
+    public void execute() {
+        for (int i = 0; i < commands.length; i++) {
+            commands[i].execute();
+        }
+    }
+    public void undo() {
+        for (int i = commands.length - 1; i >= 0; i--) {
+            commands[i].undo();
+        }
+    }
+}
+W
+1
+C
+2
+R
+3
+AV
+4
+O
+5
+BJECTVILLE
+OQTN
+KURD
+W
+6
+EATHER-O-RAMA
+SSR
+C
+7
+LIENTR
+8
+SC
+9
+OMMAND
+EL
+R
+10
+CAE
+11
+D
+12
+ECOUPLEDSL
+13
+X
+CISB
+14
+I
+15
+NVOKER
+EVEIGC
+IG
+16
+REENEGGSANDHAMU
+17
+NDO
+VRDTT
+ESE
+R
+Across
+5. Our favorite city [OBJECTVILLE] 
+6. Company that got us word of mouth business 
+[WEATHER-O-RAMA] 
+7. Role of customer in the command pattern 
+[CLIENT] 
+9. Object that knows the actions and the receiver 
+[COMMAND] 
+12. Invoker and receiver are ______________ 
+[DECOUPLED] 
+15. The Waitress was one [INVOKER] 
+16. Dr. Seuss diner food [GREENEGGSANDHAM] 
+17. Another thing Command can do [UNDO] 
+Down
+1. The cook and this person were definitely 
+decoupled [WAITRESS] 
+2. Waitress didn't do this [COOK] 
+3. A command encapsulates this [REQUEST] 
+4. Act as the receivers in the remote control (two 
+words) [VENDORCLASSES] 
+8. Object that knows how to get things done 
+[RECEIVER] 
+10. Carries out a request [RECEIVER] 
+11. All commands provide this [EXECUTE] 
+13. Our first command object controlled this [LIGHT] 
+14. A command ____ a set of actions and a receiver 
+[BINDS]

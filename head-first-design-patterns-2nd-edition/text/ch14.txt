@@ -1,0 +1,1989 @@
+this is a new chapter     381
+A little-known fact: the Strategy and State Patterns 
+are twins separated at birth. You’d think they’d live similar lives, 
+but the Strategy Pattern went on to create a wildly successful business around 
+interchangeable algorithms, while State took the perhaps more noble path of helping 
+objects to control their behavior by changing their internal state. As different as their 
+paths became, however, underneath you’ll find almost precisely the same design. How 
+can that be? As you’ll see, Strategy and State have very different intents. First, let’s 
+dig in and see what the State Pattern is all about, and then we’ll return to explore their 
+relationship at the end of the chapter.
+10  the State Pattern
+The State of Things
+I thought things in Objectville were 
+going to be so easy, but now every time I 
+turn around there’s another change request 
+coming in. I’m at the breaking point! Oh, 
+maybe I should have been going to Betty’s 
+Wednesday night patterns group all along. 
+I’m in such a state!
+
+382        Chapter    10
+meet mighty gumball
+Gumball machines have gone high tech. That’s right, the 
+major manufacturers have found that by putting CPUs 
+into their candy machines, they can increase sales, monitor 
+inventory over the network, and measure customer satisfaction 
+more accurately.  
+But these manufacturers are gumball machine experts, not 
+software developers, and they’ve asked for your help:
+Jaw  Breakers
+Mighty Gumball, Inc.
+Where the Gumball Machine 
+is Never Half Empty
+Here’s the way we think the gumball machine controller needs to 
+work. We’re hoping you can implement this in Java for us! We may 
+be adding more behavior in the future, so you need to keep the 
+design as flexible and maintainable as possible!
+       - Mighty Gumball Engineers
+Out of 
+Gumballs
+   Has 
+Quarter
+   No 
+Quarter
+Gumball 
+  Sold
+insert quarter
+eject quarter
+turn crank
+va
+At least that’s their story—
+we think they just got 
+bored with the circa 1800s 
+technology and needed to 
+find a way to make their 
+jobs more exciting.
+dispense 
+gumball
+gumballs = 0
+gumballs > 0
+
+you are here 4        383
+the state pattern
+Cubicle Conversation
+Judy: This diagram looks like a state diagram.
+Joe: Right, each of  those circles is a state...
+Judy:  ...and each of  the arrows is a state transition.
+Frank: Slow down, you two, it’s been too long since I studied state diagrams.  
+Can you remind me what they’re all about?
+Judy: Sure, Frank. Look at the circles; those are states. “No Quarter” is 
+probably the starting state for the gumball machine because it’s just sitting there 
+waiting for you to put your quarter in. All states are just different configurations 
+of  the machine that behave in a certain way and need some action to take them to 
+another state.
+Joe: Right. See, to go to another state, you need to do something like put a quarter in the machine. See the arrow 
+from “No Quarter” to “Has Quarter”?
+Frank: Yes...
+Joe: That just means that if  the gumball machine is in the “No Quarter” state and you put a quarter in, it will 
+change to the “Has Quarter” state. That’s the state transition.
+Frank: Oh, I see! And if  I’m in the “Has Quarter” state, I can turn the crank and change to the “Gumball Sold” 
+state, or eject the quarter and change back to the “No Quarter” state.
+Judy: You got it!
+Frank: This doesn’t look too bad then. We’ve obviously got four states, and I think we also have four actions: “insert 
+quarter,” “eject quarter,” “turn crank,” and “dispense.” But...when we dispense, we test for zero or more gumballs 
+in the “Gumball Sold” state, and then either go to the “Out of  Gumballs” state or the “No Quarter” state. So we 
+actually have five transitions from one state to another.
+Judy: That test for zero or more gumballs also implies we’ve got to keep track of  the number of  gumballs too. Any 
+time the machine gives you a gumball, it might be the last one, and if  it is, we need to transition to the “Out of  
+Gumballs” state.
+Joe: Also, don’t forget that you could do nonsensical things, like try to eject the quarter when the gumball machine is 
+in the “No Quarter” state, or insert two quarters.
+Frank: Oh, I didn’t think of  that; we’ll have to take care of  those too.
+Joe: For every possible action we’ll just have to check to see which state we’re in and act appropriately. We can do 
+this!  Let’s start mapping the state diagram to code...
+Joe
+Judy
+Frank
+Let’s take a look at this 
+diagram and see what the 
+Mighty Gumball guys want...
+
+384        Chapter    10
+review of state machines
+State machines 101 
+insert quarter
+eject quarter
+turn crank
+These actions are 
+the gumball machine’s 
+interface — the  things 
+you can do with it.
+How are we going to get from that state diagram to actual code? Here’s a quick 
+introduction to implementing state machines:
+First, gather up your states:
+1
+Gumball 
+  Sold
+   No 
+Quarter
+   Has 
+Quarter
+Out of 
+Gumballs
+Here are the states 
+—   four in total.
+Next, create an instance variable to hold the current state, and define values for each of  the states:
+2
+final static int SOLD_OUT = 0;
+final static int NO_QUARTER = 1;
+final static int HAS_QUARTER = 2;
+final static int SOLD = 3;
+ 
+int state = SOLD_OUT;
+Here’s each state represented 
+as a unique integer...
+...and here’s an instance variable that holds the 
+current state. We’ll go ahead and set it to “Sold 
+Out” since the machine will be unfilled when it’s 
+first taken out of its box and turned on.
+Now we gather up all the actions that can happen in the system:
+3
+Looking at the diagram, invoking any of 
+these actions causes a state transition.
+dispense
+Dispense is more of an internal 
+action the machine invokes on itself.
+Let’s just call “Out of Gumballs” 
+“Sold Out” for short.
+
+you are here 4        385
+the state pattern
+public void insertQuarter() {
+    if (state == HAS_QUARTER) {
+        System.out.println("You can't insert another quarter");
+    } else if (state == NO_QUARTER) {
+        state = HAS_QUARTER;
+        System.out.println("You inserted a quarter");
+    } else if (state == SOLD_OUT) {
+        System.out.println("You can't insert a quarter, the machine is sold out");
+    } else if (state == SOLD) {
+        System.out.println("Please wait, we're already giving you a gumball");
+    }
+}
+Now we create a class that acts as the state machine. For each action, 
+we create a method that uses conditional statements to determine 
+what behavior is appropriate in each state. For instance, for the 
+“insert quarter” action, we might write a method like this:
+4
+Here we’re talking 
+about a common technique: 
+modeling state within an object 
+by creating an instance variable to hold 
+the state values and writing conditional 
+code within our methods to handle 
+the various states.
+Each possible 
+state is checked 
+with a conditional 
+statement...
+...but can also transition to other states, 
+just as depicted in the diagram.
+With that quick review, let’s go implement the Gumball Machine!
+...and exhibits the appropriate 
+behavior for each possible state...
+
+386        Chapter    10
+implement the gumball machine
+public class GumballMachine {
+ 
+    final static int SOLD_OUT = 0;
+    final static int NO_QUARTER = 1;
+    final static int HAS_QUARTER = 2;
+    final static int SOLD = 3;
+ 
+    int state = SOLD_OUT;
+    int count = 0;
+  
+    public GumballMachine(int count) {
+        this.count = count;
+        if (count > 0) {
+            state = NO_QUARTER;
+        }
+    }
+ 
+    public void insertQuarter() {
+        if (state == HAS_QUARTER) {
+            System.out.println("You can't insert another quarter");
+        } else if (state == NO_QUARTER) {
+            state = HAS_QUARTER;
+            System.out.println("You inserted a quarter");
+        } else if (state == SOLD_OUT) {
+            System.out.println("You can't insert a quarter, the machine is sold out");
+        } else if (state == SOLD) {
+            System.out.println("Please wait, we're already giving you a gumball");
+        }
+    }
+   
+Writing the code
+Here are the four states; they match the 
+states in Mighty Gumball’s state diagram.
+Here’s the instance variable that is going 
+to keep track of the current state we’re 
+in. We start in the SOLD_OUT state.
+We have a second instance variable that 
+keeps track of the number of gumballs 
+in the machine.
+The constructor takes an initial inventory 
+of gumballs. If the inventory isn’t zero, 
+the machine enters state NO_QUARTER, 
+meaning it is waiting for someone to 
+insert a quarter; otherwise, it stays in 
+the SOLD_OUT state.
+Now we start implementing 
+the actions as methods....
+When a quarter is inserted...
+...if a quarter is already 
+inserted, we tell the 
+customer...
+...otherwise, we accept the 
+quarter and transition to 
+the HAS_QUARTER state.
+And if the machine is sold 
+out, we reject the quarter.
+It’s time to implement the Gumball Machine. We know we’re going to have an instance 
+variable that holds the current state. From there, we just need to handle all the actions, 
+behaviors, and state transitions that can happen. For actions, we need to implement 
+inserting a quarter, removing a quarter, turning the crank, and dispensing a gumball; we 
+also have the empty Gumball Machine condition to implement.  
+If the customer just bought a 
+gumball, he needs to wait until the 
+transaction is complete before 
+inserting another quarter.
+
+you are here 4        387
+the state pattern
+ 
+ 
+    public void ejectQuarter() {
+        if (state == HAS_QUARTER) {
+            System.out.println("Quarter returned");
+            state = NO_QUARTER;
+        } else if (state == NO_QUARTER) {
+            System.out.println("You haven't inserted a quarter");
+        } else if (state == SOLD) {
+            System.out.println("Sorry, you already turned the crank");
+        } else if (state == SOLD_OUT) {
+            System.out.println("You can't eject, you haven't inserted a quarter yet");
+        }
+    }
+ 
+ 
+    public void turnCrank() {
+        if (state == SOLD) {
+            System.out.println("Turning twice doesn't get you another gumball!");
+        } else if (state == NO_QUARTER) {
+            System.out.println("You turned but there's no quarter");
+        } else if (state == SOLD_OUT) {
+            System.out.println("You turned, but there are no gumballs");
+        } else if (state == HAS_QUARTER) {
+            System.out.println("You turned...");
+            state = SOLD;
+            dispense();
+        }
+    }
+ 
+    public void dispense() {
+        if (state == SOLD) {
+            System.out.println("A gumball comes rolling out the slot");
+            count = count - 1;
+            if (count == 0) {
+                System.out.println("Oops, out of gumballs!");
+                state = SOLD_OUT;
+            } else {
+                state = NO_QUARTER;
+            }
+        } else if (state == NO_QUARTER) {
+            System.out.println("You need to pay first");
+        } else if (state == SOLD_OUT) {
+            System.out.println("No gumball dispensed");
+        } else if (state == HAS_QUARTER) {
+            System.out.println("You need to turn the crank");
+        }
+    }
+ 
+    // other methods here like toString() and refill()
+}
+Now, if the customer tries to remove the quarter...
+...if there is a quarter, we 
+return it and go back to the 
+NO_QUARTER state...
+If the customer just 
+turned the crank, we 
+can’t give a refund; he 
+already has the gumball!
+...otherwise, if there isn’t 
+one we can’t give it back.
+The customer tries to turn the crank...
+We can’t deliver 
+gumballs; there 
+are none.
+We need a 
+quarter first.
+Success! They get a gumball. Change 
+the state to SOLD and call the 
+machine’s dispense() method.
+Someone’s trying to cheat the machine.
+You can’t eject if the machine is sold 
+out, it doesn’t accept quarters!
+Called to dispense a gumball.
+Here’s where we handle the 
+“out of gumballs” condition: 
+If this was the last one, we 
+set the machine’s state to 
+SOLD_OUT; otherwise, we’re 
+back to not having a quarter.
+We’re in the 
+SOLD state; give 
+’em a gumball!
+None of these should ever 
+happen, but if they do, 
+we give ’em an error, not 
+a gumball.
+
+388        Chapter    10
+test the gumball machine
+public class GumballMachineTestDrive {
+    public static void main(String[] args) {
+        GumballMachine gumballMachine = new GumballMachine(5);
+        System.out.println(gumballMachine);
+        gumballMachine.insertQuarter();
+        gumballMachine.turnCrank();
+        System.out.println(gumballMachine);
+        gumballMachine.insertQuarter();
+        gumballMachine.ejectQuarter();
+        gumballMachine.turnCrank();
+        System.out.println(gumballMachine);
+        gumballMachine.insertQuarter();
+        gumballMachine.turnCrank();
+        gumballMachine.insertQuarter();
+        gumballMachine.turnCrank();
+        gumballMachine.ejectQuarter();
+        System.out.println(gumballMachine);
+        gumballMachine.insertQuarter();
+        gumballMachine.insertQuarter();
+        gumballMachine.turnCrank();
+        gumballMachine.insertQuarter();
+        gumballMachine.turnCrank();
+        gumballMachine.insertQuarter();
+        gumballMachine.turnCrank();
+        System.out.println(gumballMachine);
+    }
+}
+In-house testing
+That feels like a nice solid design using a well-thought-out methodology, doesn’t 
+it? Let’s do a little in-house testing before we hand it off  to Mighty Gumball to 
+be loaded into their actual gumball machines. Here’s our test harness:
+Load it up with five 
+gumballs total.
+Print out the state of the machine.
+Throw a quarter in...
+Turn the crank; we should get our gumball.
+Print out the state of the machine again.
+Throw a quarter in...
+Ask for it back.
+Turn the crank; we shouldn’t get our gumball.
+Print out the state of the machine again.
+Throw a quarter in...
+Turn the crank; we should get our gumball.
+Throw a quarter in...
+Turn the crank; we should get our gumball.
+Ask for a quarter back we didn’t put in.
+Print out the state of the machine again.
+Throw TWO quarters in...
+Turn the crank; we should get our gumball.
+Now for the stress testing...
+Print that machine state one more time.
+
+you are here 4        389
+the state pattern
+File  Edit   Window  Help  mightygumball.com
+%java GumballMachineTestDrive
+Mighty Gumball, Inc.
+Java-enabled Standing Gumball Model #2004
+Inventory: 5 gumballs
+Machine is waiting for quarter
+You inserted a quarter
+You turned...
+A gumball comes rolling out the slot
+Mighty Gumball, Inc.
+Java-enabled Standing Gumball Model #2004
+Inventory: 4 gumballs
+Machine is waiting for quarter
+You inserted a quarter
+Quarter returned
+You turned but there's no quarter
+Mighty Gumball, Inc.
+Java-enabled Standing Gumball Model #2004
+Inventory: 4 gumballs
+Machine is waiting for quarter
+You inserted a quarter
+You turned...
+A gumball comes rolling out the slot
+You inserted a quarter
+You turned...
+A gumball comes rolling out the slot
+You haven't inserted a quarter
+Mighty Gumball, Inc.
+Java-enabled Standing Gumball Model #2004
+Inventory: 2 gumballs
+Machine is waiting for quarter
+You inserted a quarter
+You can't insert another quarter
+You turned...
+A gumball comes rolling out the slot
+You inserted a quarter
+You turned...
+A gumball comes rolling out the slot
+Oops, out of gumballs!
+You can't insert a quarter, the machine is sold out
+You turned, but there are no gumballs
+Mighty Gumball, Inc.
+Java-enabled Standing Gumball Model #2004
+Inventory: 0 gumballs
+Machine is sold out
+
+390        Chapter    10
+gumball buying game
+You knew it was coming...a change request!
+Mighty Gumball, Inc., has loaded your code into their 
+newest machine and their quality assurance experts are 
+putting it through its paces. So far, everything’s looking 
+great from their perspective.
+In fact, things have gone so smoothly they’d like to take 
+things to the next level...
+We think that by turning 
+“gumball buying” into a game we 
+can significantly increase our 
+sales. We’re going to put one of 
+these stickers on every machine.  
+We’re so glad we’ve got Java 
+in the machines because this is 
+going to be easy, right?
+CEO, Mighty 
+Gumball, Inc.
+JawBreaker or 
+Gumdrop?
+10% of the time, 
+when the crank 
+is turned, the 
+customer gets 
+two gumballs 
+instead of one.
+Gumballs
+
+you are here 4        391
+the state pattern
+Draw a state diagram for a Gumball Machine that handles the 1 in 10 
+contest. In this contest, 10% of the time the Sold state leads to two 
+balls being released, not one. Check your answer with ours (at the 
+end of the chapter) to make sure we agree before you go further...
+Mighty Gumball, Inc.
+Where the Gumball Machine 
+is Never Half Empty
+Use Mighty Gumball’s stationery to draw your state diagram.
+ Design Puzzle
+
+392        Chapter    10
+things get messy
+The messy STATE of things...
+Just because you’ve written your gumball machine using a well-thought-out 
+methodology doesn’t mean it’s going to be easy to extend. In fact, when you go back 
+and look at your code and think about what you’ll have to do to modify it, well...
+final static int SOLD_OUT = 0;
+final static int NO_QUARTER = 1;
+final static int HAS_QUARTER = 2;
+final static int SOLD = 3;
+public void insertQuarter() {
+    // insert quarter code here
+}
+public void ejectQuarter() {
+    // eject quarter code here
+}
+public void turnCrank() {
+    // turn crank code here
+}
+public void dispense() {
+    // dispense code here
+}
+First, you’d have to add a new WINNER state 
+here. That isn’t too bad...
+...but then, you’d have to add a new conditional 
+in every single method to handle the WINNER 
+state; that’s a lot of code to modify.
+turnCrank() will get especially messy, because you’d 
+have to add code to check to see whether you’ve 
+got a WINNER and then switch to either the 
+WINNER state or the SOLD state.
+❏   A. This code certainly isn’t adhering to the 
+Open Closed Principle.
+❏   B. This code would make a FORTRAN 
+programmer proud.
+❏   C. This design isn’t even very objectoriented.
+❏   D. State transitions aren’t explicit; they 
+are buried in the middle of  a bunch of  
+conditional statements.
+❏   E. We haven’t encapsulated anything that 
+varies here.                
+❏   F. Further additions are likely to cause bugs 
+in working code.
+Which of the following describe the state of our implementation?  
+(Choose all that apply.)
+
+you are here 4        393
+the state pattern
+Frank: You’re right about that! We need to refactor this code so that it’s easy 
+to maintain and modify.
+Judy: We really should try to localize the behavior for each state so that if  we 
+make changes to one state, we don’t run the risk of  messing up the other code.
+Frank: Right; in other words, follow that ol’ “encapsulate what varies” 
+principle.  
+Judy: Exactly.
+Frank:: If  we put each state’s behavior in its own class, then every state just 
+implements its own actions.
+Judy: Right. And maybe the Gumball Machine can just delegate to the state 
+object that represents the current state.
+Frank: Ah, you’re good: favor composition...more principles at work.
+Judy: Cute. Well, I’m not 100% sure how this is going to work, but I think 
+we’re on to something.
+Frank: I wonder if  this will make it easier to add new states?
+Judy: I think so...  We’ll still have to change code, but the changes will be 
+much more limited in scope because adding a new state will mean we just 
+have to add a new class and maybe change a few transitions here and there.
+Frank: I like the sound of  that. Let’s start hashing out this new design!
+Okay, this isn’t good. I think 
+our first version was great, but it isn’t 
+going to hold up over time as Mighty Gumball 
+keeps asking for new behavior. The rate of bugs 
+is just going to make us look bad, not to mention 
+the CEO will drive us crazy.
+
+394        Chapter    10
+a new state design
+The new design
+1
+2
+3
+First, we’re going to define a State interface that 
+contains a method for every action in the Gumball 
+Machine.
+Then we’re going to implement a State class for 
+every state of the machine. These classes will be 
+responsible for the behavior of the machine when it 
+is in the corresponding state.
+Finally, we’re going to get rid of all of our conditional 
+code and instead delegate the work to the State class.
+It looks like we’ve got a new plan: instead of  maintaining our existing code, we’re going to 
+rework it to encapsulate state objects in their own classes and then delegate to the current 
+state when an action occurs.  
+We’re following our design principles here, so we should end up with a design that is easier to 
+maintain down the road. Here’s how we’re going to do it:
+Not only are we following design principles, as you’ll see, we’re actually implementing the 
+State Pattern. But we’ll get to all the official State Pattern stuff  after we rework our code...
+Now we’re going 
+to put all the behavior of a 
+state into one class. That way, 
+we’re localizing the behavior and 
+making things a lot easier to 
+change and understand.
+
+you are here 4        395
+the state pattern
+Defining the State interfaces and classes
+insertQuarter()
+ejectQuarter()
+turnCrank()
+dispense()
+<<interface>>
+State
+HasQuarterState
+insertQuarter()
+ejectQuarter()
+turnCrank()
+dispense()
+NoQuarterState
+insertQuarter()
+ejectQuarter()
+turnCrank()
+dispense()
+SoldOutState
+insertQuarter()
+ejectQuarter()
+turnCrank()
+dispense()
+public class GumballMachine {
+ 
+    final static int SOLD_OUT = 0;
+    final static int NO_QUARTER = 1;
+    final static int HAS_QUARTER = 2;
+    final static int SOLD = 3;
+ 
+    int state = SOLD_OUT;
+    int count = 0;
+...and we map each state 
+directly to a class. 
+Here’s the interface for all states. The methods map directly 
+to actions that could happen to the Gumball Machine (these 
+are the same methods as in the previous code).
+First let’s create an interface for State, which all our states implement:
+To figure out what 
+states we need, we look 
+at our previous code...
+Then take each state in our design and 
+encapsulate it in a class that implements 
+the State interface.
+SoldState
+insertQuarter()
+ejectQuarter()
+turnCrank()
+dispense()
+WinnerState
+insertQuarter()
+ejectQuarter()
+turnCrank()
+dispense()
+Don’t forget, we need a new “winner” state 
+too that implements the State interface. We’ll 
+come back to this after we reimplement the 
+first version of the Gumball Machine.
+
+396        Chapter    10
+what are all the states
+To implement our states, we first need to specify the behavior of the 
+classes when each action is called. Annotate the diagram below with the 
+behavior of each action in each class; we’ve already filled in a few for you.
+Go to HasQuarterState.
+Tell the customer, “You haven’t inserted a quarter.”
+Tell the customer, “Please wait, we’re already giving you a gumball.”
+Tell the customer, “There are no gumballs.”
+Go to SoldState.
+Dispense one gumball. Check number of gumballs; if > 0, 
+go to NoQuarterState; otherwise, go to SoldOutState.
+Go ahead and fill this out even though we’re implementing it later.
+NoQuarterState
+insertQuarter()
+ejectQuarter()
+turnCrank()
+dispense()
+SoldOutState
+insertQuarter()
+ejectQuarter()
+turnCrank()
+dispense()
+SoldState
+insertQuarter()
+ejectQuarter()
+turnCrank()
+dispense()
+HasQuarterState
+insertQuarter()
+ejectQuarter()
+turnCrank()
+dispense()
+WinnerState
+insertQuarter()
+ejectQuarter()
+turnCrank()
+dispense()
+
+you are here 4        397
+the state pattern
+public class NoQuarterState implements State {
+    GumballMachine gumballMachine;
+ 
+    public NoQuarterState(GumballMachine gumballMachine) {
+        this.gumballMachine = gumballMachine;
+    }
+ 
+    public void insertQuarter() {
+        System.out.println("You inserted a quarter");
+        gumballMachine.setState(gumballMachine.getHasQuarterState());
+    }
+ 
+    public void ejectQuarter() {
+        System.out.println("You haven't inserted a quarter");
+    }
+ 
+    public void turnCrank() {
+        System.out.println("You turned, but there's no quarter");
+     }
+ 
+    public void dispense() {
+        System.out.println("You need to pay first");
+    } 
+}
+Implementing our State classes
+Time to implement a state: we know what behaviors we want; we just need to get it down in code. We’re going to 
+closely follow the state machine code we wrote, but this time everything is broken out into different classes.  
+Let’s start with the NoQuarterState:
+First we need to implement the State interface.
+We get passed a reference to 
+the Gumball Machine through the 
+constructor. We’re just going to 
+stash this in an instance variable.
+If someone inserts a quarter, 
+we print a message saying the 
+quarter was accepted and then 
+change the machine’s state to 
+the HasQuarterState.
+You can’t get money 
+back if you never gave 
+it to us!
+And you can’t get a gumball 
+if you don’t pay us.
+What we’re doing is 
+implementing the behaviors that 
+are appropriate for the state 
+we’re in. In some cases, this behavior 
+includes moving the Gumball 
+Machine to a new state.
+We can’t be dispensing 
+gumballs without payment.
+You’ll see how these 
+work in just a sec...
+
+398        Chapter    10
+state objects in the gumball machine
+In the GumballMachine, we update the 
+code to use the new classes rather than 
+the static integers. The code is quite 
+similar, except that in one class we have 
+integers and in the other objects...
+Before we finish the State classes, we’re going to rework the Gumball 
+Machine—that way, you can see how it all fits together. We’ll start 
+with the state-related instance variables and switch the code from 
+using integers to using state objects:
+Reworking the Gumball Machine
+Old code
+New code
+All the State objects are created 
+and assigned in the constructor.
+This now holds a 
+State object, not 
+an integer.
+public class GumballMachine {
+ 
+    final static int SOLD_OUT = 0;
+    final static int NO_QUARTER = 1;
+    final static int HAS_QUARTER = 2;
+    final static int SOLD = 3;
+ 
+    int state = SOLD_OUT;
+    int count = 0;
+public class GumballMachine {
+ 
+    State soldOutState;
+    State noQuarterState;
+    State hasQuarterState;
+    State soldState;
+ 
+    State state = soldOutState;
+    int count = 0;
+
+you are here 4        399
+the state pattern
+public class GumballMachine {
+ 
+    State soldOutState;
+    State noQuarterState;
+    State hasQuarterState;
+    State soldState;
+ 
+    State state;
+    int count = 0;
+ 
+    public GumballMachine(int numberGumballs) {
+        soldOutState = new SoldOutState(this);
+        noQuarterState = new NoQuarterState(this);
+        hasQuarterState = new HasQuarterState(this);
+        soldState = new SoldState(this);
+        this.count = numberGumballs;
+        if (numberGumballs > 0) {
+            state = noQuarterState;
+        } else {
+            state = soldOutState;
+        }
+    }
+ 
+    public void insertQuarter() {
+        state.insertQuarter();
+    }
+    public void ejectQuarter() {
+        state.ejectQuarter();
+    }
+    public void turnCrank() {
+        state.turnCrank();
+        state.dispense();
+    }
+    void setState(State state) {
+        this.state = state;
+    }
+ 
+    void releaseBall() {
+        System.out.println("A gumball comes rolling out the slot...");
+        if (count > 0) {
+            count = count - 1;
+        }
+    }
+    // More methods here including getters for each State...
+}
+Now, let’s look at the complete GumballMachine class...
+Here are all the States again...
+...and the State instance variable.
+The count instance variable holds the count 
+of gumballs 
+—   initially the machine is empty.
+Our constructor takes the initial 
+number of gumballs and stores it 
+in an instance variable.
+It also creates the State 
+instances, one of each.
+If there are more than 0 gumballs we 
+set the state to the NoQuarterState; 
+otherwise, we start in the SoldOutState.
+Now for the actions. These are 
+VERY EASY to implement now. We 
+just delegate to the current state.
+Note that we don’t need an 
+action method for dispense() in 
+GumballMachine because it’s just an 
+internal action; a user can’t ask the 
+machine to dispense directly. But we 
+do call dispense() on the State object 
+from the turnCrank() method.
+The machine supports a releaseBall() 
+helper method that releases the ball and 
+decrements the count instance variable.
+This method allows other objects (like 
+our State objects) to transition the 
+machine to a different state.
+This includes methods like getNoQuarterState() for getting each 
+state object, and getCount() for getting the gumball count.
+
+400        Chapter    10
+more states for the gumball machine
+public class HasQuarterState implements State {
+    GumballMachine gumballMachine;
+ 
+    public HasQuarterState(GumballMachine gumballMachine) {
+        this.gumballMachine = gumballMachine;
+    }
+  
+    public void insertQuarter() {
+        System.out.println("You can't insert another quarter");
+    }
+ 
+    public void ejectQuarter() {
+        System.out.println("Quarter returned");
+        gumballMachine.setState(gumballMachine.getNoQuarterState());
+    }
+ 
+    public void turnCrank() {
+        System.out.println("You turned...");
+        gumballMachine.setState(gumballMachine.getSoldState());
+    }
+    public void dispense() {
+        System.out.println("No gumball dispensed");
+    }
+}
+Implementing more states
+Now that you’re starting to get a feel for how the Gumball Machine and the states 
+fit together, let’s implement the HasQuarterState and the SoldState classes...
+An inappropriate 
+action for this 
+state.
+Another 
+inappropriate 
+action for this 
+state.
+Return the customer’s 
+quarter and 
+transition back to the 
+NoQuarterState.
+When the crank is 
+turned we transition 
+the machine to the 
+SoldState state by 
+calling its setState() 
+method and passing it 
+the SoldState object.  
+The SoldState object 
+is retrieved by the 
+getSoldState() 
+getter method  
+(there is one of these 
+getter methods for 
+each state).
+When the state is instantiated 
+we pass it a reference to the 
+GumballMachine. This is used 
+to transition the machine to a 
+different state.
+
+you are here 4        401
+the state pattern
+public class SoldState implements State {
+    //constructor and instance variables here
+ 
+    public void insertQuarter() {
+        System.out.println("Please wait, we're already giving you a gumball");
+    }
+ 
+    public void ejectQuarter() {
+        System.out.println("Sorry, you already turned the crank");
+    }
+ 
+    public void turnCrank() {
+        System.out.println("Turning twice doesn't get you another gumball!");
+    }
+ 
+    public void dispense() {
+        gumballMachine.releaseBall();
+        if (gumballMachine.getCount() > 0) {
+            gumballMachine.setState(gumballMachine.getNoQuarterState());
+        } else {
+            System.out.println("Oops, out of gumballs!");
+            gumballMachine.setState(gumballMachine.getSoldOutState());
+        }
+    }
+}
+Now, let’s check out the SoldState class...
+Here are all the 
+inappropriate 
+actions for this 
+state.
+And here’s where the 
+real work begins...
+We’re in the SoldState, which means the 
+customer paid. So, we first need to ask 
+the machine to release a gumball.
+Then we ask the machine what the gumball 
+count is, and either transition to the 
+NoQuarterState or the SoldOutState.
+Look back at the GumballMachine implementation. If the crank is turned and 
+not successful (say the customer didn’t insert a quarter first), we call dispense() 
+anyway, even though it’s unnecessary. How might you fix this?
+
+402        Chapter    10
+your turn to implement a state
+public class SoldOutState implements _______________  {
+    GumballMachine gumballMachine;
+ 
+    public SoldOutState(GumballMachine gumballMachine) {
+    }
+ 
+    public void insertQuarter() {
+    }
+ 
+    public void ejectQuarter() {
+    }
+    public void turnCrank() {
+    }
+    public void dispense() {
+    }
+}
+We have one remaining class we haven’t implemented: SoldOutState.  
+Why don’t you implement it? To do this, carefully think through how the 
+Gumball Machine should behave in each situation. Check your answer 
+before moving on...
+
+you are here 4        403
+the state pattern
+For starters, you now have a Gumball Machine implementation that is structurally quite 
+different from your first version, and yet functionally it is exactly the same. By structurally 
+changing the implemention, you’ve:
+ �Localized the behavior of  each state into its own class.
+ �Removed all the troublesome if statements that would have been difficult to maintain.
+ �Closed each state for modification, and yet left the Gumball Machine open to extension 
+by adding new state classes (and we’ll do this in a second).
+ �Created a code base and class structure that maps much more closely to the Mighty 
+Gumball diagram and is easier to read and understand.
+Now let’s look a little more at the functional aspect of  what we did:
+Let’s take a look at what we’ve done so far...
+Gumball Machine States
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+O
+u
+t
+ 
+ 
+ 
+ 
+N
+o
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+H
+a
+s
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+G
+u
+m
+b
+a
+l
+l
+M
+a
+c
+h
+i
+n
+e
+current state
+The Gumball Machine now holds an 
+instance of each State class.
+The current state of the 
+machine is always one of 
+these class instances.
+
+404        Chapter    10
+state transitions
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+O
+u
+t
+ 
+ 
+ 
+ 
+N
+o
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+H
+a
+s
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+Gumball Machine States
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+O
+u
+t
+ 
+ 
+ 
+ 
+N
+o
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+H
+a
+s
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+Gumball Machine States
+G
+u
+m
+b
+a
+l
+l
+M
+a
+c
+h
+i
+n
+e
+current state
+turnCrank()
+G
+u
+m
+b
+a
+l
+l
+M
+a
+c
+h
+i
+n
+e
+current state
+When an action is called, it is 
+delegated to the current state.
+In this case, the turnCrank() 
+method is being called when the 
+machine is in the HasQuarter 
+state, so as a result the machine 
+transitions to the Sold state.
+....and then the 
+machine will 
+either go to 
+the SoldOut 
+or NoQuarter 
+state depending 
+on the number of 
+gumballs remaining 
+in the machine.
+The machine enters 
+the Sold state and a 
+gumball is dispensed...
+turnCrank()
+More gumballs
+Sold out
+TRANSITION TO SOLD STATE
+dispense()
+
+you are here 4        405
+the state pattern
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+O
+u
+t
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+O
+u
+t
+ 
+ 
+ 
+ 
+N
+o
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+H
+a
+s
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+G
+u
+m
+b
+a
+l
+l
+M
+a
+c
+h
+i
+n
+e
+Gumball Machine States
+ 
+ 
+ 
+ 
+N
+o
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+H
+a
+s
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+G
+u
+m
+b
+a
+l
+l
+M
+a
+c
+h
+i
+n
+e
+Gumball Machine States
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+O
+u
+t
+ 
+ 
+ 
+ 
+N
+o
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+H
+a
+s
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+G
+u
+m
+b
+a
+l
+l
+M
+a
+c
+h
+i
+n
+e
+G
+u
+m
+b
+a
+l
+l
+M
+a
+c
+h
+i
+n
+e
+Gumball Machine States
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+O
+u
+t
+ 
+ 
+ 
+ 
+N
+o
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+H
+a
+s
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+Gumball Machine States
+11
+22
+4433
+Behind the Scenes: 
+Self-Guided Tour
+Trace the steps of the Gumball Machine starting with the NoQuarter state. Also annotate the diagram with actions 
+and output of the machine. For this exercise you can assume there are plenty of gumballs in the machine.
+
+406        Chapter    10
+state pattern defined
+The State Pattern defined
+The State Pattern allows an object to alter its behavior 
+when its internal state changes. The object will appear to 
+change its class.
+request()
+Context
+Yes, it’s true, we just implemented the State Pattern! So now, let’s take a look at what it’s all about:
+The first part of  this description makes a lot of  sense, right? Because the pattern encapsulates 
+state into separate classes and delegates to the object representing the current state, we know 
+that behavior changes along with the internal state. The Gumball Machine provides a good 
+example: when the gumball machine is in the NoQuarterState and you insert a quarter, you get 
+different behavior (the machine accepts the quarter) than if  you insert a quarter when it’s in the 
+HasQuarterState (the machine rejects the quarter).
+What about the second part of  the definition? What does it mean for an object to “appear to 
+change its class”? Think about it from the perspective of  a client: if  an object you’re using can 
+completely change its behavior, then it appears to you that the object is actually instantiated from 
+another class. In reality, however, you know that we are using composition to give the appearance 
+of  a class change by simply referencing different state objects.
+Okay, now it’s time to check out the State Pattern class diagram:
+state.handle()
+handle()
+State
+handle()
+ConcreteStateA
+handle()
+ConcreteStateB
+Many concrete 
+states are possible.
+The Context is the class that  
+can have a number of internal 
+states. In our example, the 
+GumballMachine is the Context.
+Whenever the request() is 
+made on the Context 
+, it 
+is delegated to the state 
+to handle.
+The State interface defines a common 
+interface for all concrete states; the 
+states all implement the same interface, 
+so they are interchangeable.
+ConcreteStates 
+handle requests from the 
+Context. Each ConcreteState provides its 
+own implementation for a request. In this 
+way, when the Context changes state, its 
+behavior will change as well.
+
+you are here 4        407
+the state pattern
+You’ve got a good eye (or you read the beginning of  the chapter)! 
+Yes, the class diagrams are essentially the same, but the two patterns 
+differ in their intent. 
+With the State Pattern, we have a set of  behaviors encapsulated in 
+state objects; at any time the context is delegating to one of  those 
+states. Over time, the current state changes across the set of  state 
+objects to reflect the internal state of  the context, so the context’s 
+behavior changes over time as well. The client usually knows very 
+little, if  anything, about the state objects.  
+With Strategy, the client usually specifies the strategy object that 
+the context is composed with. Now, while the pattern provides the 
+flexibility to change the strategy object at runtime, often there is 
+a strategy object that is most appropriate for a context object. For 
+instance, in Chapter 1, some of  our ducks were configured to fly 
+with typical flying behavior (like mallard ducks), while others were 
+configured with a fly behavior that kept them grounded (like rubber 
+ducks and decoy ducks).
+In general, think of  the Strategy Pattern as a flexible alternative to 
+subclassing; if  you use inheritance to define the behavior of  a class, 
+then you’re stuck with that behavior even if  you need to change it. 
+With Strategy you can change the behavior by composing with a 
+different object.
+Think of  the State Pattern as an alternative to putting lots of  
+conditionals in your context; by encapsulating the behaviors within 
+state objects, you can simply change the state object in context to 
+change its behavior.
+Wait a sec; from what 
+I remember of the Strategy 
+Pattern, this class diagram is 
+EXACTLY the same.
+
+408        Chapter    10
+q&a about the state pattern
+Q:
+ In GumballMachine, the states decide what the 
+next state should be. Do the ConcreteStates always 
+decide what state to go to next?
+A: No, not always. The alternative is to let the Context 
+decide on the flow of state transitions.  
+As a general guideline, when the state transitions are fixed 
+they are appropriate for putting in the Context; however, 
+when the transitions are more dynamic, they are typically 
+placed in the state classes themselves (for instance, in 
+GumballMachine the choice of the transition to NoQuarter or 
+SoldOut depended on the runtime count of gumballs).
+The disadvantage of having state transitions in the state 
+classes is that we create dependencies between the state 
+classes. In our implementation of GumballMachine we tried 
+to minimize this by using getter methods on the Context, 
+rather than hardcoding explicit concrete state classes.
+Notice that by making this decision, you are making a 
+decision as to which classes are closed for modification—
+the Context or the state classes—as the system evolves.
+Q:
+ Do clients ever interact directly with the states?
+A: No. The states are used by the Context to represent 
+its internal state and behavior, so all requests to the states 
+come from the Context. Clients don’t directly change the 
+state of the Context. It is the Context’s job to oversee its 
+state, and you don’t usually want a client changing the state 
+of a Context without that Context’s knowledge. 
+Q:
+ If I have lots of instances of the Context in my 
+application, is it possible to share the state objects 
+across them?
+A: Yes, absolutely, and in fact this is a very common 
+scenario. The only requirement is that your state objects do 
+not keep their own internal context; otherwise, you’d need a 
+unique instance per context.
+ 
+To share your states, you’ll typically assign each state to a 
+static instance variable. If your state needs to make use of 
+methods or instance variables in your Context, you’ll also 
+have to give it a reference to the Context in each handler() 
+method.
+Q:
+ It seems like using the State Pattern always 
+increases the number of classes in our designs. Look 
+how many more classes our GumballMachine had than 
+the original design! 
+A: You’re right; by encapsulating state behavior 
+into separate state classes, you’ll always end up with 
+more classes in your design. That’s often the price you 
+pay for flexibility. Unless your code is some “one-off” 
+implementation you’re going to throw away (yeah, right), 
+consider building it with the additional classes and you’ll 
+probably thank yourself down the road. Note that often what 
+is important is the number of classes that you expose to 
+your clients, and there are ways to hide these extra classes 
+from your clients (say, by declaring them package private).
+Also, consider the alternative: if you have an application 
+that has a lot of state and you decide not to use separate 
+objects, you’ll instead end up with very large, monolithic 
+conditional statements. This makes your code hard to 
+maintain and understand. By using objects, you make states 
+explicit and reduce the effort needed to understand and 
+maintain your code. 
+Q:
+ The State Pattern class diagram shows that State 
+is an abstract class. But didn’t you use an interface in 
+the implementation of the gumball machine’s state?
+A: Yes. Given we had no common functionality to put 
+into an abstract class, we went with an interface. In your 
+own implementation, you might want to consider an abstract 
+class. Doing so has the benefit of allowing you to add 
+methods to the abstract class later, without breaking the 
+concrete state implementations.
+
+you are here 4        409
+the state pattern
+public class WinnerState implements State {
+ 
+    // instance variables and constructor
+    // insertQuarter error message
+    // ejectQuarter error message
+    // turnCrank error message
+ 
+    public void dispense() {
+        gumballMachine.releaseBall();
+        if (gumballMachine.getCount() == 0) {
+            gumballMachine.setState(gumballMachine.getSoldOutState());
+        } else {
+            gumballMachine.releaseBall();
+            System.out.println("YOU'RE A WINNER! You got two gumballs for your quarter");
+            if (gumballMachine.getCount() > 0) {
+                gumballMachine.setState(gumballMachine.getNoQuarterState());
+            } else {
+                System.out.println("Oops, out of gumballs!");
+                gumballMachine.setState(gumballMachine.getSoldOutState());
+            }
+        }
+    }
+}
+public class GumballMachine {
+ 
+    State soldOutState;
+    State noQuarterState;
+    State hasQuarterState;
+    State soldState;
+    State winnerState;
+ 
+    State state = soldOutState;
+    int count = 0;
+    // methods here
+}
+We still need to finish the Gumball 1 in 10 game
+Remember, we’re not done yet. We’ve got a game to implement, but now that we’ve got the State 
+Pattern implemented, it should be a breeze. First, we need to add a state to the GumballMachine class:
+All you need to add here is 
+the new WinnerState and 
+initialize it in the constructor.
+Now let’s implement the WinnerState class; it’s remarkably similar to the SoldState class:
+Here we release two gumballs and then 
+either go to the NoQuarterState or 
+the SoldOutState.
+Just like SoldState.
+If we have a second gumball, we release it.
+Don’t forget you also have 
+to add a getter method for 
+WinnerState too.
+If we were able 
+to release two 
+gumballs, we let 
+the user know 
+he was a winner.
+
+410        Chapter    10
+implementing the 1 in 10 game
+public class HasQuarterState implements State {
+    Random randomWinner = new Random(System.currentTimeMillis());
+    GumballMachine gumballMachine;
+ 
+    public HasQuarterState(GumballMachine gumballMachine) {
+        this.gumballMachine = gumballMachine;
+    }
+  
+    public void insertQuarter() {
+        System.out.println("You can't insert another quarter");
+    }
+ 
+    public void ejectQuarter() {
+        System.out.println("Quarter returned");
+        gumballMachine.setState(gumballMachine.getNoQuarterState());
+    }
+ 
+    public void turnCrank() {
+        System.out.println("You turned...");
+        int winner = randomWinner.nextInt(10);
+        if ((winner == 0) && (gumballMachine.getCount() > 1)) {
+            gumballMachine.setState(gumballMachine.getWinnerState());
+        } else {
+            gumballMachine.setState(gumballMachine.getSoldState());
+        }
+    }
+    public void dispense() {
+        System.out.println("No gumball dispensed");
+    }
+}
+First we add a 
+random number 
+generator to 
+generate the 10% 
+chance of winning...
+Finishing the game
+We ’ve got just one more change to make: we need to implement the random 
+chance game and add a transition to the WinnerState. We’re going to add both to 
+the HasQuarterState since that’s where the customer turns the crank:
+...then we determine 
+if this customer won.
+Wow, that was pretty simple to implement! We just added a new state to the GumballMachine 
+and then implemented it. All we had to do from there was to implement our chance game and 
+transition to the correct state. It looks like our new code strategy is paying off...
+If they won, and there’s enough gumballs 
+left for them to get two, we go to 
+WinnerState; otherwise, we go to 
+SoldState (just like we always did).
+
+you are here 4        411
+the state pattern
+public class GumballMachineTestDrive {
+    public static void main(String[] args) {
+        GumballMachine gumballMachine = new GumballMachine(5);
+        System.out.println(gumballMachine);
+        gumballMachine.insertQuarter();
+        gumballMachine.turnCrank();
+        System.out.println(gumballMachine);
+        gumballMachine.insertQuarter();
+        gumballMachine.turnCrank();
+        gumballMachine.insertQuarter();
+        gumballMachine.turnCrank();
+        System.out.println(gumballMachine);
+    }
+}
+Demo for the CEO of Mighty Gumball, Inc.
+The CEO of  Mighty Gumball has dropped by for a demo of  your new gumball game code. Let’s 
+hope those states are all in order! We’ll keep the demo short and sweet (the short attention span of  
+CEOs is well documented), but hopefully long enough so that we’ll win at least once.  
+This code really hasn’t changed at all; 
+we just shortened it a bit.
+Once, again, start with a gumball 
+machine with 5 gumballs.
+We want to get a winning state, 
+so we just keep pumping in those 
+quarters and turning the crank. We 
+print out the state of the gumball 
+machine every so often...
+The whole engineering team is waiting 
+outside the conference room to see 
+if the new State Pattern-based 
+design is going to work!!
+
+412        Chapter    10
+testing the gumball machine
+File  Edit   Window  Help  Whenisagumballajawbreaker?
+%java GumballMachineTestDrive
+Mighty Gumball, Inc.
+Java-enabled Standing Gumball Model #2004
+Inventory: 5 gumballs
+Machine is waiting for quarter
+You inserted a quarter
+You turned...
+A gumball comes rolling out the slot...
+A gumball comes rolling out the slot...
+YOU'RE A WINNER! You got two gumballs for your quarter
+Mighty Gumball, Inc.
+Java-enabled Standing Gumball Model #2004
+Inventory: 3 gumballs
+Machine is waiting for quarter
+You inserted a quarter
+You turned...
+A gumball comes rolling out the slot...
+You inserted a quarter
+You turned...
+A gumball comes rolling out the slot...
+A gumball comes rolling out the slot...
+YOU'RE A WINNER! You got two gumballs for your quarter
+Oops, out of gumballs!
+Mighty Gumball, Inc.
+Java-enabled Standing Gumball Model #2004
+Inventory: 0 gumballs
+Machine is sold out
+%
+Gee, did we get lucky 
+or what? In our demo 
+to the CEO, we won 
+not once, but twice!
+Yes! That rocks!
+Q:
+ Why do we need the WinnerState? Couldn’t we just have the SoldState dispense two gumballs?
+A: That’s a great question. SoldState and WinnerState are almost identical, except that WinnerState dispenses two 
+gumballs instead of one. You certainly could put the code to dispense two gumballs into SoldState. The downside is, of 
+course, that now you’ve got TWO states represented in one State class: the state in which you’re a winner, and the state 
+in which you’re not. So you are sacrificing clarity in your State class to reduce code duplication. Another thing to consider 
+is the principle you learned in the previous chapter: the Single Responsibility Principle. By putting the WinnerState 
+responsibility into the SoldState, you’ve just given the SoldState TWO responsibilities. What happens when the 
+promotion ends? Or the stakes of the contest change? So, it’s a tradeoff and comes down to a design decision.
+
+you are here 4        413
+the state pattern
+Bravo! Great job, 
+gang. Our sales are already 
+going through the roof with the new 
+game. You know, we also make soda 
+machines, and I was thinking we could put 
+one of those slot-machine arms on the 
+side and make that a game too. We’ve got 
+four-year-olds gambling with the 
+gumball machines; why stop there?
+Sanity check...
+Yes, the CEO of  Mighty Gumball probably needs a sanity check, but that’s not what 
+we’re talking about here. Let’s think through some aspects of  the GumballMachine 
+that we might want to shore up before we ship the gold version:
+ �We’ve got a lot of  duplicate code in the Sold and Winning 
+states and we might want to clean those up. How would we 
+do it? We could make State into an abstract class and build 
+in some default behavior for the methods; after all, error 
+messages like, “You already inserted a quarter,” aren’t going 
+to be seen by the customer. So all “error response” behavior 
+could be generic and inherited from the abstract State class.
+ �The dispense() method always gets called, even if  the crank is 
+turned when there is no quarter. While the machine operates 
+correctly and doesn’t dispense unless it’s in the right state, we 
+could easily fix this by having turnCrank() return a boolean 
+or by introducing exceptions. Which do you think is a better 
+solution?
+ �All of  the intelligence for the state transitions is in the State 
+classes. What problems might this cause? Would we want to 
+move that logic into the GumballMachine? What would be 
+the advantages and disadvantages of  that?
+ �Will you be instantiating a lot of  GumballMachine objects?  
+If  so, you may want to move the state instances into static 
+instance variables and share them. What changes would this 
+require to the GumballMachine and the States?
+Dammit Jim, 
+I’m a gumball 
+machine, not a 
+computer!
+
+414        Chapter    10
+fireside chats: state and strategy
+Tonight’s talk: A Strategy and State Pattern Reunion.
+Strategy:
+Hey, bro. Did you hear I was in Chapter 1? 
+ 
+ 
+I was just over giving the Template Method guys a 
+hand—they needed me to help them finish off  their 
+chapter. So, anyway, what is my noble brother up to?
+ 
+ 
+I don’t know, you always sound like you’ve just 
+copied what I do and you’re using different words 
+to describe it. Think about it: I allow objects to 
+incorporate different behaviors or algorithms 
+through composition and delegation. You’re just 
+copying me.
+ 
+ 
+Oh yeah? How so? I don’t get it. 
+ 
+Yeah, that was some fine work...and I’m sure you can 
+see how that’s more powerful than inheriting your 
+behavior, right?
+ 
+Sorry, you’re going to have to explain that.
+State:
+Yeah, word is definitely getting around. 
+ 
+ 
+ 
+Same as always—helping classes to exhibit different 
+behaviors in different states.
+ 
+ 
+ 
+ 
+ 
+ 
+I admit that what we do is definitely related, but my 
+intent is totally different than yours. And the way I 
+teach my clients to use composition and delegation 
+is totally different.
+Well, if  you spent a little more time thinking about 
+something other than yourself, you might. Anyway,  
+think about how you work: you have a class you’re 
+instantiating and you usually give it a strategy object 
+that implements some behavior. Like, in Chapter 1 
+you were handing out quack behaviors, right? Real 
+ducks got a real quack; rubber ducks got a quack 
+that squeaked. 
+ 
+ 
+Yes, of  course. Now, think about how I work; it’s 
+totally different.
+
+you are here 4        415
+the state pattern
+Strategy:
+ 
+ 
+Hey, come on, I can change behavior at runtime 
+too; that’s what composition is all about!
+ 
+ 
+ 
+ 
+ 
+ 
+Well, I admit, I don’t encourage my objects to have 
+a well-defined set of  transitions between states. In 
+fact, I typically like to control what strategy my 
+objects are using.
+ 
+ 
+ 
+ 
+Yeah, yeah, keep living your pipe dreams, brother.  
+You act like you’re a big pattern like me, but check 
+it out: I’m in Chapter 1; they stuck you way out in

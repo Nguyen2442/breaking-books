@@ -1,0 +1,56 @@
+<section class="chapter" id="ch2" data-ch="2" data-title="Chương 2: Mẫu thiết kế Strategy Pattern - Đóng gói thuật ngữ, Ưu tiên Thành phần và Tránh phụ thuộc Kế thừa">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 2</p>
+    <h1>Chapter 2: The Strategy Pattern - Encapsulating Behaviors, Composition over Inheritance <span class="vi">Chương 2: Mẫu thiết kế Strategy Pattern - Đóng gói thuật ngữ, Ưu tiên Thành phần và Tránh phụ thuộc Kế thừa</span></h1>
+    <p class="lede">Khám phá cách Strategy Pattern giải quyết bài toán thay đổi hành vi thông qua nguyên lý đóng gói những gì thay đổi và ưu tiên thành phần (composition) thay vì kế thừa (inheritance).</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">1 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch2-t1" data-num="2.1" data-short="Bẫy kế thừa">
+    <div class="topic-theory-card">
+      <p class="eyebrow">KIẾN TRÚC & PHẢN MẪU</p>
+      <h2>Sai lầm chí mạng khi dùng kế thừa để tái sử dụng mã nguồn trong SimUDuck</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Kế thừa giúp tái sử dụng code ban đầu nhưng gây ra thảm họa bảo trì khi hành vi không áp dụng cho tất cả lớp con.</p></div>
+      <div class="prose">
+        <p>Khi phát triển hệ thống <dfn data-term="simuduck"><strong>SimUDuck</strong></dfn>, đội ngũ thiết kế ban đầu sử dụng kỹ thuật kế thừa hướng đối tượng thuần túy bằng cách tạo lớp cha <code>Duck</code> chứa các phương thức chung. Khi yêu cầu kinh doanh bổ sung tính năng <code>fly()</code> cho tất cả vịt, lập trình viên đã vô tình tiêm hành vi bay vào lớp cha mà quên mất rằng các lớp con như vịt cao su hay vịt gỗ không thể bay, dẫn đến lỗi hệ thống trầm trọng.</p><p>Các hình thái quản lý mã nguồn khi gặp bài toán mở rộng tính năng:</p><ul><li><strong>Kế thừa trực tiếp (Direct Inheritance):</strong> Lợi ích là code gọn gàng ban đầu, nhưng nhược điểm chết người là lan truyền hành vi không mong muốn và gây ràng buộc cứng nhắc (Tight Coupling).</li><li><strong>Ghi đè phương thức (Method Overriding):</strong> Giúp chặn hành vi ở lớp con nhưng buộc lập trình viên phải viết mã rỗng (stub code) liên tục, gây rối loạn cấu trúc phân cấp.</li><li><strong>Dùng Interface thuần (Plain Interfaces):</strong> Giải quyết được việc chọn lọc hành vi nhưng hoàn toàn triệt tiêu khả năng tái sử dụng mã nguồn do interface Java truyền thống không chứa mã thực thi.</li></ul><p>Thực chiến cho thấy việc lạm dụng kế thừa sâu (Deep Inheritance Hierarchies) trong các hệ thống lớn như E-commerce hay Core Banking sẽ làm sụp đổ khả năng mở rộng khi business thay đổi liên tục.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Bão sale 11.11 tại Tiki / Shopee</b>
+        <p>Khi hệ thống khuyến mãi thay đổi liên tục các chính sách chiết khấu theo từng phút, nếu dùng cấu trúc kế thừa cứng nhắc cho từng loại Flash Sale, đội ngũ kỹ thuật sẽ phải biên dịch và deploy lại toàn bộ hệ thống, dẫn đến sập sàn giao dịch.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch2-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô phỏng tác động của Kế thừa vs Ủy quyền hành vi</strong>
+        <small>Tương tác với thanh trượt để tăng số lượng loại Vịt trong hệ thống và quan sát tỷ lệ lỗi xung đột hành vi.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch2-review" data-num="2.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 2</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Chương này mổ xẻ sai lầm chí mạng của việc lạm dụng <dfn data-term="inheritance"><strong>kế thừa (inheritance)</strong></dfn> trong phát triển phần mềm thông qua bài toán kinh điển SimUDuck. Khi yêu cầu thay đổi liên tục, việc gắn kết chặt chẽ hành vi vào lớp cha gây ra hiệu ứng phụ lan truyền và biến việc bảo trì thành ác mộng. Giải pháp được đưa ra là tách biệt các hành vi thay đổi thành các họ thuật toán độc lập, áp dụng nguyên lý <dfn data-term="program-to-interface"><strong>lập trình hướng tới giao diện/siêu kiểu (program to an interface)</strong></dfn> thay vì cài đặt cụ thể, và sử dụng thành phần <dfn data-term="composition"><strong>(composition)</strong></dfn> để ủy quyền hành vi động tại thời điểm chạy. Kết quả là sự ra đời của <dfn data-term="strategy-pattern"><strong>Strategy Pattern</strong></dfn> - một trong những mẫu thiết kế cơ bản và mạnh mẽ nhất trong kỹ thuật phần mềm giúp hệ thống đạt độ linh hoạt tối đa khi mở rộng tính năng mà không phá vỡ mã nguồn hiện hữu.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Phát biểu nào sau đây chính xác nhất về nguyên lý thiết kế cốt lõi trong Chương 2?</p>
+        <ol><li>Luôn luôn sử dụng kế thừa đa tầng để tối ưu hóa việc tái sử dụng mã nguồn.</li><li>Nhận diện các khía cạnh thay đổi của ứng dụng và tách rời chúng ra khỏi những phần không thay đổi.</li><li>Tránh sử dụng interface trong mọi trường hợp thiết kế hướng đối tượng.</li><li>Đóng gói toàn bộ logic nghiệp vụ vào bên trong một lớp siêu cấp duy nhất (God Object).</li></ol>
+        <p class="explain">Nguyên lý đầu tiên và quan trọng nhất được nhấn mạnh là: 'Identify the aspects of your application that vary and separate them from what stays the same', tạo nền tảng cho việc đóng gói hành vi.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

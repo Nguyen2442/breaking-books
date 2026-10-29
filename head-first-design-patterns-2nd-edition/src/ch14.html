@@ -1,0 +1,56 @@
+<section class="chapter" id="ch14" data-ch="14" data-title="Mẫu thiết kế State và Strategy: Cặp song sinh khác biệt">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 14</p>
+    <h1>A little-known fact: the Strategy and State Patterns - are twins separated at birth <span class="vi">Mẫu thiết kế State và Strategy: Cặp song sinh khác biệt</span></h1>
+    <p class="lede">Khám phá bản chất tương đồng về mặt cấu trúc giữa State Pattern và Strategy Pattern, đồng thời mổ xẻ cách State Pattern giải quyết triệt để vấn đề phình to câu lệnh điều kiện trong hệ thống phân tán.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">1 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch14-t1" data-num="14.1" data-short="State Pattern & Hạn chế của If-Else">
+    <div class="topic-theory-card">
+      <p class="eyebrow">KIẾN TRÚC HỆ THỐNG</p>
+      <h2>Bóc tách bài toán máy bán kẹo và hiểm họa từ Conditional Statements</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Mô hình quản lý trạng thái bằng biến số nguyên và câu lệnh rẽ nhánh gây nghẽn bảo trì khi hệ thống mở rộng.</p></div>
+      <div class="prose">
+        <p>Khi xây dựng hệ thống tự động hóa như máy bán hàng hoặc cổng thanh toán, cách tiếp cận sơ khai nhất là sử dụng một biến số nguyên lưu trạng thái kết hợp với hàng loạt câu lệnh kiểm tra điều kiện. Khi các yêu cầu thay đổi nghiệp vụ xuất hiện (như thêm trạng thái trúng thưởng ngẫu nhiên), kỹ sư buộc phải sửa đổi toàn bộ các phương thức hành động, biến mã nguồn thành một mớ hỗn độn vi phạm nghiêm trọng các nguyên tắc thiết kế hướng đối tượng.</p><p>Các hình thái quản lý trạng thái thường gặp trong các hệ thống phần mềm hiện đại:</p><ul><li><strong>Biến nguyên thủy và If-Else (Primitive State):</strong> Dễ triển khai ban đầu nhưng phình to nhanh chóng, vi phạm Open-Closed Principle và dễ sinh bug.</li><li><strong>Bảng chuyển đổi trạng thái (State Transition Table):</strong> Phù hợp với hệ thống nhúng hoặc mô hình luồng dữ liệu, tuy nhiên khó quản lý logic nghiệp vụ phức tạp.</li><li><strong>Mẫu thiết kế State (State Pattern):</strong> Đóng gói hành vi vào từng lớp riêng biệt, giải quyết triệt để sự phình to của mã nguồn thông qua tính đa hình.</li></ul><p>Thực chiến cho thấy, việc áp dụng State Pattern giúp cô lập hoàn toàn các thay đổi cục bộ. Khi cần bổ sung một trạng thái mới, kỹ sư chỉ cần viết một lớp mới triển khai interface chung mà không ảnh hưởng đến các trạng thái cũ đang vận hành ổn định.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Case Study thực chiến tại các cổng thanh toán Việt Nam</b>
+        <p>Trong các hệ thống xử lý giao dịch ví điện tử chịu tải cao tại Việt Nam (như MoMo hay ZaloPay), một giao dịch qua cổng thanh toán phải trải qua các trạng thái: CREATED, PENDING_OTP, AUTHORIZED, CAPTURED, REFUNDED. Nếu sử dụng if-else để xử lý luồng tiền hoàn trả hay hủy giao dịch, hệ thống sẽ sập nguồn khi gặp bão sale 11.11 do code quá rối rắm. State Pattern giúp tách bạch hoàn toàn logic của trạng thái PENDING khỏi trạng thái CAPTURED.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch14-w1">
+      <figcaption>
+        <span class="lab-tag">🔄 Vòng đời & Máy Trạng thái</span>
+        <strong>Mô phỏng vòng đời trạng thái Máy bán kẹo (Gumball Machine)</strong>
+        <small>Tương tác với lưu lượng request và quan sát cách hệ thống chuyển đổi trạng thái hoặc văng lỗi khi thực hiện hành động không hợp lệ.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch14-review" data-num="14.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 14</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Trong kiến trúc phần mềm chịu tải cao, việc quản lý trạng thái của các thực thể như đơn hàng, phiên thanh toán hoặc kết nối mạng thông qua các câu lệnh rẽ nhánh điều kiện (if-else, switch-case) dẫn đến thảm họa bảo trì. Chương này bóc tách <dfn data-term="State Pattern"><strong>Mẫu thiết kế Trạng thái</strong></dfn>, cơ chế đóng gói hành vi tương ứng với từng trạng thái vào các lớp riêng biệt và ủy quyền xử lý (delegation) từ <dfn data-term="Context"><strong>Ngữ cảnh</strong></dfn>. Đồng thời, bài học so sánh mối quan hệ song sinh giữa State Pattern và Strategy Pattern, giúp kỹ sư nhận diện chính xác thời điểm nên áp dụng mô hình thay đổi hành vi theo thuật toán hay thay đổi hành vi theo vòng đời trạng thái.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Phát biểu nào sau đây là chính xác nhất khi so sánh giữa State Pattern và Strategy Pattern?</p>
+        <ol><li>State Pattern và Strategy Pattern hoàn toàn khác nhau về cấu trúc lớp.</li><li>State Pattern và Strategy Pattern có cấu trúc lớp giống hệt nhau nhưng khác biệt về mặt ý định (intent).</li><li>Strategy Pattern dùng để thay đổi trạng thái nội tại của đối tượng theo thời gian.</li><li>State Pattern yêu cầu client phải chủ động truyền chiến lược trạng thái vào context.</li></ol>
+        <p class="explain">Về mặt cấu trúc (class diagram), cả hai mẫu thiết kế đều sử dụng composition và delegation qua một interface chung. Tuy nhiên, State Pattern tự động thay đổi hành vi theo tiến trình trạng thái nội tại, còn Strategy Pattern thường do client cấu hình thuật toán cụ thể.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

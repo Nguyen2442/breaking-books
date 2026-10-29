@@ -1,0 +1,118 @@
+<section class="chapter" id="ch1" data-ch="1" data-title="Chương 1: Nhập Môn Design Patterns & Mẫu Thiết Kế Strategy">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 1</p>
+    <h1>Chapter 1: Welcome to Design Patterns - Intro to Strategy Pattern <span class="vi">Chương 1: Nhập Môn Design Patterns & Mẫu Thiết Kế Strategy</span></h1>
+    <p class="lede">Khám phá sức mạnh của việc tách biệt phần mã nguồn hay biến động ra khỏi phần cố định bằng cách áp dụng ba nguyên lý OO cốt lõi và mẫu thiết kế Strategy.</p>
+    <div class="chapter-meta">
+      <span class="pill">3 bài học lý thuyết</span>
+      <span class="pill">3 sơ đồ tư duy tương tác</span>
+      <span class="pill">3 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch1-t1" data-num="1.1" data-short="Bẫy Thừa Kế trong OOP">
+    <div class="topic-theory-card">
+      <p class="eyebrow">KIẾN TRÚC THỰC CHIẾN</p>
+      <h2>Bẫy Lập Trình Hướng Đối Tượng: Khi Thừa Kế Phá Vỡ Hệ Thống</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Lạm dụng thừa kế (Inheritance) để tái sử dụng mã nguồn gây ra sự gắn kết chặt (Tight Coupling) và tác dụng phụ lan truyền trên toàn bộ cây phân cấp.</p></div>
+      <div class="prose">
+        <p>Trong các thiết kế phần mềm ban đầu, lập trình viên thường dùng <dfn data-term="inheritance"><strong>Thừa kế (Inheritance)</strong></dfn> như một công cụ hàng đầu để tái sử dụng mã nguồn. Tuy nhiên, khi hệ thống tăng trưởng và các yêu cầu nghiệp vụ biến đổi liên tục, việc đẩy chung các hàm xử lý lên lớp cha (Superclass) nhanh chóng lộ rõ điểm yếu chết người.</p><p>Khi thay đổi logic ở Superclass, tất cả các Subclass kế thừa từ nó đều bị ảnh hưởng trực tiếp. Trong bài toán SimUDuck, việc thêm hàm <code>fly()</code> vào lớp cha <code>Duck</code> khiến các loại vịt đồ chơi (RubberDuck, DecoyDuck) vốn không thể bay cũng tự nhiên có hành vi bay lượn trên không trung.</p><p>Các hướng tiếp cận sai lầm thường gặp khi cố gắng vá lỗi này bao gồm:</p><ul><li><strong>Override đè hàm ở Subclass:</strong> Ghi đè hàm <code>fly()</code> thành hàm rỗng trong RubberDuck. Cách này gây lãng phí, rủi ro bỏ sót khi phát sinh Subclass mới và vi phạm nguyên lý Liskov Substitution.</li><li><strong>Dùng Interface phân tách (Flyable, Quackable):</strong> Buộc các Subclass tự implement interface. Cách này loại bỏ tác dụng phụ nhưng triệt tiêu hoàn toàn khả năng tái sử dụng code, dẫn đến trùng lặp mã nguồn (Code Duplication) ở hàng chục class.</li></ul><p>Thực tế kiến trúc chịu tải cho thấy, sự gắn kết chặt (<dfn data-term="coupling"><strong>Tight Coupling</strong></dfn>) do thừa kế làm mất khả năng đóng gói độc lập, biến một thay đổi nhỏ thành nguy cơ vỡ hệ thống toàn cục.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Tình huống thực tế tại Shopee</b>
+        <p>Trong hệ thống xử lý voucher giảm giá của Shopee, nếu dùng Class cha `DiscountPolicy` và cho từng loại FlashSale, Loyalty, Cashback thừa kế, khi cập nhật logic tính thuế VAT trên voucher FlashSale, vô tình toàn bộ đơn hàng dùng Loyalty voucher bị tính sai tiền. Bài học: Không gộp các logic biến động khác bản chất vào cùng cây thừa kế.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch1-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô Phỏng Tranh Chấp Logic Khi Dùng Inheritance vs Composition</strong>
+        <small>Thử nghiệm thay đổi tải lượng và chuyển đổi kịch bản để thấy mức độ vỡ code và độ trễ hệ thống.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch1-t2" data-num="1.2" data-short="3 Nguyên Lý OO Cốt Lõi">
+    <div class="topic-theory-card">
+      <p class="eyebrow">NGUYÊN LÝ THIẾT KẾ</p>
+      <h2>Ba Nguyên Lý Thiết Kế Cốt Lõi Đặt Nền Móng Cho Architecture</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Ba nguyên lý trụ cột giúp hệ thống chống chọi với sự thay đổi: Đóng gói biến động, Lập trình qua Interface, và Ưu tiên Composition hơn Inheritance.</p></div>
+      <div class="prose">
+        <p>Sở hữu kiến thức về Trừu tượng (Abstraction), Đóng gói (Encapsulation), Thừa kế (Inheritance) và Đa hình (Polymorphism) chưa đủ để biến một lập trình viên thành Kiến trúc sư phần mềm. Điểm khác biệt nằm ở việc thấu hiểu và áp dụng ba nguyên lý thiết kế OO cốt lõi.</p><p>Các nguyên lý này giải quyết trực tiếp bài toán chi phí bảo trì và nâng cấp phần mềm trong thực tế:</p><ul><li><strong>Principle 1: Encapsulate what varies (Đóng gói những gì hay thay đổi):</strong> Xác định các phần code thường xuyên biến động theo yêu cầu mới và bóc tách hoàn toàn khỏi các phần code ổn định. Giảm thiểu phạm vi ảnh hưởng khi có sự thay đổi.</li><li><strong>Principle 2: Program to an interface, not an implementation (Lập trình cho giao diện, không phải cho lớp cụ thể):</strong> Sử dụng kiểu dữ liệu trừu tượng (<dfn data-term="interface"><strong>Interface</strong></dfn> hoặc Abstract Class) để định nghĩa hành vi. Cho phép <dfn data-term="polymorphism"><strong>Đa hình (Polymorphism)</strong></dfn> quyết định đối tượng thực thi thực sự tại runtime.</li><li><strong>Principle 3: Favor composition over inheritance (Ưu tiên ủy thác hơn thừa kế):</strong> Thay vì kế thừa thuộc tính (IS-A), hãy tạo mối quan hệ sở hữu (<dfn data-term="composition"><strong>Composition - HAS-A</strong></dfn>). Đưa các hành vi biến động thành các đối tượng thành phần được nhúng vào class chính.</li></ul><p>Áp dụng bộ ba nguyên lý này giúp hệ thống đạt trạng thái Loosely Coupled (gắn kết lỏng lẻo), linh hoạt mở rộng mà không cần đập bỏ cấu trúc cũ.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Ứng dụng tại Cổng thanh toán MoMo</b>
+        <p>MoMo hỗ trợ hàng chục kênh thanh toán (ATM, Thẻ quốc tế, Ví MoMo, PayLater). Bằng cách khai báo `PaymentService` sở hữu một `PaymentStrategy` interface, hệ thống MoMo có thể tích hợp thêm ngân hàng mới chỉ trong vài giờ bằng cách tạo Class mới triển khai interface, tuyệt đối không động vào Core Checkout Flow.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch1-w2">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Luồng Quyết Định Thiết Kế Theo 3 Nguyên Lý OO</strong>
+        <small>Sơ đồ cây quyết định giúp KTS phần mềm chọn đúng giải pháp đóng gói logic.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch1-t3" data-num="1.3" data-short="Mẫu Thiết Kế Strategy">
+    <div class="topic-theory-card">
+      <p class="eyebrow">THỰC THI KIẾN TRÚC</p>
+      <h2>Mẫu Thiết Kế Strategy & Cơ Chế Thay Đổi Hành Vi Runtime</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Định nghĩa chi tiết mẫu Strategy, cách triển khai cấu trúc class và khả năng hoán đổi thuật toán linh hoạt ngay khi ứng dụng đang chạy.</p></div>
+      <div class="prose">
+        <p><dfn data-term="strategy-pattern"><strong>Strategy Pattern</strong></dfn> định nghĩa một họ các thuật toán, đóng gói từng thuật toán lại và làm cho chúng có thể hoán đổi cho nhau. Strategy cho phép thuật toán biến đổi độc lập với các client sử dụng nó.</p><p>Cấu trúc của Strategy Pattern bao gồm các thành phần trọng yếu:</p><ul><li><strong>Context (Lớp ngữ cảnh):</strong> Chứa tham chiếu đến giao diện Strategy. Không trực tiếp thực thi thuật toán mà ủy thác (delegate) cho đối tượng Strategy hiện tại.</li><li><strong>Strategy Interface (Giao diện chiến lược):</strong> Định nghĩa phương thức chung cho tất cả các thuật toán hỗ trợ.</li><li><strong>Concrete Strategies (Các chiến lược cụ thể):</strong> Hiện thực hóa các thuật toán khác nhau dựa trên Strategy Interface (ví dụ: <code>FlyWithWings</code>, <code>FlyNoWay</code>, <code>FlyRocketPowered</code>).</li></ul><p>Điểm mạnh vượt trội của Strategy là khả năng Dynamic Behavior Change (Thay đổi hành vi linh hoạt). Nhờ cung cấp các phương thức Setter (như <code>setFlyBehavior()</code>), Context có thể chuyển đổi thuật toán xử lý ngay giữa chừng khi ứng dụng đang chạy mà không cần khởi động lại dịch vụ.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Ứng dụng định vị tài xế tại Grab / Xanh SM</b>
+        <p>Khi ứng dụng Grab của khách hàng tìm tài xế, thuật toán Matching Strategy có thể đổi từ `NearestDriverStrategy` (tài xế gần nhất) sang `HighRatingDriverStrategy` (tài xế sao cao) hoặc `DynamicPricingStrategy` tùy thuộc vào tình trạng mưa bão hay tắc đường theo thời gian thực.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch1-w3">
+      <figcaption>
+        <span class="lab-tag">🔌 Kiến trúc & Luồng Dữ liệu</span>
+        <strong>Luồng Điều Phối Thuật Toán Runtime Trong Dynamic Strategy Pattern</strong>
+        <small>Mô phỏng cơ chế hoán đổi thuật toán linh hoạt tại tầng Middleware/Context.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch1-review" data-num="1.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 1</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Chương 1 mở đầu cuốn sách bằng việc chỉ ra bẫy lập trình phổ biến khi lạm dụng thừa kế (Inheritance) để tái sử dụng mã nguồn. Thông qua bài toán thực tế nâng cấp ứng dụng mô phỏng SimUDuck, tác giả chứng minh thừa kế tạo ra sự gắn kết chặt (Tight Coupling), dẫn đến tác dụng phụ không mong muốn khi thay đổi hành vi ở lớp cha. Giải pháp được đưa ra là bóc tách hành vi biến động thành các giao diện (Interface) độc lập, sử dụng ủy thác (Composition) thay vì kế thừa. Đây chính là bản chất của Mẫu thiết kế Strategy (Strategy Pattern) — đóng gói một họ các thuật toán, biến chúng thành các thực thể có thể thay thế lẫn nhau linh hoạt ngay ở thời điểm chạy (Runtime). Chương sách định hình 3 nguyên lý thiết kế OO kinh điển làm kim chỉ nam cho mọi kiến trúc phần mềm hiện đại.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Trong một hệ thống E-commerce chịu tải cao, thiết kế nào dưới đây vi phạm nguyên lý 'Favor composition over inheritance'?</p>
+        <ol><li>Tạo interface PaymentStrategy và tiêm vào OrderProcessor thông qua Dependency Injection.</li><li>Tạo class cha OrderProcessor và cho ExpressOrderProcessor, BulkOrderProcessor thừa kế để ghi đè logic tính phí.</li><li>Định nghĩa ShippingCalculator giữ một tham chiếu đến ShippingBehavior interface.</li><li>Sử dụng Enum Strategy để tra cứu thuật toán xử lý mã giảm giá theo loại hình khuyến mãi.</li></ol>
+        <p class="explain">Tạo class cha OrderProcessor và cho các subclass thừa kế để ghi đè logic tính phí chính là việc dùng Inheritance (IS-A) cho logic biến động. Điều này làm gắn kết chặt OrderProcessor với các loại đơn hàng, gây khó khăn khi một đơn hàng vừa là Express vừa là Bulk.</p>
+      </div>
+
+      <div class="q" data-answer="2">
+        <p><strong>Câu 2:</strong> Lợi ích lớn nhất của việc áp dụng Nguyên lý 'Program to an interface, not an implementation' trong Strategy Pattern là gì?</p>
+        <ol><li>Tăng tốc độ thực thi của CPU bằng cách bỏ qua bước kiểm tra kiểu dữ liệu.</li><li>Giúp giảm dung lượng file biên dịch .jar/.dll của ứng dụng.</li><li>Cho phép Context tương tác với bất kỳ thuật toán nào miễn là nó tuân thủ Interface, giúp dễ dàng mở rộng và thử nghiệm Mock/UnitTest.</li><li>Tự động tối ưu hóa bộ nhớ Garbage Collection khi xóa các đối tượng không dùng.</li></ol>
+        <p class="explain">Lập trình qua Interface giúp bóc tách sự phụ thuộc giữa Context và Concrete Implementation. Context chỉ cần biết hợp đồng (Interface), nhờ đó ta có thể dễ dàng thêm class mới hoặc thay bằng Mock Object khi chạy UnitTest mà không sửa Context.</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p><strong>Câu 3:</strong> Khi nào bạn KHÔNG NÊN sử dụng Strategy Pattern?</p>
+        <ol><li>Khi ứng dụng có nhiều biến thể của cùng một thuật toán xử lý.</li><li>Khi hệ thống chỉ có 1-2 thuật toán cố định và gần như tuyệt đối không bao giờ thay đổi trong tương lai.</li><li>Khi bạn cần ẩn cấu trúc dữ liệu phức tạp của thuật toán khỏi người dùng.</li><li>Khi bạn muốn hoán đổi hành vi của đối tượng linh hoạt ngay ở thời điểm Runtime.</li></ol>
+        <p class="explain">Nếu hệ thống chỉ có 1 thuật toán duy nhất và cực kỳ ổn định, việc tạo thêm Interface và các Concrete Class sẽ gây ra tình trạng Over-engineering (Phức tạp hóa thiết kế không cần thiết), làm tăng số lượng class vô ích.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

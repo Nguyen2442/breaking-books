@@ -1,0 +1,56 @@
+<section class="chapter" id="ch6" data-ch="6" data-title="Mẫu Thiết Kế Factory: Đóng Gói Trách Nhiệm Khởi Tạo Đối Tượng">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 6</p>
+    <h1>The Factory Pattern: Encapsulating Object Creation <span class="vi">Mẫu Thiết Kế Factory: Đóng Gói Trách Nhiệm Khởi Tạo Đối Tượng</span></h1>
+    <p class="lede">Kiểm soát việc khởi tạo đối tượng bằng Mẫu Thiết Kế Factory để cô lập sự thay đổi và tuân thủ nguyên lý đóng-mở.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">1 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch6-t1" data-num="6.1" data-short="Nhận diện điểm yếu của từ khóa 'new'">
+    <div class="topic-theory-card">
+      <p class="eyebrow">NGUYÊN LÝ CỐT LÕI</p>
+      <h2>Bóc Tách Sự Phụ Thuộc Lớp Cụ Thể Gây Ra Bởi Từ Khóa 'New'</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Mỗi khi sử dụng từ khóa 'new' để tạo một lớp cụ thể, mã nguồn bị gắn chặt vào cấu trúc đó và buộc phải sửa đổi khi hệ thống mở rộng.</p></div>
+      <div class="prose">
+        <p>Trong phát triển phần mềm hướng đối tượng, việc sử dụng toán tử <dfn data-term="new-operator"><strong>new operator</strong></dfn> là cần thiết nhưng lại là nguyên nhân chính gây ra sự phụ thuộc cứng nhắc vào các lớp cụ thể. Khi mã nguồn chứa đầy các quyết định khởi tạo dựa trên điều kiện thời gian chạy (như if/else hoặc switch/case), nó trở nên mong manh và khó bảo trì.</p><p>Các trường phái kiến trúc xử lý vấn đề này theo các cách tiếp cận khác nhau:</p><ul><li><strong>Lập trình trực tiếp (Direct Instantiation):</strong> Nhanh chóng ở giai đoạn đầu nhưng trả giá đắt bằng việc vi phạm nguyên lý Open-Closed khi hệ thống lớn dần.</li><li><strong>Dependency Injection & Factory:</strong> Gom nhóm và trừu tượng hóa quá trình tạo đối tượng, giúp linh hoạt thay đổi thành phần mà không ảnh hưởng logic chính.</li></ul><p>Triển khai thực tế đòi hỏi kỹ sư phải xác định rõ các điểm biến động (points of variation) trong hệ thống và đưa chúng vào các tầng khởi tạo biệt lập.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại hệ thống TMĐT Việt Nam</b>
+        <p>Trong các chiến dịch siêu sale 11.11 tại Shopee hay Tiki, hệ thống xử lý hàng ngàn loại đơn hàng và chương trình khuyến mãi khác nhau. Nếu việc khởi tạo các chiến lược chiết khấu bị hardcode bằng từ khóa 'new' rải rác khắp nơi, hệ thống sẽ sập nguồn hoặc không thể cập nhật cấu hình khuyến mãi theo thời gian thực.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch6-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô Phỏng Tác Động Của Từ Khóa 'New' Đến Khả Năng Mở Rộng</strong>
+        <small>Điều chỉnh tải lượng để quan sát mức độ bảo trì và nguy cơ phát sinh lỗi khi thêm lớp mới</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch6-review" data-num="6.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 6</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Trong kiến trúc phần mềm hướng đối tượng, từ khóa 'new' gắn liền với việc khởi tạo các lớp cụ thể, trực tiếp tạo ra sự phụ thuộc cứng nhắc và vi phạm nguyên lý Open-Closed. Chương này bóc tách cách sử dụng Factory Pattern để tách biệt hoàn toàn mã nguồn xử lý logic nghiệp vụ khỏi quá trình instantiating phức tạp. Bằng cách đóng gói việc tạo đối tượng vào một thực thể chuyên biệt (Factory), các hệ thống chịu tải cao dễ dàng mở rộng thêm các kiểu dữ liệu, loại bỏ các chuỗi điều kiện if/else rườm rà tại runtime và tăng tính bảo trì.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Tại sao việc sử dụng trực tiếp từ khóa 'new' với các lớp cụ thể trong logic nghiệp vụ lại gây khó khăn cho việc bảo trì?</p>
+        <ol><li>Vì nó làm tăng dung lượng bộ nhớ RAM của ứng dụng.</li><li>Vì nó tạo ra sự phụ thuộc chặt chẽ và vi phạm nguyên lý đóng-mở (Open-Closed Principle).</li><li>Vì nó làm chậm tốc độ thực thi của CPU.</li><li>Vì trình biên dịch không hỗ trợ từ khóa new trong các dự án lớn.</li></ol>
+        <p class="explain">Từ khóa new gắn liền mã nguồn với lớp cụ thể, khiến mỗi khi có lớp mới được bổ sung, lập trình viên buộc phải mở và sửa lại mã nguồn cũ, vi phạm nguyên lý Open-Closed.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

@@ -1,0 +1,93 @@
+<section class="chapter" id="ch10" data-ch="10" data-title="Chương 10: Mẫu thiết kế Adapter và Facade">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 10</p>
+    <h1>Chapter 10: The Adapter and Facade Patterns <span class="vi">Chương 10: Mẫu thiết kế Adapter và Facade</span></h1>
+    <p class="lede">Biến đổi và đơn giản hóa giao diện: Nghệ thuật kết nối các thành phần không tương thích mà không phá vỡ mã nguồn hiện có.</p>
+    <div class="chapter-meta">
+      <span class="pill">2 bài học lý thuyết</span>
+      <span class="pill">2 sơ đồ tư duy tương tác</span>
+      <span class="pill">3 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch10-t1" data-num="10.1" data-short="Adapter Pattern">
+    <div class="topic-theory-card">
+      <p class="eyebrow">KIẾN TRÚC CẤU TRÚC</p>
+      <h2>Mẫu thiết kế Adapter: Cầu nối giao diện không tương thích</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Adapter chuyển đổi interface của một lớp thành interface mà client mong đợi mà không cần sửa đổi mã nguồn gốc.</p></div>
+      <div class="prose">
+        <p>Trong quá trình phát triển hệ thống phần mềm quy mô lớn, việc tích hợp các thư viện bên thứ ba hoặc các <dfn data-term="Legacy Code"><strong>mã nguồn cũ (Legacy Code)</strong></dfn> luôn tiềm ẩn xung đột về thiết kế interface. Khi client yêu cầu một chuẩn giao diện khắt khe nhưng thư viện vendor lại cung cấp một tập phương thức hoàn toàn khác biệt, việc viết lại mã nguồn hiện hữu là bất khả thi hoặc quá tốn kém.</p><p>Để giải quyết bài toán bất tương thích này, <dfn data-term="Adapter Pattern"><strong>Adapter Pattern</strong></dfn> can thiệp bằng cách đóng vai trò là lớp trung gian dịch thuật các yêu cầu. Các hình thức triển khai phổ biến trong thiết kế hệ thống bao gồm:</p><ul><li><strong>Object Adapter:</strong> Sử dụng thành phần cấu thành (composition) để bọc đối tượng adaptee, cho phép chuyển tiếp request và hỗ trợ linh hoạt cả các lớp con (subclasses) của adaptee.</li><li><strong>Class Adapter:</strong> Sử dụng đa kế thừa để kế thừa đồng thời cả target và adaptee, giúp ghi đè phương thức trực tiếp nhưng bị giới hạn bởi ngôn ngữ lập trình không hỗ trợ đa kế thừa như Java.</li><li><strong>Two-Way Adapter:</strong> Triển khai đồng thời cả hai interface cũ và mới, giúp hệ thống chuyển giao dần dần mà không làm gián đoạn các module phụ thuộc.</li></ul><p>Bằng cách áp dụng mô hình này, kiến trúc sư phần mềm duy trì được tính lỏng lẻo (loose coupling) giữa client và hệ thống backend, đảm bảo hệ thống có thể mở rộng và thay thế nhà cung cấp dịch vụ mà không gây ra hiệu ứng dây chuyền lỗi biên dịch.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại hệ thống thanh toán MoMo / ZaloPay</b>
+        <p>Khi tích hợp hàng loạt cổng thanh toán ngân hàng nội địa và quốc tế, mỗi ngân hàng trả về cấu trúc JSON payload và mã lỗi (error code) khác nhau. Đội ngũ kỹ thuật sử dụng mô hình Adapter cho từng ngân hàng để ánh xạ mọi response dị biệt về một PaymentResponse chuẩn duy nhất cho hệ thống lõi xử lý giao dịch.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch10-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô phỏng luồng chuyển đổi giao diện qua Adapter</strong>
+        <small>Điều chỉnh tải lượng request đồng thời để quan sát cách Adapter chuyển đổi yêu cầu từ Client sang Adaptee mà không làm gián đoạn hệ thống.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch10-t2" data-num="10.2" data-short="Facade Pattern">
+    <div class="topic-theory-card">
+      <p class="eyebrow">KIẾN TRÚC TẦNG CAO</p>
+      <h2>Mẫu thiết kế Facade: Đơn giản hóa hệ thống phức tạp</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Facade cung cấp một giao diện cấp cao, thống nhất cho một tập hợp các giao diện phức tạp trong một subsystem.</p></div>
+      <div class="prose">
+        <p>Khi các hệ thống phần mềm phình to về quy mô, số lượng lớp và sự phụ thuộc chằng chịt giữa các module khiến các lập trình viên mới mất hàng tuần chỉ để hiểu cách khởi tạo một luồng nghiệp vụ cơ bản. Việc bắt client phải nắm bắt toàn bộ chi tiết tầng thấp của subsystem tạo ra sự ghép nối cực kỳ chặt chẽ (<dfn data-term="Tight Coupling"><strong>tight coupling</strong></dfn>) và dễ sinh lỗi hệ thống.</p><p>Mẫu thiết kế <dfn data-term="Facade Pattern"><strong>Facade</strong></dfn> giải quyết triệt để vấn đề này bằng cách đóng gói sự phức tạp đằng sau một mặt tiền tinh gọn. Các đặc điểm kỹ thuật cần lưu ý bao gồm:</p><ul><li><strong>Unified Interface:</strong> Cung cấp các phương thức gom nhóm ngữ nghĩa rõ ràng như watchMovie() hoặc executeCheckout(), ẩn giấu hàng chục lời gọi phương thức tuần tự bên dưới.</li><li><strong>Subsystem Access Preservation:</strong> Facade không hề đóng cửa hay bao bọc tuyệt đối subsystem; các client cần quyền can thiệp sâu vẫn hoàn toàn có thể truy cập trực tiếp các lớp bên dưới.</li><li><strong>Decoupling & Maintainability:</strong> Khi các thành phần phần cứng hoặc thư viện bên trong subsystem thay đổi, chỉ có lớp Facade cần được cập nhật, mã nguồn client được cô lập tuyệt đối khỏi các thay đổi đó.</li></ul><p>Trong kiến trúc microservices và các hệ thống cloud-native hiện đại, các mẫu thiết kế API Gateway chính là hiện thân kinh điển của Facade Pattern ở tầng mạng, gom nhóm hàng trăm microservice backend thành một điểm vào duy nhất cho client.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại hệ thống quản lý đơn hàng Tiki / Lazada</b>
+        <p>Khi một đơn hàng được đặt thành công, hệ thống phải kích hoạt đồng thời việc trừ kho (Inventory Service), tính toán khuyến mãi (Promotion Service), tạo vận đơn giao hàng (Logistics Service), và ghi nhận hóa đơn tài chính (Accounting Service). Thay vì để client gọi rời rạc từng dịch vụ, OrderFacade gom toàn bộ quy trình đó vào một API duy nhất với cơ chế xử lý bù trừ (compensating transaction) khi có lỗi xảy ra.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch10-w2">
+      <figcaption>
+        <span class="lab-tag">🔌 Kiến trúc & Luồng Dữ liệu</span>
+        <strong>Mô phỏng luồng xử lý qua HomeTheaterFacade</strong>
+        <small>Theo dõi cách một lời gọi đơn lẻ từ client đi qua Facade để điều phối hàng loạt thiết bị subsystem phức tạp.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch10-review" data-num="10.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 10</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Chương 10 trong Head First Design Patterns mổ xẻ hai mẫu thiết kế cấu trúc cốt lõi là Adapter và Facade. Mẫu <dfn data-term="Adapter Pattern"><strong>Adapter</strong></dfn> đóng vai trò trung gian chuyển đổi giao diện của một lớp thành một giao diện khác mà client đang kỳ vọng, giúp các thành phần không tương thích có thể cộng tác mượt mà. Trong khi đó, mẫu <dfn data-term="Facade Pattern"><strong>Facade</strong></dfn> cung cấp một giao diện thống nhất, cấp cao hơn cho một tập hợp các giao diện phức tạp trong một subsystem, giúp đơn giản hóa việc sử dụng mà vẫn bảo toàn khả năng truy cập cấp thấp. Cả hai mẫu thiết kế đều tận dụng tối đa nguyên lý cấu thành đối tượng (object composition) để đạt được sự linh hoạt và giảm thiểu sự phụ thuộc chặt chẽ giữa các tầng trong kiến trúc phần mềm chịu tải cao.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="0">
+        <p><strong>Câu 1:</strong> Phát biểu nào sau đây phân biệt chính xác nhất giữa Adapter Pattern và Facade Pattern?</p>
+        <ol><li>Adapter thay đổi giao diện của một hoặc nhiều lớp để khớp với kỳ vọng của client, trong khi Facade cung cấp giao diện đơn giản hóa cho một subsystem phức tạp.</li><li>Adapter chỉ bọc duy nhất một lớp, trong khi Facade luôn bọc từ ba lớp trở lên.</li><li>Adapter sử dụng tính kế thừa, trong khi Facade hoàn toàn không sử dụng hướng đối tượng.</li><li>Adapter dùng cho lập trình mạng, trong khi Facade chỉ dùng cho giao diện người dùng UI.</li></ol>
+        <p class="explain">Sự khác biệt cốt lõi không nằm ở số lượng lớp được bọc mà ở mục đích (intent): Adapter nhằm mục đích tương thích hóa giao diện, còn Facade nhằm mục đích đơn giản hóa một subsystem phức tạp.</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p><strong>Câu 2:</strong> Khi thiết kế một Object Adapter trong Java, cơ chế lập trình hướng đối tượng nào được sử dụng để liên kết adapter với adaptee?</p>
+        <ol><li>Đa kế thừa lớp (Multiple Class Inheritance)</li><li>Thành phần cấu thành đối tượng (Object Composition)</li><li>Lớp trừu tượng bắt buộc (Abstract Class Binding)</li><li>Nạp chồng phương thức tĩnh (Static Method Overloading)</li></ol>
+        <p class="explain">Java không hỗ trợ đa kế thừa lớp, do đó Object Adapter sử dụng cơ chế composition (giữ một tham chiếu đến adaptee trong instance variable) để ủy quyền các yêu cầu.</p>
+      </div>
+
+      <div class="q" data-answer="2">
+        <p><strong>Câu 3:</strong> Nguyên lý thiết kế nào được áp dụng trực tiếp và triệt để trong Facade Pattern để giảm thiểu sự phụ thuộc giữa các thành phần?</p>
+        <ol><li>Nguyên lý Open/Closed (Mở cho mở rộng, đóng cho sửa đổi)</li><li>Nguyên lý Trách nhiệm duy nhất (Single Responsibility Principle)</li><li>Nguyên lý Ít hiểu biết nhất (Principle of Least Knowledge / Law of Demeter)</li><li>Nguyên lý Thay thế Liskov (Liskov Substitution Principle)</li></ol>
+        <p class="explain">Facade Pattern hiện thực hóa Nguyên lý Ít hiểu biết nhất (Principle of Least Knowledge), giúp client chỉ cần giao tiếp với đối tượng Facade duy nhất thay vì biết và gọi trực tiếp nhiều lớp subsystem bên trong.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

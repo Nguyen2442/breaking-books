@@ -1,0 +1,3977 @@
+this is a new chapter     425
+Ever play good cop, bad cop? You’re the good cop and you provide all 
+your services in a nice and friendly manner, but you don’t want everyone asking you 
+for services, so you have the bad cop control access to you. That’s what proxies do: 
+control and manage access. As you’re going to see, there are lots of ways in which 
+proxies stand in for the objects they proxy. Proxies have been known to haul entire 
+method calls over the internet for their proxied objects; they’ve also been known to 
+patiently stand in for some pretty lazy objects. 
+Controlling 
+     Object Access
+11  the Proxy Pattern
+With you as my proxy, 
+I’ll be able to triple the 
+amount of lunch money I can 
+extract from friends!
+
+426        Chapter    11
+what’s the goal
+Sounds easy enough. If  you remember, we’ve already 
+got methods in the gumball machine code for getting the 
+count of  gumballs, getCount(), and getting the current 
+state of  the machine, getState().
+All we need to do is create a report that can be printed out 
+and sent back to the CEO. Hmmm, we should probably 
+add a location field to each gumball machine as well; that 
+way the CEO can keep the machines straight.
+Let’s just jump in and code this. We’ll impress the CEO 
+with a very fast turnaround.
+Remember the CEO of 
+Mighty Gumball, Inc.?
+Hey team, I’d really like to 
+get some better monitoring for 
+my gumball machines. Can you find a 
+way to get me a report of inventory 
+and machine state?
+
+you are here 4        427
+the proxy pattern
+public class GumballMonitor {
+    GumballMachine machine;
+ 
+    public GumballMonitor(GumballMachine machine) {
+        this.machine = machine;
+    }
+ 
+    public void report() {
+        System.out.println("Gumball Machine: " + machine.getLocation());
+        System.out.println("Current inventory: " + machine.getCount() + " gumballs");
+        System.out.println("Current state: " + machine.getState());
+    }
+}
+public class GumballMachine {
+    // other instance variables
+    String location;
+ 
+    public GumballMachine(String location, int count) {
+        // other constructor code here
+        this.location = location;
+    }
+ 
+    public String getLocation() {
+        return location;
+    }
+ 
+    // other methods here
+}
+Coding the Monitor
+Now let’s create another class, GumballMonitor, that retrieves the machine’s 
+location, inventory of  gumballs, and current machine state and prints them in a 
+nice little report:
+The monitor takes the machine in 
+its constructor and assigns it to 
+the machine instance variable.
+Our report() method just prints a report with 
+location, inventory, and the machine’s state.
+Let’s start by adding support to the GumballMachine class so that it 
+can handle locations:
+A location is just a String.
+The location is passed into the 
+constructor and stored in the 
+instance variable.
+Let’s also add a getter method to 
+grab the location when we need it.
+
+428        Chapter    11
+local gumball monitor
+public class GumballMachineTestDrive {
+    public static void main(String[] args) {
+        int count = 0;
+        if (args.length < 2) {
+            System.out.println("GumballMachine <name> <inventory>");
+            System.exit(1);
+        }
+        count = Integer.parseInt(args[1]);
+        GumballMachine gumballMachine = new GumballMachine(args[0], count);
+        GumballMonitor monitor = new GumballMonitor(gumballMachine);
+ 
+        // rest of test code here
+        monitor.report();
+    }
+}
+Testing the Monitor
+We implemented that in no time. The CEO is going to be thrilled and amazed by our 
+development skills.
+Now we just need to instantiate a GumballMonitor and give it a machine to monitor:
+Don’t forget to give 
+the constructor a 
+location and count...
+...and instantiate a monitor and pass it a 
+machine to provide a report on.
+And here’s the output!
+When we need a report on 
+the machine, we call the 
+report() method.
+Pass in a location and initial # of 
+gumballs on the command line.
+File  Edit   Window  Help  FlyingFish
+%java GumballMachineTestDrive Austin 112
+Gumball Machine: Austin
+Current Inventory: 112 gumballs
+Current State: waiting for quarter
+The monitor output looks 
+great, but I guess I wasn’t clear. I need 
+to monitor gumball machines REMOTELY!  
+In fact, we already have the networks in 
+place for monitoring. Come on guys, you’re 
+supposed to be the internet generation!
+
+you are here 4        429
+the proxy pattern
+Frank: A remote what?
+Joe: Remote proxy. Think about it: we’ve already got the monitor code written, right? We give the 
+GumballMonitor class a reference to a machine and it gives us a report. The problem is that the monitor runs 
+in the same JVM as the gumball machine and the CEO wants to sit at his desk and remotely monitor the 
+machines! So what if  we left our GumballMonitor class as is, but handed it a proxy to a remote object?
+Frank: I’m not sure I get it.
+Jim: Me neither.
+Joe: Let’s start at the beginning...a proxy is a stand in for a real object. In this case, the proxy acts just like it 
+is a Gumball Machine object, but behind the scenes it is communicating over the network to talk to the real, 
+remote GumballMachine.
+Jim: So you’re saying we keep our code as it is, and we give the monitor a reference to a proxy version of  the 
+GumballMachine...
+Frank: And this proxy pretends it’s the real object, but it’s really just communicating over the net to the real 
+object.
+Joe: Yeah, that’s pretty much the story.
+Frank: It sounds like something that’s easier said than done.
+Joe: Perhaps, but I don’t think it’ll be that bad. We have to make sure that the gumball machine can act as 
+a service and accept requests over the network; we also need to give our monitor a way to get a reference to 
+a proxy object, but we’ve got some great tools already built into Java to help us. Let’s talk a little more about 
+remote proxies first...
+Joe
+Jim
+Frank
+Don’t worry, guys, I’ve 
+been brushing up on my design 
+patterns. All we need is a remote 
+proxy and we’ll be ready to go.
+Well, that will teach us to 
+gather some requirements 
+before we jump in and code. I hope 
+we don’t have to start over...
+
+430        Chapter    11
+remote proxy
+A remote proxy acts as a local representative to a remote object. What’s a “remote 
+object”? It’s an object that lives in the heap of  a different Java Virtual Machine 
+(or more generally, a remote object that is running in a different address space).  
+What’s a “local representative”? It’s an object that you can call local methods on 
+and have them forwarded on to the remote object.
+The role of the ‘remote proxy’
+Your client object acts like it’s making remote method calls. 
+But what it’s really doing is calling methods on a heaplocal “proxy” object that handles all the low-level details of 
+network communication.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+G
+u
+m
+b
+a
+l
+l
+ 
+M
+a
+c
+h
+i
+n
+e
+ 
+Remote Heap
+G
+u
+m
+b
+a
+l
+l
+ 
+M
+o
+n
+i
+t
+o
+r
+Local Heap
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+P
+r
+o
+x
+y
+Here the Gumball 
+Monitor is the client 
+object; it thinks it’s 
+talking to the Real 
+gumball machine, but  
+it’s really just talking 
+to the proxy, which 
+then talks to the 
+Real gumball machine 
+over the network.
+The proxy pretends to 
+be the remote object, 
+but it’s just a stand in 
+for the Real Thing.
+The Remote object IS 
+the Real Thing. It’s the 
+object with the method 
+that actually does the 
+real work.
+CEO’s desktop
+Remote Gumball Machine 
+with a JVM.
+Same as your old 
+code, only it’s 
+talking to a proxy.
+The client object is the object 
+making use of the proxy-in our 
+case, the GumballMonitor class.
+
+you are here 4        431
+the proxy pattern
+This is a pretty slick idea.  
+We’re going to write some code that 
+takes a method invocation, somehow transfers it 
+over the network, and invokes the same method 
+on a remote object. Then I presume when the call is 
+complete, the result gets sent back over the network 
+to our client. But it seems to me this code is going 
+to be very tricky to write.
+Hold on now, we aren’t going 
+to write that code ourselves; it’s 
+pretty much built into Java’s remote 
+invocation functionality. All we have to 
+do is retrofit our code so that it takes 
+advantage of RMI.
+Before going further, think about how you’d design a system to enable Remote Method 
+Invocation (RMI). How would you make it easy on the developer so that she has to write as 
+little code as possible? How would you make the remote invocation look seamless?
+Should making remote calls be totally transparent? Is that a good idea? What might be a 
+problem with that approach?
+2
+
+432        Chapter    11
+rmi detour
+Adding a remote proxy to the Gumball 
+Machine monitoring code
+On paper our plan looks good, but how do we create a proxy that knows how to invoke a 
+method on an object that lives in another JVM?
+Hmmm. Well, you can’t get a reference to something on another heap, right? In other words, 
+you can’t say:
+       Duck d = <object in another heap>
+Whatever the variable d is referencing must be in the same heap space as the code running 
+the statement. So how do we approach this? Well, that’s where Java’s Remote Method 
+Invocation (RMI) comes in...RMI gives us a way to find objects in a remote JVM and allows 
+us to invoke their methods.
+Now might be a good time to brush up on RMI with your favorite Java reference, or you can 
+take the RMI Detour ahead, and we’ll walk you though the high points of  RMI before adding 
+the proxy support to the Gumball Machine code.
+In either case, here’s our plan:
+An RMI Detour
+If you’re new to RMI, 
+take the detour that runs 
+over the next few pages; 
+otherwise, you might want to 
+just quickly thumb through 
+the detour as a review. If 
+you’d like to continue on, 
+just getting the gist of the 
+remote proxy, that is fine 
+too—you can skip the detour.
+1
+2
+3
+First, we’re going to take the RMI 
+Detour and explore RMI. Even if you are 
+familiar with RMI, you might want to 
+follow along and check out the scenery.
+Then we’re going to take our Gumball 
+Machine and make it a remote service 
+that provides a set of methods calls 
+that can be invoked remotely.
+Finally, we going to create a proxy that 
+can talk to a remote Gumball Machine, 
+again using RMI, and put the monitoring 
+system back together so that the CEO can 
+monitor any number of remote machines.
+
+you are here 4        433
+the proxy pattern
+Let’s say we want to design a system that allows us to call a local object that forwards each request 
+to a remote object. How would we design it? We’d need a couple of  helper objects that do the 
+communicating for us. The helpers make it possible for the client to act as though it’s calling a method 
+on a local object (which it is). The client calls a method on the client helper, as if  the client helper were 
+the actual service. The client helper then takes care of  forwarding that request for us.
+In other words, the client object thinks it’s calling a method on the remote service, because the client 
+helper is pretending to be the service object—that is, pretending to be the thing with the method the 
+client wants to call.
+But the client helper isn’t really the remote service. Although the client helper acts like it (because it has 
+the same method that the service is advertising), the client helper doesn’t have any of  the method logic 
+the client is expecting. Instead, the client helper contacts the server, transfers information about the 
+method call (e.g., name of  the method, arguments, etc.), and waits for a return from the server.
+On the server side, the service helper receives the request from the client helper (through a Socket 
+connection), unpacks the information about the call, and then invokes the real method on the real service 
+object. So, to the service object, the call is local. It’s coming from the service helper, not a remote client.
+The service helper gets the return value from the service, packs it up, and ships it back (over a Socket’s 
+output stream) to the client helper. The client helper unpacks the information and returns the value to 
+the client object.
+Let’s walk through this to make it clearer...
+Remote methods 101
+S
+e
+r
+v
+i
+c
+e
+ 
+o
+b
+j
+e
+c
+t
+ 
+Server heap
+C
+l
+i
+e
+n
+t
+ 
+o
+b
+j
+e
+c
+t
+ 
+Client heap
+C
+l
+i
+e
+n
+t
+ 
+h
+e
+l
+p
+e
+r
+S
+e
+r
+v
+i
+c
+e
+ 
+h
+e
+l
+p
+e
+r
+Client object thinks 
+it’s talking to the 
+Real Service. It 
+thinks the client 
+helper is the thing 
+that can actually do 
+the real work.
+Client helper pretends 
+to be the service, but 
+it’s just a proxy for the 
+Real Thing.
+Service helper gets the 
+request from the client 
+helper, unpacks it, and 
+calls the method on the 
+Real Service.
+The Service object IS 
+the Real Service. It’s the 
+object with the method 
+that actually does the 
+real work.
+Consider this design...
+This is going 
+to be our 
+proxy.
+An RMI Detour
+Walking through the design
+
+434        Chapter    11
+remote method invocation
+S
+e
+r
+v
+i
+c
+e
+ 
+o
+b
+j
+e
+c
+t
+ 
+Server heap
+C
+l
+i
+e
+n
+t
+ 
+o
+b
+j
+e
+c
+t
+ 
+Client heap
+C
+l
+i
+e
+n
+t
+ 
+h
+e
+l
+p
+e
+r
+S
+e
+r
+v
+i
+c
+e
+ 
+h
+e
+l
+p
+e
+r
+How the method call happens
+1
+The Client object calls doBigThing() on the client helper object.
+S
+e
+r
+v
+i
+c
+e
+ 
+o
+b
+j
+e
+c
+t
+ 
+Server heap
+C
+l
+i
+e
+n
+t
+ 
+o
+b
+j
+e
+c
+t
+ 
+Client heap
+C
+l
+i
+e
+n
+t
+ 
+h
+e
+l
+p
+e
+r
+S
+e
+r
+v
+i
+c
+e
+ 
+h
+e
+l
+p
+e
+r
+2
+The Client helper packages up information about the call 
+(arguments, method name, etc.) and ships it over the 
+network to the service helper.
+doBigThing()
+doBigThing()
+“client wants to call a method”
+S
+e
+r
+v
+i
+c
+e
+ 
+o
+b
+j
+e
+c
+t
+ 
+Server heap
+C
+l
+i
+e
+n
+t
+ 
+o
+b
+j
+e
+c
+t
+ 
+Client heap
+C
+l
+i
+e
+n
+t
+ 
+h
+e
+l
+p
+e
+r
+S
+e
+r
+v
+i
+c
+e
+ 
+h
+e
+l
+p
+e
+r
+3
+The Service helper unpacks the information from the client 
+helper, finds out which method to call (and on which object), 
+and invokes the real method on the real service object.
+doBigThing()
+“client wants to call a method”
+doBigThing()
+Remember, this is the 
+object with the REAL 
+method logic. The one 
+that does the real work!
+
+you are here 4        435
+the proxy pattern
+S
+e
+r
+v
+i
+c
+e
+ 
+o
+b
+j
+e
+c
+t
+ 
+Server heap
+C
+l
+i
+e
+n
+t
+ 
+o
+b
+j
+e
+c
+t
+ 
+Client heap
+C
+l
+i
+e
+n
+t
+ 
+h
+e
+l
+p
+e
+r
+S
+e
+r
+v
+i
+c
+e
+ 
+h
+e
+l
+p
+e
+r
+4
+The method is invoked on the service object, which returns 
+some result to the service helper.
+S
+e
+r
+v
+i
+c
+e
+ 
+o
+b
+j
+e
+c
+t
+ 
+Server heap
+C
+l
+i
+e
+n
+t
+ 
+o
+b
+j
+e
+c
+t
+ 
+Client heap
+C
+l
+i
+e
+n
+t
+ 
+h
+e
+l
+p
+e
+r
+S
+e
+r
+v
+i
+c
+e
+ 
+h
+e
+l
+p
+e
+r
+5
+The Service helper packages up information returned from the 
+call and ships it back over the network to the client helper.
+packaged up result
+S
+e
+r
+v
+i
+c
+e
+ 
+o
+b
+j
+e
+c
+t
+ 
+Server heap
+C
+l
+i
+e
+n
+t
+ 
+o
+b
+j
+e
+c
+t
+ 
+Client heap
+C
+l
+i
+e
+n
+t
+ 
+h
+e
+l
+p
+e
+r
+S
+e
+r
+v
+i
+c
+e
+ 
+h
+e
+l
+p
+e
+r
+6
+The Client helper unpackages the returned values and returns 
+them to the client object. To the client object, this was all 
+transparent.
+result
+result
+An RMI Detour
+
+436        Chapter    11
+rmi: the big picture
+Okay, you’ve got the gist of  how remote methods work; 
+now you just need to understand how to use RMI. 
+What RMI does for you is build the client and service 
+helper objects, right down to creating a client helper 
+object with the same methods as the remote service. The 
+nice thing about RMI is that you don’t have to write 
+any of  the networking or I/O code yourself. With your 
+client, you call remote methods (i.e., the ones the Real 
+Service has) just like normal method calls on objects 
+running in the client’s own local JVM. 
+RMI also provides all the runtime infrastructure to make 
+it all work, including a lookup service that the client can 
+use to find and access the remote objects.
+There is one difference between RMI calls and local 
+(normal) method calls. Remember that even though to 
+the client it looks like the method call is local, the client 
+helper sends the method call across the network. So 
+there is networking and I/O. And what do we know 
+about networking and I/O methods?
+They’re risky! They can fail! And so they throw 
+exceptions all over the place. As a result, the client does 
+have to acknowledge the risk. We’ll see how in a few 
+pages.
+Java RMI, the Big Picture
+S
+e
+r
+v
+i
+c
+e
+ 
+o
+b
+j
+e
+c
+t
+ 
+C
+l
+i
+e
+n
+t
+ 
+o
+b
+j
+e
+c
+t
+ 
+C
+l
+i
+e
+n
+t
+ 
+h
+e
+l
+p
+e
+r
+S
+e
+r
+v
+i
+c
+e
+ 
+h
+e
+l
+p
+e
+r
+Server heap
+Client heap
+RMI STUB
+RMI SKELETON
+RMI nomenclature: in RMI, the client helper is a “stub” and the 
+service helper is a “skeleton.”
+This is going 
+to act as our 
+proxy!
+Now let’s go through all the steps needed to make an object 
+into a service that can accept remote calls and also the steps 
+needed to allow a client to make remote calls.
+You might want to make sure your seat belt is fastened; there 
+are a lot of  steps—but nothing to be too worried about.
+An RMI Detour
+
+you are here 4        437
+the proxy pattern
+An RMI Detour
+Making the Remote service
+Make a Remote Interface
+Make a Remote Implementation
+Start the RMI registry (rmiregistry)
+Start the remote service 
+MyService.java
+public interface 
+MyRemote extends 
+Remote { }
+MyServiceImpl.java
+public interface 
+MyRemote extends 
+Remote { }
+This is an overview of  the five steps for making the remote service—in other 
+words, the steps needed to take an ordinary object and supercharge it so it can 
+be called by a remote client. We’ll be doing this later to our Gumball Machine. 
+For now, let’s get the steps down and then we’ll explain each one in detail.
+The remote interface defines the methods that 
+a client can call remotely. It’s what the client 
+will use as the class type for your service. Both 
+the Stub and actual service will implement 
+this.
+This interface defines the 
+remote methods that you 
+want clients to call.
+This is the class that does the Real Work. It 
+has the real implementation of  the remote 
+methods defined in the remote interface. 
+It’s the object that the client wants to call 
+methods on (e.g., GumballMachine).
+The Real Service: the class 
+with the methods that do 
+the real work. It implements 
+the remote interface.
+The Stub and Skeleton are 
+generated dynamically for you 
+behind the scenes.
+File  Edit   Window  Help  Drink
+%rmiregistry
+File  Edit   Window  Help  BeMerry
+%java MyServiceImpl
+The rmiregistry is like the white pages of  a phone 
+book. It’s where the client goes to get the proxy 
+(the client stub/helper object).
+You have to get the service object up and running. Your 
+service implementation class instantiates an instance 
+of  the service and registers it with the RMI registry. 
+Registering it makes the service available for clients.
+Run this in a separate 
+terminal window.
+Step one:
+Step two:
+Step three:
+Step four:
+Stub
+101101 
+10 110 1 
+0 11 0 
+001 10 
+001 01
+Skeleton
+101101 
+10 110 1 
+0 11 0 
+001 10 
+001 01
+
+438        Chapter    11
+make a remote interface
+Step one: make a Remote interface
+1
+Extend java.rmi.Remote
+Remote is a “marker” interface, which means it has no methods. It has 
+special meaning for RMI, though, so you must follow this rule. Notice that 
+we say “extends” here. One interface is allowed to extend another interface.
+public interface MyRemote extends Remote {
+2
+Declare that all methods throw RemoteException
+The remote interface is the one the client uses as the type for the service. In 
+other words, the client invokes methods on something that implements the 
+remote interface. That something is the stub, of  course, and since the stub is 
+doing networking and I/O, all kinds of  bad things can happen. The client has 
+to acknowledge the risks by handling or declaring the remote exceptions. If  
+the methods in an interface declare exceptions, any code calling methods on a 
+reference of  that type (the interface type) must handle or declare the exceptions.
+import java.rmi.*;
+public interface MyRemote extends Remote {
+    public String sayHello() throws RemoteException;
+}
+3
+Be sure arguments and return values are primitives or Serializable
+Arguments and return values of  a remote method must be either primitive 
+or Serializable. Think about it. Any argument to a remote method has to 
+be packaged up and shipped across the network, and that’s done through 
+Serialization. The same thing applies with return values. If  you use primitives, 
+Strings, and the majority of  types in the API (including arrays and collections), 
+you’ll be fine. If  you are passing around your own types, just be sure that you 
+make your classes implement Serializable.
+public String sayHello() throws RemoteException;
+This tells us that the 
+interface is going to be used 
+to support remote calls.
+Every remote method 
+call is considered 
+“risky.” Declaring 
+RemoteException on 
+every method forces the 
+client to pay attention 
+and acknowledge that 
+things might not work.
+This return value is gonna be shipped over the wire from the 
+server back to the client, so it must be Serializable. That’s 
+how args and return values get packaged up and sent.
+Remote interface is in java.rmi.
+Check out your 
+favorite Java 
+reference if you 
+need to refresh your 
+memory on Serializable.
+An RMI Detour
+
+you are here 4        439
+the proxy pattern
+Step two: make a Remote implementation
+1
+Implement the Remote interface
+Your service has to implement the remote interface—the one with 
+the methods your client is going to call. 
+public class MyRemoteImpl extends UnicastRemoteObject implements MyRemote {
+    public String sayHello() {
+       return "Server says, 'Hey'";
+   }
+   // more code in class
+}
+2
+Extend UnicastRemoteObject
+In order to work as a remote service object, your object needs some functionality 
+related to “being remote.” The simplest way is to extend UnicastRemoteObject 
+(from the java.rmi.server package) and let that class (your superclass) do the 
+work for you.
+public class MyRemoteImpl extends UnicastRemoteObject implements MyRemote {
+    private static final long serialVersionUID = 1L;
+3
+Write a no-arg constructor that declares RemoteException
+Your new superclass, UnicastRemoteObject, has one little problem—its 
+constructor throws RemoteException. The only way to deal with this is to declare 
+a constructor for your remote implementation, just so that you have a place to 
+declare RemoteException. Remember,  when a class is instantiated, its superclass 
+constructor is always called. If  your superclass constructor throws an exception, 
+you have no choice but to declare that your constructor also throws an exception.
+public MyRemoteImpl() throws RemoteException { }
+4
+Register the service with the RMI registry
+Now that you’ve got a remote service, you have to make it available to remote 
+clients. You do this by instantiating it and putting it into the RMI registry (which 
+must be running or this line of  code fails). When you register the implementation 
+object, the RMI system actually puts the stub in the registry, since that’s what the 
+client really needs. Register your service using the static rebind() method of  the 
+java.rmi.Naming class.
+try {
+    MyRemote service = new MyRemoteImpl();
+    Naming.rebind("RemoteHello", service);
+} catch(Exception ex) {...}      
+The compiler will make sure that you’ve implemented 
+all the methods from the interface you implement. 
+In this case, there’s only one.
+You don’t have to put anything in 
+the constructor. You just need a 
+way to declare that your superclass 
+constructor throws an exception.
+Give your service a name (that clients can use 
+to look it up in the registry) and register it 
+with the RMI registry. When you bind the 
+service object, RMI swaps the service for the 
+stub and puts the stub in the registry.
+An RMI Detour
+UnicastRemoteObject implements 
+Serializable, so we need the 
+serialVersionUID field.
+
+440        Chapter    11
+start the service
+Step three: run rmiregistry
+1
+Bring up a terminal and start the rmiregistry. 
+Be sure you start it from a directory that has access to 
+your classes. The simplest way is to start it from your 
+classes directory.
+File  Edit   Window  Help  Huh?
+%rmiregistry
+Step four: start the service
+1
+Bring up another terminal and start your service
+This might be from a main() method in your remote 
+implementation class or from a separate launcher class. 
+In this simple example, we put the starter code in the 
+implementation class, in a main method that instantiates 
+the object and registers it with RMI registry.
+Q:
+ Why are you showing stubs and skeletons in the diagrams for the RMI code? I thought we got 
+rid of those way back.
+A: You’re right; for the skeleton, the RMI runtime can dispatch the client calls directly to the remote 
+service using reflection, and stubs are generated dynamically using Dynamic Proxy (which you’ll learn 
+more about a bit later in the chapter). The remote object’s stub is a java.lang.reflect.Proxy instance (with an 
+invocation handler) that is automatically generated to handle all the details of getting the local method calls 
+by the client to the remote object. But we like to show both the stub and skeleton, because conceptually 
+it helps you to understand that there is something under the covers that’s making that communication 
+between the client stub and the remote service happen.
+An RMI Detour
+File  Edit   Window  Help  Huh?
+%java MyRemoteImpl
+
+you are here 4        441
+the proxy pattern
+Complete code for the server side
+import java.rmi.*;
+import java.rmi.server.*;
+public class MyRemoteImpl extends UnicastRemoteObject implements MyRemote {
+    private static final long serialVersionUID = 1L;
+    public String sayHello() {
+        return "Server says, 'Hey'";
+    }
+    public MyRemoteImpl() throws RemoteException { }
+    public static void main (String[] args) {
+        try {
+            MyRemote service = new MyRemoteImpl();
+            Naming.rebind("RemoteHello", service);
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+import java.rmi.*;
+public interface MyRemote extends Remote {
+    public String sayHello() throws RemoteException;
+}
+RemoteException and the Remote 
+interface are in the java.rmi package.
+Your interface MUST extend java.rmi.Remote.
+All of your remote methods must 
+declare RemoteException.
+UnicastRemoteObject is in 
+the java.rmi.server package.
+The Remote interface:
+The Remote service (the implementation):
+Extending UnicastRemoteObject is the 
+easiest way to make a remote object.
+You MUST implement 
+your remote interface!! 
+You have to implement all the 
+interface methods, of course. But 
+notice that you do NOT have to 
+declare the RemoteException.
+Your superclass constructor (for 
+UnicastRemoteObject) declares an exception, 
+so YOU must write a constructor, because it 
+means that your constructor is calling risky 
+code (its super constructor).
+Make the remote object, then “bind” it to the 
+rmiregistry using the static Naming.rebind(). The 
+name you register it under is the name clients will 
+use to look it up in the RMI registry.
+An RMI Detour
+Let’s take a look at all the code for the server side:
+
+442        Chapter    11
+how to get the stub object
+And that’s where the RMI registry comes in. 
+And, you’re right; the client has to get the stub object 
+(our proxy), because that’s the thing the client will call 
+methods on. To do that, the client does a “lookup,” 
+like going to the white pages of  a phone book, and 
+essentially says, “Here’s a name, and I’d like the stub 
+that goes with that name.” 
+Let’s take a look at the code we need to look up and 
+retrieve a stub object.
+Code Up Close
+MyRemote service = 
+    (MyRemote) Naming.lookup("rmi://127.0.0.1/RemoteHello");
+The
+ client always uses the remote 
+interface as the type of the service. 
+In fact, the client never needs to 
+know the actual class name of your 
+remote service.
+You have to cast it to the 
+interface, since the lookup 
+method returns type Object. 
+lookup() is a static method 
+of the Naming class.
+The host name or IP 
+address where the 
+service is running. 
+(127.0.0.1 is localhost.)
+This must be the name 
+that the service was 
+registered under.
+Here’s how it works 
+on the next page.
+An RMI Detour
+How does the client actually get 
+the stub object?
+
+you are here 4        443
+the proxy pattern
+S
+e
+r
+v
+i
+c
+e
+ 
+o
+b
+j
+e
+c
+t
+ 
+C
+l
+i
+e
+n
+t
+ 
+o
+b
+j
+e
+c
+t
+ 
+S
+t
+u
+b
+S
+k
+e
+l
+e
+t
+o
+n
+Server
+Client
+Remote Hello
+Stub
+RMI registry (on server)
+1
+Client does a lookup on the RMI registry
+2
+RMI registry returns the stub object
+(as the return value of  the lookup method) and RMI 
+deserializes the stub automatically. 
+3
+Client invokes a method on the stub, as if the 
+stub IS the real service
+1
+2
+3
+Naming.lookup("rmi://127.0.0.1/RemoteHello");
+lookup( )
+stub returned
+sayHello( )
+How it works...
+An RMI Detour
+
+444        Chapter    11
+the remote client
+import java.rmi.*;
+public class MyRemoteClient {
+   public static void main (String[] args) {
+        new MyRemoteClient().go();
+   }
+   public void go() {
+     try {
+        MyRemote service = (MyRemote) Naming.lookup("rmi://127.0.0.1/RemoteHello");
+        String s = service.sayHello(); 
+        System.out.println(s);
+      } catch(Exception ex) {
+         ex.printStackTrace();
+      }
+   }
+}
+The Naming class (for doing the rmiregistry 
+lookup) is in the java.rmi package.
+It comes out of the registry as type 
+Object, so don’t forget the cast.
+You need the IP 
+address or hostname...
+...and the name used to 
+bind/rebind the service.
+It looks just like a regular old 
+method call! (Except it must 
+acknowledge the RemoteException.)
+1.           
+The things programmers do wrong 
+with RMI are:
+1.  Forget to start rmiregistry before starting the remote 
+service (when the service is registered using Naming.
+rebind(), the rmiregistry must be running!)
+2.  Forget to make arguments and return types serializable 
+(you won’t know until runtime; this is not something the 
+compiler will detect).
+An RMI Detour
+Complete code for the client side
+Let’s take a look at all the code for the client side:
+
+you are here 4        445
+the proxy pattern
+G
+u
+m
+b
+a
+l
+l
+M
+a
+c
+h
+i
+n
+e
+Server heap
+G
+u
+m
+b
+a
+l
+l
+M
+o
+n
+i
+t
+o
+r
+Client heap
+G
+u
+m
+b
+a
+l
+l
+S
+t
+u
+b
+G
+u
+m
+b
+a
+l
+l
+S
+k
+e
+l
+e
+t
+o
+n
+This is our 
+Monitor code. It 
+uses a proxy to 
+talk to remote 
+gumball machines.
+The stub is a proxy 
+to the remote 
+GumballMachine.
+The skeleton accepts the 
+remote calls and makes 
+everything work on the 
+service side.
+The 
+GumballMachine is 
+our remote service; 
+it’s going to expose 
+a remote interface 
+for the client to 
+use.
+Back to our GumballMachine remote proxy
+Okay, now that you have the RMI basics down, you’ve got the tools you need 
+to implement the gumball machine remote proxy. Let’s take a look at how the 
+GumballMachine fits into this framework:
+CEO’s desktop
+Remote GumballMachine 
+with a JVM.
+Stop and think through how we’re going to adapt the gumball machine code to work with 
+a remote proxy. Feel free to make some notes here about what needs to change and 
+what’s going to be different than the previous version.
+
+446        Chapter    11
+remote interface for the gumball machine
+import java.io.*;
+  
+public interface State extends Serializable {
+    public void insertQuarter();
+    public void ejectQuarter();
+    public void turnCrank();
+    public void dispense();
+}
+import java.rmi.*;
+ 
+public interface GumballMachineRemote extends Remote {
+    public int getCount() throws RemoteException;
+    public String getLocation() throws RemoteException;
+    public State getState() throws RemoteException;
+}
+Getting the GumballMachine ready to 
+be a remote service
+The first step in converting our code to use the remote proxy is to enable the 
+GumballMachine to service remote requests from clients. In other words, 
+we’re going to make it into a service. To do that, we need to:
+1. Create a remote interface for the GumballMachine. This will provide a set 
+of  methods that can be called remotely. 
+2. Make sure all the return types in the interface are serializable.
+3. Implement the interface in a concrete class.
+We’ll start with the remote interface:
+This is the remote interface.
+Don’t forget to import java.rmi.* 
+Here are the methods we’re going to support. 
+Each one throws RemoteException.
+All return types need 
+to be primitive or 
+Serializable...
+We have one return type that isn’t Serializable: the State class. Let’s fix it up...
+Serializable is in the java.io package.
+Then we just extend the Serializable 
+interface (which has no methods in it). 
+And now State in all the subclasses can 
+be transferred over the network.
+
+you are here 4        447
+the proxy pattern
+public class NoQuarterState implements State {
+    private static final long serialVersionUID = 2L;
+    transient GumballMachine gumballMachine;
+    // all other methods here
+}
+import java.rmi.*;
+import java.rmi.server.*;
+ 
+public class GumballMachine
+        extends UnicastRemoteObject implements GumballMachineRemote 
+{
+    private static final long serialVersionUID = 2L;
+    // other instance variables here
+ 
+    public GumballMachine(String location, int numberGumballs) throws RemoteException {
+        // code here
+    }
+ 
+    public int getCount() {
+        return count;
+    }
+ 
+    public State getState() {
+        return state;
+    }
+ 
+    public String getLocation() {
+        return location;
+    }
+    // other methods here
+}
+Actually, we’re not done with Serializable yet; we have one problem with State. As you may 
+remember, each State object maintains a reference to a gumball machine so that it can call the 
+gumball machine’s methods and change its state. We don’t want the entire gumball machine 
+serialized and transferred with the State object. There is an easy way to fix this:
+In each implementation of State, we add 
+the serialVersionUID and the transient 
+keyword to the GumballMachine instance 
+variable. The transient keyword tells the 
+JVM not to serialize this field. Note 
+that this can be slightly dangerous if you 
+try to access this field once the object’s 
+been serialized and transferred.
+We’ve already implemented our GumballMachine, but we need to make sure it can act as a service and 
+handle requests coming from over the network. To do that, we have to make sure the GumballMachine is 
+doing everything it needs to implement the GumballMachineRemote interface. 
+As you’ve already seen in the RMI detour, this is quite simple; all we need to do is add a couple of  things...
+First, we need to import the 
+RMI packages.
+GumballMachine is 
+going to subclass the 
+UnicastRemoteObject; 
+this gives it the ability to 
+act as a remote service.
+GumballMachine also needs to 
+implement the remote interface...
+...and the constructor needs 
+to throw a remote exception, 
+because the superclass does.
+That’s it! Nothing 
+changes here at all!
+
+448        Chapter    11
+register the gumball service
+public class GumballMachineTestDrive {
+ 
+    public static void main(String[] args) {
+        GumballMachineRemote gumballMachine = null;
+        int count;
+        if (args.length < 2) {
+            System.out.println("GumballMachine <name> <inventory>");
+            System.exit(1);
+        }
+        try {
+            count = Integer.parseInt(args[1]);
+            gumballMachine = new GumballMachine(args[0], count);
+            Naming.rebind("//" + args[0] + "/gumballmachine", gumballMachine);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+File  Edit   Window  Help  Huh?
+% rmiregistry
+Registering with the RMI registry...
+That completes the gumball machine service. Now we just need to fire it up so 
+it can receive requests. First, we need to make sure we register it with the RMI 
+registry so that clients can locate it. 
+We’re going to add a little code to the test drive that will take care of  this for us:
+First we need to add a try/catch block 
+around the gumball instantiation because our 
+constructor can now throw exceptions.
+We also add the call to Naming.rebind, 
+which publishes the GumballMachine stub 
+under the name gumballmachine.
+Let’s go ahead and get this running...
+File  Edit   Window  Help  Huh?
+% java GumballMachineTestDrive austin.mightygumball.com 100
+Run this first.
+Run this second.
+This gets the RMI 
+registry service up 
+and running.
+This gets the GumballMachine up and running 
+and registers it with the RMI registry.
+We’re using the “official” Mighty 
+Gumball machines; you should 
+substitute your own machine name 
+here, or “localhost”.
+
+you are here 4        449
+the proxy pattern
+import java.rmi.*;
+ 
+public class GumballMonitor {
+    GumballMachineRemote machine;
+ 
+    public GumballMonitor(GumballMachineRemote machine) {
+        this.machine = machine;
+    }
+ 
+    public void report() {
+        try {
+            System.out.println("Gumball Machine: " + machine.getLocation());
+            System.out.println("Current inventory: " + machine.getCount() + " gumballs");
+            System.out.println("Current state: " + machine.getState());
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+}
+Now for the GumballMonitor client...
+Remember the GumballMonitor? We wanted to reuse it without 
+having to rewrite it to work over a network. Well, we’re pretty much 
+going to do that, but we do need to make a few changes. 
+We also need to catch any remote exceptions 
+that might happen as we try to invoke methods 
+that are ultimately happening over the network.
+Now we’re going to rely on the remote 
+interface rather than the concrete 
+GumballMachine class.
+We need to import the RMI package because we 
+are using the RemoteException class below...
+Joe was right; 
+this is working out 
+quite nicely!
+
+450        Chapter    11
+test drive the monitor
+import java.rmi.*;
+ 
+public class GumballMonitorTestDrive {
+ 
+    public static void main(String[] args) {
+        String[] location = {"rmi://santafe.mightygumball.com/gumballmachine",
+                             "rmi://boulder.mightygumball.com/gumballmachine",
+                             "rmi://austin.mightygumball.com/gumballmachine"}; 
+ 
+        GumballMonitor[] monitor = new GumballMonitor[location.length];
+ 
+        for (int i=0; i < location.length; i++) {
+            try {
+                GumballMachineRemote machine = 
+                        (GumballMachineRemote) Naming.lookup(location[i]);
+                monitor[i] = new GumballMonitor(machine);
+                System.out.println(monitor[i]);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+ 
+        for (int i=0; i < monitor.length; i++) {
+            monitor[i].report();
+        }
+    }
+}
+Writing the Monitor test drive
+Now we’ve got all the pieces we need. We just need to write some 
+code so the CEO can monitor a bunch of  gumball machines:
+Here’s all the locations 
+we’re going to monitor.
+Here’s the monitor test drive. The 
+CEO is going to run this!
+We create an array 
+of locations, one for 
+each machine.  
+Then we iterate through each 
+machine and print out its report.
+Now we need to get a proxy 
+to each remote machine.
+We also create an 
+array of monitors.
+
+you are here 4        451
+the proxy pattern
+Code Up Close
+On each machine, run rmiregistry in 
+the background or from a separate 
+terminal window...
+try {
+    GumballMachineRemote machine = 
+         (GumballMachineRemote) Naming.lookup(location[i]);
+    monitor[i] = new GumballMonitor(machine);
+} catch (Exception e) {
+    e.printStackTrace();
+}
+Remember, Naming.lookup() is a 
+static method in the RMI package 
+that takes a location and service 
+name and looks it up in the 
+rmiregistry at that location.
+This returns a proxy to the remote 
+Gumball Machine (or throws an exception 
+if one can’t be located).
+Once we get a proxy to the remote 
+machine, we create a new GumballMonitor 
+and pass it the machine to monitor.
+Another demo for the CEO of Mighty Gumball...
+...and then run the GumballMachine, giving it 
+a location and an initial gumball count.
+% rmiregistry &
+% java GumballMachineTestDrive santafe.mightygumball.com 100
+File  Edit   Window  Help  Huh?
+File  Edit   Window  Help  Huh?
+% rmiregistry &
+% java GumballMachineTestDrive boulder.mightygumball.com 100
+File  Edit   Window  Help  Huh?
+% rmiregistry &
+% java GumballMachineTestDrive austin.mightygumball.com 250
+Popular machine!
+Okay, it’s time to put all this work together and give another demo. First let’s make 
+sure a few gumball machines are running the new code:
+
+452        Chapter    11
+demoing the monitor
+And now let’s put the monitor in the hands of the CEO.
+Hopefully, this time he’ll love it:
+File  Edit   Window  Help  GumballsAndBeyond
+% java GumballMonitorTestDrive
+Gumball Machine: santafe.mightygumball.com
+Current inventory: 99 gumballs
+Current state: waiting for quarter
+Gumball Machine: boulder.mightygumball.com
+Current inventory: 44 gumballs
+Current state: waiting for turn of crank
+Gumball Machine: austin.mightygumball.com
+Current inventory: 187 gumballs
+Current state: waiting for quarter
+%
+The monitor iterates 
+over each remote 
+machine and calls 
+its getLocation(), 
+getCount(), and 
+getState() methods.
+By invoking methods on the proxy, we make 
+a remote call across the wire, and get back 
+a String, an integer, and a State object. 
+Because we are using a proxy, the Gumball 
+Monitor doesn’t know, or care, that calls 
+are remote (other than having to worry 
+about remote exceptions).
+This is amazing; it’s going to 
+revolutionize my business and 
+blow away the competition!
+
+you are here 4        453
+the proxy pattern
+This worked great! But 
+I want to make sure I 
+understand exactly what’s 
+going on...
+CEO’s desktop
+Remote GumballMachine 
+with a JVM
+G
+u
+m
+b
+a
+l
+l
+M
+a
+c
+h
+i
+n
+e
+G
+u
+m
+b
+a
+l
+l
+M
+o
+n
+i
+t
+o
+r
+P
+r
+o
+x
+y
+/
+S
+t
+u
+b
+S
+k
+e
+l
+e
+t
+o
+n
+austin
+Proxy/Stub
+RMI registry (on gumball machine)
+1
+3
+lookup( “austin”)
+proxy returned
+getState( )
+2
+Type is GumballMachineRemote
+1
+The CEO runs the monitor, which first grabs the proxies to the remote 
+gumball machines and then calls getState() on each one (along with 
+getCount() and getLocation()).
+Behind 
+the Scenes
+
+454        Chapter    11
+proxy behind the scenes
+G
+u
+m
+b
+a
+l
+l
+M
+a
+c
+h
+i
+n
+e
+G
+u
+m
+b
+a
+l
+l
+M
+o
+n
+i
+t
+o
+r
+P
+r
+o
+x
+y
+/
+S
+t
+u
+b
+S
+k
+e
+l
+e
+t
+o
+n
+getState( )
+2
+getState() is called on the proxy, which forwards the call to the remote 
+service. The skeleton receives the request and then forwards it to the 
+GumballMachine.
+getState()
+3
+GumballMachine returns the state to the skeleton, which serializes it and 
+transfers it back over the wire to the proxy. The proxy deserializes it and 
+returns it as an object to the monitor.
+G
+u
+m
+b
+a
+l
+l
+M
+a
+c
+h
+i
+n
+e
+G
+u
+m
+b
+a
+l
+l
+M
+o
+n
+i
+t
+o
+r
+P
+r
+o
+x
+y
+/
+S
+t
+u
+b
+S
+k
+e
+l
+e
+t
+o
+n
+State 
+object
+State 
+object
+Serialized 
+State
+The monitor hasn’t changed at all, 
+except it knows it may encounter 
+remote exceptions. It also uses the 
+GumballMachineRemote interface rather 
+than a concrete implementation.
+Likewise, the GumballMachine 
+implements another interface and 
+may throw a remote exception in its 
+constructor, but other than that, the 
+code hasn’t changed.
+We also have a small bit of code to register and locate stubs using the 
+RMI registry. But no matter what, if we were writing something to 
+work over the internet, we’d need some kind of locator service.
+
+you are here 4        455
+the proxy pattern
+Well, we’ve seen how the Proxy Pattern provides a surrogate or 
+placeholder for another object. We’ve also described the proxy as 
+a “representative” for another object.
+But what about a proxy controlling access? That sounds a little 
+strange. No worries. In the case of  the gumball machine, just think 
+of  the proxy controlling access to the remote object. The proxy 
+needed to control access because our client, the monitor, didn’t 
+know how to talk to a remote object. So in some sense the remote 
+proxy controlled access so that it could handle the network details 
+for us. As we just discussed, there are many variations of  the Proxy 
+Pattern, and the variations typically revolve around the way the 
+proxy “controls access.” We’re going to talk more about this later, 
+but for now here are a few ways proxies control access:
+ As we know, a remote proxy controls access to a remote 
+object.
+ A virtual proxy controls access to a resource that is expensive 
+to create.
+ A protection proxy controls access to a resource based on 
+access rights.
+Now that you’ve got the gist of  the general pattern, check out the 
+class diagram...
+The Proxy Pattern defined
+The Proxy Pattern provides a surrogate or 
+placeholder for another object to control access to it.
+We’ve already put a lot of  pages behind us in this chapter; as you 
+can see, explaining the Remote Proxy is quite involved. Despite that, 
+you’ll see that the definition and class diagram for the Proxy Pattern 
+is actually fairly straightforward. Note that the Remote Proxy is one 
+implementation of  the general Proxy Pattern; there are actually 
+quite a few variations of  the pattern, and we’ll talk about them later.  
+For now, let’s get the details of  the general pattern down.
+Here’s the Proxy Pattern definition:
+Use the Proxy 
+Pattern to create a 
+representative object 
+that controls access 
+to another object, 
+which may be remote, 
+expensive to create, or 
+in need of securing.
+
+456        Chapter    11
+the proxy pattern defined
+Both the Proxy and the 
+RealSubject implement the 
+Subject interface. This 
+allows any client to treat 
+the proxy just like the 
+RealSubject.
+The RealSubject is 
+usually the object 
+that does most 
+of the real work; 
+the Proxy controls 
+access to it.
+The Proxy keeps a 
+reference to the 
+Subject, so it can 
+forward requests 
+to the Subject 
+when necessary.
+<<interface>>
+Subject
+request()
+RealSubject
+request()
+Proxy
+subject
+request()
+The Proxy often instantiates 
+or handles the creation of 
+the RealSubject.
+Let’s step through the diagram...
+First we have a Subject, which provides an interface for the RealSubject and the 
+Proxy. Because it implements the same interface as the RealSubject, the Proxy can 
+be substituted for the RealSubject anywhere it occurs.
+The RealSubject is the object that does the real work. It’s the object that the Proxy 
+represents and controls access to.
+The Proxy holds a reference to the RealSubject. In some cases, the Proxy may be 
+responsible for creating and destroying the RealSubject. Clients interact with the 
+RealSubject through the Proxy.  Because the Proxy and RealSubject implement the 
+same interface (Subject), the Proxy can be substituted anywhere the Subject can be 
+used. The Proxy also controls access to the RealSubject; this control may be needed 
+if  the Subject is running on a remote machine, if  the Subject is expensive to create 
+in some way, or if  access to the subject needs to be protected in some way.
+Now that you understand the general pattern, let’s look at some other ways of  using 
+proxy beyond the Remote Proxy...
+
+you are here 4        457
+the proxy pattern
+Get ready for the Virtual Proxy
+Okay, so far you’ve seen the definition of  the Proxy Pattern and you’ve taken a look 
+at one specific example: the Remote Proxy. Now we’re going to take a look at a different 
+type of  proxy, the Virtual Proxy. As you’ll discover, the Proxy Pattern can manifest 
+itself  in many forms, yet all the forms follow roughly the general proxy design. Why 
+so many forms? Because the Proxy Pattern can be applied to a lot of  different use 
+cases. Let’s check out the Virtual Proxy and compare it to the Remote Proxy:
+ 
+ 
+ 
+ 
+R
+e
+a
+l
+S
+u
+b
+j
+e
+c
+t
+ 
+ 
+ 
+ 
+ 
+ 
+C
+l
+i
+e
+n
+t
+P
+r
+o
+x
+y
+Remote Proxy
+request( )request( )
+With the Remote Proxy, the proxy 
+acts as a local representative 
+for an object that lives in a 
+different JVM. A method call on 
+the proxy results in the call being 
+transferred over the wire and 
+invoked remotely, and the result 
+being returned back to the proxy 
+and then to the Client.
+ 
+ 
+ 
+ 
+R
+e
+a
+l
+S
+u
+b
+j
+e
+c
+t
+ 
+ 
+ 
+ 
+ 
+ 
+C
+l
+i
+e
+n
+t
+P
+r
+o
+x
+y
+Virtual Proxy
+The Virtual Proxy acts as a 
+representative for an object that 
+may be expensive to create. The 
+Virtual Proxy often defers the 
+creation of the object until it 
+is needed; the Virtual Proxy 
+also acts as a surrogate for 
+the object before and while it is 
+being created. After that, the proxy 
+delegates requests directly to the 
+RealSubject.
+We know this diagram 
+pretty well by now...
+Big “expensive to create” object.
+The proxy creates 
+the RealSubject 
+when it’s needed.
+request( )
+request( )
+The proxy may handle the request, or if 
+the RealSubject has been created, delegate 
+the calls to the RealSubject.
+
+458        Chapter    11
+image proxy controls access
+While the album cover is loading, 
+the proxy displays a message.
+When the album cover is 
+fully loaded, the proxy 
+displays the image.
+Choose the album cover of 
+your liking here.
+Displaying Album covers
+Let’s say you want to write an application that displays your favorite album covers. 
+You might create a menu of  the album titles and then retrieve the images from an 
+online service like Amazon.com. If  you’re using Swing, you might create an Icon 
+and ask it to load the image from the network. The only problem is, depending 
+on the network load and the bandwidth of  your connection, retrieving an album 
+cover might take a little time, so your application should display something while 
+you’re waiting for the image to load. We also don’t want to hang up the entire 
+application while it’s waiting on the image. Once the image is loaded, the message 
+should go away and you should see the image.
+An easy way to achieve this is through a virtual proxy. The virtual proxy can stand 
+in place of  the icon, manage the background loading, and before the image is 
+fully retrieved from the network, display “Loading album cover, please wait...”.  
+Once the image is loaded, the proxy delegates the display to the Icon.
+
+you are here 4        459
+the proxy pattern
+Designing the Album Cover Virtual Proxy
+<<interface>>
+Icon
+getIconWidth()
+getIconHeight()
+paintIcon()
+ImageProxy
+subject
+getIconWidth()
+getIconHeight()
+paintIcon()
+getIconWidth()
+getIconHeight()
+paintIcon()
+ImageIcon
+This is javax.swing.ImageIcon, 
+ 
+a class that displays an Image.
+This is our proxy, which first 
+displays a message and then, when 
+the image is loaded, delegates to 
+ImageIcon to display the image.
+This is the Swing 
+Icon interface used 
+to display images in a 
+user interface.
+Before writing the code for the Album Cover Viewer, let’s look at the class diagram.  
+You’ll see this looks just like our Remote Proxy class diagram, but here the proxy is 
+used to hide an object that is expensive to create (because we need to retrieve the data 
+for the Icon over the network) as opposed to an object that actually lives somewhere 
+else on the network.
+ImageProxy first creates an ImageIcon and starts 
+loading it from a network URL.
+While the bytes of the image are being retrieved, 
+ImageProxy displays  “Loading album cover, please 
+wait...”.
+When the image is fully loaded, ImageProxy delegates 
+all method calls to the image icon, including 
+paintIcon(), getIconWidth(), and getIconHeight().
+If the user requests a new image, we’ll create a new 
+proxy and start the process over.
+How ImageProxy is going to work:
+1
+2
+3
+4
+
+460        Chapter    11
+the image proxy
+class ImageProxy implements Icon {
+    volatile ImageIcon imageIcon;
+    final URL imageURL;
+    Thread retrievalThread;
+    boolean retrieving = false;
+     
+    public ImageProxy(URL url) { imageURL = url; }
+    public int getIconWidth() {
+        if (imageIcon != null) {
+            return imageIcon.getIconWidth();
+        } else {
+            return 800;
+        }
+    }
+    public int getIconHeight() {
+        if (imageIcon != null) {
+            return imageIcon.getIconHeight();
+        } else {
+            return 600;
+        }
+    }
+    synchronized void setImageIcon(ImageIcon imageIcon) {
+        this.imageIcon = imageIcon;
+    }
+     
+    public void paintIcon(final Component c, Graphics  g, int x,  int y) {
+        if (imageIcon != null) {
+            imageIcon.paintIcon(c, g, x, y);
+        } else {
+            g.drawString("Loading album cover, please wait...", x+300, y+190);
+            if (!retrieving) {
+                retrieving = true;
+                retrievalThread = new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            setImageIcon(new ImageIcon(imageURL, "Album Cover"));
+                            c.repaint();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                retrievalThread.start();
+            }
+        }
+    }
+}
+Writing the Image Proxy
+We pass the URL of the image into 
+the constructor. This is the image we 
+need to display once it’s loaded!
+The imageIcon is the REAL icon that we 
+eventually want to display when it’s loaded.
+We return a default width and height 
+until the imageIcon is loaded; then we 
+turn it over to the imageIcon.
+Here’s where things get interesting.  
+This code paints the icon on the 
+screen (by delegating to imageIcon). 
+However, if we don’t have a fully 
+created imageIcon, then we create 
+one. Let’s look at this up close on the 
+next page...
+<<interface>>
+Icon
+getIconWidth()
+getIconHeight()
+paintIcon()
+The ImageProxy 
+implements the Icon 
+interface.
+imageIcon is used by two different 
+threads, so along with making the variable 
+volatile (to protect reads), we use a 
+synchronized setter (to protect writes).
+
+you are here 4        461
+the proxy pattern
+.
+Code Up Close
+   public void paintIcon(final Component c, Graphics  g, int x,  int y) {
+        if (imageIcon != null) {
+            imageIcon.paintIcon(c, g, x, y);
+        } else {
+            g.drawString("Loading album cover, please wait...", x+300, y+190);
+            if (!retrieving) {
+                retrieving = true;
+                retrievalThread = new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            setImageIcon(new ImageIcon(imageURL, "Album Cover"));
+                            c.repaint();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                retrievalThread.start();
+            }
+        }
+    }
+This method is called when it’s time to paint the icon on the screen.
+If we’ve got an icon already, we go 
+ahead and tell it to paint itself.
+Otherwise we  
+display the 
+“loading” message.
+Here’s where we load the REAL icon image. Note that 
+the image loading with IconImage is synchronous: the 
+ImageIcon constructor doesn’t return until the image 
+is loaded. That doesn’t give us much of a chance to do 
+screen updates and have our message displayed, so we’re 
+going to do this asynchronously. See the “Code Way Up 
+Close” on the next page for more...
+
+462        Chapter    11
+image proxy up close
+            
+            if (!retrieving) {
+                retrieving = true;
+                retrievalThread = new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            setImageIcon(new ImageIcon(imageURL, "Album Cover"));
+                            c.repaint();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                retrievalThread.start();
+            }
+In our thread we 
+instantiate the 
+Icon object. Its 
+constructor will not 
+return until the 
+image is loaded.
+If we aren’t already trying to retrieve the image...
+We don’t want to hang up the 
+entire user interface, so we’re 
+going to use another thread to 
+retrieve the image.
+When we have the image, 
+we tell Swing that we 
+need to be repainted.
+So, the next time the display is painted after the ImageIcon is instantiated, 
+the paintIcon() method will paint the image, not the loading message.
+...then it’s time to start retrieving it (in case you 
+were wondering, only one thread calls paint, so we 
+should be okay here in terms of thread safety).
+Code Way Up Close
+
+you are here 4        463
+the proxy pattern
+class ImageProxy implements Icon {
+    // instance variables & constructor here
+     
+    public int getIconWidth() {
+        if (imageIcon != null) {
+            return imageIcon.getIconWidth();
+        } else {
+            return 800;
+        }
+    }
+ 
+    public int getIconHeight() {
+        if (imageIcon != null) {
+            return imageIcon.getIconHeight();
+        } else {
+            return 600;
+        }
+    }
+     
+    public void paintIcon(final Component c, Graphics  g, int x,  int y) {
+        if (imageIcon != null) {
+            imageIcon.paintIcon(c, g, x, y);
+        } else {
+            g.drawString("Loading album cover, please wait...", x+300, y+190);
+      // more code here
+        }             
+    }
+}
+The ImageProxy class appears to have two states that are controlled 
+by conditional statements. Can you think of another pattern that might 
+clean up this code? How would you redesign ImageProxy?
+Two states
+Two states
+Two states
+ Design Puzzle
+
+464        Chapter    11
+test drive the image proxy
+public class ImageProxyTestDrive {
+    ImageComponent imageComponent;
+    public static void main (String[] args) throws Exception {
+        ImageProxyTestDrive testDrive = new ImageProxyTestDrive();
+    }
+ 
+    public ImageProxyTestDrive() throws Exception {
+        
+        // set up frame and menus
+ 
+        Icon icon = new ImageProxy(initialURL);
+        imageComponent = new ImageComponent(icon);
+        frame.getContentPane().add(imageComponent);
+    }
+}
+Testing the Album Cover Viewer
+Here we create an image proxy and 
+set it to an initial URL. Whenever 
+you choose a selection from the Album 
+menu, you’ll get a new image proxy.
+Okay, it’s time to test out this fancy new virtual proxy. Behind the scenes 
+we’ve been baking up a new ImageProxyTestDrive that sets up the window, 
+creates a frame, installs the menus, and creates our proxy. We don’t go 
+through all that code in gory detail here, but you can always grab the 
+source code and have a look, or check it out at the end of  the chapter 
+where we list all the source code for the Virtual Proxy.
+Here’s a partial view of  the test drive code:
+Next we wrap our proxy in a 
+component so it can be added to 
+the frame. The component will 
+take care of the proxy's width, 
+height, and similar details.
+Finally we add the proxy to the 
+frame so it can be displayed.
+Now let’s run the test drive:
+Running ImageProxyTestDrive 
+should give you a window like this.
+Use the menu to load different album covers; watch the 
+proxy display “loading” until the image has arrived.
+Resize the window as the “loading” message is displayed.  
+Notice that the proxy is handling the loading without 
+hanging up the Swing window.
+Add your own favorite albums to ImageProxyTestDrive.
+Things to try...
+1
+2
+3
+File  Edit   Window  Help  JustSomeOfTheAlbumsThatGotUsThroughThisBook
+% java ImageProxyTestDrive
+Ready Bake 
+Code
+aphex twin
+
+you are here 4        465
+the proxy pattern
+I
+m
+a
+g
+e
+I
+c
+o
+n
+get imageget image
+What did we do?
+I
+m
+a
+g
+e
+I
+c
+o
+n
+ 
+ 
+ 
+ 
+ 
+ 
+I
+m
+a
+g
+e
+P
+r
+o
+x
+y
+image retrievedimage retrieved
+We created an ImageProxy class for the display. The 
+paintIcon() method is called and ImageProxy fires off a 
+thread to retrieve the image and create the ImageIcon.
+paintIcon()paintIcon()
+ImageProxy creates a 
+thread to instantiate the 
+ImageIcon, which starts 
+retrieving the image.
+displays loading displays loading 
+messagemessage
+At some point the image is returned and 
+the ImageIcon fully instantiated.
+After the ImageIcon is created, the next time paintIcon() 
+is called, the proxy delegates to the ImageIcon.
+I
+m
+a
+g
+e
+I
+c
+o
+n
+ 
+ 
+ 
+ 
+ 
+ 
+I
+m
+a
+g
+e
+P
+r
+o
+x
+y
+paintIcon()paintIcon()
+displays the real imagedisplays the real image
+paintIcon()paintIcon()
+1
+2
+3
+Some image Some image 
+server on server on 
+the internetthe internet
+Behind 
+the Scenes
+
+466        Chapter    11
+q&a about the image proxy
+Q:
+ The Remote Proxy and Virtual 
+Proxy seem so different to me; are 
+they really ONE pattern?
+A: You’ll find a lot of variants of the 
+Proxy Pattern in the real world; what 
+they all have in common is that they 
+intercept a method invocation that the 
+client is making on the subject. This 
+level of indirection allows us to do 
+many things, including dispatching 
+requests to a remote subject, providing 
+a representative for an expensive 
+object as it is created, or, as you’ll see, 
+providing some level of protection that 
+can determine which clients should be 
+calling which methods. That’s just the 
+beginning; the general Proxy Pattern 
+can be applied in many different ways, 
+and we’ll cover some of the other ways 
+at the end of the chapter.
+Q:
+ ImageProxy seems just like 
+a Decorator to me. I mean, we are 
+basically wrapping one object with 
+another and then delegating the calls 
+to the ImageIcon. What am I missing?
+A: Sometimes Proxy and Decorator 
+look very similar, but their purposes are 
+different: a decorator adds behavior to 
+a class, while a proxy controls access 
+to it. You might ask, “Isn’t the loading 
+message adding behavior?” In some 
+ways it is; however, more importantly,  
+the ImageProxy is controlling access 
+to an ImageIcon. How does it control 
+access? Well, think about it this way: 
+the proxy is decoupling the client from 
+the ImageIcon. If they were coupled  
+ 
+the client would have to wait until each 
+image is retrieved before it could paint 
+its entire interface. The proxy controls 
+access to the ImageIcon so that before 
+it is fully created, the proxy provides 
+another onscreen representation. Once 
+the ImageIcon is created, the proxy 
+allows access.  
+Q:
+ How do I make clients use the 
+Proxy rather than the Real Subject? 
+A: Good question. One common 
+technique is to provide a factory that 
+instantiates and returns the subject. 
+Because this happens in a factory 
+method, we can then wrap the subject 
+with a proxy before returning it. The 
+client never knows or cares that it’s 
+using a proxy instead of the real thing.
+Q:
+ I noticed in the ImageProxy 
+example, you always create a new 
+ImageIcon to get the image, even if 
+the image has already been retrieved.  
+Could you implement something 
+similar to the ImageProxy that 
+caches past retrievals?
+A: You are talking about a 
+specialized form of a Virtual Proxy 
+called a Caching Proxy. A caching proxy 
+maintains a cache of previously created 
+objects and when a request is made it 
+returns a cached object, if possible. 
+ 
+We’re going to look at this and at 
+several other variants of the Proxy 
+Pattern at the end of the chapter.
+Q:
+ I see how Decorator and Proxy 
+relate, but what about Adapter? An 
+adapter seems very similar as well.
+A: Both Proxy and Adapter sit in front 
+of other objects and forward requests to 
+them. Remember that Adapter changes 
+the interface of the objects it adapts, 
+while Proxy implements the same 
+interface. 
+ 
+There is one additional similarity that 
+relates to the Protection Proxy. A 
+Protection Proxy may allow or disallow 
+a client access to particular methods 
+in an object based on the role of the 
+client. In this way a Protection Proxy 
+may only provide a partial interface to 
+a client, which is quite similar to some 
+Adapters. We are going to take a look at 
+Protection Proxy in a few pages.
+
+you are here 4        467
+the proxy pattern
+Tonight’s talk: Proxy and Decorator get intentional.
+Proxy:
+Hello, Decorator.  I presume you’re here because 
+people sometimes get us confused?
+ 
+ 
+ 
+Me copying your ideas? Please. I control access to 
+objects. You just decorate them. My job is so much 
+more important than yours it’s just not even funny.
+ 
+ 
+ 
+Fine, so maybe you’re not entirely frivolous...but I 
+still don’t get why you think I’m copying all your 
+ideas. I’m all about representing my subjects, not 
+decorating them.
+ 
+ 
+ 
+ 
+ 
+I don’t think you get it, Decorator. I stand in for 
+my Subjects; I don’t just add behavior. Clients use 
+me as a surrogate of  a Real Subject, because I can 
+protect them from unwanted access, or keep their 
+GUIs from hanging up while they’re waiting for big 
+objects to load, or hide the fact that their Subjects 
+are running on remote machines. I’d say that’s a 
+very different intent from yours!
+Decorator:
+ 
+ 
+Well, I think the reason people get us confused is 
+that you go around pretending to be an entirely 
+different pattern, when in fact, you’re just Decorator 
+in disguise. I really don’t think you should be 
+copying all my ideas.
+ 
+ 
+“Just” decorate? You think decorating is some 
+frivolous, unimportant pattern? Let me tell you 
+buddy, I add behavior. That’s the most important 
+thing about objects—what they do!
+ 
+ 
+You can call it “representation” but if  it looks like 
+a duck and walks like a duck... I mean, just look at  
+your Virtual Proxy; it’s just another way of  adding 
+behavior to do something while some big expensive 
+object is loading, and your Remote Proxy is a way 
+of  talking to remote objects so your clients don’t 
+have to bother with that themselves. It’s all about 
+behavior, just like I said.  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Call it what you want. I implement the same 
+interface as the objects I wrap; so do you.
+
+468        Chapter    11
+fireside chats: proxy and decorator
+Proxy:
+Okay, let’s review that statement. You wrap an 
+object. While sometimes we informally say a proxy 
+wraps its Subject, that’s not really an accurate term.
+ 
+ 
+Think about a remote proxy...what object am 
+I wrapping? The object I’m representing and 
+controlling access to lives on another machine!  
+Let’s see you do that.
+ 
+Sure, okay, take a virtual proxy...think about the 
+album viewer example. When the client first uses 
+me as a proxy the subject doesn’t even exist! So 
+what am I wrapping there? 
+ 
+ 
+ 
+I never knew decorators were so dumb! Of  course 
+I sometimes create objects. How do you think a 
+virtual proxy gets its subject?! Okay, you just pointed 
+out a big difference between us: we both know 
+decorators only add window dressing; they never get 
+to instantiate anything. 
+ 
+ 
+Hey, after this conversation I’m convinced you’re 
+just a dumb proxy! 
+ 
+ 
+ 
+Very seldom will you ever see a proxy get into 
+wrapping a subject multiple times; in fact, if  you’re 
+wrapping something 10 times, you better go back 
+reexamine your design.
+Decorator:
+ 
+ 
+ 
+ 
+Oh yeah? Why not?
+ 
+ 
+ 
+Okay, but we all know remote proxies are kinda 
+weird. Got a second example? I doubt it.
+ 
+ 
+ 
+Uh huh, and the next thing you’ll be saying is that 
+you actually get to create objects. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Oh yeah? Instantiate this!
+ 
+ 
+Dumb proxy? I’d like to see you recursively wrap 
+an object with 10 decorators and keep your head 
+straight at the same time.
+ 
+ 
+ 
+ 
+Just like a proxy, acting all real when in fact you just 
+stand in for the objects doing the real work. You 
+know, I actually feel sorry for you.
+
+you are here 4        469
+the proxy pattern
+Using the Java API’s Proxy to create a 
+protection proxy
+Java’s got its own proxy support right in the java.lang.reflect package. With this package, 
+Java lets you create a proxy class on the fly that implements one or more interfaces and 
+forwards method invocations to a class that you specify. Because the actual proxy class is 
+created at runtime, we refer to this Java technology as a dynamic proxy.
+We’re going to use Java’s dynamic proxy to create our next proxy implementation (a 
+protection proxy), but before we do that, let’s quickly look at a class diagram that shows 
+how dynamic proxies are put together. Like most things in the real world, it differs 
+slightly from the classic definition of  the pattern:
+<<interface>>
+Subject
+request()
+RealSubject
+request()
+Proxy
+request()
+<<interface>>
+InvocationHandler
+invoke()
+InvocationHandler
+The Proxy now consists 
+of two classes.
+The Proxy is generated 
+by Java and implements 
+the entire Subject 
+interface.
+You supply the InvocationHandler, which gets passed 
+all method calls that are invoked on the Proxy.  
+The InvocationHandler controls access to the 
+methods of the RealSubject.
+Because Java creates the Proxy class for you, you need a way to tell the Proxy class what 
+to do. You can’t put that code into the Proxy class like we did before, because you’re not 
+implementing one directly. So, if  you can’t put this code in the Proxy class, where do 
+you put it? In an InvocationHandler. The job of  the InvocationHandler is to respond to 
+any method calls on the proxy. Think of  the InvocationHandler as the object the Proxy 
+asks to do all the real work after it has received the method calls.
+Okay, let’s step through how to use the dynamic proxy...
+invoke()
+
+470        Chapter    11
+protection proxy
+public interface Person {
+ 
+    String getName();
+    String getGender();
+    String getInterests();
+    int getGeekRating();
+ 
+    void setName(String name);
+    void setGender(String gender);
+    void setInterests(String interests);
+    void setGeekRating(int rating); 
+ 
+}
+Geeky Matchmaking in Objectville
+Every town needs a matchmaking service, right? You’ve risen to the task and 
+implemented a dating service for Objectville. You’ve also tried to be innovative 
+by including a “Geek rating” feature where participants can rate each other’s 
+geekiness (a good thing)—you figure this keeps your customers engaged and 
+looking through possible matches; it also makes things a lot more fun.
+Your service revolves around a Person interface that allows you to set and get 
+information about a person:
+Here we can get information 
+about the person’s name, 
+gender, interests, and Geek 
+rating (1-10).
+We can also set the same 
+information through the 
+respective method calls.
+setGeekRating() takes an integer 
+and adds it to the running 
+average for this person.
+This is the interface; we’ll 
+get to the implementation 
+in just a sec...
+Now let’s check out the implementation...
+
+you are here 4        471
+the proxy pattern
+public class PersonImpl implements Person {
+    String name;
+    String gender;
+    String interests;
+    int rating;
+    int ratingCount = 0;
+  
+    public String getName() {
+        return name;    
+    } 
+  
+    public String getGender() {
+        return gender;
+    }
+  
+    public String getInterests() {
+        return interests;
+    }
+   
+    public int getGeekRating() {
+        if (ratingCount == 0) return 0;
+        return (rating/ratingCount);
+    }
+  
+ 
+    public void setName(String name) {
+        this.name = name;
+    }
+ 
+    public void setGender(String gender) {
+        this.gender = gender;
+    } 
+  
+    public void setInterests(String interests) {
+        this.interests = interests;
+    } 
+  
+    public void setGeekRating(int rating) {
+        this.rating += rating;  
+        ratingCount++;
+    }
+}
+The instance variables.
+The PersonImpl implements the Person interface.
+All the getter methods; they each return 
+the appropriate instance variable...
+...except for getGeekRating(), 
+which computes the average 
+of the ratings by dividing the 
+ratings by the ratingCount.
+And here’s all the setter 
+methods, which set the 
+corresponding instance variable.
+Finally, the setGeekRating() method 
+increments the total ratingCount and 
+adds the rating to the running total.
+The Person implementation
+
+472        Chapter    11
+person needs protecting
+While we suspect other factors may be keeping Elroy from getting 
+dates, he’s right: you shouldn’t be able to vote for yourself  or to 
+change another customer’s data. The way Person is defined, any client 
+can call any of  the methods.
+This is a perfect example of  where we might be able to use a 
+Protection Proxy. What’s a Protection Proxy? It’s a proxy that controls 
+access to an object based on access rights. For instance, if  we had an 
+employee object, a Protection Proxy might allow the employee to call 
+certain methods on the object, a manager to call additional methods 
+(like setSalary()), and a human resources employee to call any method 
+on the object.
+In our dating service we want to make sure that a customer can set 
+his own information while preventing others from altering it. We also 
+want to allow just the opposite with the Geek ratings: we want the 
+other customers to be able to set the rating, but not that particular 
+customer. We also have a number of  getter methods in Person, and 
+because none of  these return private information, any customer 
+should be able to call them.
+Elroy
+I wasn’t very successful finding dates. 
+Then I noticed someone had changed my 
+interests. I also noticed that a lot of 
+people are bumping up their Geek scores 
+by giving themselves high ratings. You 
+shouldn’t be able to change someone else’s 
+interests or give yourself a rating!
+
+you are here 4        473
+the proxy pattern
+Five-minute drama: protecting subjects
+The internet bubble seems a distant memory; those were the days 
+when all you needed to do to find a better, higher-paying job was 
+to walk across the street. Even agents for software developers 
+were in vogue...
+Like a protection 
+proxy, the agent 
+protects access to his 
+subject, letting only 
+certain calls through...
+Agent
+Jane DotCom
+I’d like to make an 
+offer, can we get her on 
+the phone?
+Come on.  
+You’re wasting our time 
+here! Not a chance! Come 
+back later with a better 
+offer.
+She’s tied up...uh...
+in a meeting right now, 
+what did you have in 
+mind?
+We think we can 
+meet her current 
+salary plus 15%.
+Subject
+
+474        Chapter    11
+big picture of proxy
+Big Picture: creating a Dynamic Proxy 
+for the Person
+We   have a couple of  problems to fix: customers shouldn’t be changing their 
+own Geek rating and customers shouldn’t be able to change other customers’ 
+personal information. To fix these problems we’re going to create two proxies: 
+one for accessing your own Person object and one for accessing another 
+customer’s Person object. That way, the proxies can control what requests can 
+be made in each circumstance.
+<<interface>>
+Subject
+request()
+RealSubject
+request()
+Proxy
+request()
+<<interface>>
+InvocationHandler
+invoke()
+InvocationHandler
+Create two InvocationHandlers.
+Write the code that creates the 
+dynamic proxies.
+Wrap any Person object with the 
+appropriate proxy.
+InvocationHandlers implement the behavior 
+of  the proxy. As you’ll see, Java will take care 
+of  creating the actual proxy class and object; 
+we just need to supply a handler that knows 
+what to do when a method is called on it.
+We need to write a little bit of  code to 
+generate the proxy class and instantiate it. 
+We’ll step through this code in just a bit.
+When we need to use a Person object, either it’s 
+the object of  the customer himself  (in that case, 
+we’ll call him the “owner”), or it’s another user 
+of  the service that the customer is checking out 
+(in that case we’ll call him “non-owner”).  
+In either case, we create the appropriate proxy 
+for the Person.
+Step one:
+Step two:
+Step three:
+We need two 
+of these.
+We create the 
+proxy itself at 
+runtime.
+request()
+Proxy
+invoke()
+OwnerInvocationHandler
+request()
+Proxy
+invoke()
+NonOwnerInvocationHandler
+When a customer is viewing his own bean
+When a customer is viewing someone else’s bean
+invoke()
+To create these proxies we’re going to use the Java 
+API’s dynamic proxy that you saw a few pages 
+back. Java will create two proxies for us; all we 
+need to do is supply the handlers that know what 
+to do when a method is invoked on the proxy.
+Remember this diagram 
+from a few pages back...
+
+you are here 4        475
+the proxy pattern
+Step one: creating Invocation Handlers
+We know we need to write two invocation handlers, one for the owner and one for 
+the non-owner. But what are invocation handlers? Here’s the way to think about 
+them: when a method call is made on the proxy, the proxy forwards that call to 
+your invocation handler, but not by calling the invocation handler’s corresponding 
+method. So, what does it call? Have a look at the InvocationHandler interface:
+There’s only one method, invoke(), and no matter what methods get called 
+on the proxy, the invoke() method is what gets called on the handler. Let’s see 
+how this works:
+proxy.setGeekRating(9);
+invoke(Object proxy, Method method, Object[] args)
+Let’s say the setGeekRating() 
+method is called on the proxy.
+The proxy then 
+turns around and 
+calls invoke() on the 
+InvocationHandler.
+1
+2
+The handler decides 
+what it should do 
+with the request 
+and possibly 
+forwards it on to 
+the RealSubject. 
+How does the 
+handler decide? 
+We’ll find out next.
+3
+return method.invoke(person, args);
+Here we invoke the 
+original method that was 
+called on the proxy. This 
+object was passed to us in 
+the invoke call.
+Only now we 
+invoke it on the 
+RealSubject...
+...with the original 
+arguments.
+Here’s how 
+we invoke the 
+method on the 
+RealSubject.
+The Method class, part of the 
+reflection API, tells us what 
+method was called on the proxy 
+via its getName() method.
+<<interface>>
+InvocationHandler
+invoke()
+
+476        Chapter    11
+creating an invocation handler
+import java.lang.reflect.*;
+ 
+public class OwnerInvocationHandler implements InvocationHandler { 
+    Person person;
+ 
+    public OwnerInvocationHandler(Person person) {
+        this.person = person;
+    }
+ 
+    public Object invoke(Object proxy, Method method, Object[] args) 
+            throws IllegalAccessException {
+  
+        try {
+            if (method.getName().startsWith("get")) {
+                return method.invoke(person, args);
+            } else if (method.getName().equals("setGeekRating")) {
+                throw new IllegalAccessException();
+            } else if (method.getName().startsWith("set")) {
+                return method.invoke(person, args);
+            } 
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } 
+        return null;
+    }
+}
+Creating Invocation Handlers, continued...
+When invoke() is called by the proxy, how do you know what to do with the call?  
+Typically, you’ll examine the method that was called on the proxy and make 
+decisions based on the method’s name and possibly its arguments. Let’s implement 
+OwnerInvocationHandler to see how this works:
+InvocationHandler is part of the java.lang.reflect 
+package, so we need to import it.
+All invocation handlers 
+implement the 
+InvocationHandler interface.
+We're
+ passed the 
+RealSubject in the 
+constructor and we 
+keep a reference to it.
+Here’s the invoke() 
+method that gets 
+called every time a 
+method is invoked 
+on the proxy.
+If the method is a getter, 
+we go ahead and invoke it 
+on the real subject.
+Otherwise, if it is 
+the setGeekRating() 
+method we disallow 
+it by throwing 
+IllegalAccessException.
+Because we are the 
+owner, any other set 
+method is fine and we 
+go ahead and invoke it 
+on the real subject.
+If any other method is called, 
+we’re just going to return null 
+rather than take a chance.
+This will happen if 
+the real subject 
+throws an exception.
+
+you are here 4        477
+the proxy pattern
+The NonOwnerInvocationHandler works just like the OwnerInvocationHandler except 
+that it allows calls to setGeekRating() and it disallows calls to any other set method.  
+Go ahead and write this handler yourself:
+
+478        Chapter    11
+create the proxy
+Person getOwnerProxy(Person person) {
+    
+    return (Person) Proxy.newProxyInstance( 
+            person.getClass().getClassLoader(),
+            person.getClass().getInterfaces(),
+            new OwnerInvocationHandler(person));
+}
+Now, all we have left is to dynamically create the Proxy class and instantiate the proxy 
+object. Let’s start by writing a method that takes a Person object and knows how to create 
+an owner proxy for it. That is, we’re going to create the kind of  proxy that forwards its 
+method calls to OwnerInvocationHandler. Here’s the code:
+Step two: creating the Proxy class and 
+instantiating the Proxy object
+This
+ method takes a Person object (the real 
+subject) and returns a proxy for it. Because the 
+proxy has the same interface as the subject, we 
+return a Person.
+This code creates the 
+proxy. Now this is some 
+mighty ugly code, so let’s 
+step through it carefully.
+To create a proxy we use the 
+static newProxyInstance() 
+method on the Proxy class.
+We pass it the class loader for our subject...
+...and the set of interfaces the 
+proxy needs to implement...
+...and an invocation handler, in this 
+case our OwnerInvocationHandler.
+We pass the real subject into the constructor of 
+the invocation handler. If you look back two pages, 
+you’ll see this is how the handler gets access to 
+the real subject.
+While it is a little complicated, there isn’t much to creating 
+a dynamic proxy. Why don’t you write getNonOwnerProxy(), 
+which returns a proxy for NonOwnerInvocationHandler:
+Take it further: can you write a method called getProxy() that takes 
+a handler and a person and returns a proxy that uses that handler?
+
+you are here 4        479
+the proxy pattern
+public class MatchMakingTestDrive {
+    // instance variables here
+  
+    public static void main(String[] args) {
+        MatchMakingTestDrive test = new MatchMakingTestDrive();
+        test.drive();
+    }
+ 
+    public MatchMakingTestDrive() {
+        initializeDatabase();
+    }
+    public void drive() {
+        Person joe = getPersonFromDatabase("Joe Javabean"); 
+        Person ownerProxy = getOwnerProxy(joe);
+        System.out.println("Name is " + ownerProxy.getName());
+        ownerProxy.setInterests("bowling, Go");
+        System.out.println("Interests set from owner proxy");
+        try {
+            ownerProxy.setGeekRating(10);
+        } catch (Exception e) {
+            System.out.println("Can't set rating from owner proxy");
+        }
+        System.out.println("Rating is " + ownerProxy.getGeekRating());
+        Person nonOwnerProxy = getNonOwnerProxy(joe);
+        System.out.println("Name is " + nonOwnerProxy.getName());
+        try {
+            nonOwnerProxy.setInterests("bowling, Go");
+        } catch (Exception e) {
+            System.out.println("Can't set interests from non owner proxy");
+        }
+        nonOwnerProxy.setGeekRating(3);
+        System.out.println("Rating set from non owner proxy");
+        System.out.println("Rating is " + nonOwnerProxy.getGeekRating());
+    }
+    // other methods like getOwnerProxy and getNonOwnerProxy here
+}
+Testing the matchmaking service
+Let’s give the matchmaking service a test run and see how it controls access to 
+the setter methods based on the proxy that is used.
+The main() method just creates 
+the test drive and calls its drive() 
+method to get things going.
+The constructor initializes our database 
+of people in the matchmaking service.
+Let’s retrieve a person 
+from the database...
+...and create an owner proxy.
+Call a getter...
+...and then a setter.
+And then try to 
+change the rating.
+This shouldn’t work!
+Now create a nonowner proxy...
+...and call a getter...
+...followed by a 
+setter.
+This shouldn’t work!
+Then try to set 
+the rating.
+This should work!
+
+480        Chapter    11
+test drive the protection proxy
+File  Edit   Window  Help  Born2BDynamic
+% java MatchMakingTestDrive 
+Name is Joe Javabean
+Interests set from owner proxy
+Can't set rating from owner proxy
+Rating is 7
+Name is Joe Javabean
+Can't set interests from non owner proxy
+Rating set from non owner proxy
+Rating is 5
+%
+Running the code...
+Our Owner proxy allows 
+getting and setting, 
+except for the Geek 
+rating.
+Our NonOwner proxy allows 
+getting only, but also 
+allows calls to set the Geek 
+rating.
+The new rating is the average of the previous rating, 7, 
+and the value set by the NonOwner proxy, 3.
+Q:
+ So what exactly is the “dynamic” 
+aspect of dynamic proxies? Is it that I’m 
+instantiating the proxy and setting it to a 
+handler at runtime?
+A: No, the proxy is dynamic because 
+its class is created at runtime. Think about 
+it: before your code runs there is no proxy 
+class; it is created on demand from the set of 
+interfaces you pass it.
+Q:
+ My InvocationHandler seems like a 
+very strange proxy; it doesn’t implement 
+any of the methods of the class it’s 
+proxying. 
+A: That’s because the InvocationHandler 
+isn’t a proxy—it’s a class that the proxy 
+dispatches to for handling method calls. The 
+proxy itself is created dynamically at runtime  
+by the static Proxy.newProxyInstance() 
+method. 
+Q:
+ Is there any way to tell if a class is 
+a Proxy class? 
+A: Yes. The Proxy class has a static 
+method called isProxyClass(). Calling this 
+method with a class will return true if the 
+class is a dynamic proxy class. Other than 
+that, the proxy class will act like any other 
+class that implements a particular set of 
+interfaces. 
+Q
+: Are there any restrictions on 
+the types of interfaces I can pass into 
+newProxyInstance()?
+A: Yes, there are a few. First, it 
+is worth pointing out that we always 
+pass newProxyInstance() an array of 
+interfaces—only interfaces are allowed, no 
+classes. The major restrictions are that 
+all non-public interfaces need to be from 
+the same package. You also can’t have 
+interfaces with clashing method names 
+(that is, two interfaces with a method with 
+the same signature). There are a few other 
+minor nuances as well, so at some point 
+you should take a look at the fine print on 
+dynamic proxies in the javadoc.
+
+you are here 4        481
+the proxy pattern
+Match each pattern with its description:
+Pattern
+Description
+Decorator
+Facade
+Proxy
+Adapter
+Wraps another object 
+and provides a different 
+interface to it.
+Wraps another object 
+and provides additional 
+behavior for it.
+Wraps another object 
+to control access to it.
+Wraps a bunch of 
+objects to simplify 
+their interface.
+
+482        Chapter    11
+the proxy zoo
+The Proxy Zoo
+Welcome to the Objectville Zoo!  
+You now know about the remote, virtual, and protection proxies, but 
+out in the wild you’re going to see lots of  mutations of  this pattern. 
+Over here in the Proxy corner of  the zoo we’ve got a nice collection 
+of  wild proxy patterns that we’ve captured for your study.
+Our job isn’t done; we’re sure you’re going to see more variations of  
+this pattern in the real world, so give us a hand in cataloging more 
+proxies. Let’s take a look at the existing collection:
+Caching Proxy provides 
+temporary storage for 
+results of operations 
+that are expensive. It 
+can also allow multiple clients to share 
+the results to reduce computation or 
+network latency.
+Firewall Proxy 
+controls access to a 
+set of network 
+resources, protecting 
+the subject from “bad” clients.
+Smart Reference Proxy 
+provides additional actions 
+whenever a subject is 
+referenced, such as counting 
+the number of references to 
+an object.
+Habitat: often seen in the location 
+of corporate firewall systems.
+Habitat: often seen in web server proxies as well 
+as content management and publishing systems.
+Help find a habitat
+
+you are here 4        483
+the proxy pattern
+Synchronization Proxy 
+provides safe access to a 
+subject from multiple threads.
+Complexity Hiding Proxy 
+hides the complexity of 
+and controls access to a 
+complex set of classes.  
+This is sometimes called 
+the Facade Proxy for obvious reasons. 
+The Complexity Hiding Proxy differs from 
+the Facade Pattern in that the proxy 
+controls access, while the Facade Pattern 
+just provides an alternative interface.
+Copy-On-Write Proxy 
+controls the copying of 
+an object by deferring 
+the copying of an 
+object until it is required by 
+a client. This is a variant of 
+the Virtual Proxy.
+Seen hanging around Collections, where it controls 
+synchronized access to an underlying set of objects 
+in a multithreaded environment.
+Field Notes: please add your observations of other proxies in the wild here:
+Habitat: seen in the vicinity of the 
+Java’s CopyOnWriteArrayList.
+Help find a habitat
+
+484        Chapter    11
+crossword puzzle
+Design Patterns Crossword
+It’s been a LONG chapter. Why not unwind by doing a 
+crossword puzzle before it ends?
+ACROSS
+5. Group of first album cover displayed (two words).
+7. Commonly used proxy for web services (two words).
+8. In RMI, the object that takes the network requests on 
+the service side.
+11. Proxy that protects method calls from unauthorized 
+callers.
+13. Group that did the album MCMXC a.D.
+14. A ________ proxy class is created at runtime.
+15. Place to learn about the many proxy variants.
+16. The Album viewer used this kind of proxy.
+17. In RMI, the proxy is called this.
+18. We took one of these to learn RMI.
+19. Why Elroy couldn’t get dates.
+DOWN
+1. Objectville Matchmaking is for ________.
+2. Java’s dynamic proxy forwards all requests to this (two 
+words).
+3. This utility acts as a lookup service for RMI.
+4. Proxy that stands in for expensive objects.
+6. Remote ______ was used to implement the gumball 
+machine monitor (two words).
+9. Software developer agent was being this kind of proxy.
+10. Our first mistake: the gumball machine reporting was 
+not _____.
+12. Similar to proxy, but with a different purpose.
+1234
+56
+7
+8
+9
+10
+1112
+13
+1415
+1617
+1819
+Across
+5. Group of first Album cover displayed (two 
+words)
+7. Commonly used proxy for web services (two 
+words)
+8. In RMI, the object that takes the network 
+requests on the service side
+11. Proxy that protects method calls from 
+unauthorized callers
+13. Group that did the album MCMXC A.D.
+14. A _______ proxy class is created at runtime
+15. Place to learn about the many proxy variants
+16. The Album viewer used this kind of proxy
+17. In RMI, the proxy is called this
+18. We took one of these to learn RMI
+19. Why Elroy couldn't get dates
+Down
+1. Objectville Matchmaking is for _____
+2. Java's dynamic proxy forwards all requests 
+to this (two words)
+3. This utility acts as a lookup service for RMI
+4. Proxy that stands in for expensive objects
+6. Remote ________  was used to implement 
+the gumball machine monitor (two words)
+9. Software developer agent was being this kind 
+of proxy
+10. Our first mistake: the gumball machine 
+reporting was not _______
+12. Similar to proxy, but with a different 
+purpose
+
+you are here 4        485
+the proxy pattern
+Tools for your Design Toolbox
+Your design toolbox is almost full; you’re prepared for 
+almost any design problem that comes your way.
+Abstraction
+Encapsulation
+Polymorphism
+Inheritance
+OO Basics
+Strategy
+ - defines a family of algorithms, 
+encapsulates each one, and makes them 
+interchangeable.  Strategy lets the algorithm 
+vary independently from clients that use it.
+OO Patterns
+Observer
+ - 
+defines a one-to-many 
+dependency between objects so that 
+when one object changes state, all its 
+dependents are notified and updated 
+automatically
+Decorator
+ - 
+Attach additional 
+responsibilities to an object dynamically.  
+Decorators provide a flexible 
+alternative to subclassing for extending 
+functionality.
+Abstract Factory
+ - 
+Provide an 
+interface for creating families of 
+related or depedent objects without 
+specifying their concrete classes.
+Factory Method 
+ - 
+Define an 
+interface for creating an object, but 
+let subclasses decide which class to 
+instantiate.  Factory Method lets 
+a class defer instantiation to the 
+subclasses.
+Singleton
+ - 
+Ensure a class only has one 
+instance and provide a global point of 
+access to it.
+Command
+ - 
+Encapsulates a request 
+as an object, thereby letting you 
+parameterize clients with different 
+requests, queue or log requests, and 
+support undoable operations.
+Adapter
+ - 
+Encapsulates a request 
+as an object, thereby letting you 
+parameterize clients with different 
+requests, queue or log requests, and 
+support undoable operations.
+No new principles this 
+chapter; can you close the 
+book and remember them all?
+Facade
+ - 
+Encapsulates a request 
+as an object, thereby letting you 
+parameterize clients with different 
+requests, queue or log requests, and 
+support undoable operations.
+Our new pattern.  
+A Proxy acts as a 
+representative for 
+another object.
+State
+ - 
+Allow an object to alter its 
+behavior when its internal state changes.  
+The object will appear to change its 
+class.
+Encapsulate what varies.
+Favor composition over inheritance.
+Program to interfaces, not 
+implementations.
+Strive for loosely coupled designs 
+between objects that interact.
+Classes should be open for extension 
+but closed for modification.
+Depend on abstractions. Do not 
+depend on concrete classes.
+Only talk to your friends.
+Don’t call us, we’ll call you.
+A class should have only one reason 
+to change.
+OO Principles
+Proxy
+ - 
+Provide a surrogate or 
+placeholder for another object to 
+control access to it.
+ The Proxy Pattern provides 
+a representative for another 
+object in order to control the 
+client’s access to it. There 
+are a number of ways it can 
+manage that access.
+ A Remote Proxy manages 
+interaction between a client 
+and a remote object.
+ A Virtual Proxy controls 
+access to an object that is 
+expensive to instantiate.
+ A Protection Proxy controls 
+access to the methods of an 
+object based on the caller.
+ Many other variants of 
+the Proxy Pattern exist 
+including caching proxies, 
+synchronization proxies, 
+firewall proxies, copy-on-write 
+proxies, and so on.
+ Proxy is structurally similar 
+to Decorator, but the two 
+patterns differ in their purpose.
+ The Decorator Pattern adds 
+behavior to an object, while 
+Proxy controls access.
+ Java’s built-in support for 
+Proxy can build a dynamic 
+proxy class on demand and 
+dispatch all calls on it to a 
+handler of your choosing.
+ Like any wrapper, proxies 
+will increase the number of 
+classes and objects in your 
+designs.
+
+486        Chapter    11
+exercise solutions
+import java.lang.reflect.*;
+ 
+public class NonOwnerInvocationHandler implements InvocationHandler { 
+    Person person;
+ 
+    public NonOwnerInvocationHandler(Person person) {
+        this.person = person;
+    }
+ 
+    public Object invoke(Object proxy, Method method, Object[] args) 
+            throws IllegalAccessException {
+  
+        try {
+            if (method.getName().startsWith("get")) {
+                return method.invoke(person, args);
+            } else if (method.getName().equals("setGeekRating")) {
+                return method.invoke(person, args);
+            } else if (method.getName().startsWith("set")) {
+                throw new IllegalAccessException();
+            } 
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } 
+        return null;
+    }
+}
+The NonOwnerInvocationHandler works just like the OwnerInvocationHandler except 
+that it allows calls to setGeekRating() and it disallows calls to any other set method.  
+Here’s our solution:
+The ImageProxy class appears to have two states that are controlled 
+by conditional statements. Can you think of another pattern that might 
+clean up this code? How would you redesign ImageProxy?
+ Design Puzzle Solution
+Use the State Pattern: implement two states, ImageLoaded and ImageNotLoaded. Then put 
+the code from the if  statements into their respective states. Start in the ImageNotLoaded state 
+and then transition to the ImageLoaded state once the ImageIcon had been retrieved.
+
+you are here 4        487
+the proxy pattern
+G
+1
+I
+2
+R
+3
+V
+4
+A
+5
+PHEXTWINMM
+6
+I
+EVIW
+7
+EBPROXY
+S
+8
+KELETONRTT
+SCP
+9
+EHU
+ARGOA
+TOIDL
+ITSIR
+10
+P
+11
+ROTECTIOND
+12
+E
+NCRVE
+13
+NIGMA
+HTYOCO
+D
+14
+YNAMICCZ
+15
+OOT
+NOARE
+DNTA
+V
+16
+IRTUALIS
+17
+TUB
+EOO
+D
+18
+ETOURS
+19
+USPENDERS
+Across
+5. Group of first Album cover displayed (two 
+words) [APHEXTWIN] 
+7. Commonly used proxy for web services (two 
+words) [WEBPROXY] 
+8. In RMI, the object that takes the network 
+requests on the service side [SKELETON] 
+11. Proxy that protects method calls from 
+unauthorized callers [PROTECTION] 
+13. Group that did the album MCMXC A.D. 
+[ENIGMA] 
+14. A _______ proxy class is created at runtime 
+[DYNAMIC] 
+15. Place to learn about the many proxy variants 
+[ZOO] 
+16. The Album viewer used this kind of proxy 
+[VIRTUAL] 
+17. In RMI, the proxy is called this [STUB] 
+18. We took one of these to learn RMI 
+[DETOUR] 
+Down
+1. Objectville Matchmaking is for _____ 
+[GEEKS] 
+2. Java's dynamic proxy forwards all requests 
+to this (two words) 
+[INVOCATIONHANDLER] 
+3. This utility acts as a lookup service for RMI 
+[RMIREGISTRY] 
+4. Proxy that stands in for expensive objects 
+[VIRTUAL] 
+6. Remote ________  was used to implement 
+the gumball machine monitor (two words) 
+[METHODINVOCATION] 
+9. Software developer agent was being this kind 
+of proxy [PROTECTION] 
+10. Our first mistake: the gumball machine 
+reporting was not _______ [REMOTE] 
+12. Similar to proxy, but with a different 
+purpose [DECORATOR] 
+Person getNonOwnerProxy(Person person) {
+    
+    return (Person) Proxy.newProxyInstance(
+            person.getClass().getClassLoader(),
+            person.getClass().getInterfaces(),
+            new NonOwnerInvocationHandler(person));
+}
+While it is a little complicated, there isn’t much to creating a dynamic 
+proxy. Why don’t you write getNonOwnerProxy(), which returns a 
+proxy for the NonOwnerInvocationHandler? Here’s our solution:
+Design Patterns Crossword Solution
+
+488        Chapter    11
+exercise solutions
+Match each pattern with its description:
+Pattern
+Description
+Decorator
+Facade
+Proxy
+Adapter
+Wraps another object 
+and provides a different 
+interface to it.
+Wraps another object 
+and provides additional 
+behavior for it.
+Wraps another object 
+to control access to it.
+Wraps a bunch of 
+objects to simplify 
+their interface.
+SOlUTion
+
+you are here 4        489
+the proxy pattern
+The code for the Album Cover Viewer
+Ready Bake 
+Code
+package headfirst.designpatterns.proxy.virtualproxy;
+import java.net.*;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import java.util.*;
+public class ImageProxyTestDrive {
+    ImageComponent imageComponent;
+    JFrame frame = new JFrame("Album Cover Viewer");
+    JMenuBar menuBar;
+    JMenu menu;
+    Hashtable<String, String> albums = new Hashtable<String, String>();
+ 
+    public static void main (String[] args) throws Exception {
+        ImageProxyTestDrive testDrive = new ImageProxyTestDrive();
+    }
+ 
+    public ImageProxyTestDrive() throws Exception{
+        albums.put("Buddha Bar","http://images.amazon.com/images/P/B00009XBYK.01.LZZZZZZZ.
+jpg");
+        albums.put("Ima","http://images.amazon.com/images/P/B000005IRM.01.LZZZZZZZ.jpg");
+        albums.put("Karma","http://images.amazon.com/images/P/B000005DCB.01.LZZZZZZZ.
+gif");
+        albums.put("MCMXC a.D.","http://images.amazon.com/images/P/B000002URV.01.LZZZZZZZ.
+jpg");
+        albums.put("Northern Exposure","http://images.amazon.com/images/P/B000003SFN.01.
+LZZZZZZZ.jpg");
+        albums.put("Selected Ambient Works, Vol. 2","http://images.amazon.com/images/P/
+B000002MNZ.01.LZZZZZZZ.jpg");
+        URL initialURL = new URL((String)albums.get("Selected Ambient Works, Vol. 2"));
+        menuBar = new JMenuBar();
+        menu = new JMenu("Favorite Albums");
+        menuBar.add(menu);
+
+490        Chapter    11
+ready-bake code: album cover viewer
+The code for the Album Cover 
+Viewer, continued...
+Ready Bake 
+Code
+        frame.setJMenuBar(menuBar);
+        for(Enumeration e = albums.keys(); e.hasMoreElements();) {
+            String name = (String)e.nextElement();
+            JMenuItem menuItem = new JMenuItem(name);
+            menu.add(menuItem); 
+            menuItem.addActionListener(event -> {
+                imageComponent.setIcon( 
+                     new ImageProxy(getAlbumUrl(event.getActionCommand())));
+                frame.repaint();
+            });
+        }
+        
+        // set up frame and menus
+ 
+        Icon icon = new ImageProxy(initialURL);
+        imageComponent = new ImageComponent(icon);
+        frame.getContentPane().add(imageComponent);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800,600);
+        frame.setVisible(true);
+    }
+    URL getAlbumUrl(String name) {
+        try {
+            return new URL((String)albums.get(name));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+}
+
+you are here 4        491
+the proxy pattern
+The code for the Album Cover 
+Viewer, continued...
+Ready Bake 
+Code
+package headfirst.designpatterns.proxy.virtualproxy;
+import java.net.*;
+import java.awt.*;
+import javax.swing.*;
+class ImageProxy implements Icon {
+    volatile ImageIcon imageIcon;
+    final URL imageURL;
+    Thread retrievalThread;
+    boolean retrieving = false;
+     
+    public ImageProxy(URL url) { imageURL = url; }
+     
+    public int getIconWidth() {
+        if (imageIcon != null) {
+            return imageIcon.getIconWidth();
+        } else {
+            return 800;
+        }
+    }
+ 
+    public int getIconHeight() {
+        if (imageIcon != null) {
+            return imageIcon.getIconHeight();
+        } else {
+            return 600;
+        }
+    }
+ 
+    synchronized void setImageIcon(ImageIcon imageIcon) {
+        this.imageIcon = imageIcon;
+    }
+     
+    public void paintIcon(final Component c, Graphics  g, int x,  int y) {
+        if (imageIcon != null) {
+            imageIcon.paintIcon(c, g, x, y);
+        } else {
+            g.drawString("Loading album cover, please wait...", x+300, y+190);
+            if (!retrieving) {
+                retrieving = true;
+
+492        Chapter    11
+ready-bake code: album cover viewer
+The code for the Album Cover Viewer, 
+continued...
+Ready Bake 
+Code
+                retrievalThread = new Thread(new Runnable() {
+                    public void run() {
+                        try {
+                            setImageIcon(new ImageIcon(imageURL, "Album Cover"));
+                            c.repaint();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                retrievalThread.start();
+            }
+        }
+    }
+}
+package headfirst.designpatterns.proxy.virtualproxy;
+import java.awt.*;
+import javax.swing.*;
+class ImageComponent extends JComponent {
+    private Icon icon;
+    public ImageComponent(Icon icon) {
+        this.icon = icon;
+    }
+    public void setIcon(Icon icon) {
+        this.icon = icon;
+    }
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        int w = icon.getIconWidth();
+        int h = icon.getIconHeight();
+        int x = (800 - w)/2;
+        int y = (600 - h)/2;
+        icon.paintIcon(this, g, x, y);
+    }
+}

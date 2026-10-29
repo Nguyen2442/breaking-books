@@ -1,0 +1,2418 @@
+this is a new chapter     597
+Not everyone can be the most popular. A lot has changed 
+in the last 25+ years. Since Design Patterns: Elements of Reusable Object-
+Oriented Software first came out, developers have applied these patterns 
+thousands of times. The patterns we summarize in this appendix are fullfledged, card-carrying, official GoF patterns, but aren’t used as often as the 
+patterns we’ve explored so far. But these patterns are awesome in their own 
+right, and if your situation calls for them, you should apply them with your 
+head held high. Our goal in this appendix is to give you a high-level idea of 
+what these patterns are all about. 
+14  
+Appendix
+Leftover Patterns
+
+598    Appendix
+bridge pattern
+Bridge
+Use the Bridge Pattern to vary not only your 
+implementations, but also your abstractions.
+Imagine you’re writing the code for a new 
+ergonomic and user-friendly remote control for 
+TVs. You already know that you’ve got to use 
+good object-oriented techniques because while 
+the remote is based on the same abstraction, there 
+will be lots of  implementations—one for each model 
+of  TV.
+A scenario
+Your dilemma
+You know that the remote’s user interface won’t be right the 
+first time. In fact, you expect that the product will be refined 
+many times as usability data is collected on the remote 
+control.
+So your dilemma is that the remotes are going to change and 
+the TVs are going to change. You’ve already abstracted the user 
+interface so that you can vary the implementation over the many 
+TVs your customers will own. But you are also going to need 
+to vary the abstraction because it is going to change over time as 
+the remote is improved based on the user feedback.
+So how are you going to create an object-oriented design that 
+allows you to vary the implementation and the abstraction?
+Every remote has the 
+same abstraction.
+RemoteControl
+on()
+off()
+setChannel()
+// more methods
+Lots of 
+implementations, 
+one for each TV.
+SonyControl
+on()
+off()
+setChannel()
+// more methods
+RCAControl
+on()
+off()
+setChannel()
+// more methods
+This is an abstraction. It could be 
+an interface or an abstract class.
+{
+  tuneChannel(channel);
+}
+Using this design we can vary 
+only the TV implementation, not 
+the user interface.
+
+you are here 4        599
+leftover patterns
+Bridge Benefits
+� Decouples an implementation so that it is not bound 
+permanently to an interface.
+� Abstraction and implementation can be extended 
+independently.
+� Changes to the concrete abstraction classes don’t 
+affect the client. 
+� Useful in graphics and windowing systems that need 
+to run over multiple platforms.
+� Useful any time you need to vary an interface and an 
+implementation in different ways.
+� Increases complexity. 
+Bridge Uses and Drawbacks 
+Why use the Bridge Pattern?
+The Bridge Pattern allows you to vary the implementation and 
+the abstraction by placing the two in separate class hierarchies.
+TV
+on()
+off()
+tuneChannel()
+// more methods
+Sony
+on()
+off()
+tuneChannel()
+// more methods
+RCA
+on()
+off()
+tuneChannel()
+// more methods
+ConcreteRemote
+on()
+off()
+setChannel()
+nextChannel()
+previousChannel()
+// more methods
+RemoteControl
+implementor
+on()
+off()
+setChannel()
+// more methods
+Has-A
+implementor.tuneChannel(channel);
+Abstraction 
+class hierarchy.
+Implementation class hierarchy.
+The relationship between 
+the two is referred to as 
+the “bridge.”
+All methods in the abstraction 
+are implemented in terms of 
+the implementation.
+setChannel(currentStation + 1);
+currentStation
+Concrete subclasses are implemented in terms of the 
+abstraction, not the implementation.
+Now you have two hierarchies, one for the remotes and a separate one for platformspecific TV implementations. The bridge allows you to vary either side of  the two 
+hierarchies independently.
+
+600    Appendix
+builder pattern
+Builder
+Use the Builder Pattern to encapsulate the construction of  
+a product and allow it to be constructed in steps.
+You’ve just been asked to build a vacation planner for Patternsland, a new theme 
+park just outside of  Objectville. Park guests can choose a hotel and various types of  
+admission tickets, make restaurant reservations, and even book special events. To create 
+a vacation planner, you need to be able to create structures like this:
+A scenario
+You need a flexible design
+Each guest’s planner can vary in the number of  days and types of  activities it includes.  
+For instance, a local resident might not need a hotel, but wants to make dinner and 
+special event reservations. Another guest might be flying into Objectville and needs a 
+hotel, dinner reservations, and admission tickets.
+So, you need a flexible data structure that can represent guest planners and all their 
+variations; you also need to follow a sequence of  potentially complex steps to create the 
+planner. How can you provide a way to create the complex structure without mixing it 
+with the steps for creating it?
+Each day can have any combination 
+of hotel reservations, tickets, 
+meals, and special events.
+Each vacation is planned 
+over some number of days.
+ 
+ 
+ 
+ 
+ 
+V
+a
+c
+a
+t
+i
+o
+n
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+D
+a
+y
+O
+n
+e
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+D
+a
+y
+T
+w
+o
+ 
+ 
+ 
+ 
+ 
+ 
+D
+a
+y
+T
+h
+r
+e
+e
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+D
+i
+n
+i
+n
+g
+ 
+ 
+ 
+ 
+S
+p
+e
+c
+i
+a
+l
+ 
+E
+v
+e
+n
+t
+ 
+ 
+ 
+P
+a
+r
+k
+ 
+T
+i
+c
+k
+e
+t
+s
+ 
+ 
+ 
+P
+a
+r
+k
+ 
+T
+i
+c
+k
+e
+t
+s
+ 
+ 
+ 
+P
+a
+r
+k
+ 
+T
+i
+c
+k
+e
+t
+s
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+H
+o
+t
+e
+l
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+H
+o
+t
+e
+l
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+D
+i
+n
+n
+e
+r
+P
+a
+t
+t
+e
+r
+n
+s
+ 
+o
+n
+ 
+I
+c
+e
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+H
+o
+t
+e
+l
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+D
+i
+n
+i
+n
+g
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+D
+i
+n
+n
+e
+r
+ 
+ 
+ 
+ 
+S
+p
+e
+c
+i
+a
+l
+ 
+E
+v
+e
+n
+t
+C
+i
+r
+q
+u
+e
+ 
+D
+u
+ 
+P
+a
+t
+t
+e
+r
+n
+s
+
+you are here 4        601
+leftover patterns
+Builder Benefits
+� Encapsulates the way a complex object is 
+constructed.
+� Allows objects to be constructed in a multistep and 
+varying process (as opposed to one-step factories).
+� Hides the internal representation of the product from 
+the client. 
+� Product implementations can be swapped in and out 
+because the client only sees an abstract interface.
+Builder Uses and Drawbacks 
+Why use the Builder Pattern?
+Remember Iterator? We encapsulated the iteration into a separate 
+object and hid the internal representation of  the collection from the 
+client. It’s the same idea here: we encapsulate the creation of  the 
+trip planner in an object (let’s call it a builder), and have our client 
+ask the builder to construct the trip planner structure for it.  
+The Client directs 
+the builder to 
+construct the 
+planner.
+AbstractBuilder
+buildDay()
+addHotel()
+addReservation()
+addSpecialEvent()
+addTickets()
+getVacationPlanner()
+Client
+builder.buildDay(date);
+builder.addHotel(date, "Grand Facadian");
+builder.addTickets("Patterns on Ice");
+  // plan rest of vacation 
+Planner yourPlanner = 
+        builder.getVacationPlanner();
+The client uses an 
+abstract interface to 
+build the planner.
+The concrete builder 
+creates real products 
+and stores them in 
+the vacation composite 
+structure.
+The Client directs the builder to create 
+the planner in a number of steps and 
+then calls the getVacationPlanner() 
+method to retrieve the complete object.
+VacationBuilder
+vacation
+buildDay()
+addHotel()
+addReservation()
+addSpecialEvent()
+addTickets()
+getVacationPlanner()
+builder
+constructPlanner()
+� Often used for building composite structures.
+� Constructing objects requires more domain 
+knowledge of the client than when using a Factory.
+
+602    Appendix
+chain of responsibility pattern
+Chain of Responsibility
+Use the Chain of  Responsibility Pattern when you want to 
+give more than one object a chance to handle a request.
+Mighty Gumball has been getting more email 
+than they can handle since the release of  the 
+Java-powered Gumball Machine. From their 
+own analysis they get four kinds of  email: fan 
+mail from customers that love the new 1-in-10 
+game, complaints from parents whose kids are 
+addicted to the game, requests to put machines 
+in new locations, and a fair amount of  spam. 
+All fan mail should go straight to the CEO, all 
+complaints should go to the legal department, 
+and all requests for new machines should go to 
+business development. Spam should be deleted.
+A scenario
+Your task
+Mighty Gumball has already written some AI 
+detectors that can tell if  an email is spam, fan 
+mail, a complaint, or a request, but they need 
+you to create a design that can use the detectors 
+to handle incoming email.
+You’ve got to help us 
+deal with the flood of email we’re 
+getting since the release of the 
+Java Gumball Machine.
+
+you are here 4        603
+leftover patterns
+ Chain of Responsibility Benefits
+� Decouples the sender of the request and its 
+receivers.
+�  Simplifies your object because it doesn’t have 
+to know the chain’s structure and keep direct 
+references to its members.
+� Allows you to add or remove responsibilities 
+dynamically by changing the members or order of 
+the chain. 
+� Commonly used in Windows systems to handle 
+events like mouse clicks and keyboard events.
+� Execution of the request isn’t guaranteed; it may 
+fall off the end of the chain if no object handles it 
+(this can be an advantage or a disadvantage).
+� Can be hard to observe and debug at runtime.
+Chain of Responsibility Uses and Drawbacks 
+How to use the Chain of Responsibility Pattern
+With the Chain of  Responsibility Pattern, you create a chain of  objects 
+to examine requests. Each object in turn examines a request and either 
+handles it or passes it on to the next object in the chain.  
+Handler
+SpamHandlerFanHandlerComplaintHandlerNewLocHandler
+Spam 
+Handler
+Fan     
+Handler
+Complaint 
+Handler
+NewLoc  
+Handler
+Each object in the chain 
+acts as a handler and has 
+a successor object. If it 
+can handle the request, 
+it does; otherwise, it 
+forwards the request to 
+its successor.
+As email is received, it is passed to the first handler: 
+SpamHandler. If  the SpamHandler can’t handle the request, it 
+is passed on to the FanHandler. And so on...
+Each email is passed to 
+the first handler.
+Email is not handled if it 
+falls off the end of the 
+chain 
+—   although you can always 
+implement a catch-all handler.
+successor
+handleRequest()
+handleRequest()handleRequest()handleRequest()handleRequest()
+
+604    Appendix
+flyweight pattern
+Flyweight
+Use the Flyweight Pattern when one instance of  a class 
+can be used to provide many virtual instances.
+You want to add trees as objects in your new landscape design application. In your 
+application, trees don’t really do very much; they have an X-Y location, and they can 
+draw themselves dynamically, depending on how old they are. The thing is, a user 
+might want to have lots and lots of  trees in one of  their home landscape designs. It 
+might look something like this:
+A scenario
+Your big client’s dilemma
+You have a key client you’ve been pitching for months. 
+They’re going to buy 1,000 seats of  your application, and 
+they’re using your software to do the landscape design for 
+huge planned communities. After using your software for a 
+week, your client is complaining that when they create large 
+groves of  trees, the app starts getting sluggish...
+Tree
+Tree
+Tree
+Tree
+Tree
+Tree
+Tree
+House
+Each Tree instance 
+maintains its own state.
+Tree
+xCoord
+yCoord
+age
+display()  {
+  // use X-Y coords
+  // & complex age
+  // related calcs
+}
+
+you are here 4        605
+leftover patterns
+ Flyweight Benefits
+� Reduces the number of object instances at runtime, 
+saving memory.
+� Centralizes state for many “virtual” objects into a 
+single location.
+� The Flyweight is used when a class has many 
+instances, and they can all be controlled identically. 
+� A drawback of the Flyweight Pattern is that once 
+you’ve implemented it, single, logical instances of the 
+class will not be able to behave independently from 
+the other instances.
+ Flyweight Uses and Drawbacks 
+Why use the Flyweight Pattern?
+What if, instead of  having thousands of  Tree objects, you 
+could redesign your system so that you’ve got only one 
+instance of  Tree, and a client object that maintains the state 
+of  ALL your trees? That’s the Flyweight!
+One, single, state-free 
+Tree object.
+All the state, for ALL 
+of your virtual Tree 
+objects, is stored in this 
+2D array.
+TreeManager
+treeArray
+displayTrees() {
+  // for all trees {
+    // get array row
+    display(x, y, age);
+   }
+}
+Tree
+display(x, y, age) {
+  // use X-Y coords
+  // & complex age
+  // related calcs
+}
+
+606    Appendix
+interpreter pattern
+expression ::=  <command> | <sequence> | <repetition>
+sequence ::= <expression> ';' <expression>
+command ::= right | quack | fly
+repetition ::= while '(' <variable> ')'<expression>
+variable ::= [A-Z,a-z]+
+Interpreter
+Use the Interpreter Pattern to build an 
+interpreter for a language.
+Remember the Duck Simulator? You have a hunch it would also 
+make a great educational tool for children to learn programming. 
+Using the simulator, each child gets to control one duck with a 
+simple language. Here’s an example of  the language:
+A scenario
+Now what?
+You’ve got a grammar; now all you need is a way to represent and 
+interpret sentences in the grammar so that the students can see the 
+effects of  their programming on the simulated ducks.
+Now, remembering how to create grammars from one of  your old 
+introductory programming classes, you write out the grammar:
+Turn the duck right.
+Fly all day...
+...and then quack.
+A program is an expression consisting 
+of sequences of commands and 
+repetitions (“while” statements).
+A while statement is just 
+a conditional variable and 
+an expression.
+right;
+while (daylight) fly;
+quack;
+A sequence is a set of 
+expressions separated 
+by semicolons.
+We have three 
+commands: right, 
+quack, and fly.
+                            The              Interpreter              
+Pattern requires 
+some knowledge of  
+formal grammars.
+If  you’ve never studied formal grammars, 
+go ahead and read through the pattern; 
+you’ll still get the gist of  it.
+
+you are here 4        607
+leftover patterns
+ Interpreter Benefits
+� Representing each grammar rule in a class makes 
+the language easy to implement.
+� Because the grammar is represented by classes, you 
+can easily change or extend the language.
+� By adding methods to the class structure, you can 
+add new behaviors beyond interpretation, like pretty 
+printing and more sophisticated program validation.
+� Use Interpreter when you need to implement a 
+simple language.
+� Appropriate when you have a simple grammar and 
+simplicity is more important than efficiency.
+� Used for scripting and programming languages.
+� This pattern can become cumbersome when 
+the number of grammar rules is large. In these 
+cases a parser/compiler generator may be more 
+appropriate.
+ Interpreter Uses and Drawbacks 
+How to implement an interpreter
+When you need to implement a simple language, the  
+Interpreter Pattern defines a class-based representation for its 
+grammar along with an interpreter to interpret its sentences. 
+To represent the language, you use a class to represent each 
+rule in the language. Here’s the duck language translated into 
+classes.  Notice  the  direct  mapping  to  the  grammar.                                                                                                                                 
+To interpret the language, call the interpret() method on each 
+expression type. This method is passed a context—which 
+contains the input stream of  the program we’re parsing—and 
+matches the input and evaluates it.
+Expression
+interpret(context)
+SequenceRepetition
+FlyCommand
+interpret(context)
+VariableRightCommandQuackCommand
+interpret(context)interpret(context)interpret(context)
+interpret(context)
+expression1
+expression2
+variable
+expression
+interpret(context)
+
+608    Appendix
+mediator pattern
+Mediator
+Use the Mediator Pattern to centralize complex 
+communications and control between related objects.
+Calendar
+Bob has an automated home, thanks to the good folks at HouseOfTheFuture. All of  
+his appliances are designed to make his life easier. When Bob stops hitting the snooze 
+button, his alarm clock tells the coffee maker to start brewing. Even though life is good 
+for Bob, he and other customers are always asking for lots of  new features: No coffee 
+on the weekends...  Turn off  the sprinkler 15 minutes before a shower is scheduled...  
+Set the alarm early on trash days... 
+A scenario
+Sprinkler
+CoffeePot
+Alarm
+HouseOfTheFuture’s dilemma
+It’s getting really hard to keep track of  which rules reside in which objects, and how 
+the various objects should relate to each other.
+Alarm
+onEvent() {
+  checkCalendar()
+  checkSprinkler()
+  startCoffee()
+  // do more stuff
+}
+Calendar
+onEvent() {
+  checkDayOfWeek()
+  doSprinkler()
+  doCoffee()
+  doAlarm()
+  // do more stuff
+}
+CoffeePot
+onEvent() {
+  checkCalendar()
+  checkAlarm()
+  // do more stuff
+}
+Sprinkler
+onEvent() {
+  checkCalendar()
+  checkShower()
+  checkTemp()
+  checkWeather()
+  // do more stuff
+}
+
+you are here 4        609
+leftover patterns
+ Mediator Benefits
+� Increases the reusability of the objects supported by 
+the Mediator by decoupling them from the system.
+�  Simplifies maintenance of the system by centralizing 
+control logic.
+�  Simplifies and reduces the variety of messages sent 
+between objects in the system.
+� The Mediator is commonly used to coordinate 
+related GUI components.
+� A drawback of the Mediator Pattern is that without 
+proper design, the Mediator object itself can become 
+overly complex.
+ Mediator Uses and Drawbacks 
+Mediator
+Calendar
+Sprinkler
+CoffeePot
+Alarm
+Mediator in action...
+With a Mediator added to the system, all 
+of  the appliance objects can be greatly 
+simplified:
+  �They tell the Mediator when their state 
+changes.
+  �They respond to requests from the 
+Mediator.
+Before we added the Mediator, all of  the 
+appliance objects needed to know about each 
+other; that is, they were all tightly coupled. 
+With the Mediator in place, the appliance 
+objects are all completely decoupled from 
+each other.
+The Mediator contains all of  the control 
+logic for the entire system. When an existing 
+appliance needs a new rule, or a new 
+appliance is added to the system, you’ll know 
+that all of  the necessary logic will be added to 
+the Mediator.
+Mediator 
+if(alarmEvent){
+ checkCalendar()
+ checkShower()
+ checkTemp()
+}
+if(weekend) {
+ checkWeather()
+ // do more stuff
+}
+if(trashDay) {
+ resetAlarm()
+ // do more stuff
+}
+It’s such a relief, 
+not having to figure 
+out that Alarm clock’s 
+picky rules!
+
+610    Appendix
+memento pattern
+ 
+Memento
+Use the Memento Pattern when you need 
+to be able to return an object to one of  its 
+previous states; for instance, if  your user 
+requests an “undo.”
+Your interactive role-playing game is hugely successful, 
+and has created a legion of  addicts, all trying to get 
+to the fabled “level 13.” As users progress to more 
+challenging game levels, the odds of  encountering 
+a game-ending situation increase. Fans who have 
+spent days progressing to an advanced level are 
+understandably miffed when their character gets snuffed, 
+and they have to start all over. The cry goes out for a 
+“save progress” command, so that players can store their 
+game progress and at least recover most of  their efforts 
+when their character is unfairly extinguished. The 
+“save progress” function needs to be designed to return 
+a resurrected player to the last level she completed 
+successfully.
+A scenario
+Just be careful how you go about 
+saving the game state. It’s pretty 
+complicated, and I don’t want anyone 
+else with access to it mucking it up and 
+breaking my code. 
+
+you are here 4        611
+leftover patterns
+The Memento at work
+The Memento has two goals:
+ �Saving the important state of  a system’s key object
+ �Maintaining the key object’s encapsulation
+Keeping the Single Responsibility Principle in mind, it’s also 
+a good idea to keep the state that you’re saving separate from 
+the key object. This separate object that holds the state is 
+known as the Memento object.
+ Memento Benefits
+� Keeping the saved state external from the key 
+object helps to maintain cohesion.
+� Keeps the key object’s data encapsulated.
+� Provides easy-to-implement recovery capability.
+� The Memento is used to save state.
+� A drawback to using Memento is that saving and 
+restoring state can be time-consuming.
+� In Java systems, consider using Serialization to 
+save a system’s state.
+ Memento Uses and Drawbacks 
+While this isn’t 
+a terribly fancy 
+implementation, notice 
+that the Client has 
+no access to the 
+Memento’s data.
+Client
+// when new level is reached
+Object saved = 
+  (Object) mgo.getCurrentState();
+// when a restore is required
+mgo.restoreState(saved);
+GameMemento
+savedGameState
+MasterGameObject
+Object getCurrentState() {
+  // gather state
+  return(gameState);
+}
+restoreState(Object savedState) {
+  // restore state
+}
+// do other game stuff
+gameState
+
+612    Appendix
+prototype pattern
+Your interactive role-playing game has an insatiable appetite for monsters. As your 
+heroes make their journey through a dynamically created landscape, they encounter 
+an endless chain of  foes that must be subdued. You’d like the monster’s characteristics 
+to evolve with the changing landscape. It doesn’t make a lot of  sense for bird-like 
+monsters to follow your characters into underseas realms. Finally, you’d like to allow 
+advanced players to create their own custom monsters.
+Prototype
+Use the Prototype Pattern when creating an instance 
+of  a given class is either expensive or complicated.
+A scenario
+It would be a lot cleaner if 
+we could decouple the code that 
+handles the details of creating the 
+monsters from the code that actually 
+needs to create the instances on 
+the fly.
+Yikes! Just the act 
+of creating all of these different 
+kinds of monster instances is getting 
+tricky... Putting all sorts of state detail in the 
+constructors doesn’t seem to be very cohesive. It 
+would be great if there was a single place where 
+all of the instantiation details could be 
+encapsulated... 
+
+you are here 4        613
+leftover patterns
+<<interface>>
+Monster
+Prototype to the rescue
+The Prototype Pattern allows you to make new instances by 
+copying existing instances. (In Java this typically means using 
+the clone() method, or deserialization when you need deep 
+copies.) A key aspect of  this pattern is that the client code can 
+make new instances without knowing which specific class is 
+being instantiated.
+ Prototype Benefits
+� Hides the complexities of making new instances 
+from the client.
+� Provides the option for the client to generate 
+objects whose type is not known.
+� In some circumstances, copying an object can be 
+more efficient than creating a new object.
+� Prototype should be considered when a system 
+must create new objects of many types in a 
+complex class hierarchy.
+� A drawback to using Prototype is that making a 
+copy of an object can sometimes be complicated.
+ Prototype Uses and Drawbacks 
+The registry finds the appropriate 
+monster, makes a clone of it, and 
+returns the clone.
+The client needs a new monster 
+appropriate to the current 
+situation. (The client won’t know 
+what kind of monster he gets.)
+WellKnownMonsterDynamicPlayerGeneratedMonster
+MonsterMaker
+makeRandomMonster() {
+   Monster m = 
+     MonsterRegistry.getMonster();
+}
+MonsterRegistry
+Monster getMonster() {
+  // find the correct monster
+  return correctMonster.clone();
+}
+
+614    Appendix
+visitor pattern
+Visitor
+Use the Visitor Pattern when you want to 
+add capabilities to a composite of  objects 
+and encapsulation is not important.
+Customers who frequent the Objectville Diner and Objectville 
+Pancake House have recently become more health conscious. They 
+are asking for nutritional information before ordering their meals. 
+Because both establishments are so willing to create special orders, 
+some customers are even asking for nutritional information on a 
+per-ingredient basis.
+A scenario
+Lou’s proposed solution:
+MenuItem
+Menu
+Ingredient
+MenuItem
+Ingredient
+// new methods
+getHealthRating()
+getCalories()
+getProtein()
+getCarbs()
+// new methods
+getHealthRating()
+getCalories()
+getProtein()
+getCarbs()
+Mel’s concerns...
+“Boy, it seems like we’re opening Pandora’s box. Who knows what 
+new method we’re going to have to add next, and every time we 
+add a new method we have to do it in two places. Plus, what if  
+we want to enhance the base application with, say, a recipes class?  
+Then we’ll have to make these changes in three different places...”
+
+you are here 4        615
+leftover patterns
+The Visitor drops by
+The Visitor works hand in hand with a Traverser. The Traverser 
+knows how to navigate to all of  the objects in a Composite. The 
+Traverser guides the Visitor through the Composite so that the Visitor 
+can collect state as it goes. Once state has been gathered, the Client 
+can have the Visitor perform various operations on the state. When 
+new functionality is required, only the Visitor must be enhanced.
+ Visitor Benefits
+� Allows you to add operations to a Composite 
+structure without changing the structure itself.
+�  Adding new operations is relatively easy.
+� The code for operations performed by the Visitor is 
+centralized.
+� The Composite classes’ encapsulation is broken 
+when the Visitor is used.
+� Because the traversal function is involved, 
+changes to the Composite structure are more 
+difficult.
+ Visitor Drawbacks 
+Visitor
+  Client / 
+Traverser
+getState()
+getState()
+getState()
+getState()
+getState()
+getHealthRating()
+getCalories()
+getProtein()
+getCarbs()
+All these composite 
+classes have to do is add 
+a getState() method 
+(and not worry about 
+exposing themselves).
+The Client asks 
+the Visitor to get 
+information from the 
+Composite structure... 
+New methods can be 
+added to the Visitor 
+without affecting the 
+Composite.
+The Visitor needs to be able to call 
+getState() across classes, and this is 
+where you can add new methods for 
+the client to use.
+The Traverser knows how to 
+guide the Visitor through 
+the Composite structure.
+MenuItem
+Menu
+Ingredient
+MenuItem
+Ingredient
+
+this is the index     617
+Index
+A
+AbstractButton class  65
+abstract class  128, 292, 293
+Abstract Factory Pattern
+about  153
+building ingredient factories  146–148, 167
+combining patterns  502–505, 548
+defined  156–157
+exercise matching description of   574, 596
+Factory Method Pattern and  158–161
+implementing  158
+interview with  158–159
+AbstractList  309
+abstract superclasses  12
+Adapter Pattern
+about  243–244
+adapting to Iterator Enumeration interface  251
+combining patterns  498–499
+dealing with remove() method  252
+Decorator Pattern vs.  254–255
+defined  245
+designing Adapter  251
+exercises for  256, 275, 375, 379, 481, 574, 596
+Facade Pattern vs.  262
+in Model-View-Controller  540
+object and class adapters  246–249
+Proxy Pattern vs.  466
+simple real world adapters  250
+writing Enumeration Iterator Adapter  252–253
+adapters, OO (Object-Oriented)
+about  238–239
+creating Two Way Adapters  244
+in action  240–241
+object, class object and class  246–249
+test driving  242
+aggregates  327, 338
+album covers, displaying using Proxy Pattern
+about  458
+code for  489–492
+designing Virtual Proxy  459
+reviewing process  465
+testing viewer  464
+writing Image Proxy  460–463
+Alexander, Christopher
+A Pattern Language  588
+The Timeless Way of  Building  588
+algorithms, encapsulating
+about  277
+abstracting prepareRecipe()  284–287
+Strategy Pattern and  24
+Template Method Pattern and
+about  288–290
+applets in  309
+code up close  292–293
+defined  291
+The Hollywood Principle and  298–300
+hooks in  293–295
+in real world  301
+sorting with  302–307
+Swing and  308
+testing code  296
+algorithms, family of   22
+Anti-Patterns  592–593
+Applicability section, in pattern catalog  571
+Application Patterns  590
+Architectural Patterns  590
+ArrayList, arrays and  320–325, 351
+arrays
+iteration and  325–326, 345
+iterator and hasNext() method with  328
+iterator and next() method with  328
+
+618    Index
+the index
+B
+behavioral patterns categories, Design Patterns  576, 
+578–579
+behaviors
+classes as  14
+classes extended to incorporate new  86
+declaring variables  15
+delegating to decorated objects while adding  90
+designing  11–12
+encapsulating  11, 22
+implementing  11, 13
+separating  10
+setting dynamically  20–21
+Be the JVM solution exercises, dealing with multithreading  
+179–180, 188
+Bridge Pattern  598–599
+Builder Pattern  600–601
+Business Process Patterns  591
+C
+Caching Proxy, as form of  Virtual Proxy  466, 482
+Café Menu, integrating into framework (Iterator Pattern)  
+347
+Chain of  Responsibility Pattern  602–603
+change
+as the one constant in software development  8
+identifying  54
+iteration and  340
+chocolate factory example, using Singleton Pattern  
+175–176, 183
+class adapters, object vs.  246–249
+class design, of  Observer Pattern  51–52
+classes. See also subclasses
+abstract  128, 292, 293
+adapter  244, 274
+Adapter Pattern  245
+altering decorator  108
+as behaviors  14
+collection  352
+creating  10
+extended to incorporate new behaviors  86
+Factory Method Pattern creator and product  131–132
+having single responsibility  340–341
+high-level component  139
+identifying as Proxy class  480
+relationships between  22
+state
+defining  395
+implementing  397, 400–405, 409
+increasing number in design of   408
+reworking  398–399
+state transitions in  408
+using composition with  23
+using instance variables instead of   82–83
+using instead of  Singletons static  184
+using new operator for instantiating concrete  110–113
+Classification section, in pattern catalog  571
+classloaders, using with Singletons  184
+class patterns, Design Patterns  577
+client heap  433–436
+client helper (stubs), in RMI  436–437, 440, 442–444, 
+453–454
+Code Magnets exercise
+for DinerMenu Iterator  354, 378
+for Observer Pattern  70, 76
+cohesion  340
+Collaborations section, in pattern catalog  571
+collection classes  352
+collection of  objects
+abstracting with Iterator Pattern
+about  317
+adding Iterators  328–334
+cleaning up code using java.util.Iterator  335–337
+remove() method in  334
+implementing Iterators for  327
+integrating into framework  347
+meaning of   327
+using Composite Pattern
+about  363
+implementing components  364–366
+testing code  368–370
+tree structure  360–362, 368
+using whole-part relationships  372
+Collections, Iterators and  353
+
+you are here 4        619
+the index
+Combining Patterns
+Abstract Factory Pattern  502–505
+Adapter Pattern  498–499
+class diagram for  518–519
+Composite Pattern  507–509
+Decorator Pattern  500–501
+Iterator Pattern  507
+Observer Pattern  510–516
+command objects
+encapsulating requests to do something  196
+mapping  201
+using  204
+Command Pattern
+command objects
+building  203
+encapsulating requests to do something  196
+mapping  201
+using  204
+defined  206–207
+dumb and smart command objects  228
+exercise matching description of   574, 596
+home automation remote control
+about  193
+building  203–205, 235
+class diagram  207
+creating commands to be loaded  208–209
+defining  206
+designing  195–196
+implementing  210–212
+macro commands  225, 226–228, 236
+mapping  201–202, 235
+Null Object in  214
+testing  204, 212–213, 227
+undo commands  217–221, 223–224, 228, 236
+vendor classes for  194
+writing documentation  215
+logging requests using  230
+mapping  201–202, 235
+Null Object  214
+queuing requests using  229
+understanding  197–200
+compareTo() method  303
+Complexity Hiding Proxy  483
+components of  object  267–271
+Composite Pattern
+combining patterns  507–509
+defined  360
+dessert submenu using
+about  357
+designing  363, 371
+implementing  364–367
+testing  368–370
+exercise matching description of   375, 379, 574, 596
+in Model-View-Controller  526–527, 543
+interview with  372–373
+on implementation issues  372–373
+safety vs. transparency  509
+transparency in  371
+tree structure of   360–362, 368
+composition
+adding behavior at runtime  85
+favoring over inheritance  23, 85
+inheritance vs.  93
+object adapters and  249
+compound patterns, using
+about  493–494
+Model-View-Controller
+about  520–521, 523–525
+Adapter Pattern  539
+Beat model  529, 549–552
+Composite Pattern  526–527, 543
+controllers per view  543
+Heart controller  541, 561
+Heart model  539, 558–560
+implementing controller  536–537, 556–557
+implementing DJ View  528–535, 553–556
+Mediator Pattern  543
+model in  543
+Observer Pattern  526–527, 531–533
+song  520–521
+state of  model  543
+Strategy Pattern  526–527, 536–537, 539, 558–560
+testing  538
+views accessing model state methods  543
+multiple patterns vs.  516
+concrete classes
+deriving from  143
+Factory Pattern and  134
+getting rid of   116
+
+620    Index
+the index
+instantiating objects and  138
+using new operator for instantiating  110–113
+variables holding reference to  143
+concrete creators  135
+concrete implementation object, assigning,  12
+concrete methods, as hooks  293–295
+concrete subclasses  121–122, 297
+Consequences section, in pattern catalog  571
+controlling object access, using Proxy Pattern
+about  426–428
+Caching Proxy  466, 482
+Complexity Hiding Proxy  483
+Copy-On-Write Proxy  483
+Firewall Proxy  482
+Protection Proxy
+about  469
+creating dynamic proxy  474–478
+implementing matchmaking service  471–472
+protecting subjects  473
+testing matchmaking service  479–480
+using dynamic proxy  469–470
+Remote Proxy
+about  429
+adding to monitoring code  432
+preparing for remote service  446–447
+registering with RMI registry  448
+reusing client for  449
+reviewing process  453–455
+role of   430–431
+testing  450–452
+wrapping objects and  468
+Smart Reference Proxy  482
+Synchronization Proxy  483
+Virtual Proxy
+about  457
+designing Virtual Proxy  459
+reviewing process  465
+testing  464
+writing Image Proxy  460–463
+Copy-On-Write Proxy  483
+create method
+replacing new operator with  116
+static method vs.  115
+using subclasses with  121–122
+creating static classes instead of  Singleton  179–180
+creational patterns category, Design Patterns  576, 
+578–579
+creator classes, in Factory Method Pattern  131–132, 
+134–135
+crossword puzzle  33, 74, 163, 187, 234, 273, 311, 374, 
+484
+Cunningham, Ward  589
+D
+Decorator Pattern
+about  88–90, 104
+Adapter Pattern vs.  254–255
+combining patterns  500–501
+defined  91
+disadvantages of   101
+exercises for  256, 275, 481, 574, 596
+in Java I/O  100–101
+in Structural patterns category  577
+interview with  104
+Proxy Pattern vs.  466–468
+Starbuzz Coffee project
+about  80–81
+adding sizes to code  99
+constructing drink orders  89–90
+drawing beverage order process  94, 107
+testing order code  98–99
+writing code  95–97
+decoupling, Iterator allowing  333, 337, 339, 351–352
+delegation, adding behavior at runtime  85
+dependence, in Observer Pattern  52
+Dependency Inversion Principle (DIP)  139–143, 300
+dependency rot  298
+depend upon abstractions design principle  139
+Design Patterns
+becoming writer of   573
+behavioral patterns category  576, 578–579
+categories of   576–579
+class patterns  577
+creational patterns category  576, 578–579
+defined  565–567
+discovering own  572
+exercise matching description of   596
+
+you are here 4        621
+the index
+frameworks vs.  29
+guide to better living with  564
+implement on interface in  117
+libraries vs.  29
+object patterns  577
+organizing  575
+overusing  584
+resources for  588–589
+rule of  three applied to  573
+structural patterns category  576, 578–579
+thinking in patterns  580–581
+using  29, 582, 584
+your mind on patterns  583
+Design Patterns- Reusable Object-Oriented Software 
+(Gamma et al.)  588
+design principles
+Dependency Inversion Principle  139–143
+depend upon abstractions  139
+Encapsulate what varies  9, 73, 75, 136, 393
+Favor composition over inheritance  23, 73, 75, 393
+The Hollywood Principle  298–300
+One Class, One Responsibility Principle  184, 340, 
+371
+one instance. See Singleton Pattern
+Open-Closed Principle  355, 392
+Principle of  Least Knowledge  267–271
+Program to an interface, not an implementation  
+11–12, 73, 75–76, 337
+Single Responsibility Principle (SRP)  340–341
+using Observer Pattern  73, 75
+Design Puzzles
+drawing class diagram making use of  view and controller  536, 548
+drawing parallel set of  classes  133, 165
+drawing state diagram  391, 420
+of  classes and interfaces  25, 34
+redesigning classes to remove redundancy  281, 
+278–283
+redesigning Image Proxy  463, 486
+dessert submenu, using Composite Pattern
+about  357
+designing  363, 371
+implementing  364–367
+testing  368–370
+diner menus, merging (Iterator Pattern)
+about  318–319
+adding Iterators  328–334
+cleaning up code using java.util.Iterator  335–337
+encapsulating Iterator  325–326
+implementing Iterators for  327
+implementing of   320–325
+DIP (Dependency Inversion Principle)  139–143, 300
+DJ View  528–535, 549–561
+Domain-Specific Patterns  590
+double-checked locking, reducing use of  synchronization 
+using  182
+Duck Magnets exercises, object and class object and class 
+adapters  247–248
+duck simulator, rebuilding
+about  495–497
+adding Abstract Factory Pattern  502–505, 548
+adding Adapter Pattern  498–499
+adding Composite Pattern  507–509
+adding Decorator Pattern  500–501
+adding Iterator Pattern  507
+adding Observer Pattern  510–516
+class diagram  518–519
+dumb command objects  228
+dynamic aspect of  dynamic proxies  480
+dynamic proxy  469–470, 474–478
+E
+Encapsulate what varies design principle  9, 73, 75, 136, 
+393
+encapsulating
+behavior  11
+code  22–23, 114–115, 136
+iteration  325–326
+method invocation  191, 206
+object construction  600
+requests  206
+encapsulating algorithms
+about  277
+abstracting prepareRecipe()  284–287
+Template Method Pattern and
+about  288–290
+AbstractList and  309
+code up close  292–293
+defined  291
+The Hollywood Principle and  298–300
+
+622    Index
+the index
+hooks in  293–295
+in real world  301
+sorting with  302–307
+Swing and  308
+testing code  296
+encapsulating subsystem, Facades  262
+Enumeration
+about  250
+adapting to Iterator  251
+java.util.Enumeration as older implementation of  
+Iterator  250, 342
+remove() method and  252
+writing Adapter that adapts Iterator to  253, 275
+exercises
+Be the JVM solution, dealing with multithreading  
+179–180, 188
+Code Magnets
+for DinerMenu Iterator  354, 378
+for Observer Pattern  70, 76
+dealing with multithreading  247–248
+Design Puzzles
+drawing class diagram making use of  view and 
+controller  536, 548
+drawing parallel set of  classes  133, 165
+drawing state diagram  391, 420
+of  classes and interfaces  25, 34
+redesigning classes to remove redundancy  281–
+282
+redesigning Image Proxy  463, 486
+Duck Magnets exercises, object and class object and 
+class adapters  247
+implementing Iterator  329
+implementing undo button for macro command  228, 
+236
+Sharpen Your Pencil
+altering decorator classes  99, 108
+annotating Gumball Machine states  405, 423
+annotating state diagram  396, 422
+building ingredient factory  148, 167
+changing classes for Decorator Pattern  512, 546
+changing code to fit framework in Iterator Pattern  
+347, 377
+choosing descriptions of  state of  implementation  
+392, 421
+class diagram for implementation of  prepareRecipe()  286, 314
+code not using factories  137, 166
+creating commands for off buttons  226, 236
+creating heat index  62
+determining classes violating Principle of  Least 
+Knowledge  270, 274
+drawing beverage order process  107
+fixing Chocolate Boiler code  183, 190
+identifying factors influencing design  84
+implementing garage door command  205, 235
+implementing state classes  402, 421
+making pizza store  124, 164
+matching patterns with categories  575–577
+method for refilling gumball machine  417, 424
+on adding behaviors  14
+on implementation of  printmenu()  324, 377
+on inheritance  5, 35
+sketching out classes  55
+things driving change  8, 35
+turning class into Singleton  176, 189
+weather station SWAG  42, 75
+writing Abstract Factory Pattern  505, 548
+writing classes for adapters  244, 274
+writing dynamic proxy  478, 487
+writing Flock observer code  514, 547
+writing methods for classes  83, 106
+Who Does What
+matching objects and methods to Command Pattern  202, 235
+matching patterns with its intent  256, 275
+matching pattern with description  300, 314, 375, 
+379, 418, 424, 481, 488, 574, 596
+writing Adapter that adapts Iterator to Enumeration  
+253, 275
+writing handler for matchmaking service  477, 486
+external iterators  342
+F
+Facade Pattern
+about  256
+Adapter Pattern vs.  262
+advantages  262
+
+you are here 4        623
+the index
+benefits of   262
+building home theater system
+about  257–259
+constructing Facade in  263
+implementing Facade class  260–262
+implementing interface  264
+class diagram  266
+Complexity Hiding Proxy vs.  483
+defined  266
+exercises for  256, 275, 375, 379, 481, 574, 596
+Principle of  Least Knowledge and  271
+factory method
+about  125, 134
+as abstract  135
+declaring  125–127
+Factory Method Pattern
+about  131–132
+about factory objects  114
+Abstract Factory Pattern and  158–161
+code up close  151
+concrete classes and  134
+creator classes  131–132
+declaring factory method  125–127
+defined  134
+Dependency Inversion Principle  139–143
+drawing parallel set of  classes  133, 165
+exercise matching description of   574, 596
+interview with  158–159
+looking at object dependencies  138
+product classes  131–132
+Simple Factory and  135
+Factory Pattern
+Abstract Factory
+about  153
+building ingredient factories  146–148, 167
+combining patterns  502–505, 548
+defined  156–157
+exercise matching description of   574, 596
+Factory Method Pattern and  158–160
+implementing  158
+exercise matching description of   300, 314
+Factory Method
+about  131–132
+advantages of   135
+code up close  151
+creator classes  131–132
+declaring factory method  125–127
+defined  134
+Dependency Inversion Principle  139–143
+drawing parallel set of  classes  133, 165
+exercise matching description of   574, 596
+looking at object dependencies  138
+product classes  131–132
+Simple Factory and  135
+Simple Factory
+about factory objects  114
+building factory  115
+defined  117
+Factory Method Pattern and  135
+pattern honorable mention  117
+using new operator for instantiating concrete 
+classes  110–113
+Favor composition over inheritance design principle  23, 
+73, 75, 393
+Fireside Chat
+Decorator Pattern vs. Adapter Pattern  254–255
+Strategy Pattern vs. State Pattern  414–415
+Firewall Proxy  482
+Flyweight Pattern  604–605
+forces  568
+for loop  344
+frameworks vs. libraries  29
+G
+Gamma, Erich  587–588
+Gang of  Four (GoF)  569, 587–588
+global access point  177
+global variables, Singleton vs.  184
+guide to better living with Design Patterns  564
+gumball machine controller implementation, using State 
+Pattern
+cleaning up code  413
+demonstration of   411–412
+diagram to code  384–385
+finishing  410
+one in ten contest
+about  390–391
+annotating state diagram  396, 422
+changing code  392–393
+
+624    Index
+the index
+drawing state diagram  391, 420
+implementing state classes  397, 400–405, 409
+new design  394–396
+reworking state classes  398–399
+refilling gumball machine  416–417
+SoldState and WinnerState in  412
+testing code  388–389
+writing code  386–387
+gumball machine monitoring, using Proxy Patterns
+about  426–428
+Remote Proxy
+about  429
+adding to monitoring code  432
+preparing for remote service  446–447
+registering with RMI registry  448
+reusing client for  449
+reviewing process  453–454
+role of   430–431
+testing  450–452
+wrapping objects and  468
+H
+HAS-A relationships  23, 91
+HashMap  348, 352, 353
+hasNext() method  328, 342, 344
+Head First learning principles  xxviii
+Helm, Richard  587–588
+high-level component classes  139
+The Hollywood Principle  298–300
+home automation remote control, using Command Pattern
+about  193
+building  203–205, 235
+class diagram  207
+creating commands to be loaded  208–209
+defining  206
+designing  195–196
+implementing  210–212
+macro commands
+about  225
+hard coding vs.  228
+undo button  228, 236
+using  226–227
+mapping  201–202, 235
+Null Object  214
+testing  204, 212–213, 227
+undo commands
+creating  217–219, 228
+implementing for macro command  236
+testing  220, 223–224
+using state to implement  221
+vendor classes for  194
+writing documentation  215
+home theater system, building
+about  257–259
+constructing Facade in  263
+implementing interface  264
+Sharpen Your Pencil  270
+using Facade Pattern  260–262
+hooks, in Template Method Pattern  293–295
+I
+Image Proxy, writing  460–463
+implementations  13, 17, 43
+Implementation section, in pattern catalog  571
+implement on interface, in design patterns  117
+import and package statements  128
+inheritance
+composition vs.  93
+disadvantages of   5, 85
+favoring composition over  23
+for maintenance  4
+for reuse  4, 13
+implementing multiple  246
+instance variables  82–83, 97–98
+instantiating  110–113, 138, 170–172
+integrating Café Menu, using Iterator Pattern  347
+Intent section, in pattern catalog  571
+interface  11–12, 110–113
+interface type  15, 18
+internal iterators  342
+Interpreter Pattern  606–607
+Interview With
+Composite Pattern  372–373
+Decorator Pattern  104
+
+you are here 4        625
+the index
+Factory Method Pattern and Abstract Factory Pattern  
+158–159
+Singleton Pattern  174
+inversion, in Dependency Inversion Principle  141
+invoker  201, 206–207, 209, 233
+IS-A relationships  23
+Iterable interface  343
+Iterator Pattern
+about  327
+class diagram  339
+code up close using HashMap  348
+code violating Open-Closed Principle  355–356
+Collections and  353
+combining patterns  507
+defined  338–339
+exercise matching description of   375, 379, 574, 596
+integrating Café Menu  347
+java.util.Iterator  334
+merging diner menus
+about  318–319
+adding Iterators  328–334
+cleaning up code using java.util.Iterator  335–337
+encapsulating Iterator  325–326
+implementing Iterators for  327
+implementing of   320–325
+removing objects  334
+Single Responsibility Principle (SRP)  340–341
+Iterators
+adding  328–334
+allowing decoupling  333, 337, 339, 351–352
+cleaning up code using java.util.Iterator  335–337
+Collections and  353
+encapsulating  325–326
+Enumeration adapting to  251, 342
+external  342
+HashMap and  353
+implementing  327
+internal  342
+ordering of   342
+polymorphic code using  338, 342
+using ListItterator  342
+writing Adapter for Enumeration  252–253
+writing Adapter that adapts to Enumeration  253, 275
+J
+JavaBeans library  65
+Java Collections Framework  353
+Java decorators (java.io packages)  100–103
+Java Development Kit (JDK)  65
+Java Iterable interface  343
+java.lang.reflect package, proxy support in  440, 469, 476
+java.util.Collection  353
+java.util.Enumeration, as older implementation of  Iterator  
+250, 342
+java.util.Iterator
+cleaning up code using  335–337
+interface of   334
+using  342
+Java Virtual Machines (JVMs)  182, 432
+JButton class  65
+JFrames, Swing  308
+Johnson, Ralph  587–588
+K
+Keep It Simple (KISS), in designing patterns  580
+Known Uses section, in pattern catalog  571
+L
+lambda expressions  67
+Law of  Demeter. See Principle of  Least Knowledge
+lazy instantiation  177
+leaves, in Composite Pattern tree structure  360–362, 368
+libraries  29
+LinkedList  352
+ListItterator  342
+logging requests, using Command Pattern  230
+looping through array items  323
+Loose Coupling Principle  54
+
+626    Index
+the index
+M
+macro commands
+about  225
+macro commands  228, 236
+using  226–227
+maintenance, inheritance for,  4
+matchmaking service, using Proxy Pattern
+about  470
+creating dynamic proxy  474–478
+implementing  471–472
+protecting subjects  473
+testing  479–480
+Mediator Pattern  543, 608–609
+Memento Pattern  610–611
+merging diner menus (Iterator Pattern)
+about  318–319
+adding Iterators  328–334
+cleaning up code using java.util.Iterator  335–337
+encapsulating Iterator  325–326
+implementing Iterators for  327
+implementing of   320–325
+method of  objects, components of  object vs.  267–271
+methods  143, 293–295
+modeling state  384–385
+Model-View-Controller (MVC)
+about  520–521, 523–525
+Adapter Pattern  540
+Beat model  529, 549–552
+Composite Pattern  526–527, 543
+controllers per view  543
+Heart controller  541, 561
+Heart model  539
+implementing controller  536–537, 556–557
+implementing DJ View  528–535, 553–556
+Mediator Pattern  543
+model in  543
+Observer Pattern  526–527, 531–533
+song  520–521
+state of  model  543
+Strategy Pattern  526–527, 536–537, 539, 558–560
+testing  538
+views accessing model state methods  543
+Motivation section, in pattern catalog  571
+multiple patterns, using
+about  493–494
+in duck simulator
+about rebuilding  495–497
+adding Abstract Factory Pattern  502–505, 548
+adding Adapter Pattern  498–499
+adding Composite Pattern  507–509
+adding Decorator Pattern  500–501
+adding Iterator Pattern  507
+adding Observer Pattern  510–516
+class diagram  518–519
+multithreading  181–182, 188
+N
+Name section, in pattern catalog  571
+new operator
+related to Singleton Pattern  171–172
+replacing with concrete method  116
+next() method  328, 342, 344
+NoCommand, in remote control code  214
+nodes, in Composite Pattern tree structure  360–362, 368
+Null Objects  214
+O
+object access, using Proxy Pattern for controlling
+about  426–428
+Caching Proxy  466, 482
+Complexity Hiding Proxy  483
+Copy-On-Write Proxy  483
+Firewall Proxy  482
+Protection Proxy
+about  469
+creating dynamic proxy  474–478
+implementing matchmaking service  471–472
+protecting subjects  473
+testing matchmaking service  479–480
+using dynamic proxy  469–470
+Remote Proxy
+about  429
+adding to monitoring code  432
+preparing for remote service  446–447
+registering with RMI registry  448
+
+you are here 4        627
+the index
+reusing client for  449
+reviewing process  453–454
+role of   430–431
+testing  450–452
+wrapping objects and  468
+Smart Reference Proxy  482
+Synchronization Proxy  483
+Virtual Proxy
+about  457
+designing Virtual Proxy  459
+reviewing process  465
+testing  464
+writing Image Proxy  460–463
+object adapters vs. class adapters  246–249
+object construction, encapsulating  600
+object creation, encapsulating  114–115, 136
+Object-Oriented (OO) design. See also design principles
+adapters
+about  238–239
+creating Two Way Adapters  244
+in action  240–241, 242
+object and class object and class  246–249
+design patterns vs.  30–31
+extensibility and modification os code in  87
+guidelines for avoiding violation of  Dependency Inversion Principle  143
+loosely coupled designs and  54
+object patterns, Design Patterns  577
+objects
+components of   267–271
+creating  134
+loosely coupled designs between  54
+sharing state  408
+Singleton  171, 174
+wrapping  88, 244, 254, 262, 502
+Observer Pattern
+about  37, 44
+class patterns category  574
+combining patterns  510–516
+comparison to Publish-Subscribe  45
+dependence in  52
+examples of   65
+exercise matching description of   375, 379, 596
+in Five-minute drama  48–50
+in Model-View-Controller  526–527, 531–533
+loose coupling in  54
+Observer object in  45
+one-to-many relationships  51–52
+process  46–47
+Subject object in  45
+weather station using
+building display elements  60
+designing  57
+implementing  58
+powering up  61
+SWAG  42
+observers
+in class diagram  52
+in Five-minute drama  48–50
+in Observer Pattern  45
+OCP (Open-Closed Principle)  355, 392
+One Class, One Responsibility Principle. See Single Responsibility Principle (SRP)
+one in ten contest in gumball machine, using State Pattern
+about  390–391
+annotating state diagram  396, 422
+changing code  392–393
+drawing state diagram  391, 420
+implementing state classes  397, 400–405, 409
+new design  394–396
+reworking state classes  398–399
+OO (Object-Oriented) design. See Object-Oriented (OO) 
+design
+Open-Closed Principle (OCP)  355, 392
+Organizational Patterns  591
+overusing Design Patterns  584
+P
+package and import statements  128
+Participants section, in pattern catalog  571
+part-whole hierarchy  360
+pattern catalogs  567, 569–572
+Pattern Death Match pages  493
+A Pattern Language (Alexander)  588
+patterns, using compound  493–494
+
+628    Index
+the index
+patterns, using multiple
+about  493
+in duck simulator
+about rebuilding  495–497
+adding Abstract Factory Pattern  502–505, 548
+adding Adapter Pattern  498–499
+adding Composite Pattern  507–509
+adding Decorator Pattern  500–501
+adding Iterator Pattern  507
+adding Observer Pattern  510–516
+class diagram  518–519
+pattern templates, uses of   573
+Pizza Store project, using Factory Pattern
+Abstract Factory in  153, 156–157
+behind the scenes  154–155
+building factory  115
+concrete subclasses in  121–122
+drawing parallel set of  classes  133, 165
+encapsulating object creation  114–115
+ensuring consistency in ingredients  144–148, 167
+framework for  120
+franchising store  118–119
+identifying aspects in  112–113
+implementing  142
+making pizza store in  123–124
+ordering pizza  128–132
+referencing local ingredient factories  152
+reworking pizzas  149–151
+polymorphic code, using on iterator  338, 342
+polymorphism  12
+prepareRecipe(), abstracting  284–287
+Principle of  Least Knowledge  267–271. See also Single 
+Responsibility Principle (SRP)
+print() method, in dessert submenu using Composite Pattern  364–367
+programming  12
+Program to an interface, not an implementation design 
+principle  11–12, 73, 75–76, 337
+program to interface vs. program to supertype  12
+Protection Proxy
+about  469
+creating dynamic proxy  474–478
+implementing matchmaking service  471–472
+protecting subjects  473
+Proxy Pattern and  466
+testing matchmaking service  479–480
+using dynamic proxy  469–470
+Prototype Pattern  612–613
+proxies  425
+Proxy class, identifying class as  480
+Proxy Pattern
+Adapter Pattern vs.  466
+Complexity Hiding Proxy  483
+Copy-On-Write Proxy  483
+Decorator Pattern vs.  466–468
+defined  455–456
+dynamic aspect of  dynamic proxies  480
+exercise matching description of   481, 574, 596
+Firewall Proxy  482
+implementation of  Remote Proxy
+about  429
+adding to monitoring code  432
+preparing for remote service  446–447
+registering with RMI registry  448
+reusing client for  449
+reviewing process  453–454
+role of   430–431
+testing  450–452
+wrapping objects and  468
+java.lang.reflect package  440, 469, 476
+Protection Proxy and
+about  469
+Adapters and  466
+creating dynamic proxy  474–478
+implementing matchmaking service  471–472
+protecting subjects  473
+testing matchmaking service  479–480
+using dynamic proxy  469–470
+Real Subject
+as surrogate of   466
+invoking method on  475
+making client use Proxy instead of   466
+passing in constructor  476
+returning proxy for  478
+restrictions on passing types of  interfaces  480
+Smart Reference Proxy  482
+Synchronization Proxy  483
+variations  466, 482–483
+
+you are here 4        629
+the index
+Virtual Proxy
+about  457
+Caching Proxy as form of   466, 482
+designing  459
+reviewing process  465
+testing  464
+writing Image Proxy  460–463
+Publish-Subscribe, as Observer Pattern  45
+Q
+queuing requests, using Command Pattern  229
+R
+Real Subject
+as surrogate of  Proxy Pattern  466
+invoking method on  475
+making client use proxy instead of   466
+passing in constructor  476
+returning proxy for  478
+refactoring  358, 581
+Related patterns section, in pattern catalog  571
+relationships, between classes  22
+Remote Method Invocation (RMI)
+about  432–433, 436
+code up close  442
+completing code for server side  441–444
+importing java.rmi  446
+importing packages  447, 449
+making remote service  437–441
+method call in  434–435
+registering with RMI registry  448
+things to watch out for in  444
+Remote Proxy
+about  429
+adding to monitoring code  432
+preparing for remote service  446–447
+registering with RMI registry  448
+reusing client for  449
+reviewing process  453–454
+role of   430–431
+testing  450–452
+wrapping objects and  468
+remove() method
+Enumeration and  252
+in collection of  objects  334
+in java.util.Iterator  342
+requests, encapsulating  206
+resources, Design Patterns  588–589
+reuse  4, 85
+rule of  three, applied to inventing Design Patterns  573
+runtime errors, causes of   135
+S
+Sample code section, in pattern catalog  571
+server heap  433–436
+service helper (skeletons), in RMI  436–437, 440, 442–
+444, 453–454
+shared vocabulary  26–27, 28, 585–586
+Sharpen Your Pencil
+altering decorator classes  99, 108
+annotating Gumball Machine States  405, 423
+annotating state diagram  396, 422
+building ingredient factory  148, 167
+changing classes for Decorator Pattern  512, 546
+changing code to fit framework in Iterator Pattern  
+347, 377
+choosing descriptions of  state of  implementation  392, 
+421
+class diagram for implementation of  prepareRecipe()  
+286, 314
+code not using factories  137, 166
+creating commands for off  buttons  226, 236
+creating heat index  62
+determining classes violating Principle of  Least 
+Knowledge  270, 274
+drawing beverage order process  107
+fixing Chocolate Boiler code  183, 190
+identifying factors influencing design  84
+implementing garage door command  205, 235
+implementing state classes  402, 421
+making pizza store  124, 164
+matching patterns with categories  575–577
+method for refilling gumball machine  417, 424
+on adding behaviors  14
+on implementation of  printmenu()  324, 377
+
+630    Index
+the index
+on inheritance  5, 35
+sketching out classes  55
+things driving change  8, 35
+turning class into Singleton  176, 189
+weather station SWAG  42, 75
+writing Abstract Factory Pattern  505, 548
+writing classes for adapters  244, 274
+writing dynamic proxy  478, 487
+writing Flock observer code  514, 547
+writing methods for classes  83, 106
+Simple Factory Pattern
+about factory objects  114
+building factory  115
+definition of   117
+Factory Method Pattern and  135
+pattern honorable mention  117
+using new operator for instantiating concrete classes  
+110–113
+Single Responsibility Principle (SRP)  184, 340–341, 371
+Singleton objects  171, 174
+Singleton Pattern
+about  169–172
+advantages of   170
+Chocolate Factory  175–176, 183
+class diagram  177
+code up close  173
+dealing with multithreading  179–182, 188
+defined  177
+disadvantages of   184
+double-checked locking  182
+exercise matching description of   574
+global variables vs.  184
+implementing  173
+interview with  174
+One Class, One Responsibility Principle and  184
+subclasses in  184
+using  184
+skeletons (service helper), in RMI  436–437, 440, 442–
+444, 453–454
+smart command objects  228
+Smart Reference Proxy  482
+software development, change as a constant in  8
+sorting methods, in Template Method Pattern  302–307
+sort() method  306–311
+spliterator method  343
+SRP (Single Responsibility Principle)  184, 340–341, 371
+Starbuzz Coffee Barista training manual project
+about  278–283
+abstracting prepareRecipe()  284–287
+using Template Method Pattern
+about  288–290
+code up close  292–293
+defined  291
+The Hollywood Principle and  298–300
+hooks in  293–295
+testing code  296
+Starbuzz Coffee project, using Decorator Pattern
+about  80–81
+adding sizes to code  99
+constructing drink orders  89–90
+drawing beverage order process  94, 107
+testing order code  98–99
+writing code  95–97
+state machines  384–385
+State Pattern
+defined  406
+exercise matching description of   418, 424, 574, 596
+gumball machine controller implementation
+cleaning up code  413
+demonstration of   411–412
+diagram to code  384–385
+finishing  410
+refilling gumball machine  416–417
+SoldState and WinnerState in  412
+testing code  388–389
+writing code  386–387
+increasing number of  classes in design  408
+modeling state  384–385
+one in ten contest in gumball machine
+about  390–391
+annotating state diagram  396, 422
+changing code  392–393
+drawing state diagram  391, 420
+implementing state classes  397, 400–405, 409
+new design  394–396
+reworking state classes  398–399
+sharing state objects  408
+state transitions in state classes  408
+Strategy Pattern vs.  381, 407, 414–415
+state transitions, in state classes  408
+
+you are here 4        631
+the index
+state, using to implement undo commands  221
+static classes, using instead of  Singletons  184
+static method vs. create method  115
+Strategy Pattern
+algorithms and  24
+defined  24
+exercise matching description of   300, 314, 375, 379, 
+418, 424, 574, 596
+in Model-View-Controller  526–527, 536–537, 539
+State Pattern vs.  381, 407, 414–415
+Template Method Pattern and  307
+strive for loosely coupled designs between objects that interact design principle  54. See also Loose Coupling 
+Principle
+structural patterns category, Design Patterns  576, 
+578–579
+Structure section, in pattern catalog  571
+stubs (client helper), in RMI  436–437, 440, 442–444, 
+453–454
+subclasses
+concrete commands and  207
+concrete states and  406
+explosion of  classes  81
+Factory Method and, letting subclasses decide which 
+class to instantiate  134
+in Singletons  184
+Pizza Store concrete  121–122
+Template Method  288
+troubleshooting  4
+Subject
+in class diagram  52
+in Five-minute drama  48–50
+in Observer Pattern  45–47
+subsystems, Facades and  262
+superclasses  4, 12
+supertype (programming to interface), vs. programming to 
+interface  12
+Swing library  65, 308, 543
+synchronization, as overhead  180
+Synchronization Proxy  483
+T
+Template Method Pattern
+about  288–290
+abstract class in  292, 293, 297
+applets in  309
+class diagram  291
+code up close  292–293
+defined  291
+exercise matching description of   300, 314, 418, 424, 
+574, 596
+The Hollywood Principle and  298–300
+hooks in  293–295, 297
+in real world  301
+sorting with  302–307
+Strategy Pattern and  307
+Swing and  308
+testing code  296
+thinking in patterns  580–581
+tightly coupled  54
+The Timeless Way of  Building (Alexander)  588
+transparency, in Composite Pattern  371
+tree structure, Composite Pattern  360–362, 368
+Two Way Adapters, creating  244
+type safe parameters  135
+U
+undo commands
+creating  217–219, 228
+implementing for macro command  228
+support of   217
+testing  220, 223–224
+using state to implement  221
+User Interface Design Patterns  591
+V
+variables
+declaring behavior  15
+holding reference to concrete class  143
+instance  82–83, 97–98
+
+632    Index
+the index
+Vector  352
+Virtual Proxy
+about  457
+Caching Proxy as form of   466, 482
+designing  459
+reviewing process  465
+testing  464
+writing Image Proxy  460–463
+Visitor Pattern  614–615
+Vlissides, John  587–588
+volatile keyword  182
+W
+weather station
+building display elements  60
+designing  57
+implementing  58
+powering up  61
+Who Does What exercises
+matching objects and methods to Command Pattern  
+202, 235
+matching patterns with its intent  256, 275
+matching pattern with description  300, 314, 375, 379, 
+418, 424, 481, 488, 574, 596
+whole-part relationships, collection of  objects using  372
+Wickedlysmart website  xxxiii
+wrapping objects  88, 244, 254, 262, 468, 502
+Y
+your mind on patterns design pattern  583
+
+Don’t know about the website? 
+We’ve got updates, video, 
+projects, author blogs, and more!
+Bring your brain over to 
+wickedlysmart.com
+
+There’s much more  
+where this came from.
+Experience books, videos, live online  
+training courses, and more from O’Reilly  
+and our 200+ partners—all in one place.
+Learn more at oreilly.com/online-learning
+©2019 O’Reilly Media, Inc. O’Reilly is a registered trademark of O’Reilly Media, Inc. | 175

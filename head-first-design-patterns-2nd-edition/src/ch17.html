@@ -1,0 +1,87 @@
+<section class="chapter" id="ch17" data-ch="17" data-title="Các Mẫu Thiết Kế Phối Hợp & Mẫu Hợp Nhất MVC">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 17</p>
+    <h1>Compound Patterns: When Patterns Work Together and MVC <span class="vi">Các Mẫu Thiết Kế Phối Hợp & Mẫu Hợp Nhất MVC</span></h1>
+    <p class="lede">Khám phá cách kết hợp nhiều mẫu thiết kế hướng đối tượng để giải quyết các bài toán phức tạp và mổ xẻ mẫu hợp nhất kinh điển Model-View-Controller.</p>
+    <div class="chapter-meta">
+      <span class="pill">2 bài học lý thuyết</span>
+      <span class="pill">2 sơ đồ tư duy tương tác</span>
+      <span class="pill">2 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch17-t1" data-num="17.1" data-short="Phối hợp các mẫu thiết kế">
+    <div class="topic-theory-card">
+      <p class="eyebrow">KIẾN TRÚC & MÔ PHỎNG</p>
+      <h2>Nghệ thuật kết hợp các Pattern trong lập trình hướng đối tượng</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Học cách kết hợp Adapter, Decorator, Factory, Composite, Iterator và Observer trong một hệ thống duy nhất.</p></div>
+      <div class="prose">
+        <p>Trong phát triển phần mềm doanh nghiệp, các <dfn data-term="Design Patterns"><strong>Mẫu thiết kế</strong></dfn> hiếm khi hoạt động đơn độc. Khi hệ thống phình to, việc kết hợp khéo léo nhiều mẫu sẽ giúp giải quyết các bài toán phức tạp mà không phá vỡ nguyên lý đóng gói.</p><p>Các phương án tiếp cận khi quản lý cấu trúc phức tạp trong hệ thống:</p><ul><li><strong>Adapter Pattern:</strong> Giúp tích hợp các lớp có giao diện không tương thích mà không phải sửa đổi mã nguồn gốc.</li><li><strong>Decorator Pattern:</strong> Bổ sung hành vi động cho đối tượng bằng cách bọc chúng trong các lớp wrapper chuyên biệt.</li><li><strong>Composite Pattern:</strong> Tổ chức cấu trúc phân cấp dạng cây, cho phép xử lý đồng nhất đối tượng đơn lẻ và tập hợp.</li></ul><p>Tuy nhiên, kỹ sư cần tỉnh táo đánh giá trade-offs để tránh sa đà vào việc lạm dụng pattern gây rối rắm mã nguồn (over-engineering).</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại hệ thống thanh toán MoMo / ZaloPay</b>
+        <p>Khi xử lý hàng triệu giao dịch đối soát thời gian thực, các kỹ sư backend tại MoMo kết hợp Observer Pattern để bắn sự kiện biến động số dư và Factory Pattern để khởi tạo các cổng thanh toán khác nhau (Visa, Napas, QR Code) một cách trơn tru.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch17-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô phỏng luồng phối hợp các Pattern trong SimUDuck</strong>
+        <small>Tương tác với bộ điều khiển để quan sát cách các pattern bọc lót và xử lý hành vi quác của đàn vịt.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+
+<article class="topic" id="ch17-t2" data-num="17.2" data-short="Mẫu hợp nhất MVC">
+    <div class="topic-theory-card">
+      <p class="eyebrow">KIẾN TRÚC HỆ THỐNG</p>
+      <h2>Model-View-Controller: Vua của các Mẫu hợp nhất</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Mổ xẻ kiến trúc MVC kinh điển kết hợp Observer, Strategy và Composite để phân rã ứng dụng thành 3 tầng độc lập.</p></div>
+      <div class="prose">
+        <p>Kiến trúc <dfn data-term="Model-View-Controller"><strong>Model-View-Controller (MVC)</strong></dfn> là mẫu hợp nhất nổi tiếng nhất trong lịch sử phát triển phần mềm, được áp dụng rộng rãi từ desktop đến các hệ thống web quy mô lớn.</p><p>Sự phân rã chức năng cốt lõi trong mô hình MVC:</p><ul><li><strong>Model:</strong> Chứa logic nghiệp vụ, trạng thái dữ liệu và các quy tắc miền bài toán độc lập tuyệt đối với giao diện.</li><li><strong>View:</strong> Chịu trách nhiệm hiển thị dữ liệu ra màn hình, cập nhật trực quan thông qua cơ chế Observer lắng nghe Model.</li><li><strong>Controller:</strong> Đóng vai trò trung gian tiếp nhận HTTP Request từ người dùng, điều phối gọi Model và trả về View thích hợp.</li></ul><p>Việc duy trì ranh giới rõ ràng giữa ba tầng này giúp đội ngũ kỹ thuật dễ dàng viết Unit Test cho Model và thay đổi giao diện View mà không ảnh hưởng tới tầng xử lý trung tâm.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Ứng dụng MVC tại các sàn thương mại điện tử Tiki / Shopee</b>
+        <p>Khi người dùng bấm nút 'Mua Ngay', Controller tiếp nhận yêu cầu, gọi Model để trừ tồn kho và tính toán giảm giá, sau đó cập nhật trạng thái hiển thị trên View của ứng dụng di động qua WebSocket thời gian thực.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch17-w2">
+      <figcaption>
+        <span class="lab-tag">🔌 Kiến trúc & Luồng Dữ liệu</span>
+        <strong>Mô phỏng luồng dữ liệu trong kiến trúc MVC chịu tải cao</strong>
+        <small>Quan sát cách Controller điều phối luồng dữ liệu giữa View và Model khi số lượng request đồng thời tăng cao.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch17-review" data-num="17.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 17</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Trong kiến trúc phần mềm chịu tải cao, các mẫu thiết kế (Design Patterns) hiếm khi đứng độc lập mà thường được phối hợp nhịp nhàng trong cùng một hệ thống để giải quyết các bài toán tổng quát. Chương này bóc tách cơ chế xây dựng một <dfn data-term="Compound Pattern"><strong>Mẫu hợp nhất</strong></dfn> thông qua việc kết hợp Adapter, Decorator, Abstract Factory, Composite, Iterator, và Observer. Bằng cách tái cấu trúc mô phỏng chú vịt (SimUDuck), kỹ sư lập trình thấy rõ cách đóng gói hành vi, quản lý tập hợp đối tượng và phát tán thông điệp bất đồng bộ. Cuối cùng, hệ thống mô hình hóa mẫu hợp nhất <dfn data-term="Model-View-Controller"><strong>Model-View-Controller (MVC)</strong></dfn> giúp tách bạch rõ ràng giữa miền dữ liệu (Model), tầng giao diện (View) và tầng điều phối (Controller), đảm bảo tính tái sử dụng và khả năng mở rộng tối đa cho ứng dụng doanh nghiệp quy mô lớn.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="0">
+        <p><strong>Câu 1:</strong> Compound Pattern khác gì so với việc sử dụng ngẫu nhiên nhiều pattern trong cùng một dự án?</p>
+        <ol><li>Compound Pattern là giải pháp tổng quát kết hợp các pattern để giải quyết một bài toán lặp đi lặp lại trong thực tế.</li><li>Compound Pattern chỉ áp dụng riêng cho các hệ thống phần mềm nhúng.</li><li>Compound Pattern bắt buộc phải viết bằng ngôn ngữ C++.</li><li>Compound Pattern không bao giờ sử dụng Observer Pattern.</li></ol>
+        <p class="explain">Compound pattern định nghĩa một cấu trúc tổng quát gồm nhiều pattern phối hợp chặt chẽ để giải quyết một lớp bài toán tái diễn, không phải là việc ghép nối tùy tiện.</p>
+      </div>
+
+      <div class="q" data-answer="2">
+        <p><strong>Câu 2:</strong> Trong mô hình MVC, thành phần nào chịu trách nhiệm trực tiếp lắng nghe sự thay đổi trạng thái của Model để cập nhật giao diện?</p>
+        <ol><li>Controller</li><li>Database</li><li>View (thông qua cơ chế Observer)</li><li>Router</li></ol>
+        <p class="explain">View đóng vai trò là Observer đăng ký lắng nghe Model, khi dữ liệu trong Model thay đổi, View sẽ nhận được thông báo để render lại giao diện.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

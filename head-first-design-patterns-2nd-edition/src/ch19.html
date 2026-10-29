@@ -1,0 +1,56 @@
+<section class="chapter" id="ch19" data-ch="19" data-title="Các Mẫu Thiết Kế Ít Phổ Biến: Bridge, Builder, Chain of Responsibility, Flyweight, Interpreter, Mediator, Memento, Prototype, Visitor">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 19</p>
+    <h1>Appendix: Leftover Patterns (Head First Design Patterns) <span class="vi">Các Mẫu Thiết Kế Ít Phổ Biến: Bridge, Builder, Chain of Responsibility, Flyweight, Interpreter, Mediator, Memento, Prototype, Visitor</span></h1>
+    <p class="lede">Khám phá các mẫu thiết kế GoF ít phổ biến nhưng cực kỳ mạnh mẽ khi giải quyết các bài toán kiến trúc phân tán và hệ thống chịu tải cao.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">1 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch19-t1" data-num="19.1" data-short="Bridge & Flyweight">
+    <div class="topic-theory-card">
+      <p class="eyebrow">KIẾN TRÚC HẠ TẦNG</p>
+      <h2>Tối ưu hóa phân cấp và tiết kiệm bộ nhớ với Bridge & Flyweight</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Tách rời abstraction khỏi implementation và chia sẻ trạng thái để tiết kiệm RAM.</p></div>
+      <div class="prose">
+        <p>Trong các hệ thống <dfn data-term="High-Throughput Systems"><strong>High-Throughput Systems</strong></dfn> chịu tải hàng triệu request mỗi giây, việc bùng nổ số lượng đối tượng trên <dfn data-term="Client Heap"><strong>Client Heap</strong></dfn> dẫn đến hiện tượng Garbage Collection (GC) pause kéo dài. Mẫu <dfn data-term="Flyweight Pattern"><strong>Flyweight</strong></dfn> giải quyết triệt để vấn đề này bằng cách chia sẻ các instance thuần túy, tách biệt hoàn toàn trạng thái thay đổi ra khỏi đối tượng cốt lõi.</p><p>Các phương án tối ưu hóa bộ nhớ và phân cấp thường được áp dụng trong các hệ thống lớn:</p><ul><li><strong>Flyweight Pattern:</strong> Tập trung tối ưu hóa RAM bằng cách chia sẻ instance chung, giảm thiểu áp lực cho Garbage Collector.</li><li><strong>Bridge Pattern:</strong> Tách biệt tầng giao diện khỏi tầng thực thi phần cứng, cho phép mở rộng độc lập hai chiều mà không gây phình to mã nguồn.</li><li><strong>Object Adapters:</strong> Kết hợp tính năng ủy quyền (composition) để chuyển đổi giao diện linh hoạt tại runtime.</li></ul><p>Khi thiết kế các engine render đồ họa hoặc hệ thống xử lý game state thời gian thực, việc áp dụng đúng cặp bài trùng Bridge và Flyweight giúp hệ thống duy trì độ trễ thấp ở mức <dfn data-term="Latency P99"><strong>Latency P99</strong></dfn> ổn định.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại VNG Zing / Zalo</b>
+        <p>Hệ thống hàng triệu kết nối WebSocket đồng thời duy trì trạng thái phiên của người dùng bằng cách áp dụng triết lý Flyweight để tái sử dụng các đối tượng context kết nối, tránh việc cấp phát ô nhớ mới liên tục gây tràn Heap.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch19-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô phỏng bộ nhớ Heap và cơ chế Flyweight</strong>
+        <small>Điều chỉnh số lượng đối tượng ảo để quan sát mức tiêu thụ RAM và hiện tượng Garbage Collection.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch19-review" data-num="19.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 19</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Trong cuốn sách Head First Design Patterns, phụ lục này tổng hợp các mẫu thiết kế GoF chính thống nhưng ít được nhắc tới hàng ngày. Trong bối cảnh hệ thống phân tán, xử lý tải cao và kiến trúc microservices hiện đại, các mẫu như <dfn data-term="Bridge Pattern"><strong>Bridge</strong></dfn>, <dfn data-term="Builder Pattern"><strong>Builder</strong></dfn>, <dfn data-term="Flyweight Pattern"><strong>Flyweight</strong></dfn>, hay <dfn data-term="Chain of Responsibility"><strong>Chain of Responsibility</strong></dfn> lại đóng vai trò cốt lõi trong việc tối ưu hóa bộ nhớ, tách biệt tầng giao tiếp và giảm độ phức tạp cho mã nguồn.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Mẫu thiết kế nào sau đây giúp giải quyết bài toán giảm số lượng instance trong bộ nhớ bằng cách chia sẻ các đối tượng có trạng thái chung?</p>
+        <ol><li>Bridge Pattern</li><li>Flyweight Pattern</li><li>Builder Pattern</li><li>Mediator Pattern</li></ol>
+        <p class="explain">Flyweight Pattern được thiết kế chuyên biệt để chia sẻ instance nhằm tiết kiệm bộ nhớ khi ứng dụng phải quản lý số lượng lớn đối tượng tương tự nhau.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

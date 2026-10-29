@@ -1,0 +1,56 @@
+<section class="chapter" id="ch15" data-ch="15" data-title="Mẫu Thiết Kế State Pattern: Quản Lý Trạng Thái Động Trong Hệ Thống">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 15</p>
+    <h1>The State Pattern: Encapsulating State-Based Behavior <span class="vi">Mẫu Thiết Kế State Pattern: Quản Lý Trạng Thái Động Trong Hệ Thống</span></h1>
+    <p class="lede">Làm chủ State Pattern để loại bỏ các khối lệnh điều kiện phức tạp (if-else/switch-case) và tách biệt hành vi theo từng trạng thái đối tượng.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">1 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch15-t1" data-num="15.1" data-short="Cấu trúc State Pattern">
+    <div class="topic-theory-card">
+      <p class="eyebrow">NGUYÊN LÝ CỐT LÕI</p>
+      <h2>Tách biệt hành vi và trạng thái thông qua ủy quyền (Delegation)</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Thay thế các câu lệnh điều kiện phức tạp bằng các đối tượng trạng thái chuyên biệt.</p></div>
+      <div class="prose">
+        <p>Khi xây dựng các hệ thống chịu tải cao xử lý luồng nghiệp vụ phức tạp, việc lạm dụng các câu lệnh kiểm tra trạng thái thủ công sẽ dẫn đến mã nguồn spaghetti khó bảo trì. <dfn data-term="Context Object"><strong>Context Object</strong></dfn> đóng vai trò là điểm neo giữ trạng thái hiện tại, nhưng toàn bộ hành vi thực thi sẽ được đẩy xuống các lớp trạng thái cụ thể thông qua cơ chế ủy quyền.</p><p>Các trường phái thiết kế trạng thái trong kiến trúc phần mềm hiện đại:</p><ul><li><strong>Object-Oriented State Classes:</strong> Đại diện mỗi trạng thái bằng một lớp riêng biệt, tối ưu cho việc tuân thủ nguyên tắc đóng mở (OCP).</li><li><strong>Procedural State Machine:</strong> Dùng bảng chuyển đổi trạng thái hoặc khối điều kiện lớn, phù hợp với hệ thống nhúng nhưng kém linh hoạt khi mở rộng tính năng.</li></ul><p>Hãy áp dụng mô hình này khi đối tượng của bạn phải thay đổi hành vi liên tục tùy thuộc vào lịch sử giao dịch hoặc các mốc thời gian xử lý.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại hệ thống thương mại điện tử Việt Nam</b>
+        <p>Trong các chiến dịch siêu sale 11.11 tại Shopee hay Lazada, trạng thái đơn hàng (Đã đặt, Đang đóng gói, Đang giao, Đã giao, Đổi trả) được phân rã thành các State riêng biệt để xử lý hàng triệu request cập nhật đồng thời từ các kho hàng mà không gây tranh chấp dữ liệu.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch15-w1">
+      <figcaption>
+        <span class="lab-tag">🔄 Vòng đời & Máy Trạng thái</span>
+        <strong>Mô phỏng luồng chuyển đổi trạng thái của GumballMachine</strong>
+        <small>Tương tác với các hành động chèn xu, quay tay cầm và nạp lại để quan sát sự thay đổi trạng thái và phản hồi.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch15-review" data-num="15.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 15</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Trong kiến trúc phần mềm chịu tải cao, việc các đối tượng thay đổi hành vi dựa trên trạng thái nội tại là bài toán kinh điển. Thay vì dùng cấu trúc rẽ nhánh dày đặc vi phạm nguyên tắc đóng mở, <dfn data-term="State Pattern"><strong>State Pattern</strong></dfn> cho phép một đối tượng thay đổi hành vi khi trạng thái nội bộ của nó thay đổi bằng cách ủy quyền cho các đối tượng trạng thái độc lập. Chương này mổ xẻ việc xây dựng máy trạng thái cho cỗ máy kẹo gumball, chuyển đổi từng trạng thái thành các lớp riêng biệt thực thi chung một giao diện, qua đó giảm thiểu tối đa sự phụ thuộc cứng nhắc và cô lập hoàn toàn các điểm thay đổi cấu trúc.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="0">
+        <p><strong>Câu 1:</strong> Điểm khác biệt cốt lõi giữa State Pattern và Strategy Pattern là gì?</p>
+        <ol><li>State Pattern cho phép thay đổi hành vi dựa trên trạng thái nội tại, còn Strategy Pattern chọn thuật toán cấu hình từ bên ngoài.</li><li>State Pattern không sử dụng giao diện chung, còn Strategy Pattern bắt buộc phải có.</li><li>Strategy Pattern làm tăng số lượng lớp nhiều hơn State Pattern.</li><li>Không có điểm khác biệt nào về mặt kiến trúc.</li></ol>
+        <p class="explain">State Pattern quản lý sự chuyển dịch trạng thái và thay đổi hành vi tương ứng của đối tượng, trong khi Strategy Pattern cung cấp các thuật toán có thể thay thế cho nhau cho client.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

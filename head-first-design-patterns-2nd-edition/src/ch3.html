@@ -1,0 +1,56 @@
+<section class="chapter" id="ch3" data-ch="3" data-title="Mẫu thiết kế Observer: Quản lý sự phụ thuộc một-nhiều và kiến trúc lỏng lẻo">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 3</p>
+    <h1>The Observer Pattern: Keeping Objects in the Know <span class="vi">Mẫu thiết kế Observer: Quản lý sự phụ thuộc một-nhiều và kiến trúc lỏng lẻo</span></h1>
+    <p class="lede">Thiết lập mối quan hệ phụ thuộc một-nhiều giữa các đối tượng để khi trạng thái thay đổi, mọi thành phần phụ thuộc được thông báo và cập nhật hoàn toàn tự động.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">1 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch3-t1" data-num="3.1" data-short="Phân tích Tight Coupling">
+    <div class="topic-theory-card">
+      <p class="eyebrow">NGUYÊN LÝ CỐT LÕI</p>
+      <h2>Sai lầm ban đầu và bài học từ sự phụ thuộc cứng</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Việc gọi trực tiếp các lớp cụ thể trong phương thức thay đổi dữ liệu làm triệt tiêu khả năng mở rộng hệ thống.</p></div>
+      <div class="prose">
+        <p>Khi bắt đầu xây dựng trạm quan trắc thời tiết, cách tiếp cận ngây thơ nhất là gọi thẳng các màn hình <code>currentConditionsDisplay.update()</code> bên trong phương thức <code>measurementsChanged()</code> của lớp <code>WeatherData</code>. Kiến trúc này tạo ra sự ràng buộc trực tiếp giữa nguồn dữ liệu và giao diện hiển thị, khiến mọi thay đổi nhỏ đều buộc lập trình viên phải sửa đổi mã nguồn gốc.</p><p>Các nhược điểm chí mạng của cách tiếp cận này bao gồm:</p><ul><li><strong>Coding to concrete implementations:</strong> Vi phạm nguyên tắc thiết kế hướng đối tượng, phụ thuộc vào lớp cụ thể thay vì abstraction.</li><li><strong>Hardcoded management:</strong> Không thể thêm hoặc bớt các hiển thị mới tại thời điểm chạy (runtime) vì danh sách bị cố định trong mã nguồn.</li><li><strong>Violation of Encapsulation:</strong> Phá vỡ tính đóng gói của lớp WeatherData khi phải quản lý chi tiết logic hiển thị bên ngoài.</li></ul><p>Để khắc phục triệt để điểm nghẽn này, chúng ta buộc phải tách biệt phần thay đổi trạng thái ra khỏi phần hiển thị thông qua các giao diện hợp đồng trừu tượng.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại hệ thống thanh toán MoMo/ZaloPay</b>
+        <p>Khi xử lý hàng triệu giao dịch ví điện tử thời gian thực, nếu dịch vụ lõi (Core Wallet) gọi cứng các dịch vụ phụ trợ như tích điểm, gửi SMS, và ghi log giao dịch trong cùng một luồng, hệ thống sẽ sập ngay khi một dịch vụ phụ trợ quá tải. Áp dụng mô hình hướng sự kiện (Event-driven / Observer) giúp ngắt quãng sự phụ thuộc trực tiếp này.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch3-w1">
+      <figcaption>
+        <span class="lab-tag">🔄 Vòng đời & Máy Trạng thái</span>
+        <strong>Mô phỏng luồng thông báo từ Subject đến các Observers</strong>
+        <small>Quan sát sự thay đổi trạng thái và hiệu năng khi chuyển từ gọi cứng sang mô hình Observer lỏng lẻo.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch3-review" data-num="3.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 3</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Chương này mổ xẻ mẫu thiết kế <dfn data-term="Observer Pattern"><strong>Observer Pattern</strong></dfn> thông qua bài toán thực tế xây dựng trạm quan trắc thời tiết (Weather Monitoring Station). Ban đầu, việc cập nhật trực tiếp các màn hình hiển thị trong phương thức <code>measurementsChanged()</code> dẫn đến sự gắn kết chặt chẽ (<dfn data-term="Tight Coupling"><strong>tight coupling</strong></dfn>), vi phạm nguyên tắc đóng gói và khiến hệ thống không thể mở rộng khi phát sinh màn hình mới tại runtime. Bằng cách áp dụng giao diện <dfn data-term="Subject Interface"><strong>Subject</strong></dfn> và <dfn data-term="Observer Interface"><strong>Observer</strong></dfn>, hệ thống đạt được sự gắn kết lỏng lẻo (<dfn data-term="Loose Coupling"><strong>loose coupling</strong></dfn>), cho phép Subject phát thông báo mà không cần biết chi tiết concrete class của Observer. Cuối cùng, chương thảo luận về hai trường phái truyền tải dữ liệu là Push Model và Pull Model, giúp kiến trúc sư cân bằng giữa tính tiện lợi và tính linh hoạt.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Mẫu thiết kế Observer giải quyết vấn đề kiến trúc nào là chính yếu?</p>
+        <ol><li>Đảm bảo chỉ có duy nhất một thể hiện của lớp trong toàn bộ ứng dụng.</li><li>Thiết lập mối quan hệ phụ thuộc một-nhiều để khi đối tượng chủ thể thay đổi, các đối tượng phụ thuộc được thông báo tự động.</li><li>Cho phép thay đổi thuật toán xử lý tại thời điểm chạy dựa trên tham số truyền vào.</li><li>Cung cấp giao diện thống nhất cho một tập hợp các giao diện con phức tạp trong hệ thống.</li></ol>
+        <p class="explain">Observer Pattern định nghĩa mối quan hệ một-nhiều giữa Subject và các Observers để tự động thông báo trạng thái mà không làm gián đoạn hay gắn kết chặt chẽ mã nguồn.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

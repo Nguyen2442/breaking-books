@@ -1,0 +1,2242 @@
+.5” 
+AA  Brain-Friendly GuideBrain-Friendly Guide
+Second
+Edition
+Design  
+Patterns
+Building Extensible  
+& Maintainable  
+Object-Oriented 
+Software
+Eric Freeman &  
+Elisabeth Robson
+with Kathy Sierra & Bert Bates
+
+Praise for Head First Design Patterns
+“I received the book yesterday and started to read it on the way home...and I couldn’t stop.  I took it to 
+the gym and I expect people saw me smiling a lot while I was exercising and reading. This is très ‘cool’. 
+It is fun, but they cover a lot of  ground and they are right to the point.  I’m really impressed.”
+    —  Erich Gamma, IBM Distinguished Engineer 
+          and coauthor of  Design Patterns with the rest of  the 
+          Gang of  Four—Richard Helm, Ralph Johnson, and John Vlissides 
+“Head First Design Patterns manages to mix fun, belly-laughs, insight, technical depth, and great practical 
+advice in one entertaining and thought-provoking read. Whether you are new to Design Patterns or have 
+been using them for years, you are sure to get something from visiting Objectville.”
+    —  Richard Helm, coauthor of  Design Patterns with the rest of  the  
+                       Gang of  Four—Erich Gamma, Ralph Johnson, and John Vlissides 
+ “I feel like a thousand pounds of  books have just been lifted off  of  my head.”
+    —  Ward Cunningham, inventor of  the Wiki  
+          and founder of  the Hillside Group 
+“This book is close to perfect, because of  the way it combines expertise and readability. It speaks with 
+authority and it reads beautifully. It’s one of  the very few software books I’ve ever read that strikes me as 
+indispensable. (I’d put maybe 10 books in this category, at the outside.)”
+    —  David Gelernter, Professor of  Computer Science,  Yale University,  
+          and author of  Mirror Worlds and Machine Beauty 
+“A Nose Dive into the realm of  patterns, a land where complex things become simple, but where simple 
+things can also become complex. I can think of  no better tour guides than Eric and Elisabeth.”
+    —  Miko Matsumura, Industry Analyst, The Middleware Company 
+          Former Chief  Java Evangelist, Sun Microsystems 
+“I laughed, I cried, it moved me.”
+    —  Daniel Steinberg, Editor-in-Chief, java.net 
+“My first reaction was to roll on the floor laughing. After I picked myself  up, I realized that not only is the 
+book technically accurate, it is the easiest-to-understand introduction to Design Patterns that I have seen.”
+    —  Dr. Timothy A. Budd, Associate Professor of  Computer Science at  
+         Oregon State University and author of  more than a dozen books,  
+         including C++ for Java Programmers 
+“Jerry Rice runs patterns better than any receiver in the NFL, but Eric and Elisabeth have outrun him. 
+Seriously...this is one of  the funniest and smartest books on software design I’ve ever read.”
+    — Aaron LaBerge, SVP Technology & Product Development, ESPN
+
+“Great code design is, first and foremost, great information design. A code designer is teaching a 
+computer how to do something, and it is no surprise that a great teacher of  computers should turn out 
+to be a great teacher of  programmers. This book’s admirable clarity, humor, and substantial doses of  
+clever make it the sort of  book that helps even non-programmers think well about problem-solving.”
+    — Cory Doctorow, coeditor of  Boing Boing  
+         and author of  Down and Out in the Magic Kingdom 
+         and Someone Comes to Town, Someone Leaves Town 
+“There’s an old saying in the computer and videogame business—well, it can’t be that old because the 
+discipline is not all that old—and it goes something like this: Design is Life. What’s particularly curious 
+about this phrase is that even today almost no one who works at the craft of  creating electronic games 
+can agree on what it means to ‘design’ a game. Is the designer a software engineer? An art director?  A 
+storyteller? An architect or a builder? A pitch person or a visionary? Can an individual indeed be in 
+part all of  these? And most importantly, who the %$!#&* cares?
+ It has been said that the ‘designed by’ credit in interactive entertainment is akin to the ‘directed by’ 
+credit in filmmaking, which in fact allows it to share DNA with perhaps the single most controversial, 
+overstated, and too often entirely lacking in humility credit grab ever propagated on commercial art.  
+Good company, eh?  Yet if  Design is Life, then perhaps it is time we spent some quality cycles thinking 
+about what it is.   
+ Eric Freeman and Elisabeth Robson have intrepidly volunteered to look behind the code curtain for 
+us in Head First Design Patterns.  I’m not sure either of  them cares all that much about the PlayStation 
+or Xbox, nor should they. Yet they do address the notion of  design at a significantly honest level such 
+that anyone looking for ego reinforcement of  his or her own brilliant auteurship is best advised not to 
+go digging here where truth is stunningly revealed.  Sophists and circus barkers need not apply. Nextgeneration literati, please come equipped with a pencil.”
+    —  Ken Goldstein, Executive Vice President & Managing Director,  
+                      Disney Online
+ 
+“This is a difficult blurb for me to write since Eric and Elisabeth were my students a long time ago, so 
+I don’t want to be seen to be too drooling, but this is the best book on Design Patterns available for 
+students. As proof: I have used it ever since it was published, in both in my grad and undergrad courses, 
+both for software engineering and advanced programming. As soon as it came out I abandoned the 
+Gang of  Four as well as all competitors!”
+    —  Gregory Rawlins, Indiana University
+ 
+“This book combines good humor, great examples, and in-depth knowledge of  Design Patterns in 
+such a way that makes learning fun. Being in the entertainment technology industry, I am intrigued 
+by the Hollywood Principle and the home theater Facade Pattern, to name a few. The understanding 
+of  Design Patterns not only helps us create reusable and maintainable quality software, but also 
+helps sharpen our problem-solving skills across all problem domains. This book is a must-read for all 
+computer professionals and students.”
+    —  Newton Lee, Founder and Editor-in-Chief, Association for Computing  
+         Machinery’s (ACM) Computers in Entertainment (acmcie.org)
+More Praise for Head First Design Patterns
+
+Praise for other books by Eric Freeman and Elisabeth Robson
+“I literally love this book. In fact, I kissed this book in front of  my wife.”
+    — Satish Kumar
+“Head First HTML and CSS is a thoroughly modern introduction to forward-looking practices in web 
+page markup and presentation. It correctly anticipates readers’ puzzlements and handles them just in 
+time. The highly graphic and incremental approach precisely mimics the best way to learn this stuff: 
+make a small change and see it in the browser to understand what each new item means.”
+    — Danny Goodman, author of  Dynamic HTML: The Definitive Guide
+“The Web would be a much better place if  every HTML author started off  by reading this book.”
+    — L. David Baron, Technical Lead, Layout & CSS, Mozilla Corporation 
+                     http://dbaron.org
+ 
+“My wife stole the book. She’s never done any web design, so she needed a book like Head First HTML 
+and CSS to take her from beginning to end. She now has a list of  websites she wants to build—for our 
+son’s class, our family...If  I’m lucky, I’ll get the book back when she’s done.”
+    — David Kaminsky, Master Inventor, IBM
+ 
+“This book takes you behind the scenes of  JavaScript and leaves you with a deep understanding of  
+how this remarkable programming language works. I wish I’d had Head First JavaScript Programming 
+when I was starting out!”
+    — Chris Fuselier, engineering consultant
+ 
+“The Head First series utilizes elements of  modern learning theory, including constructivism, to bring 
+readers up to speed quickly. The authors have proven with this book that expert-level content can be 
+taught quickly and efficiently. Make no mistake here, this is a serious JavaScript book, and yet, fun 
+reading!”
+    — Frank Moore, web designer and developer
+ 
+“Looking for a book that will keep you interested (and laughing) but teach you some serious programming 
+skills? Head First JavaScript Programming is it!”
+    — Tim Williams, software entrepreneur
+
+Other related books from O’Reilly
+Head First Java
+Learning Java
+Java in a Nutshell
+Java Enterprise in a Nutshell
+Java Examples in a Nutshell
+Java Cookbook
+J2EE Design Patterns
+Other O’Reilly books by Eric Freeman and Elisabeth Robson
+Head First Learn to Code
+Head First JavaScript Programming
+Head First HTML and CSS
+Head First HTML5 Programming
+
+Beijing  •  Boston  •  Farnham  •  Sebastopol  •  Tokyo
+Eric Freeman 
+Elisabeth Robson
+Head First 
+Design Patterns
+Wouldn’t it be dreamy 
+if there was a Design Patterns 
+book that was more fun than 
+going to the dentist, and more 
+revealing than an IRS form? It’s 
+probably just a fantasy...
+
+Head First Design Patterns, 2nd Edition
+by Eric Freeman, Elisabeth Robson, Kathy Sierra, and Bert Bates
+Copyright © 2021 Eric Freeman and Elisabeth Robson. All rights reserved.
+Printed in Canada.
+Published by O’Reilly Media, Inc., 1005 Gravenstein Highway North, Sebastopol, CA 95472.
+O’Reilly Media books may be purchased for educational, business, or sales promotional use. Online 
+editions are also available for most titles (oreilly.com). For more information, contact our corporate/
+institutional sales department: (800) 998-9938 or corporate@oreilly.com.
+Editors 1st Edition:   Mike Hendrickson, Mike Loukides
+Editors 2nd Edition:  Michele Cronin, Melissa Duffield
+Cover Designer:    Ellie Volckhausen
+Pattern Wranglers:     Eric Freeman, Elisabeth Robson
+Printing History:
+October 2004: First edition
+December 2020: Second edition
+Release History:
+2020-11-10  First release
+The O’Reilly logo is a registered trademark of  O’Reilly Media, Inc. Java and all Java-based trademarks and logos 
+are trademarks or registered trademarks of  Sun Microsystems, Inc., in the United States and other countries. 
+O’Reilly Media, Inc. is independent of  Sun Microsystems.
+Many of  the designations used by manufacturers and sellers to distinguish their products are claimed as 
+trademarks.
+Where those designations appear in this book, and O’Reilly Media, Inc. was aware of  a trademark claim, the 
+designations have been printed in caps or initial caps.
+While every precaution has been taken in the preparation of  this book, the publisher and the authors assume no 
+responsibility for errors or omissions, or for damages resulting from the use of  the information contained herein.
+In other words, if  you use anything in Head First Design Patterns to, say, run a nuclear power plant, you’re on your 
+own. We do, however, encourage you to use the DJ View app.
+No ducks were harmed in the making of  this book.
+The original GoF agreed to have their photos in this book. Yes, they really are that good-looking. 
+ISBN: 978-1-492-07800-5
+[MBP]                                                                                                                                                                
+
+To the Gang of  Four, whose insight and expertise in 
+capturing and communicating Design Patterns has 
+changed the face of  software design forever, and 
+bettered the lives of  developers throughout the world.
+But seriously, when are we going to see a second edition? 
+After all, it’s been only ten years.
+twenty-five
+
+viii 
+the authors
+Authors of Head First Design Patterns
+Elisabeth is a software engineer, writer, 
+and trainer. She has been passionate 
+about technology since her days as a 
+student at Yale University, where she 
+earned a Masters of  Science in Computer 
+Science. 
+She’s currently cofounder of  
+WickedlySmart, where she creates books, 
+articles, videos, and more. Previously, as 
+Director of  Special Projects at O’Reilly 
+Media, Elisabeth produced in-person 
+workshops and online courses on a variety 
+of  technical topics and developed her 
+passion for creating learning experiences 
+to help people understand technology. 
+When not in front of  her computer, you’ll 
+find Elisabeth hiking, cycling, kayaking, 
+and gardening in the great outdoors, 
+often with her camera nearby.
+Eric Freeman
+Eric is described by Head First series cocreator Kathy Sierra as “one of  those rare 
+individuals fluent in the language, practice, 
+and culture of  multiple domains from 
+hipster hacker, corporate VP, engineer, 
+think tank.”
+By training, Eric is a computer scientist, 
+having earned his PhD at Yale University. 
+Professionally, Eric was formerly CTO of  
+Disney Online & Disney.com at the Walt 
+Disney Company. 
+Eric now co-directs the Head First series 
+and devotes his time to creating print and 
+video content at WickedlySmart, which is 
+distributed across the leading educational 
+channels.
+Eric’s Head First titles include Head First 
+Design Patterns, Head First HTML & CSS, 
+Head First JavaScript Programming, Head First 
+HTML5 Programming, and Head First Learn 
+to Code.
+Eric lives in Austin, Texas.
+Elisabeth Robson
+
+ix
+Creators of the Head First Series 
+Kathy Sierra
+Kathy has been interested in learning theory 
+since her days as a game designer  for Virgin, 
+MGM, and Amblin’, and a teacher of  New 
+Media Authoring at UCLA. She was a master 
+Java trainer for Sun Microsystems, and she 
+founded JavaRanch.com (now CodeRanch.com), 
+which won Jolt Cola Productivity awards in 
+2003 and 2004.
+In 2015, she won the Electronic Frontier 
+Foundation’s Pioneer Award for her work 
+creating skillful users and building sustainable 
+communities.
+Kathy’s recent focus has been on cutting-edge, 
+movement science and skill acquisition coaching, 
+known as ecological dynamics or “Eco-D.” 
+Her work using Eco-D for training horses is 
+ushering in a far, far more humane approach 
+to horsemanship, causing delight for some (and 
+sadly, consternation for others). Those fortunate 
+(autonomous!) horses whose owners are using 
+Kathy’s approach are happier, healthier, and 
+more athletic than their fellows who are 
+traditionally trained.
+You can follow Kathy on Instagram:  
+@pantherflows.
+Bert Bates
+Before Bert was an author, he was a developer, 
+specializing in old-school AI (mostly expert 
+systems), real-time OSes, and complex 
+scheduling systems.
+In 2003, Bert and Kathy wrote Head First Java 
+and launched the Head First series. Since then, 
+he’s written more Java books, and consulted 
+with Sun Microsystems and Oracle on many 
+of  their Java certifications. He’s also trained 
+hundreds of  authors and editors to create books 
+that teach well.
+Bert’s a Go player, and in 2016 he watched in 
+horror and fascination as AlphaGo trounced 
+Lee Sedol. Recently he’s been using Eco-D 
+(ecological dynamics) to improve his golf  game 
+and to train his parrotlet Bokeh.
+Bert and Kathy have been privileged to know 
+Beth and Eric for 16 years now, and the Head 
+First series is extremely fortunate to count them 
+as key contributors.
+You can send Bert a message at CodeRanch.com.
+
+Intro
+Your brain on Design Patterns.  Here you are trying to learn something, 
+while here your brain is doing you a favor by making sure the learning doesn’t stick.  Your 
+brain’s thinking, “Better leave room for more important things, like which wild animals to 
+avoid and whether naked snowboarding is a bad idea.”  So how do you trick your brain into 
+thinking that your life depends on knowing Design Patterns? 
+Who is this book for?     xxvi
+We know what you’re thinking.    xxvii
+And we know what your brain is thinking.   xxvii
+We think of  a “Head First” reader as a learner.       xxviii
+Metacognition: thinking about thinking    xxix
+Here’s                what                WE                did                                                                                xxx
+Here’s what YOU can do to bend your brain into submission xxxi
+Read                Me                                                                                                                xxxii
+Tech                Reviewers                                                                                                xxxiv
+Acknowledgments                                                                                                xxxv
+Table of Contents (summary)
+          Intro xxv
+1  Welcome to Design Patterns:  intro to Design Patterns                                            1
+2 Keeping your Objects in the Know:  the Observer Pattern                                    37
+3 Decorating Objects:  the Decorator Pattern                                                           79
+4 Baking with OO Goodness:  the Factory Pattern                                                109
+5 One-of-a-Kind Objects:  the Singleton Pattern                                                    169
+6 Encapsulating Invocation:  the Command Pattern                                               191
+7 Being Adaptive:  the Adapter and Facade Patterns                                                 237
+8 Encapsulating Algorithms:  theTemplate Method Pattern                                      277
+9 Well-Managed Collections:  the Iterator and Composite Patterns                            317
+10 The State of  Things:  the State Pattern                                                              381
+11 Controlling Object Access:  the Proxy Pattern                                                    425
+12 Patterns of  Patterns: compound patterns                                                             493
+13 Patterns in the Real World: better living with patterns                                          563
+14 Appendix:  Leftover Patterns                                                                              597
+ 
+Table of Contents (the real thing)
+table of  contents
+
+1
+Welcome to Design Patterns
+Someone has already solved your problems. In this 
+chapter, you’ll learn why (and how) you can exploit the wisdom and lessons 
+learned by other developers who’ve been down the same design problem road 
+and survived the trip. Before we’re done, we’ll look at the use and benefits 
+of design patterns, look at some key object-oriented (OO) design principles, 
+and walk through an example of how one pattern works. The best way to use 
+patterns is to load your brain with them and then recognize places in your 
+designs and existing applications where you can apply them. Instead of code 
+reuse, with patterns you get experience reuse.
+intro to Design Patterns
+Your BRAIN
+Your Code, now new 
+and improved with 
+design patterns!
+A Bunch of Patterns
+swim()
+display
+()
+performQuack()
+performFly()
+setFlyBehavior()
+setQuackBehavior()
+// OTHER duck-like methods...
+Duck
+FlyBehavior flyBehavior;
+QuackBehavior quackBehavior;
+<<interface>>
+FlyBehavior
+fly()
+fly() {
+  // implements duck flying
+}
+FlyWithWings
+fly() {
+  // do nothing - can’t fly!
+}
+FlyNoWay
+<<interface>>
+QuackBehavior
+quack()
+quack) {
+  // implements duck quack
+-
+ing
+}
+Quack
+quack() {
+  // rubber duckie squeak
+}
+Squeak
+quack() {
+  // do nothing - can’t quack!
+}
+MuteQuack
+display() {
+// looks like a decoy duck }
+Decoy Duck
+display() {
+// looks like a mal
+-
+lard }
+Mallard Duck
+display() {
+// looks like a redhead 
+}
+Redhead Duck
+display() {
+// looks like a rubberduck }
+Rubber Duck
+Encapsulated fly behavior
+Encapsulated quack behavior
+Client 
+V
+iew
+C
+ontroller
+Model
+Request
+MVC
+S
+u
+b
+j
+e
+c
+t
+ 
+O
+b
+j
+e
+c
+t
+8
+int
+ 
+ 
+ 
+D
+o
+g
+ 
+O
+b
+j
+e
+c
+t
+M
+o
+u
+s
+e
+ 
+O
+b
+j
+e
+c
+t
+ 
+ 
+C
+a
+t
+ 
+O
+b
+j
+e
+c
+t
+ 
+ 
+D
+u
+c
+k
+ 
+O
+b
+j
+e
+c
+t
+Observers
+8
+8
+8
+8
+Automatic update/notification
+Object that 
+holds state
+Dependent Objects
+OBSERVER
+Remember, knowing 
+concepts like abstraction, 
+inheritance, and polymorphism do 
+not make you a good object oriented 
+designer.  A design guru thinks 
+about how to create flexible 
+designs that are maintainable 
+and that can cope with 
+change.
+It started with a simple SimUDuck app   2
+But now we need the ducks to FLY   3
+But something went horribly wrong...     4
+Joe thinks about inheritance...   5
+How about an interface?    6
+What would you do if  you were Joe?   7
+The one constant in software development  8
+Zeroing in on the problem...     9
+Separating what changes from what stays the same 10
+Designing the Duck Behaviors   11
+Implementing the Duck Behaviors   13
+Integrating the Duck Behavior   15
+Testing the Duck code    18
+Setting                behavior                dynamically                                                                20
+The Big Picture on encapsulated behaviors  22
+HAS-A can be better than IS-A   23
+Speaking of  Design Patterns...   24
+Overheard at the local diner...   26
+Overheard in the next cubicle...   27
+The power of  a shared pattern vocabulary  28
+How do I use Design Patterns?   29
+Tools for your Design Toolbox   32
+
+The Weather Monitoring application overview   39
+Meet                the                Observer                Pattern                                                                                44
+Publishers + Subscribers = Observer Pattern   45
+The Observer Pattern defined    51
+The Power of  Loose Coupling    54
+Designing the Weather Station    57
+Implementing the Weather Station    58
+Power up the Weather Station    61
+Looking for the Observer Pattern in the Wild   65
+Coding the life-changing application    66
+Meanwhile, back at Weather-O-Rama      69
+Test Drive the new code     71
+Tools for your Design Toolbox    72
+Design                Principle                Challenge                                                                                73
+2
+Keeping your Objects in the Know
+You don’t want to miss out when something 
+interesting happens, do you? We’ve got a pattern that keeps your 
+objects in the know when something they care about happens. It’s the Observer 
+Pattern. It is one of the most commonly used design patterns, and it’s incredibly 
+useful. We’re going to look at all kinds of interesting aspects of Observer, like its 
+one-to-many relationships and loose coupling. And, with those concepts in mind, 
+how can you help but be the life of the Patterns Party? 
+the Observer Pattern
+S
+u
+b
+j
+e
+c
+t
+ 
+O
+b
+j
+e
+c
+t
+8
+int
+ 
+ 
+ 
+D
+o
+g
+ 
+O
+b
+j
+e
+c
+t
+M
+o
+u
+s
+e
+ 
+O
+b
+j
+e
+c
+t
+ 
+ 
+C
+a
+t
+ 
+O
+b
+j
+e
+c
+t
+ 
+ 
+D
+u
+c
+k
+ 
+O
+b
+j
+e
+c
+t
+Observers
+8
+8
+8
+8
+ONE TO MANY RELATIONSHIP
+Automatic update/notification
+Object that 
+holds state
+Dependent Objects
+Abstraction
+Encapsulation
+Polymorphism
+Inheritence
+OO Basics
+Encapsulate what varies.
+Favor Composition over 
+ 
+inheritance.
+Program to interfaces, not 
+implementations.
+Strive for loosely coupled 
+designs between objects that 
+interact.
+OO Principles
+table of  contents
+
+3
+Decorating Objects
+Just call this chapter “Design Eye for the Inheritance 
+Guy.” We’ll re-examine the typical overuse of inheritance and you’ll learn how 
+to decorate your classes at runtime using a form of object composition. Why? 
+Once you know the techniques of decorating, you’ll be able to give your (or 
+someone else’s) objects new responsibilities without making any code changes 
+to the underlying classes.
+the Decorator Pattern
+I used to think real men 
+subclassed everything. That was until 
+I learned the power of extension 
+at runtime, rather than at compile 
+time.  Now look at me!
+Welcome to Starbuzz Coffee     80
+The                Open-Closed                Principle                                                                86
+Meet the Decorator Pattern      88
+Constructing a drink order with Decorators  89
+The Decorator Pattern defined   91
+Decorating                our                Beverages                                                                92
+Writing the Starbuzz code    95
+Coding                beverages                                                                                96
+Coding                condiments                                                                                97
+Serving                some                coffees                                                                98
+Real-World Decorators: Java I/O   100
+Decorating the java.io classes    101
+Writing your own Java I/O Decorator     102
+Test out your new Java I/O Decorator    103
+Tools for your Design Toolbox   105
+
+4
+Baking with OO Goodness
+Get ready to bake some loosely coupled OO designs. 
+There is more to making objects than just using the new operator. You’ll 
+learn that instantiation is an activity that shouldn’t always be done in public 
+and can often lead to coupling problems. And we don’t want that, do we? 
+Find out how Factory Patterns can help save you from embarrassing 
+dependencies.
+the Factory Pattern
+<<interface>>
+Clams
+<<interface>>
+Cheese
+<<interface>>
+Sauce
+<<interface>>
+Dough
+createPizza()
+NYPizzaStore
+ThinCrustDough
+MarinaraSauce
+ReggianoCheese
+FrozenClams
+ThickCrustDough
+PlumTomatoSauce
+Mozzarella Cheese
+FreshClams
+Each factory produces a different 
+implementation for the family of products.
+The abstract PizzaIngredientFactory 
+is the interface that defines how to 
+make a family of related productseverything we need to make a pizza.
+The clients of the Abstract 
+Factory are the two 
+instances of our PizzaStore, 
+NYPizzaStore and 
+ChicagoStylePizzaSore. 
+The job of the concrete 
+pizza factories is to 
+make pizza ingredients.  
+Each factory knows 
+how to create the right 
+objects for their region.
+createDough()
+createSauce()
+createCheese()
+createVeggies()
+createPepperoni()
+createClam()
+<<interface>>
+PizzaIngredientFactory
+createDough()
+createSauce()
+createCheese()
+createVeggies()
+createPepperoni()
+createClam()
+NYPizzaIngredientFactory
+createDough()
+createSauce()
+createCheese()
+createVeggies()
+createPepperoni()
+createClam()
+ChicagoPizzaIngredientFactory
+Identifying the aspects that vary    112
+Encapsulating                object                creation                                                                                114
+Building a simple pizza factory    115
+The                Simple                Factory                defined                                                                                117
+A framework for the pizza store    120
+Allowing the subclasses to decide    121
+Declaring                a                factory                method                                                                                125
+It’s finally time to meet the Factory Method Pattern  131
+View Creators and Products in Parallel     132
+Factory Method Pattern defined    134
+Looking at object dependencies    138
+The Dependency Inversion Principle        139
+Applying                the                Principle                                                                                140
+Families                of                 ingredients...                                                                                145
+Building the ingredient factories    146
+Reworking                the                pizzas...                                                                                149
+Revisiting                our                pizza                stores                                                                                152
+What                have                we                done?                                                                                153
+Abstract Factory Pattern defined    156
+Factory Method and Abstract Factory compared    160
+Tools for your Design Toolbox    162
+table of  contents
+
+5
+One-of-a-Kind Objects
+Our next stop is the Singleton Pattern, our ticket to 
+creating one-of-a-kind objects for which there is only 
+one instance, ever.  You might be happy to know that of all patterns, 
+the Singleton is the simplest in terms of its class diagram; in fact, the diagram 
+holds just a single class! But don’t get too comfortable; despite its simplicity 
+from a class design perspective, it’s going to require some deep object-oriented 
+thinking in its implementation. So put on that thinking cap, and let’s get going.
+the Singleton Pattern
+Strategy
+ - defines a family of algorithms, 
+encapsulates each one, and makes them 
+interchangeable.  Strategy lets the algorithm 
+vary independently from clients that use it.
+OO Patterns
+Observer
+ - 
+defines a one-to-many 
+dependency between objects so that 
+when one object changes state, all its 
+dependents are notified and updated 
+automatically
+Decorator
+ - 
+Attach additional 
+responsibilities to an object dynamically.  
+Decorators provide a flexible 
+alternative to subclassing for extending 
+functionality.
+Abstract Factory
+ - 
+Provide an 
+interface for creating families of 
+related or depedent objects without 
+specifying their concrete classes.
+Factory Method 
+ - 
+Define an 
+interface for creating an object, but 
+let subclasses decide which class to 
+instantiate.  Factory Method lets 
+a class defer instantiation to the 
+subclasses.
+Singleton
+ - 
+Ensure a class only has 
+one instance and provide a global point 
+of access to it.
+Dissecting the classic Singleton Pattern implementation  173
+The                Chocolate                Factory                                                                                175
+Singleton                Pattern                defined                                                                                177
+Houston, we have a problem      178
+Dealing                with                multithreading                                                                                180
+Can we improve multithreading?    181
+Meanwhile, back at the Chocolate Factory...   183
+Tools for your Design Toolbox    186
+Hershey, PA
+
+6
+Encapsulating Invocation
+In this chapter, we take encapsulation to a whole new 
+level: we’re going to encapsulate method invocation. 
+That’s right—by encapsulating method invocation, we can crystallize pieces 
+of computation so that the object invoking the computation doesn’t need to 
+worry about how to do things, it just uses our crystallized method to get it 
+done. We can also do some wickedly smart things with these encapsulated 
+method invocations, like save them away for logging or reuse them to 
+implement undo functionality in our code. 
+the Command Pattern
+I’ll have a Burger 
+with Cheese and a Malt 
+Shake
+Burger with Cheese
+  Malt Shake
+createOrder()
+takeOrder()
+Burger with Cheese
+  Malt Shake
+orderUp()
+makeBurger(), makeShake()
+output
+The Order consists of an order 
+slip and the customer’s menu 
+items that are written on it.
+The customer knows 
+what he wants and 
+creates an order.
+The Waitress takes the Order, and when she 
+gets around to it, she calls its orderUp() 
+method to begin the Order’s preparation.
+The Order has all 
+the instructions 
+needed to prepare 
+the meal. The 
+Order directs the 
+Short Order Cook 
+with methods like 
+makeBurger().
+The Short Order 
+Cook follows the 
+instructions of 
+the Order and 
+produces the meal.
+Start Here
+Home Automation or Bust                    192
+Taking a look at the vendor classes    194
+A brief  introduction to the Command Pattern   197
+From the Diner to the Command Pattern   201
+Our                first                command                object                                                                                203
+Using                the                command                object                                                                                204
+Assigning                Commands                to                slots                                                                                209
+Implementing the Remote Control    210
+Implementing                the                Commands                                                                211
+Putting the Remote Control through its paces   212
+Time to write that documentation...    215
+What                are                we                doing?                                                                                217
+Time to QA that Undo button!    220
+Using state to implement Undo    221
+Adding Undo to the Ceiling Fan commands   222
+Every remote needs a Party Mode!    225
+Using                a                macro                command                                                                                226
+More uses of  the Command Pattern: queuing requests  229
+More uses of  the Command Pattern: logging requests  230
+Command Pattern in the Real World       231
+Tools for your Design Toolbox    233
+table of  contents
+
+7
+Being Adaptive
+In this chapter we’re going to attempt such impossible 
+feats as putting a square peg in a round hole. Sound 
+impossible? Not when we have Design Patterns. Remember the Decorator 
+Pattern? We wrapped objects to give them new responsibilities. Now we’re 
+going to wrap some objects with a different purpose: to make their interfaces look 
+like something they’re not. Why would we do that? So we can adapt a design 
+expecting one interface to a class that implements a different interface. That’s not 
+all; while we’re at it, we’re going to look at another pattern that wraps objects to 
+simplify their interface.
+the Adapter and Facade Patterns
+Adaptee
+Client
+Adapter
+request()
+translatedRequest()
+The Client is implemented 
+against the target interface
+The Adapter implements the 
+target interface and holds an 
+instance of the Adaptee
+target interface
+adaptee 
+interface
+Turkey was the 
+adaptee interface
+British Wall Outlet
+AC Power Adapter
+Standard AC Plug
+Adapters                all                around                us                                                                                238
+Object-oriented                adapters                                                                                239
+If  it walks like a duck and quacks like a duck, then it must 
+ might be a duck turkey wrapped with a duck adapter...  240
+Test                drive                the                adapter                                                                                242
+The Adapter Pattern explained    243
+Adapter                Pattern                defined                                                                                245
+Object                and                class                adapters                                                                                246
+Real-world                adapters                                                                                250
+Adapting an Enumeration to an Iterator   251
+Home                Sweet                Home                Theater                                                                                257
+Watching a movie (the hard way)    258
+Lights, Camera, Facade!       260
+Constructing your home theater facade    263
+Implementing the simplified interface       264
+Time to watch a movie (the easy way)       265
+Facade                Pattern                defined                                                                                266
+The Principle of  Least Knowledge    267
+How NOT to Win Friends and Influence Objects   268
+The Facade Pattern and the Principle of  Least Knowledge   271
+Tools for your Design Toolbox    272
+
+8
+Encapsulating Algorithms
+We’ve encapsulated object creation, method invocation, 
+complex interfaces, ducks, pizzas...what could be next?  
+We’re going to get down to encapsulating pieces of algorithms so that subclasses 
+can hook themselves right into a computation anytime they want. We’re even 
+going to learn about a design principle inspired by Hollywood. Let’s get started...
+the Template Method Pattern
+1
+Boil some water
+2
+3
+4
+Steep the te a bag in the water
+Pour te a in a cup
+Add lemon
+1
+Boil some water
+2
+3
+4
+Bre w the cof fee grinds
+Pour cof fee in a cup
+Add sugar and milk
+2
+4
+Steep the te abag in the water
+Add lemon
+Tea subclass
+Coffee subclass
+2
+4
+Bre w the cof fee grinds
+Add sugar and milk
+1
+Boil some water
+2
+3
+4
+Bre w
+Pour be verage in a cup
+Add condiments
+Caffeine Beverage
+Tea
+Coffee
+Caffeine Beverage knows 
+and controls the steps of 
+the recipe, and performs 
+steps 1 and 3 itself, but 
+relies on Tea or Coffee 
+to do steps 2 and 4.
+We’ve recognized that 
+the two recipes are 
+essentially the same, 
+although some of the 
+steps require different 
+implementations.  So 
+we’ve  generalized the 
+recipe and placed it in 
+the base class.
+generalize
+relies on 
+subclass for 
+some steps
+generalize
+relies on 
+subclass for 
+some steps
+It’s time for some more caffeine    278
+Whipping up some coffee and tea classes (in Java)   279
+Let’s abstract that Coffee and Tea    282
+Taking                the                design                further...                                                                                283
+Abstracting                prepareRecipe()                                                                                284
+What                have                we                done?                                                                                287
+Meet the Template Method       288
+What did the Template Method get us?    290
+Template Method Pattern defined    291
+Hooked on Template Method...    294
+Using                the                hook                                                                                                295
+The Hollywood Principle and Template Method    299
+Template Methods in the Wild    301
+Sorting with Template Method    302
+We’ve got some ducks to sort...    303
+What                is                compareTo()?                                                                                303
+Comparing                Ducks                and                Ducks                                                                                304
+Let’s                sort                some                Ducks                                                                                305
+The making of  the sorting duck machine   306
+Swingin’                with                Frames                                                                                308
+Custom Lists with AbstractList    309
+Tools for your Design Toolbox    313
+table of  contents
+
+9
+Well-Managed Collections
+There are lots of  ways to stuff  objects into a collection.
+Put them into an Array, a Stack, a List, a hash map—take your pick. Each has its 
+own advantages and tradeoffs. But at some point your clients are going to want 
+to iterate over those objects, and when they do, are you going to show them your 
+implementation? We certainly hope not! That just wouldn’t be professional. Well, you 
+don’t have to risk your career; in this chapter you’re going to see how you can allow 
+your clients to iterate through your objects without ever getting a peek at how you 
+store your objects. You’re also going to learn how to create some super collections of 
+objects that can leap over some impressive data structures in a single bound. And if 
+that’s not enough, you’re also going to learn a thing or two about object responsibility.   
+the Iterator and Composite Patterns
+P
+a
+n
+c
+a
+k
+e
+H
+o
+u
+s
+e
+M
+e
+n
+u
+ 
+ 
+D
+i
+n
+e
+r
+M
+e
+n
+u
+ 
+ 
+ 
+C
+a
+f
+e
+M
+e
+n
+u
+123
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+1234
+Pancake Menu
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+Café Menu
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+k
+e
+y
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+k
+e
+y
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+k
+e
+y
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+k
+e
+y
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+1
+2
+3
+4
+Diner Menu
+All Menus
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+1
+2
+3
+4
+Dessert Menu
+Array
+ArrayList
+Breaking News: Objectville Diner and Objectville Pancake House Merge 318
+Check                out                the                Menu                Items                                                                                                319
+Implementing the spec: our first attempt    323
+Can we encapsulate the iteration?     325
+Meet                the                Iterator                Pattern                                                                                                327
+Adding an Iterator to DinerMenu     328
+Reworking the DinerMenu with Iterator    329
+Fixing                up                the                Waitress                code                                                                                                330
+Testing                our                code                                                                                                                331
+Reviewing                our                current                design...                                                                                333
+Cleaning things up with java.util.Iterator    335
+Iterator                Pattern                defined                                                                                                338
+The                Iterator                Pattern                Structure                                                                                339
+The                Single                Responsibility                Principle                                                                                340
+Meet                Java’s                Iterable                interface                                                                                                343
+Java’s                enhanced                for                loop                                                                                                344
+Taking a look at the Café Menu     347
+Iterators                and                Collections                                                                                                353
+Is the Waitress ready for prime time?     355
+The                Composite                Pattern                defined                                                                                360
+Designing                Menus                with                Composite                                                                                363
+Implementing                MenuComponent                                                                                364
+Implementing                the                MenuItem                                                                                                365
+Implementing                the                Composite                Menu                                                                                366
+Now                for                the                test                drive...                                                                                                369
+Tools for your Design Toolbox     376
+
+10
+The State of Things
+A little-known fact: the Strategy and State Patterns were 
+twins separated at birth. You’d think they’d live similar lives, but the Strategy 
+Pattern went on to create a wildly successful business around interchangeable algorithms, 
+while State took the perhaps more noble path of helping objects to control their behavior 
+by changing their internal state. As different as their paths became, however, underneath 
+you’ll find almost precisely the same design. How can that be? As you’ll see, Strategy 
+and State have very different intents. First, let’s dig in and see what the State Pattern is all 
+about, and then we’ll return to explore their relationship at the end of the chapter.
+the State Pattern
+Mighty Gumball, Inc.
+Where the Gumball Machine 
+is Never Half Empty
+Here’s the way we think the gumball machine controller needs to 
+work. We’re hoping you can implement this in Java for us!  We may 
+be adding more behavior in the future, so you need to keep the 
+design as flexible and maintainable as possible!
+       - Mighty Gumball Engineers
+Out of 
+Gumballs
+   Has 
+Quarter
+   No 
+Quarter
+Gumball 
+  Sold
+inserts quarter
+ejects quarter
+turns crank
+dispense 
+gumball
+gumballs = 0
+gumballs > 0
+Java                Breakers                                                                                382
+State machines 101     384
+Writing                the                code                                                                                386
+In-house                testing                                                                                388
+You knew it was coming...a change request!  390
+The messy STATE of  things...   392
+The                new                design                                                                                394
+Defining the State interfaces and classes   395
+Reworking the Gumball Machine   398
+Now, let’s look at the complete GumballMachine class... 399
+Implementing                more                states                                                                400
+The State Pattern defined    406
+We still need to finish the Gumball 1 in 10 game    409
+Finishing                the                game                                                                                410
+Demo for the CEO of  Mighty Gumball, Inc.  411
+Sanity                check...                                                                                413
+We                almost                forgot!                                                                                416
+Tools for your Design Toolbox   419
+table of  contents
+
+11
+Controlling Object Access
+Ever play good cop, bad cop?  You’re the good cop and you provide 
+all your services in a nice and friendly manner, but you don’t want everyone asking 
+you for services, so you have the bad cop control access to you. That’s what proxies 
+do: control and manage access. As you’re going to see, there are lots of ways in 
+which proxies stand in for the objects they proxy. Proxies have been known to haul 
+entire method calls over the internet for their proxied objects; they’ve also been 
+known to patiently stand in for some pretty lazy objects. 
+the Proxy Pattern
+<<interface>>
+Subject
+request()
+RealSubject
+request()
+Proxy
+request()
+<<interface>>
+InvocationHandler
+invoke()
+InvocationHandler
+The proxy now consists of two 
+classes.
+invoke()
+Coding                the                Monitor                                                                427
+Testing                the                Monitor                                                                428
+Remote                methods                101                                                                433
+Getting the GumballMachine ready to be a remote service 446
+Registering with the RMI registry...   448
+The Proxy Pattern defined    455
+Get ready for the Virtual Proxy   457
+Designing the Album Cover Virtual Proxy  459
+Writing the Image Proxy    460
+Using the Java API’s Proxy to create a protection proxy 469
+Geeky Matchmaking in Objectville   470
+The                Person                implementation                                                                471
+Five-minute drama: protecting subjects    473
+Big Picture: creating a Dynamic Proxy for the Person 474
+The                Proxy                Zoo                                                                                482
+Tools for your Design Toolbox   485
+The code for the Album Cover Viewer    489
+
+12
+Patterns of Patterns
+Who would have ever guessed that Patterns could work 
+together?  You’ve already witnessed the acrimonious Fireside Chats (and 
+you haven’t even seen the Pattern Death Match pages that the editor forced us to 
+remove from the book), so who would have thought patterns can actually get along 
+well together? Well, believe it or not, some of the most powerful OO designs use 
+several patterns together. Get ready to take your pattern skills to the next level; it’s 
+time for compound patterns.
+compound patterns
+Working                together                                                                                494
+Duck                reunion                                                                                495
+What                did                we                do?                                                                                517
+A bird’s duck’s-eye view: the class diagram  518
+The King of  Compound Patterns   520
+Meet                Model-View-Controller                                                                523
+A                closer                look...                                                                                524
+Understanding MVC as a set of  Patterns  526
+Using MVC to control the beat...   528
+Building                the                pieces                                                                                531
+Now let’s have a look at the concrete BeatModel class 532
+The                View                                                                                                533
+Implementing                the                View                                                                534
+Now for the Controller    536
+Putting it all together...    538
+Exploring                Strategy                                                                                539
+Adapting                the                Model                                                                540
+And now for a test run...    542
+Tools for your Design Toolbox   545
+B
+e
+a
+t
+M
+o
+d
+e
+l
+Controller
+setBPM()
+getBPM()
+on()
+off()
+Click on the 
+increase beat 
+button...
+The controller asks 
+the model to update 
+its BPM by one.
+View is notified that the 
+BPM changed.  It calls 
+getBPM() on the model state.
+Because the BPM is 120, the 
+view gets a beat notification 
+every 1/2 second.
+The beat is set at 119 BPM and you 
+would like to increase it to 120.
+...which results in the 
+controller being invoked.
+The view is updated 
+to 120 BPM.
+You see the beatbar 
+pulse every 1/2 second.
+View
+View
+table of  contents
+
+13
+Patterns in the Real World
+Ahhhh, now you’re ready for a bright new world filled 
+with Design Patterns. But, before you go opening all those new doors 
+of opportunity, we need to cover a few details that you’ll encounter out in the 
+real world—that’s right, things get a little more complex than they are here 
+in Objectville. Come along, we’ve got a nice guide to help you through the 
+transition...
+better living with patterns
+Design                Pattern                defined                                                                565
+Looking more closely at the Design Pattern definition 567
+May the force be with you    568
+So you wanna be a Design Patterns writer  573
+Organizing                Design                Patterns                                                                575
+Thinking                in                Patterns                                                                580
+Your Mind on Patterns    583
+Don’t forget the power of  the shared vocabulary    585
+Cruisin’ Objectville with the Gang of  Four  587
+Your journey has just begun...   588
+The                Patterns                Zoo                                                                                590
+Annihilating evil with Anti-Patterns   592
+Tools for your Design Toolbox   594
+Leaving                Objectville                                                                                595
+Erich Gamma
+John Vlissides
+Richard Helm
+Ralph 
+Johnson
+Gang of Four
+The Objectville Guide to 
+    Better Living with Design Patterns
+Please accept our handy guide of tips & tricks for living with patterns in the real 
+world. In this guide you will:
+b
+  
+Learn the all too common misconceptions about the definition of a “Design 
+Pattern.”
+b
+  
+Discover those nifty Design Pattern Catalogs and why you just have to get 
+one.
+b
+  
+Avoid the embarrassment of using a Design Pattern at the wrong time.
+b
+  
+Learn how to keep patterns in classifications where they belong.
+b
+  
+See that discovering patterns isn’t just for the gurus; read our quick How To 
+and become a patterns writer too.
+b
+  
+Be there when the true identify of the mysterious Gang of Four is revealed.
+b
+  
+Keep up with the neighbors – the coffee table books any patterns user must 
+own.
+b
+  
+Learn to train your Design Patterns mind like a Zen master.
+b
+  
+Win friends and influence developers by improving your patterns vocabulary.
+
+14
+Appendix: Leftover Patterns
+Not everyone can be the most popular. A lot has changed in the 
+last 25+ years. Since Design Patterns: Elements of Reusable Object-Oriented 
+Software first came out, developers have applied these patterns thousands of 
+times. The patterns we summarize in this appendix are full-fledged, card-carrying, 
+official GoF patterns, but aren’t used as often as the patterns we’ve explored so 
+far. But these patterns are awesome in their own right, and if your situation calls for 
+them, you should apply them with your head held high. Our goal in this appendix is 
+to give you a high-level idea of what these patterns are all about. 
+i
+Index
+ 617 
+Bridge                                                                                598
+Builder                                                                                600
+Chain of  Responsibility   602
+Flyweight                                                                                604
+Interpreter                                                                606
+Mediator                                                                                608
+Memento                                                                                610
+Prototype                                                                                612
+Visitor                                                                                614
+Visitor
+  Client / 
+Traverser
+getState()
+getState()
+getState()
+getState()
+getState()
+getHealthRating()
+getCalories()
+getProtein()
+getCarbs()
+All these composite 
+classes have to do is add 
+a getState() method 
+(and not worry about 
+exposing themselves).
+The Client asks 
+the Visitor to get 
+information from the 
+Composite structure... 
+New methods can be 
+added to the Visitor 
+without affecting the 
+Composite.
+The Visitor needs to be able to call 
+getState() across classes, and this is 
+where you can add new methods for 
+the client to use.
+The Traverser knows how to 
+guide the Visitor through 
+the Composite structure.
+MenuItem
+Menu
+Ingredient
+MenuItem
+Ingredient
+table of  contents
+
+xxv
+Intro
+how to use this book 
+I can’t believe they 
+put that in a Design 
+Patterns book!
+In this section, we answer the burning question:
+ 
+“So, why DID they put that in a design patterns book?”
+
+how to use this book
+xxvi 
+intro
+Who is this book for?
+1
+Do you know Java (you don’t need to be a guru) or 
+another object-oriented language?
+2
+Do you want to learn, understand, remember, and 
+apply design patterns, including the OO design 
+principles upon which design patterns are based?
+this book is for you.
+Who should probably back away from this book?
+1
+Are you completely new to object-oriented 
+programming?
+4
+this book is not for you.
+Are you afraid to try something different?  Would 
+you rather have a root canal than mix stripes 
+with plaid? Do you believe that a technical book 
+can’t be serious if object-oriented concepts are 
+anthropomorphized?
+If  you can answer “yes” to all of  these:
+If  you can answer “yes” to any one of  these:
+2
+Are you a kick-butt object-oriented designer/
+developer looking for a reference book?
+[Note from marketing: this book is 
+for anyone with a credit card.]
+3
+Do you prefer stimulating dinner party conversation 
+to dry, dull, academic lectures?
+3
+Are you an architect looking for enterprise design 
+patterns?
+All our examples are in 
+Java, but you should be 
+able to understand the 
+main concepts of the 
+book if you know another 
+object-oriented language.
+
+the intro
+you are here�
+xxvii
+“How can this be a serious programming book?”
+“What’s with all the graphics?”
+“Can I actually learn it this way?”
+We know what you’re thinking.
+Your brain craves novelty. It’s always searching, scanning, waiting for 
+something unusual. It was built that way, and it helps you stay alive. 
+Today, you’re less likely to be a tiger snack. But your brain’s still looking. 
+You just never know.
+So what does your brain do with all the routine, ordinary, normal things 
+you encounter? Everything it can to stop them from interfering with the 
+brain’s real job—recording things that matter. It doesn’t bother saving 
+the boring things; they never make it past the “this is obviously not 
+important” filter.
+How does your brain know what’s important? Suppose you’re out for a day 
+hike and a tiger jumps in front of  you, what happens inside your head and 
+body? 
+Neurons fire. Emotions crank up. Chemicals surge. 
+And that’s how your brain knows...
+This must be important! Don’t forget it!
+But imagine you’re at home, or in a library. It’s a safe, warm, tigerfree zone. You’re studying. Getting ready for an exam. Or trying to 
+learn some tough technical topic your boss thinks will take a week, 
+ten days at the most.
+Just one problem. Your brain’s trying to do you a big favor. It’s 
+trying to make sure that this obviously non-important content doesn’t 
+clutter up scarce resources. Resources that are better spent storing 
+the really big things. Like tigers. Like the danger of  fire. Like how 
+you should never again snowboard in shorts.
+And there’s no simple way to tell your brain, “Hey brain, thank 
+you very much, but no matter how dull this book is, and how little 
+I’m registering on the emotional Richter scale right now, I really do 
+want you to keep this stuff  around.”
+And we know what your brain is thinking.
+Your brain thinks 
+THIS is important.
+Your brain thinks 
+THIS isn’t worth 
+saving.
+Great. Only 
+642 more dull, 
+dry, boring pages.
+
+how to use this book
+xxviii 
+intro
+So what does it take to 
+learn 
+something? First, you have to 
+get 
+it, then make 
+sure you don’t 
+forget
+ it. It’s not about pushing facts into your head. Based on the 
+latest research in cognitive science, neurobiology, and educational psychology, 
+learning 
+takes a lot more than text on a page. We know what turns your brain on.
+Some of the 
+Head First learning principles:
+Make it visual.
+ Images are far more memorable than words alone, and 
+make learning much more effective (up to 89% improvement in recall and 
+transfer studies). It also makes things more understandable.  
+Put the 
+words within or near the graphics
+ they relate to, rather than on 
+the bottom or on another page, and learners will be up to 
+twice 
+as likely 
+to solve problems related to the content.  
+Use a conversational and personalized style
+. In studies, students 
+performed up to 40% better on post-learning tests if the content spoke directly to 
+the reader, using a first-person, conversational style rather than taking a formal 
+tone. Tell stories instead of lecturing. Use casual language. Don’t take yourself 
+too seriously. Which would 
+you 
+pay more attention to: a stimulating dinner party 
+companion, or a lecture?
+Get the learner to think more deeply.
+ In other words, unless 
+you actively flex your neurons, nothing much happens in your head.  A 
+reader has to be motivated, engaged, curious, and inspired to solve 
+problems, draw conclusions, and generate new knowledge. And for 
+that, you need challenges, exercises, thought-provoking questions, 
+activities that involve both sides of the brain, and multiple 
+senses.
+Get—and keep—the reader’s attention. 
+ We’ve 
+all had the “I really want to learn this but I can’t stay awake past 
+page one” experience.  Your brain pays attention to things that 
+are out of the ordinary, interesting, strange, eye-catching, unexpected.   
+Learning a new, tough, technical topic doesn’t have to be boring. Your brain will 
+learn much more quickly if it’s not.
+Touch their emotions.
+ We now know that your ability to remember something is largely 
+dependent on its emotional content.  You remember what you 
+care
+ about.  You remember when 
+you 
+feel
+ something. No, we’re not talking heart-wrenching stories about a boy and his dog.  We’re 
+talking emotions like surprise, curiosity, fun, “what the...?” , and the feeling of  “I Rule!” that comes 
+when you solve a puzzle, learn something everybody else thinks is hard, or realize you know 
+something that “I’m more technical than thou” Bob from engineering 
+doesn’t
+. 
+We think of a “Head First” reader as a learner.
+doCalc()
+return value
+Needs to call a 
+method on the 
+server
+Server executes 
+remote method
+ abstract void roam();
+No  method  body !     
+End it with a 
+semicolon.
+Does it make sense to 
+say Tub IS-A Bathroom? 
+Bathroom IS-A Tub? Or is it 
+a HAS-A relationship?
+It really sucks to be 
+an abstract method.  
+You don’t have a 
+body.
+
+the intro
+you are here�
+xxix
+If  you really want to learn, and you want to learn more quickly and more deeply, 
+pay attention to how you pay attention. Think about how you think. Learn how you 
+learn.
+Most of  us did not take courses on metacognition or learning theory when we were 
+growing up. We were expected to learn, but rarely taught to learn.
+But we assume that if  you’re holding this book, you really want to learn 
+design patterns. And you probably don’t want to spend a lot of  time. And 
+you want to remember what you read, and be able to apply it. And for that, 
+you’ve got to understand it. To get the most from this book, or any book or 
+learning experience, take responsibility for your brain. Your brain on this 
+content. 
+The trick is to get your brain to see the new material you’re learning as 
+Really Important. Crucial to your well-being. As important as a tiger. 
+Otherwise, you’re in for a constant battle, with your brain doing its best 
+to keep the new content from sticking.
+Metacognition: thinking about thinking
+So how DO you get your brain to think Design 
+Patterns are as important as a tiger?
+There’s the slow, tedious way, or the faster, more effective way. The 
+slow way is about sheer repetition. You obviously know that you are 
+able to learn and remember even the dullest of  topics, if  you keep 
+pounding on the same thing. With enough repetition, your brain says, “This doesn’t 
+feel important to him, but he keeps looking at the same thing over and over and over, so I 
+suppose it must be.”
+The faster way is to do anything that increases brain activity, especially different 
+types of  brain activity. The things on the previous page are a big part of  the solution, 
+and they’re all things that have been proven to help your brain work in your favor. For 
+example, studies show that putting words within the pictures they describe (as opposed to 
+somewhere else in the page, like a caption or in the body text) causes your brain to try to 
+makes sense of  how the words and picture relate, and this causes more neurons to fire. 
+More neurons firing = more chances for your brain to get that this is something worth 
+paying attention to, and possibly recording.
+A conversational style helps because people tend to pay more attention when they 
+perceive that they’re in a conversation, since they’re expected to follow along and hold up 
+their end. The amazing thing is, your brain doesn’t necessarily care that the “conversation” 
+is between you and a book! On the other hand, if  the writing style is formal and dry, your 
+brain perceives it the same way you experience being lectured to while sitting in a roomful 
+of  passive attendees. No need to stay awake.
+But pictures and conversational style are just the beginning.
+I wonder how I 
+can trick my brain 
+into remembering 
+this stuff...
+
+xxx 
+intro
+how to use this book
+We used pictures, because your brain is tuned for visuals, not text. As far as your brain’s 
+concerned, a picture really is worth 1,024 words. And when text and pictures work together, 
+we embedded the text in the pictures because your brain works more effectively when the text 
+is within the thing it refers to, as opposed to in a caption or buried somewhere else.
+We used redundancy, saying the same thing in different ways and with different media types, 
+and multiple senses, to increase the chance that the content gets coded into more than one area 
+of  your brain. 
+We used concepts and pictures in unexpected ways because your brain is tuned for novelty, 
+and we used pictures and ideas with at least some emotional content, because your brain 
+is tuned to pay attention to the biochemistry of  emotions. That which causes you to feel 
+something is more likely to be remembered, even if  that feeling is nothing more than a little 
+humor, surprise, or interest.
+We used a personalized, conversational style, because your brain is tuned to pay more 
+attention when it believes you’re in a conversation than if  it thinks you’re passively listening to 
+a presentation. Your brain does this even when you’re reading.
+We included more than 90 activities, because your brain is tuned to learn and remember 
+more when you do things than when you read about things. And we made the exercises 
+challenging-yet-do-able, because that’s what most people prefer.
+We used multiple learning styles, because you might prefer step-by-step procedures, while 
+someone else wants to understand the big picture first, while someone else just wants to see 
+a code example. But regardless of  your own learning preference, everyone benefits from seeing 
+the same content represented in multiple ways.
+We included content for both sides of  your brain, because the more of  your brain you 
+engage, the more likely you are to learn and remember, and the longer you can stay focused. 
+Since working one side of  the brain often means giving the other side a chance to rest, you 
+can be more productive at learning for a longer period of  time. 
+And we included stories and exercises that present more than one point of  view, because 
+your brain is tuned to learn more deeply when it’s forced to make evaluations and judgments. 
+We included challenges, both with exercises and by asking questions that don’t always 
+have a straight answer, because your brain is tuned to learn and remember when it has to work 
+at something. Think about it—you can’t get your body in shape just by watching people at the 
+gym. But we did our best to make sure that when you’re working hard, it’s on the right things. 
+That you’re not spending one extra dendrite processing a hard-to-understand example, 
+or parsing difficult, jargon-laden, or overly terse text.
+We used people. In stories, examples, pictures, etc., because, well, because you’re a person. 
+And your brain pays more attention to people than it does to things. 
+We used an 80/20 approach. We assume that if  you’re going for a PhD in software design, 
+this won’t be your only book. So we don’t talk about everything. Just the stuff  you’ll actually need.
+Here’s what WE did:
+The Patterns Guru
+ BULLET POINTS
+S
+u
+b
+j
+e
+c
+t
+ 
+O
+b
+j
+e
+c
+t
+8
+int
+ 
+ 
+ 
+D
+o
+g
+ 
+O
+b
+j
+e
+c
+t
+M
+o
+u
+s
+e
+ 
+O
+b
+j
+e
+c
+t
+ 
+ 
+C
+a
+t
+ 
+O
+b
+j
+e
+c
+t
+ 
+ 
+D
+u
+c
+k
+ 
+O
+b
+j
+e
+c
+t
+Observers
+8
+8
+8
+8
+ONE TO MANY RELATIONSHIP
+Automatic update/notification
+Object that 
+holds state
+Dependent Objects
+Puzzles
+
+the intro
+you are here�
+xxxi
+So, we did our part. The rest is up to you. These tips are a 
+starting point; listen to your brain and figure out what works 
+for you and what doesn’t. Try new things.
+Here’s what YOU can do to bend 
+your brain into submission
+1
+Slow down. The more you understand, 
+the less you have to memorize.
+Don’t just read. Stop and think. When the 
+book asks you a question, don’t just skip to the 
+answer. Imagine that someone really is asking 
+the question. The more deeply you force your 
+brain to think, the better chance you have of  
+learning and remembering.
+2
+Do the exercises. Write your own notes.
+We put them in, but if  we did them for you, 
+that would be like having someone else do 
+your workouts for you. And don’t just look at 
+the exercises. Use a pencil. There’s plenty of  
+evidence that physical activity while learning 
+can increase the learning. 
+3
+Read the “There Are No Dumb Questions”
+That means all of  them. They’re not optional 
+sidebars—they’re part of  the core content! 
+Don’t skip them.
+4
+Make this the last thing you read before 
+bed. Or at least the last challenging thing.
+Part of  the learning (especially the transfer to 
+long-term memory) happens after you put the 
+book down. Your brain needs time on its own, to 
+do more processing. If  you put in something new 
+during that processing time, some of  what you 
+just learned will be lost. 
+5
+Drink water. Lots of it.
+Your brain works best in a nice bath of  fluid. 
+Dehydration (which can happen before you ever 
+feel thirsty) decreases cognitive function. 
+6
+Talk about it. Out loud.
+Speaking activates a different part of  the brain. 
+If  you’re trying to understand something, or 
+increase your chance of  remembering it later, say 
+it out loud. Better still, try to explain it out loud 
+to someone else. You’ll learn more quickly, and 
+you might uncover ideas you hadn’t known were 
+there when you were reading about it.
+7
+Listen to your brain.
+Pay attention to whether your brain is getting 
+overloaded. If  you find yourself  starting to skim the 
+surface or forget what you just read, it’s time for a 
+break. Once you go past a certain point, you won’t 
+learn faster by trying to shove more in, and you 
+might even hurt the process.
+9
+Design something!
+Apply this to something new you’re designing, or 
+refactor an older project. Just do something to get 
+some experience beyond the exercises and activities 
+in this book. All you need is a pencil and a problem 
+to solve...a problem that might benefit from one or 
+more design patterns. 
+Cut this out and stick it 
+on your refrigerator.
+8
+Feel something!
+Your brain needs to know that this matters. Get 
+involved with the stories. Make up your own 
+captions for the photos. Groaning over a bad joke is 
+still better than feeling nothing at all.
+
+xxxii 
+intro
+Read Me
+Director
+getMovies
+getOscars()
+getKevinBaconDegrees()
+We use a simpler, 
+modified version 
+of UML.
+This is a learning experience, not a reference book. We deliberately stripped out 
+everything that might get in the way of  learning whatever it is we’re working on at that 
+point in the book. And the first time through, you need to begin at the beginning, because 
+the book makes assumptions about what you’ve already seen and learned.
+We use simple UML-like diagrams. 
+Although there’s a good chance you’ve run across UML, it’s not covered in the book, and 
+it’s not a prerequisite for the book. If  you’ve never seen UML before, don’t worry, we’ll 
+give you a few pointers along the way.  So in other words, you won’t have to worry about 
+Design Patterns and UML at the same time. Our diagrams are “UML-like”—while we 
+try to be true to UML there are times we bend the rules a bit, usually for our own selfish 
+artistic reasons. 
+We don’t cover every single Design Pattern ever created.
+There are a lot of  Design Patterns: the original foundational patterns (known as the GoF 
+patterns), enterprise Java patterns, architectural patterns, game design patterns, and a lot 
+more. But our goal was to make sure the book weighed less than the person reading it, so 
+we don’t cover them all here. Our focus is on the core patterns that matter from the original 
+GoF object-oriented patterns, and making sure that you really, truly, deeply understand 
+how and when to use them. You will find a brief  look at some of  the other patterns (the 
+ones you’re far less likely to use) in the appendix. In any case, once you’re done with Head 
+First Design Patterns, you’ll be able to pick up any patterns catalog and get up to speed 
+quickly.
+The activities are NOT optional. 
+The exercises and activities are not add-ons; they’re part of  the core content of  the book. 
+Some of  them are to help with memory, some for understanding, and some to help you 
+apply what you’ve learned. Don’t skip the exercises. The crossword puzzles are the 
+only things you don’t have to do, but they’re good for giving your brain a chance to think 
+about the words from a different context.
+We use the word “composition” in the general OO sense, which is 
+more flexible than the strict UML use of “composition.”
+When we say “one object is composed with another object” we mean that they are related 
+by a HAS-A relationship. Our use reflects the traditional use of  the term and is the one 
+used in the GoF text (you’ll learn what that is later). More recently, UML has refined this 
+term into several types of  composition. If  you are an UML expert, you’ll still be able 
+to read the book and you should be able to easily map the use of  composition to more 
+refined terms as you read.
+how to use this book
+
+the intro
+you are here�
+xxxiii
+The redundancy is intentional and important. 
+One distinct difference in a Head First book is that we want you to really get it. And we want 
+you to finish the book remembering what you’ve learned. Most reference books don’t have 
+retention and recall as a goal, but this book is about learning, so you’ll see some of  the same 
+concepts come up more than once. 
+The code examples are as lean as possible.
+Our readers tell us that it’s frustrating to wade through 200 lines of  code looking for the two 
+lines they need to understand. Most examples in this book are shown within the smallest 
+possible context, so that the part you’re trying to learn is clear and simple. Don’t expect 
+all of  the code to be robust, or even complete—the examples are written specifically for 
+learning, and aren’t always fully functional. 
+In some cases, we haven’t included all of  the import statements needed, but we assume that 
+if  you’re a Java programmer, you know that ArrayList is in java.util, for example. If  the 
+imports were not part of  the normal core JSE API, we mention it. We’ve also placed all the 
+source code on the web so you can download it. You’ll find it at  
+http://wickedlysmart.com/head-first-design-patterns.
+Also, for the sake of  focusing on the learning side of  the code, we did not put our classes 
+into packages (in other words, they’re all in the Java default package). We don’t recommend 
+this in the real world, and when you download the code examples from this book, you’ll find 
+that all classes are in packages.
+The Brain Power exercises don’t have answers.
+For some of  them, there is no right answer, and for others, part of  the learning experience 
+of  the Brain Power activities is for you to decide if  and when your answers are right. In 
+some of  the Brain Power exercises, you will find hints to point you in the right direction.
+
+xxxiv 
+intro
+Tech Reviewers
+Jef Cumps 
+Jason Menard
+Dirk Schreckmann
+Barney Marispini
+Valentin Crettaz
+Ike Van Atta
+Mark Spritzler
+Johannes deJong
+Fearless leader of 
+the HFDP Extreme 
+Review Team
+the first edition review team
+Philippe Maquet
+In memory of Philippe Maquet, 1960 - 
+2004. Your amazing technical expertise, 
+relentless enthusiasm, and deep concern for 
+the learner will inspire us always. 
+
+the intro
+you are here�
+xxxv
+the second edition review team
+Julian Setiawan
+George Heineman
+David Powers
+Trisha Gee
+Tech Reviewers, 2nd Edition
+2nd Edition Reviewer MVP!
+At O’Reilly: 
+Our biggest thanks to Mike Loukides at O’Reilly, for starting it all and helping to shape the Head First concept into 
+a series. And a big thanks to the driving force behind Head First, Tim O’Reilly. Thanks to the clever Head First 
+“series mom” Kyle Hart, “In Design King” Ron Bilodeau, rock-and-roll star Ellie Volkhausen for her inspired 
+cover design, Melanie Yarbrough for shepherding production, Colleen Gorman and Rachel Monaghan for 
+their hardcore copyedits, and Bob Pfahler for a much improved index. Finally, thanks to Mike Hendrickson and 
+Meghan Blanchette for championing this book and building the team.
+Our intrepid reviewers:
+We are extremely grateful for our technical review director Johannes deJong. You are our hero, Johannes. And we 
+deeply appreciate the contributions of  the co-manager of  the Javaranch review team, the late Philippe Maquet. 
+You have single-handedly brightened the lives of  thousands of  developers, and the impact you’ve had on their (and 
+our) lives is forever. Jef  Cumps is scarily good at finding problems in our draft chapters, and once again made a huge 
+difference for the book. Thanks Jef ! Valentin Cretazz (AOP guy), who has been with us from the very first Head First 
+book, proved (as always) just how much we really need his technical expertise and insight. You rock Valentin (but lose 
+the tie).
+Two newcomers to the HF review team, Barney Marispini and Ike Van Atta, did a kick-butt job on the book—you 
+guys gave us some really crucial feedback. Thanks for joining the team. 
+We also got some excellent technical help from Javaranch moderators/gurus Mark Spritzler, Jason Menard, Dirk 
+Schreckmann, Thomas Paul, and Margarita Isaeva. And as always, thanks especially to the javaranch.com 
+Trail Boss, Paul Wheaton.  
+Thanks to the finalists of  the Javaranch “Pick the Head First Design Patterns Cover” contest. The winner, Si Brewster, 
+submitted the winning essay that persuaded us to pick the woman you see on our cover. Other finalists include Andrew 
+Esse, Gian Franco Casula, Helen Crosbie, Pho Tek, Helen Thomas, Sateesh Kommineni, and Jeff  Fisher.
+For the 2014 update to the book, we are so grateful to the following technical reviewers: George Hoffer, Ted Hill, Todd 
+Bartoszkiewicz, Sylvain Tenier, Scott Davidson, Kevin Ryan, Rich Ward, Mark Francis Jaeger, Mark Masse, Glenn Ray, 
+Bayard Fetler, Paul Higgins, Matt Carpenter, Julia Williams, Matt McCullough, and Mary Ann Belarmino.
+From the first edition
+Acknowledgments
+
+how to use this book
+xxxvi 
+intro
+Very Special Thanks
+A very special thanks to Erich Gamma, who went far beyond the call of  duty in reviewing this book (he even 
+took a draft with him on vacation). Erich, your interest in this book inspired us, and your thorough technical review 
+improved it immeasurably. Thanks as well to the entire Gang of  Four for their support and interest, and for 
+making a special appearance in Objectville.  We are also indebted to Ward Cunningham and the patterns 
+community who created the Portland Pattern Repository—an indispensable resource for us in writing this book.
+A big thank you to Mike Loukides, Mike Hendrickson, and Meghan Blanchette. Mike L. was with 
+us every step of  the way. Mike, your insightful feedback helped shape the book, and your encouragement kept us 
+moving ahead. Mike H., thanks for your persistence over five years in trying to get us to write a patterns book; we 
+finally did it and we’re glad we waited for Head First. 
+It takes a village to write a technical book: Bill Pugh and Ken Arnold gave us expert advice on Singleton. 
+Joshua Marinacci provided rockin’ Swing tips and advice. John Brewer’s “Why a Duck?” paper inspired 
+SimUDuck (and we’re glad he likes ducks too). Dan Friedman inspired the Little Singleton example. Daniel 
+Steinberg acted as our “technical liason” and our emotional support network. Thanks to Apple’s James 
+Dempsey for allowing us to use his MVC song. And thank you to Richard Warburton, who made sure our 
+Java 8 code updates were up to snuff  for this updated edition of  the book.
+Last, a personal thank you to the Javaranch review team for their top-notch reviews and warm support. 
+There’s more of  you in this book than you know. 
+Writing a Head First book is a wild ride with two amazing tour guides: Kathy Sierra and Bert Bates. With 
+Kathy and Bert you throw out all book writing convention and enter a world full of  storytelling, learning theory, 
+cognitive science, and pop culture, where the reader always rules. 
+At O’Reilly: 
+First and foremost, Mary Treseler is the superpower who makes everything happen and we are eternally grateful 
+to her for all she does for O’Reilly, Head First, and the authors. Melissa Duffield and Michele Cronin 
+cleared many paths that made this second edition happen. Rachel Monaghan did an amazing copy edit, giving a 
+new sparkle to our text. Kristen Brown made the book look beautiful online and in print. Ellie Volckhausen 
+worked her magic and designed a brilliant new cover for the second edition. Thank you all!
+Our 2nd edition reviewers:
+We’re grateful to our 2nd edition technical reviewers for picking up the task 15 years later. David Powers is our goto reviewer (he’s ours, don’t even think about asking him to review your book) because he doesn’t miss a thing. George 
+Heineman went above and beyond with his detailed comments, suggestions, and feedback, and he received this 
+edition’s technical MVP award. Trisha Gee and Julian Setiawan provided the invaluable Java savvy we needed 
+to help us avoid those embarrassing and cringe-worthy Java mistakes. Thank you all!
+From the second edition
+Acknowledgments
+our thanks

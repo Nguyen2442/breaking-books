@@ -22,6 +22,8 @@ import {
   LogOut,
   Layers,
   FolderOpen,
+  Minimize2,
+  Maximize2,
 } from "lucide-react";
 
 const COVERS = [
@@ -70,6 +72,7 @@ export default function UserLibraryPage() {
 
   // Upload flow: null | { step: 0..3, pct, fileName, error, warning, bookId }
   const [upload, setUpload] = useState(null);
+  const [backgroundJob, setBackgroundJob] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef(null);
   const [busyBook, setBusyBook] = useState("");
@@ -77,15 +80,22 @@ export default function UserLibraryPage() {
 
   const checkUserAuth = useCallback(async () => {
     try {
-      const res = await fetch("/api/auth");
+      const cached = localStorage.getItem("bb_user");
+      if (cached) setCurrentUser(JSON.parse(cached));
+    } catch {}
+
+    try {
+      const res = await fetch("/api/auth", { cache: "no-store" });
       const data = await res.json();
       if (data.ok && data.user) {
         setCurrentUser(data.user);
+        try { localStorage.setItem("bb_user", JSON.stringify(data.user)); } catch {}
       } else {
         setCurrentUser(null);
+        try { localStorage.removeItem("bb_user"); } catch {}
       }
     } catch {
-      setCurrentUser(null);
+      // Keep cached if network error
     } finally {
       setAuthLoading(false);
     }
@@ -275,7 +285,7 @@ export default function UserLibraryPage() {
   const sampleBooks = books.filter((b) => b.isSample || !b.ownerId);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F15] text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-200">
       {/* Top Header */}
       <Navbar />
 
@@ -321,10 +331,10 @@ export default function UserLibraryPage() {
                 setDragOver(false);
                 startUpload(e.dataTransfer.files?.[0]);
               }}
-              className={`w-full rounded-2xl border-2 border-dashed px-6 py-8 flex flex-col items-center gap-2.5 text-center transition-all cursor-pointer ${
+              className={`w-full rounded-2xl border-2 border-dashed px-6 py-8 flex flex-col items-center gap-2.5 text-center transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:outline-none active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed ${
                 dragOver
-                  ? "border-orange-600 bg-orange-50/60 dark:bg-orange-500/10 scale-[1.005]"
-                  : "border-slate-200 dark:border-white/10 bg-white dark:bg-[#10161D] hover:border-orange-500"
+                  ? "border-orange-600 bg-orange-50/60 dark:bg-orange-500/10"
+                  : "border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 hover:border-orange-500"
               }`}
             >
               <div className="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center">
@@ -338,7 +348,7 @@ export default function UserLibraryPage() {
               </span>
             </button>
           ) : (
-            <div className="rounded-2xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#10161D] p-6 shadow-md transition-all">
+            <div className="rounded-2xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-slate-900 p-6 shadow-md transition-colors">
               {/* Header of Upload Card */}
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
@@ -359,7 +369,7 @@ export default function UserLibraryPage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400">
+                      <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400">
                         {upload.fileSizeMb ? `${upload.fileSizeMb} MB` : "PDF"}
                       </span>
                       <span className="text-xs text-slate-500">
@@ -376,15 +386,28 @@ export default function UserLibraryPage() {
                   </div>
                 </div>
 
-                {!uploading && (
+                <div className="flex items-center gap-1.5">
+                  {upload.phase !== "completed" && upload.phase !== "error" && (
+                    <button
+                      onClick={() => {
+                        setBackgroundJob(upload);
+                        setUpload(null);
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-white/10 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                      title="Thu nhỏ & Để hệ thống tự động xử lý ngầm trong nền"
+                    >
+                      <Minimize2 className="w-3.5 h-3.5 text-orange-500" />
+                      <span>Chạy ngầm</span>
+                    </button>
+                  )}
                   <button
                     onClick={() => setUpload(null)}
-                    className="p-1.5 rounded-xl border border-slate-200 dark:border-white/10 text-xs text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
-                    title="Đóng / Huỷ"
+                    className="p-1.5 rounded-xl border border-slate-200 dark:border-white/10 text-xs text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                    title="Đóng bảng"
                   >
                     <X className="w-4 h-4" />
                   </button>
-                )}
+                </div>
               </div>
 
               {/* 3-Step Progress Indicator */}
@@ -399,7 +422,7 @@ export default function UserLibraryPage() {
                   return (
                     <div
                       key={s.step}
-                      className={`px-3 py-2 rounded-xl text-center text-xs font-semibold border transition-all ${
+                      className={`px-3 py-2 rounded-xl text-center text-xs font-semibold border transition-colors ${
                         isDone
                           ? "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-400"
                           : isCurrent
@@ -422,19 +445,19 @@ export default function UserLibraryPage() {
                 <div className="mt-4 space-y-2">
                   <div className="h-2.5 rounded-full bg-slate-100 dark:bg-white/10 overflow-hidden p-0.5">
                     <div
-                      className={`h-full rounded-full transition-all duration-500 ${
+                      className={`h-full rounded-full origin-left motion-safe:transition-transform duration-300 motion-reduce:transition-none ${
                         upload.phase === "completed"
                           ? "bg-emerald-500"
-                          : "bg-gradient-to-r from-orange-500 to-amber-500"
+                          : "bg-orange-500"
                       }`}
-                      style={{ width: `${Math.min(100, upload.pct || 10)}%` }}
+                      style={{ transform: `scaleX(${Math.min(1, (upload.pct || 10) / 100)})` }}
                     />
                   </div>
                   <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                     <span className="font-medium text-slate-700 dark:text-slate-300">
                       {upload.statusText || "Đang xử lý..."}
                     </span>
-                    <span className="font-mono font-bold text-orange-600 dark:text-orange-400">
+                    <span className="font-bold text-orange-600 dark:text-orange-400">
                       {upload.pct || 10}%
                     </span>
                   </div>
@@ -476,7 +499,7 @@ export default function UserLibraryPage() {
                     {upload.bookId && (
                       <Link
                         href={`/books/${upload.bookId}`}
-                        className="px-4 py-2 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-md shadow-orange-600/25 inline-flex items-center gap-2 transition-all hover:scale-[1.02]"
+                        className="px-4 py-2 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-md shadow-orange-600/25 inline-flex items-center gap-2 transition-colors"
                       >
                         <span>Mở sách đọc ngay</span>
                         <ArrowRight className="w-4 h-4" />
@@ -505,7 +528,7 @@ export default function UserLibraryPage() {
             </div>
 
             {myBooks.length === 0 ? (
-              <div className="p-8 rounded-2xl bg-white dark:bg-[#10161D] border border-slate-200/80 dark:border-white/10 text-center space-y-3">
+              <div className="p-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 text-center space-y-3">
                 <div className="w-12 h-12 rounded-2xl bg-orange-50 dark:bg-orange-500/10 text-orange-600 flex items-center justify-center mx-auto">
                   <BookOpen className="w-6 h-6" />
                 </div>
@@ -543,6 +566,56 @@ export default function UserLibraryPage() {
           </div>
         </section>
       </main>
+
+      {/* Floating Background Job Notification Widget */}
+      {backgroundJob && (
+        <div className="fixed bottom-6 right-6 z-50 p-4 rounded-2xl bg-slate-900/95 border border-orange-500/40 text-white shadow-lg backdrop-blur-md flex items-center gap-3.5 max-w-sm animate-in slide-in-from-bottom-5">
+          <div className="w-9 h-9 rounded-xl bg-orange-500/20 text-orange-400 border border-orange-500/30 flex items-center justify-center shrink-0">
+            <Loader2 className="w-4 h-4 animate-spin text-orange-500" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-xs font-semibold text-orange-400">
+                Xử lý ngầm trong nền
+              </span>
+              <span className="text-xs text-slate-400 tabular-nums">
+                {backgroundJob.pct || 45}%
+              </span>
+            </div>
+            <p className="text-xs font-semibold text-slate-200 truncate mt-0.5">
+              {backgroundJob.title || backgroundJob.fileName}
+            </p>
+            <div className="w-full bg-slate-800 h-1.5 rounded-full mt-1.5 overflow-hidden">
+              <div
+                className="bg-gradient-to-r from-orange-500 to-amber-500 h-full origin-left motion-safe:transition-transform duration-300 motion-reduce:transition-none rounded-full"
+                style={{ transform: `scaleX(${Math.min(1, (backgroundJob.pct || 45) / 100)})` }}
+              />
+            </div>
+            <p className="text-[10px] text-slate-400 mt-1">
+              Bạn có thể thoải mái đọc các sách khác!
+            </p>
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              onClick={() => {
+                setUpload(backgroundJob);
+                setBackgroundJob(null);
+              }}
+              className="p-1.5 rounded-lg hover:bg-white/10 active:scale-95 text-slate-400 hover:text-white transition-colors cursor-pointer"
+              title="Phóng to"
+            >
+              <Maximize2 className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setBackgroundJob(null)}
+              className="p-1.5 rounded-lg hover:bg-white/10 active:scale-95 text-slate-400 hover:text-white transition-colors cursor-pointer"
+              title="Ẩn thông báo"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -555,43 +628,55 @@ export default function UserLibraryPage() {
     return (
       <div
         key={book.id}
-        className="group rounded-3xl bg-white dark:bg-[#10161D] border border-slate-200/80 dark:border-white/10 hover:border-orange-500/50 dark:hover:border-orange-500/50 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden"
+        className="group rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-white/10 hover:border-orange-500/50 dark:hover:border-orange-500/50 shadow-sm transition-colors duration-200 flex flex-col justify-between overflow-hidden"
       >
         <div className="p-5 space-y-4">
           <div className="flex gap-4">
             {/* Book Cover */}
-            <div className="w-20 h-28 rounded-xl shrink-0 overflow-hidden bg-gradient-to-tr from-slate-800 to-slate-900 relative shadow-md">
-              {book.coverUrl ? (
-                <img
-                  src={book.coverUrl}
-                  alt={book.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              ) : (
-                <div
-                  className={`w-full h-full bg-gradient-to-br ${coverFor(
-                    book.id
-                  )} p-2 flex flex-col justify-between text-white`}
-                >
-                  <span className="text-[9px] font-bold uppercase tracking-wider opacity-75">
-                    Breaking Books
-                  </span>
-                  <p className="text-[10px] font-black line-clamp-3 leading-tight">{book.title}</p>
-                </div>
-              )}
+            <div className="w-20 h-28 rounded-xl shrink-0 overflow-hidden bg-slate-900 relative shadow-sm">
+              <img
+                src={book.coverUrl || `/covers/${book.id}.jpg`}
+                alt={book.title}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  if (!e.currentTarget.src.endsWith(".svg")) {
+                    e.currentTarget.src = `/covers/${book.id}.svg`;
+                  } else {
+                    e.currentTarget.style.display = "none";
+                    if (e.currentTarget.nextElementSibling) {
+                      e.currentTarget.nextElementSibling.classList.remove("hidden");
+                    }
+                  }
+                }}
+              />
+              <div
+                className={`hidden w-full h-full bg-gradient-to-br ${coverFor(
+                  book.id
+                )} p-2 flex flex-col justify-between text-white absolute inset-0`}
+              >
+                <span className="text-[10px] font-semibold opacity-75">
+                  Breaking Books
+                </span>
+                <p className="text-[10px] font-bold line-clamp-3 leading-tight">{book.title}</p>
+              </div>
             </div>
 
             {/* Book Info */}
             <div className="min-w-0 flex-1 flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-1.5 mb-1">
-                  {isSample ? (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 font-bold border border-amber-500/20">
-                      SÁCH MẪU
+                  {book.status === "processing" || book.edition?.includes("bóc tách ngầm") ? (
+                    <span className="text-xs px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-600 dark:text-orange-400 font-semibold border border-orange-500/20 flex items-center gap-1">
+                      <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                      <span>Đang bóc tách ngầm</span>
+                    </span>
+                  ) : isSample ? (
+                    <span className="text-xs px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold border border-amber-500/20">
+                      Sách mẫu
                     </span>
                   ) : (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-600 dark:text-orange-400 font-bold border border-orange-500/20">
-                      CỦA BẠN
+                    <span className="text-xs px-2 py-0.5 rounded-md bg-orange-500/10 text-orange-600 dark:text-orange-400 font-semibold border border-orange-500/20">
+                      Của bạn
                     </span>
                   )}
                 </div>
@@ -603,10 +688,10 @@ export default function UserLibraryPage() {
                 </p>
               </div>
 
-              <div className="mt-2 text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-2">
-                <span>{complete}/{total} chương</span>
+              <div className="mt-2 text-xs text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                <span className="tabular-nums">{complete}/{total} chương</span>
                 <span>•</span>
-                <span className="font-semibold text-orange-600 dark:text-orange-400">{pct}% hoàn thiện</span>
+                <span className="font-semibold text-orange-600 dark:text-orange-400 tabular-nums">{pct}% hoàn thiện</span>
               </div>
             </div>
           </div>
@@ -614,20 +699,20 @@ export default function UserLibraryPage() {
           {/* Progress bar */}
           <div className="h-1.5 rounded-full bg-slate-100 dark:bg-white/5 overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full transition-all duration-300"
-              style={{ width: `${pct}%` }}
+              className="h-full bg-gradient-to-r from-orange-500 to-amber-500 rounded-full origin-left motion-safe:transition-transform duration-300 motion-reduce:transition-none"
+              style={{ transform: `scaleX(${pct / 100})` }}
             />
           </div>
         </div>
 
         {/* Action Button */}
         <div className="px-5 py-3.5 bg-slate-50/80 dark:bg-white/[0.02] border-t border-slate-100 dark:border-white/5 flex items-center justify-between">
-          <span className="text-[11px] text-slate-500">
+          <span className="text-xs text-slate-500 tabular-nums">
             {book.stats?.totalSvgs || 0} sơ đồ lab
           </span>
           <Link
             href={`/books/${book.id}`}
-            className="inline-flex items-center gap-1 text-xs font-bold text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 transition-colors"
+            className="inline-flex items-center gap-1 text-xs font-bold text-orange-600 dark:text-orange-400 hover:text-orange-700 dark:hover:text-orange-300 active:scale-[0.98] transition-colors"
           >
             <span>Đọc sách ngay</span>
             <ArrowRight className="w-3.5 h-3.5" />

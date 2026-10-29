@@ -1,0 +1,62 @@
+<section class="chapter" id="ch8" data-ch="8" data-title="Mẫu Thiết Kế Singleton: Đảm Bảo Duy Nhất Một Thực Thể và Điểm Truy Cập Toàn Cầu">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 8</p>
+    <h1>The Singleton Pattern: One-of-a-Kind Objects <span class="vi">Mẫu Thiết Kế Singleton: Đảm Bảo Duy Nhất Một Thực Thể và Điểm Truy Cập Toàn Cầu</span></h1>
+    <p class="lede">Kiểm soát việc khởi tạo đối tượng để đảm bảo chỉ có duy nhất một instance tồn tại trong toàn bộ vòng đời ứng dụng, cung cấp điểm truy cập toàn cầu an toàn và tối ưu tài nguyên.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">2 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch8-t1" data-num="8.1" data-short="Cấu trúc & Cơ chế">
+    <div class="topic-theory-card">
+      <p class="eyebrow">NGUYÊN LÝ CỐT LÕI</p>
+      <h2>Giải phẫu Mẫu thiết kế Singleton Kinh điển và Khởi tạo Trễ</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Thiết lập lớp tự quản lý instance thông qua constructor riêng tư và phương thức tĩnh getInstance().</p></div>
+      <div class="prose">
+        <p>Mẫu thiết kế <dfn data-term="Singleton Pattern"><strong>Singleton</strong></dfn> cho phép một lớp kiểm soát toàn bộ quá trình khởi tạo của chính nó, ngăn chặn bất kỳ thực thể bên ngoài nào sử dụng toán tử <dfn data-term="New Operator"><strong>new</strong></dfn> để tạo bản sao mới. Việc truy cập bắt buộc phải thông qua điểm truy cập toàn cầu dạng phương thức tĩnh <dfn data-term="Static getInstance"><strong>getInstance()</strong></dfn>, giúp tối ưu hóa tài nguyên nhờ cơ chế <dfn data-term="Lazy Instantiation"><strong>lazy instantiation</strong></dfn> (chỉ khởi tạo khi thực sự có yêu cầu).</p><p>Các phương án tiếp cận khởi tạo biến thể trong các hệ thống lớn:</p><ul><li><strong>Lazy Loading (Khởi tạo trễ):</strong> Tiết kiệm bộ nhớ khởi động ứng dụng nhưng dễ dính lỗi tranh chấp luồng nếu không đồng bộ.</li><li><strong>Eager Loading (Khởi tạo sớm):</strong> Khởi tạo ngay khi nạp lớp, an toàn tuyệt đối với đa luồng nhưng lãng phí tài nguyên nếu ứng dụng không bao giờ sử dụng đến.</li><li><strong>Enum Singleton:</strong> Giải pháp tối thượng trong Java, tự động giải quyết vấn đề serialization, reflection và đa luồng mà không cần viết mã đồng bộ phức tạp.</li></ul><p>Khi áp dụng thực chiến, kiến trúc sư cần cân nhắc kỹ lưỡng giữa chi phí khởi tạo đối tượng và áp lực bộ nhớ heap để lựa chọn phương án thiết kế phù hợp.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại hệ thống thanh toán MoMo</b>
+        <p>Trong các dịch vụ xử lý giao dịch tài chính thời gian thực tại MoMo, các đối tượng quản lý kết nối SDK bên thứ ba hoặc bộ đệm cấu hình phí giao dịch bắt buộc phải tuân theo chuẩn Singleton để tránh việc khởi tạo hàng loạt kết nối mạng gây tràn bộ nhớ và sai lệch trạng thái số dư người dùng.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch8-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô phỏng Luồng Khởi tạo Singleton & Tranh chấp Đa luồng</strong>
+        <small>Quan sát cách các luồng đồng thời cố gắng gọi getInstance() và hiện tượng tạo ra nhiều thực thể khi thiếu cơ chế đồng bộ hóa.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch8-review" data-num="8.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 8</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Mẫu thiết kế <dfn data-term="Singleton Pattern"><strong>Singleton</strong></dfn> giải quyết bài toán cốt lõi trong kiến trúc phần mềm khi một số tài nguyên hệ thống chỉ cho phép tồn tại duy nhất một phiên bản để tránh xung đột trạng thái, rò rỉ bộ nhớ hoặc sai lệch kết quả kinh doanh. Nội dung chương bóc tách chi tiết từ cấu trúc kinh điển sử dụng constructor riêng tư (<dfn data-term="Private Constructor"><strong>private constructor</strong></dfn>) kết hợp phương thức tĩnh (<dfn data-term="Static Method"><strong>static method</strong></dfn>), cho đến các bài toán phức tạp về đa luồng (<dfn data-term="Multithreading"><strong>multithreading</strong></dfn>) gây ra tranh chấp tạo ra nhiều instance. Các giải pháp kỹ thuật từ <dfn data-term="Synchronized Method"><strong>synchronized</strong></dfn>, <dfn data-term="Eager Instantiation"><strong>eager instantiation</strong></dfn>, <dfn data-term="Double-Checked Locking"><strong>double-checked locking</strong></dfn> với từ khóa <dfn data-term="Volatile Keyword"><strong>volatile</strong></dfn> được phân tích sâu sắc cùng những cạm bẫy từ trình nạp lớp (<dfn data-term="Class Loader"><strong>class loader</strong></dfn>), reflection và serialization. Cuối cùng, giải pháp hiện đại bằng <dfn data-term="Java Enum"><strong>Java Enum</strong></dfn> được khẳng định là tiêu chuẩn tối ưu để loại bỏ triệt để các rủi ro kỹ thuật trong hệ thống phân tán và chịu tải cao.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Tại sao việc sử dụng phương thức khởi tạo (constructor) riêng tư (private) lại đóng vai trò cốt lõi trong Singleton Pattern?</p>
+        <ol><li>Để tăng tốc độ biên dịch mã nguồn của Java</li><li>Để ngăn chặn các lớp bên ngoài sử dụng toán tử 'new' nhằm khởi tạo trực tiếp các bản sao mới</li><li>Để cho phép lớp con có thể kế thừa và ghi đè phương thức khởi tạo</li><li>Để tự động đồng bộ hóa dữ liệu giữa các luồng xử lý khác nhau</li></ol>
+        <p class="explain">Constructor riêng tư đảm bảo không một thực thể bên ngoài nào có thể gọi lệnh 'new MyClass()', buộc phải thông qua phương thức tĩnh trung gian kiểm soát.</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p><strong>Câu 2:</strong> Từ khóa 'volatile' trong mô hình Double-Checked Locking có nhiệm vụ kỹ thuật nào?</p>
+        <ol><li>Tăng tốc độ thực thi mã lệnh của phương thức gấp đôi</li><li>Ngăn chặn trình biên dịch và CPU sắp xếp lại lệnh (instruction reordering) gây ra hiện tượng tham chiếu nửa vời đối tượng chưa khởi tạo xong</li><li>Tự động giải phóng bộ nhớ khi đối tượng không còn được sử dụng</li><li>Cho phép lớp được kế thừa bởi các gói (package) khác nhau</li></ol>
+        <p class="explain">Volatile đảm bảo tính hiển thị bộ nhớ và ngăn chặn việc gán tham chiếu trước khi đối tượng được khởi tạo hoàn toàn trong kiến trúc đa nhân CPU.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

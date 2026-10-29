@@ -1,0 +1,283 @@
+this is a new chapter     79
+Just call this chapter “Design Eye for the Inheritance Guy.” 
+We’ll re-examine the typical overuse of inheritance and you’ll learn how to decorate 
+your classes at runtime using a form of object composition. Why? Once you know the 
+techniques of decorating, you’ll be able to give your (or someone else’s) objects new 
+responsibilities without making any code changes to the underlying classes.
+Decorating  Objects          
+3  the Decorator Pattern
+I used to think real men 
+subclassed everything. That was 
+until I learned the power of 
+extension at runtime, rather than 
+at compile time. Now look at me!
+
+80        Chapter    3
+the starbuzz story
+Welcome to Starbuzz Coffee
+Beverage is an abstract class, 
+subclassed by all beverages 
+offered in the coffee shop.
+Each subclass implements cost() to return the cost of the beverage.
+cost()
+Espresso
+cost()
+Decaf
+cost()
+DarkRoast
+cost()
+HouseBlend
+Beverage
+description
+getDescription()
+cost()
+// Other useful methods...
+The description instance variable 
+is set in each subclass and holds a 
+description of the beverage, like 
+“Most Excellent Dark Roast”. 
+The getDescription() method 
+returns the description.
+The cost() method is 
+abstract; subclassses 
+need to define their 
+own implementation.
+Starbuzz Coffee has made a name for itself  as the fastestgrowing coffee shop around. If  you’ve seen one on your local 
+corner, look across the street; you’ll see another one.
+Because they’ve grown so quickly, they’re scrambling to update 
+their ordering systems to match their beverage offerings.  
+When they first went into business they designed their classes 
+like this...
+
+you are here 4        81
+the decorator pattern
+Beverage
+description
+getDescription()
+cost()
+// Other useful methods...
+cost()
+HouseBlendWithSteamedMilk
+andCaramel
+cost()
+HouseBlendWithMocha
+cost()
+HouseBlendWithWhipandMocha
+cost()
+HouseBlendWithSteamedMilk
+andSoy
+cost()
+HouseBlendWithSteamedMilk
+cost()
+HouseBlendWithSteamedMilk
+andMocha
+cost()
+HouseBlendWithSoy
+cost()
+HouseBlendWithWhip
+cost()
+HouseBlendWithSteamedMilk
+andWhip
+cost()
+HouseBlendWithSoyandMocha
+cost()
+HouseBlendWithWhipandSoy
+cost()
+DarkRoastWithSteamedMilk
+andCaramel
+cost()
+DarkRoastWithMocha
+cost()
+DarkRoastWithWhipandMocha
+cost()
+DarkRoastWithSteamedMilk
+andSoy
+cost()
+DarkRoastWithSteamedMilk
+cost()
+DarkRoastWithSteamedMilk
+andMocha
+cost()
+DarkRoastWithSoy
+cost()
+DarkRoastWithWhip
+cost()
+DarkRoastWithSteamedMilk
+andWhip
+cost()
+DarkRoastWithSoyandMocha
+cost()
+DarkRoastWithWhipandSoy
+cost()
+DecafWithSteamedMilk
+andCaramel
+cost()
+DecafWithMocha
+cost()
+DecafWithWhipandMocha
+cost()
+DecafWithSteamedMilk
+andSoy
+cost()
+DecafWithSteamedMilk
+cost()
+DecafWithSteamedMilk
+andMocha
+cost()
+DecafWithSoy
+cost()
+DecafWithWhip
+cost()
+DecafWithSteamedMilk
+andWhip
+cost()
+DecafWithSoyandMocha
+cost()
+DecafWithWhipandSoy
+cost()
+DarkRoastWithSoy
+cost()
+EspressoWithSteamedMilk
+andCaramel
+cost()
+EspressoWithMocha
+cost()
+EspressoWithWhipandMocha
+cost()
+EspressoWithSteamedMilk
+andSoy
+cost()
+EspressoWithSteamedMilk
+cost()
+EspressoWithSteamedMilk
+andMocha
+cost()
+DecafWithSoy
+cost()
+EspressoWhip
+cost()
+EspressoWithSteamedMilk
+andWhip
+cost()
+DecafWithSoyandMocha
+cost()
+EspressoWithWhipandSoy
+Each cost method computes the 
+cost of the coffee along with the 
+other condiments in the order.
+Whoa!  
+Can you say 
+“class explosion”?
+In addition to your coffee, you can also ask for several 
+condiments like steamed milk, soy, and mocha (otherwise 
+known as chocolate), and have it all topped off  with whipped 
+milk. Starbuzz charges a bit for each condiment, so they really 
+need to get them built into their order system. 
+ Here’s their first attempt...
+
+82        Chapter    3
+violating design principles
+Well, let’s give it a try. Let’s start with the Beverage base class 
+and add instance variables to represent whether or not each 
+beverage has milk, soy, mocha, and whip...
+Beverage
+description
+milk
+soy
+mocha
+whip
+getDescription()
+cost()
+hasMilk()
+setMilk()
+hasSoy()
+setSoy()
+hasMocha()
+setMocha()
+hasWhip()
+setWhip()
+// Other useful methods..
+These get and set the boolean 
+values for the condiments.
+New boolean values for 
+each condiment.
+Now we’ll implement cost() in Beverage (instead of 
+keeping it abstract), so that it can calculate the 
+costs associated with the condiments for a particular 
+beverage instance. Subclasses will still override 
+cost(), but they will also invoke the super version so 
+that they can calculate the total cost of the basic 
+beverage plus the costs of the added condiments.
+This is stupid; why 
+do we need all these classes? 
+Can’t we just use instance variables 
+and inheritance in the superclass to 
+keep track of the condiments?
+It’s pretty obvious that Starbuzz has created a maintenance 
+nightmare for themselves. What happens when the price of milk 
+goes up? What do they do when they add a new caramel topping?  
+Thinking beyond the maintenance problem, which of the design 
+principles that we’ve covered so far are they violating?
+Hint: they’re violating two of them in a big way!
+
+you are here 4        83
+the decorator pattern
+cost()
+Espresso
+cost()
+Decaf
+cost()
+DarkRoast
+cost()
+HouseBlend
+Now let’s add in the subclasses, one for 
+each beverage on the menu:
+Each cost() method needs to compute 
+the cost of the beverage and then 
+add in the condiments by calling the 
+superclass implementation of cost().
+Beverage
+description
+milk
+soy
+mocha
+whip
+getDescription()
+cost()
+hasMilk()
+setMilk()
+hasSoy()
+setSoy()
+hasMocha()
+setMocha()
+hasWhip()
+setWhip()
+// Other useful methods..
+The superclass cost() will calculate the 
+costs for all of the condiments, while 
+the overridden cost() in the subclasses 
+will extend that functionality to include 
+costs for that specific beverage type.
+Write the cost() methods for the following classes (pseudo-Java is okay):
+public class Beverage {
+    public double cost() {
+    }
+}
+public class DarkRoast extends Beverage {
+    public DarkRoast() {
+        description = "Most Excellent Dark Roast";
+    }
+    public double cost() {
+    }
+}
+
+84        Chapter    3
+impact of change
+What requirements or other factors might change that will impact this design?
+Price changes for condiments will force us to alter existing code.
+New condiments will force us to add new methods and alter the cost method in the superclass.
+We may have new beverages. For some of these beverages (iced tea?), the condiments may 
+not be appropriate, yet the Tea subclass will still inherit methods like hasWhip().
+What if a customer wants a double mocha?
+Your turn:
+As we saw in

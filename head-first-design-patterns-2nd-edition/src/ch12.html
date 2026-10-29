@@ -1,0 +1,56 @@
+<section class="chapter" id="ch12" data-ch="12" data-title="Chương 12: Mẫu Phương Thức Khung - Template Method Pattern & Kỹ Thuật Đóng Gói Thuật Toán">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 12</p>
+    <h1>Chapter 12: The Template Method Pattern <span class="vi">Chương 12: Mẫu Phương Thức Khung - Template Method Pattern & Kỹ Thuật Đóng Gói Thuật Toán</span></h1>
+    <p class="lede">Định nghĩa khung của một thuật toán trong một phương thức, ủy thác các bước cụ thể cho lớp con mà không làm thay đổi cấu trúc tổng thể.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">1 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch12-t1" data-num="12.1" data-short="Cơ chế & Nguyên lý">
+    <div class="topic-theory-card">
+      <p class="eyebrow">MẪU THIẾT KẾ HỆ THỐNG</p>
+      <h2>Kiến trúc khung thuật toán và Nguyên lý Hollywood</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Đóng gói toàn bộ cấu trúc thuật toán tại lớp trừu tượng và ủy thác các bước chi tiết cho lớp con.</p></div>
+      <div class="prose">
+        <p>Trong các hệ thống phân tán chịu tải cao, việc duy trì tính nhất quán của quy trình nghiệp vụ là thách thức lớn. <dfn data-term="Template Method Pattern"><strong>Template Method Pattern</strong></dfn> cho phép định nghĩa phần khung của một thuật toán trong một thao tác tại lớp cha, chuyển giao một số bước cụ thể cho các lớp con thực thi.</p><p>Các phương pháp tiếp cận kiến trúc khác nhau bao gồm:</p><ul><li><strong>Abstract Class:</strong> Chứa phương thức final định nghĩa khung thuật toán và các phương thức trừu tượng bắt buộc lớp con phải cài đặt.</li><li><strong>Hook Methods:</strong> Phương thức trống hoặc có hành vi mặc định tại lớp cha, cho phép lớp con tùy chọn can thiệp vào luồng xử lý.</li><li><strong>Strategy Pattern:</strong> Sử dụng ủy thác đối tượng để thay đổi thuật toán linh hoạt hơn tại thời điểm chạy so với kế thừa tĩnh của Template Method.</li></ul><p>Việc áp dụng <dfn data-term="Hollywood Principle"><strong>Nguyên lý Hollywood</strong></dfn> giúp đặt cơ chế ra quyết định vào các module cấp cao, ngăn chặn việc các module cấp thấp can thiệp ngược lại vào cấu trúc điều phối chung.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại hệ thống thanh toán MoMo</b>
+        <p>Khi xử lý hàng triệu giao dịch ví điện tử trong các chiến dịch lì xì Tết, luồng xác thực, trừ tiền và ghi log được đóng gói thành một Template Method cố định. Các module đối tác ngân hàng bên dưới chỉ đóng vai trò cung cấp phương thức kết nối cụ thể (hook/abstract method), đảm bảo không một đối tác nào có thể làm sai lệch quy trình bảo mật cốt lõi.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch12-w1">
+      <figcaption>
+        <span class="lab-tag">🔌 Kiến trúc & Luồng Dữ liệu</span>
+        <strong>Mô phỏng Luồng Xử lý Template Method</strong>
+        <small>Quan sát cách phương thức khung điều phối các bước thực thi từ lớp cha xuống lớp con</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch12-review" data-num="12.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 12</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Trong kiến trúc hệ thống chịu tải cao, việc tái sử dụng mã nguồn trong khi vẫn kiểm soát chặt chẽ luồng thực thi là bài toán cốt lõi. Mẫu thiết kế Template Method giải quyết triệt để vấn đề này bằng cách đảo ngược quyền điều khiển thông qua Nguyên lý Hollywood: 'Đừng gọi chúng tôi, chúng tôi sẽ gọi lại bạn'. Lớp cha đóng vai trò điều phối tổng thể, gọi các phương thức trừu tượng hoặc phương thức móc nối (hook methods) do lớp con triển khai. Khác với chiến lược thành phần (Strategy) sử dụng tính ủy thác (composition) để thay đổi thuật toán tại thời điểm chạy, Template Method sử dụng tính kế thừa (inheritance) để cấu trúc hóa các bước cố định, đảm bảo tính nhất quán của hệ thống phân tán.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Mẫu thiết kế Template Method thuộc nhóm nào và sử dụng cơ chế nào để mở rộng?</p>
+        <ol><li>Nhóm Khởi tạo (Creational) sử dụng thành phần (Composition)</li><li>Nhóm Hành vi (Behavioral) sử dụng kế thừa (Inheritance)</li><li>Nhóm Cấu trúc (Structural) sử dụng đa hình giao diện (Interface Polymorphism)</li><li>Nhóm Đồng thời (Concurrency) sử dụng khóa phân tán (Distributed Lock)</li></ol>
+        <p class="explain">Template Method là mẫu thiết kế hành vi (Behavioral Design Pattern) sử dụng cơ chế kế thừa (Inheritance) để cho phép lớp con định nghĩa lại một số bước của thuật toán mà không làm thay đổi cấu trúc tổng thể.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

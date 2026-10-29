@@ -1,0 +1,62 @@
+<section class="chapter" id="ch13" data-ch="13" data-title="Mẫu thiết kế Iterator và Composite: Quản lý tập hợp đối tượng và Đóng gói duyệt dữ liệu">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 13</p>
+    <h1>The Iterator and Composite Patterns: Well-Managed Collections <span class="vi">Mẫu thiết kế Iterator và Composite: Quản lý tập hợp đối tượng và Đóng gói duyệt dữ liệu</span></h1>
+    <p class="lede">Truy xuất phần tử của các cấu trúc dữ liệu khác nhau một cách đồng nhất thông qua giao diện duyệt dữ liệu độc lập mà không làm lộ cấu trúc lưu trữ bên dưới.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">2 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch13-t1" data-num="13.1" data-short="Đóng gói Duyệt Dữ liệu">
+    <div class="topic-theory-card">
+      <p class="eyebrow">NGUYÊN LÝ CỐT LÕI</p>
+      <h2>Giải quyết bài toán đa dạng cấu trúc tập hợp với Iterator Pattern</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Loại bỏ các vòng lặp trùng lặp bằng cách chuyển trách nhiệm duyệt dữ liệu sang lớp Iterator chuyên biệt.</p></div>
+      <div class="prose">
+        <p>Khi hệ thống tích hợp nhiều nguồn dữ liệu từ các hệ thống khác nhau (như hợp nhất doanh nghiệp hoặc sáp nhập các dịch vụ Microservices cũ), cấu trúc lưu trữ dữ liệu bên trong thường không đồng nhất. Việc viết các vòng lặp trực tiếp dựa trên kiểu dữ liệu cụ thể khiến mã nguồn bộc lộ chi tiết cài đặt và vi phạm nguyên lý đóng gói nghiêm trọng.</p><p>Các trường phái lưu trữ tập hợp phổ biến trong các hệ thống backend chịu tải cao:</p><ul><li><strong>Mảng tĩnh (Array):</strong> Hiệu năng truy cập RAM cực nhanh, kiểm soát kích thước tối đa nhưng cứng nhắc và khó co giãn khi lượng truy cập biến động đột ngột.</li><li><strong>Danh sách động (ArrayList):</strong> Tự động mở rộng linh hoạt, tối ưu cho việc thêm phần tử nhưng tiêu tốn chi phí cấp phát lại bộ nhớ khi chạm ngưỡng.</li><li><strong>Bảng băm (HashMap / HashTable):</strong> Truy xuất O(1) theo khóa, lý tưởng cho tra cứu thời gian thực nhưng không duy trì thứ tự tuần tự tự nhiên.</li></ul><p>Giải pháp tối ưu là thiết kế một tầng giao diện <dfn data-term="Iterator Interface"><strong>Iterator</strong></dfn> chung, cho phép các tầng ứng dụng cấp cao duyệt qua mọi tập hợp dữ liệu bằng một chuẩn duy nhất, cách ly hoàn toàn các thay đổi ở tầng lưu trữ vật lý.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại hệ thống thanh toán MoMo / ZaloPay</b>
+        <p>Khi hệ thống xử lý đối soát giao dịch từ nhiều ngân hàng liên kết, mỗi ngân hàng trả về định dạng mảng hoặc danh sách khác nhau. Áp dụng Iterator giúp chuẩn hóa luồng duyệt bản ghi giao dịch mà không làm ảnh hưởng đến lõi xử lý thanh toán thời gian thực.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch13-w1">
+      <figcaption>
+        <span class="lab-tag">🔌 Kiến trúc & Luồng Dữ liệu</span>
+        <strong>Mô phỏng luồng dữ liệu qua Iterator Pattern</strong>
+        <small>Tương tác với thanh trượt tải lượng để quan sát cách Iterator đồng nhất hóa dữ liệu từ các cấu trúc khác nhau</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch13-review" data-num="13.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 13</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Trong kiến trúc hệ thống chịu tải cao, việc quản lý các tập hợp dữ liệu nằm rải rác ở nhiều cấu trúc lưu trữ khác nhau (như mảng tĩnh, danh sách liên kết động, bảng băm) thường dẫn đến sự phụ thuộc chặt chẽ vào tầng cài đặt vật lý. Chương này bóc tách <dfn data-term="Iterator Pattern"><strong>Mẫu thiết kế Iterator</strong></dfn> giúp tách biệt trách nhiệm duyệt phần tử ra khỏi tập hợp dữ liệu chính. Bằng cách áp dụng các nguyên lý lập trình hướng đối tượng như <dfn data-term="Single Responsibility Principle"><strong>Nguyên lý Trách nhiệm Đơn lẻ (SRP)</strong></dfn>, hệ thống giảm thiểu tối đa sự phụ thuộc vào lớp cụ thể, tuân thủ nghiêm ngặt nguyên lý "lập trình hướng đến giao diện, không hướng đến cài đặt".</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Mục đích cốt lõi của Iterator Pattern là gì trong thiết kế hệ thống?</p>
+        <ol><li>Tăng tốc độ truy vấn cơ sở dữ liệu lên gấp đôi</li><li>Truy cập tuần tự các phần tử của tập hợp mà không làm lộ cấu trúc lưu trữ bên dưới</li><li>Thay thế hoàn toàn cấu trúc mảng bằng danh sách liên kết</li><li>Loại bỏ hoàn toàn việc sử dụng bộ nhớ RAM</li></ol>
+        <p class="explain">Iterator Pattern tập trung vào việc che giấu cấu trúc dữ liệu nội bộ của tập hợp và cung cấp giao diện duyệt đồng nhất.</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p><strong>Câu 2:</strong> Tại sao Nguyên lý Trách nhiệm Đơn lẻ (SRP) lại liên quan mật thiết đến Iterator Pattern?</p>
+        <ol><li>Vì nó giúp giảm số lượng lớp trong dự án</li><li>Vì nó tách biệt trách nhiệm quản lý tập hợp dữ liệu ra khỏi trách nhiệm duyệt phần tử</li><li>Vì nó ép buộc mọi lớp phải có đúng một phương thức</li><li>Vì nó loại bỏ hoàn toàn các ngoại lệ runtime</li></ol>
+        <p class="explain">Nếu lớp tập hợp tự gánh thêm việc duyệt, nó sẽ có 2 lý do để thay đổi (dữ liệu đổi hoặc cách duyệt đổi), vi phạm SRP.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import Interactive3DHologram from "@/components/Interactive3DHologram";
 import {
   Cpu,
   Zap,
@@ -70,87 +71,106 @@ export default function InteractiveLabPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#090D13] text-slate-900 dark:text-slate-100 font-sans selection:bg-orange-500/20 selection:text-orange-700 dark:selection:text-orange-300 transition-colors duration-300">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-orange-500/20 selection:text-orange-700 dark:selection:text-orange-300 transition-colors duration-200">
       <Navbar />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-8 py-12 space-y-12">
-        {/* Hero */}
-        <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 text-xs font-semibold">
-            <Cpu className="w-3.5 h-3.5" />
-            <span>Phòng Thí Nghiệm Trực Quan Đa Lĩnh Vực</span>
+        {/* 3D Holographic Hero */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-500/[0.07] via-slate-500/[0.03] to-purple-500/[0.05] border border-slate-200/80 dark:border-white/10 p-6 sm:p-10 shadow-sm">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-7 space-y-4 text-center lg:text-left">
+              <div>
+                <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">
+                  Phòng thí nghiệm trực quan đa lĩnh vực
+                </span>
+              </div>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+                Không còn sơ đồ chết trên trang giấy. <br />
+                <span className="text-orange-600 dark:text-orange-400">
+                  Chạm, điều khiển và trực quan hóa kiến thức.
+                </span>
+              </h1>
+              <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
+                Tùy theo thể loại sách và bản chất tri thức, Breaking Books tự động thiết lập dạng thức trực quan tối ưu nhất: từ <b>Sơ đồ tư duy (Mind Map)</b>, <b>Biểu đồ tương tác (Chart)</b> cho tới <b>Cây quyết định (Decision Tree)</b> và <b>Mô phỏng kiến trúc hệ thống (Simulation)</b>.
+              </p>
+            </div>
+            <div className="lg:col-span-5 flex justify-center items-center">
+              <Interactive3DHologram
+                icon={
+                  activeTab === "pod" || activeTab === "system"
+                    ? "cpu"
+                    : activeTab === "mindmap"
+                    ? "brain"
+                    : "atom"
+                }
+                title="Interactive 3D Hologram"
+                subtitle="Trực Quan Hóa Tri Thức"
+                size={240}
+              />
+            </div>
           </div>
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
-            Không còn sơ đồ chết trên trang giấy. <br />
-            <span className="bg-gradient-to-r from-orange-600 via-amber-500 to-orange-500 bg-clip-text text-transparent">
-              Chạm, điều khiển và trực quan hóa kiến thức.
-            </span>
-          </h1>
-          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
-            Tùy theo thể loại sách và bản chất tri thức, Breaking Books tự động thiết lập dạng thức trực quan tối ưu nhất: từ <b>Sơ đồ tư duy (Mind Map)</b>, <b>Biểu đồ tương tác (Chart)</b> cho tới <b>Cây quyết định (Decision Tree)</b> và <b>Mô phỏng kiến trúc hệ thống (Simulation)</b>.
-          </p>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex flex-wrap items-center justify-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-[#10161D] max-w-4xl mx-auto border border-slate-200/80 dark:border-white/10">
+        <div className="flex flex-wrap items-center justify-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-slate-900 max-w-4xl mx-auto border border-slate-200/80 dark:border-white/10">
           <button
             onClick={() => setActiveTab("pod")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:outline-none ${
               activeTab === "pod"
                 ? "bg-white dark:bg-slate-800 text-orange-600 dark:text-orange-400 shadow-sm"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <Cpu className="w-4 h-4" />
-            <span>Cô lập Tài nguyên Pod (K8s)</span>
+            <span className="whitespace-nowrap">Cô lập tài nguyên Pod (K8s)</span>
           </button>
 
           <button
             onClick={() => setActiveTab("mindmap")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:outline-none ${
               activeTab === "mindmap"
                 ? "bg-white dark:bg-slate-800 text-orange-600 dark:text-orange-400 shadow-sm"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <Brain className="w-4 h-4" />
-            <span>Sơ đồ Tư duy (Mind Map)</span>
+            <span className="whitespace-nowrap">Sơ đồ tư duy (Mind Map)</span>
           </button>
 
           <button
             onClick={() => setActiveTab("chart")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:outline-none ${
               activeTab === "chart"
                 ? "bg-white dark:bg-slate-800 text-orange-600 dark:text-orange-400 shadow-sm"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <BarChart3 className="w-4 h-4" />
-            <span>Biểu đồ Tương tác (Chart)</span>
+            <span className="whitespace-nowrap">Biểu đồ tương tác (Chart)</span>
           </button>
 
           <button
             onClick={() => setActiveTab("decision")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:outline-none ${
               activeTab === "decision"
                 ? "bg-white dark:bg-slate-800 text-orange-600 dark:text-orange-400 shadow-sm"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <GitBranch className="w-4 h-4" />
-            <span>Ma trận Quyết định (2x2)</span>
+            <span className="whitespace-nowrap">Ma trận quyết định (2x2)</span>
           </button>
 
           <button
             onClick={() => setActiveTab("system")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:outline-none ${
               activeTab === "system"
                 ? "bg-white dark:bg-slate-800 text-orange-600 dark:text-orange-400 shadow-sm"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <Layers className="w-4 h-4" />
-            <span>Sao chép Phân tán (Replication)</span>
+            <span className="whitespace-nowrap">Sao chép phân tán (Replication)</span>
           </button>
         </div>
 
@@ -161,9 +181,9 @@ export default function InteractiveLabPage() {
           <div className="rounded-3xl bg-slate-900 text-white p-6 sm:p-10 border border-slate-800 shadow-2xl space-y-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
               <div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold mb-2">
-                  <span>🧪 Phòng Thí Nghiệm Trực Quan · Kubernetes & Microservices</span>
-                </div>
+                <span className="text-xs font-semibold text-orange-400 block mb-2">
+                  Phòng thí nghiệm trực quan: Kubernetes & Microservices
+                </span>
                 <h3 className="text-xl sm:text-2xl font-bold">
                   Mô phỏng Cô lập Tài nguyên Pod trên Node Đơn
                 </h3>
@@ -176,7 +196,7 @@ export default function InteractiveLabPage() {
               <div className="w-full sm:w-64 bg-slate-800/80 p-3 rounded-2xl border border-slate-700 space-y-1.5">
                 <div className="flex items-center justify-between text-xs font-semibold">
                   <span className="text-slate-300">Tải lượng Request</span>
-                  <span className="font-mono text-orange-400 font-bold">{podTraffic.toLocaleString()} req/s</span>
+                  <span className="text-orange-400 font-bold">{podTraffic.toLocaleString()} req/s</span>
                 </div>
                 <input
                   type="range"
@@ -193,16 +213,16 @@ export default function InteractiveLabPage() {
             {/* Scenario Pills */}
             <div className="flex flex-wrap gap-2.5">
               {[
-                { id: "nolimits", label: "🔴 1. Không giới hạn (No Limits)", desc: "Tranh chấp CPU & Noisy Neighbor" },
-                { id: "cgroups", label: "🟢 2. Bật cgroups CPU Limit", desc: "Cô lập an toàn & Throttling" },
-                { id: "oom", label: "⚠️ 3. Thử nghiệm Rò rỉ RAM (OOM)", desc: "OOMKilled & Bảo vệ Node" },
+                { id: "nolimits", label: "1. Không giới hạn (No Limits)", desc: "Tranh chấp CPU & Noisy Neighbor" },
+                { id: "cgroups", label: "2. Bật cgroups CPU Limit", desc: "Cô lập an toàn & Throttling" },
+                { id: "oom", label: "3. Thử nghiệm Rò rỉ RAM (OOM)", desc: "OOMKilled & Bảo vệ Node" },
               ].map((sc) => (
                 <button
                   key={sc.id}
                   onClick={() => setPodScenario(sc.id)}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                  className={`px-4 py-2.5 rounded-xl text-xs font-semibold transition-colors cursor-pointer border focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:outline-none ${
                     podScenario === sc.id
-                      ? "bg-orange-600 border-orange-500 text-white shadow-lg shadow-orange-600/30 scale-[1.02]"
+                      ? "bg-orange-600 border-orange-500 text-white shadow-lg shadow-orange-600/30"
                       : "bg-slate-800/60 border-slate-700/80 text-slate-300 hover:bg-slate-800 hover:text-white"
                   }`}
                 >
@@ -215,50 +235,50 @@ export default function InteractiveLabPage() {
 
             {/* 3 Metric Stat Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className={`p-4 rounded-2xl border transition-all ${
+              <div className={`p-4 rounded-2xl border transition-colors ${
                 podScenario === "nolimits"
                   ? "bg-rose-500/10 border-rose-500/30 text-rose-300"
                   : "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
               }`}>
-                <span className="text-[11px] font-mono text-slate-400 block">Độ trễ P99 Web API</span>
-                <span className="text-2xl font-black font-mono mt-1 block">
+                <span className="text-xs text-slate-400 block">Độ trễ P99 Web API</span>
+                <span className="text-2xl font-black mt-1 block">
                   {podScenario === "nolimits" ? "1,450 ms" : "18 ms"}
                 </span>
-                <span className="text-[11px] mt-1 block">
-                  {podScenario === "nolimits" ? "⚠️ Timeout & Nghẽn nặng" : "✓ Mượt mà & Đạt SLA"}
+                <span className="text-xs mt-1 block">
+                  {podScenario === "nolimits" ? "Timeout và nghẽn nặng" : "Mượt mà, đạt SLA"}
                 </span>
               </div>
 
-              <div className={`p-4 rounded-2xl border transition-all ${
+              <div className={`p-4 rounded-2xl border transition-colors ${
                 podScenario === "nolimits"
                   ? "bg-amber-500/10 border-amber-500/30 text-amber-300"
                   : "bg-slate-800/80 border-slate-700 text-slate-200"
               }`}>
-                <span className="text-[11px] font-mono text-slate-400 block">Tổng tải CPU Node (4 Cores)</span>
-                <span className="text-2xl font-black font-mono mt-1 block">
+                <span className="text-xs text-slate-400 block">Tổng tải CPU Node (4 Cores)</span>
+                <span className="text-2xl font-black mt-1 block">
                   {podScenario === "nolimits" ? "98% (3.9 / 4 Cores)" : "62% (2.5 / 4 Cores)"}
                 </span>
-                <span className="text-[11px] mt-1 block">
+                <span className="text-xs mt-1 block">
                   {podScenario === "nolimits" ? "Nguy cơ sập toàn Node" : "Trong ngưỡng an toàn"}
                 </span>
               </div>
 
-              <div className={`p-4 rounded-2xl border transition-all ${
+              <div className={`p-4 rounded-2xl border transition-colors ${
                 podScenario === "oom"
                   ? "bg-amber-500/10 border-amber-500/30 text-amber-300"
                   : podScenario === "nolimits"
                   ? "bg-rose-500/10 border-rose-500/30 text-rose-300"
                   : "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
               }`}>
-                <span className="text-[11px] font-mono text-slate-400 block">Trạng thái Pod Worker</span>
-                <span className="text-xl font-black font-mono mt-1 block">
+                <span className="text-xs text-slate-400 block">Trạng thái Pod Worker</span>
+                <span className="text-xl font-black mt-1 block">
                   {podScenario === "oom"
                     ? "OOMKilled (Exit 137)"
                     : podScenario === "nolimits"
                     ? "Chiếm 3.2 Cores"
                     : "Throttled (1.0 Core Max)"}
                 </span>
-                <span className="text-[11px] mt-1 block">
+                <span className="text-xs mt-1 block">
                   {podScenario === "oom"
                     ? "K8s tự khởi động lại worker"
                     : podScenario === "nolimits"
@@ -271,25 +291,26 @@ export default function InteractiveLabPage() {
             {/* Visual Architecture Box (Node Frame + 2 Containers + cgroups wall) */}
             <div className="p-6 rounded-2xl bg-slate-950/80 border border-slate-800 relative overflow-hidden">
               <div className="flex items-center justify-between pb-4 border-b border-slate-800/80 text-xs">
-                <span className="font-mono font-bold text-slate-300 flex items-center gap-2">
+                <span className="font-semibold text-slate-300 flex items-center gap-2">
                   <Cpu className="w-4 h-4 text-orange-500" />
                   <span>K8s Worker Node (4 CPU Cores · 8 GB RAM)</span>
                 </span>
-                <span className="font-mono text-slate-400">cgroups v2 enabled</span>
+                <span className="text-slate-400">cgroups v2 enabled</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 relative">
                 {/* Web API Container */}
-                <div className={`p-5 rounded-2xl border transition-all ${
+                <div className={`p-5 rounded-2xl border transition-colors ${
                   podScenario === "nolimits"
                     ? "bg-rose-950/20 border-rose-500/40"
                     : "bg-emerald-950/20 border-emerald-500/40"
                 }`}>
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-sm text-white flex items-center gap-2">
-                      <span>🚀 Web API Container (Chính)</span>
+                      <Cpu className="w-4 h-4 text-orange-400" />
+                      <span>Web API Container (Chính)</span>
                     </span>
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${
+                    <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${
                       podScenario === "nolimits"
                         ? "bg-rose-500/20 text-rose-300"
                         : "bg-emerald-500/20 text-emerald-300"
@@ -302,15 +323,18 @@ export default function InteractiveLabPage() {
                     <div>
                       <div className="flex justify-between text-xs text-slate-400 mb-1">
                         <span>CPU Được Cấp</span>
-                        <span className="font-mono font-bold text-white">
+                        <span className="font-bold text-white">
                           {podScenario === "nolimits" ? "0.7 Core (Bị cướp)" : "2.0 Cores (Đủ)"}
                         </span>
                       </div>
                       <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
                         <div
-                          className={`h-full transition-all duration-500 ${
-                            podScenario === "nolimits" ? "bg-rose-500 w-[20%]" : "bg-emerald-500 w-[60%]"
+                          className={`h-full origin-left transition-transform duration-300 ${
+                            podScenario === "nolimits" ? "bg-rose-500" : "bg-emerald-500"
                           }`}
+                          style={{
+                            transform: `scaleX(${podScenario === "nolimits" ? 0.2 : 0.6})`,
+                          }}
                         />
                       </div>
                     </div>
@@ -318,15 +342,18 @@ export default function InteractiveLabPage() {
                     <div>
                       <div className="flex justify-between text-xs text-slate-400 mb-1">
                         <span>Request Hàng Đợi (Queue)</span>
-                        <span className="font-mono text-white">
+                        <span className="text-white">
                           {podScenario === "nolimits" ? "1,240 req (Tràn)" : "12 req (Trống)"}
                         </span>
                       </div>
                       <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
                         <div
-                          className={`h-full transition-all duration-500 ${
-                            podScenario === "nolimits" ? "bg-rose-500 w-[95%]" : "bg-emerald-500 w-[10%]"
+                          className={`h-full origin-left transition-transform duration-300 ${
+                            podScenario === "nolimits" ? "bg-rose-500" : "bg-emerald-500"
                           }`}
+                          style={{
+                            transform: `scaleX(${podScenario === "nolimits" ? 0.95 : 0.1})`,
+                          }}
                         />
                       </div>
                     </div>
@@ -334,7 +361,7 @@ export default function InteractiveLabPage() {
                 </div>
 
                 {/* Worker Container */}
-                <div className={`p-5 rounded-2xl border transition-all ${
+                <div className={`p-5 rounded-2xl border transition-colors ${
                   podScenario === "oom"
                     ? "bg-amber-950/20 border-amber-500/40"
                     : podScenario === "nolimits"
@@ -343,9 +370,10 @@ export default function InteractiveLabPage() {
                 }`}>
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-sm text-white flex items-center gap-2">
-                      <span>⚙️ Worker Batch (Tác vụ nền)</span>
+                      <Zap className="w-4 h-4 text-amber-400" />
+                      <span>Worker Batch (Tác vụ nền)</span>
                     </span>
-                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${
+                    <span className={`text-xs px-2.5 py-0.5 rounded-full font-semibold ${
                       podScenario === "oom"
                         ? "bg-amber-500/20 text-amber-300"
                         : podScenario === "nolimits"
@@ -364,19 +392,24 @@ export default function InteractiveLabPage() {
                     <div>
                       <div className="flex justify-between text-xs text-slate-400 mb-1">
                         <span>CPU Tiêu Thụ</span>
-                        <span className="font-mono font-bold text-white">
+                        <span className="font-bold text-white">
                           {podScenario === "oom" ? "0 Core (Restarting)" : podScenario === "nolimits" ? "3.2 Cores (80%)" : "1.0 Core (Capped)"}
                         </span>
                       </div>
                       <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
                         <div
-                          className={`h-full transition-all duration-500 ${
+                          className={`h-full origin-left transition-transform duration-300 ${
                             podScenario === "oom"
-                              ? "bg-slate-700 w-0"
+                              ? "bg-slate-700"
                               : podScenario === "nolimits"
-                              ? "bg-rose-500 w-[85%]"
-                              : "bg-blue-500 w-[30%]"
+                              ? "bg-rose-500"
+                              : "bg-blue-500"
                           }`}
+                          style={{
+                            transform: `scaleX(${
+                              podScenario === "oom" ? 0 : podScenario === "nolimits" ? 0.85 : 0.3
+                            })`,
+                          }}
                         />
                       </div>
                     </div>
@@ -384,19 +417,24 @@ export default function InteractiveLabPage() {
                     <div>
                       <div className="flex justify-between text-xs text-slate-400 mb-1">
                         <span>Bộ nhớ RAM</span>
-                        <span className="font-mono text-white">
+                        <span className="text-white">
                           {podScenario === "oom" ? "Vượt 2GB trần -> Kill" : podScenario === "nolimits" ? "6.2 GB (Không giới hạn)" : "1.2 GB / 2.0 GB"}
                         </span>
                       </div>
                       <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
                         <div
-                          className={`h-full transition-all duration-500 ${
+                          className={`h-full origin-left transition-transform duration-300 ${
                             podScenario === "oom"
-                              ? "bg-rose-500 w-[100%]"
+                              ? "bg-rose-500"
                               : podScenario === "nolimits"
-                              ? "bg-amber-500 w-[80%]"
-                              : "bg-blue-500 w-[55%]"
+                              ? "bg-amber-500"
+                              : "bg-blue-500"
                           }`}
+                          style={{
+                            transform: `scaleX(${
+                              podScenario === "oom" ? 1.0 : podScenario === "nolimits" ? 0.8 : 0.55
+                            })`,
+                          }}
                         />
                       </div>
                     </div>
@@ -431,7 +469,7 @@ export default function InteractiveLabPage() {
               </p>
 
               <div className="p-3.5 rounded-xl bg-slate-900/90 border-l-4 border-orange-500 text-xs text-slate-200">
-                <strong>🎯 Quy tắc Thiết kế Thực chiến:</strong>{" "}
+                <strong>Quy tắc Thiết kế Thực chiến:</strong>{" "}
                 {podScenario === "nolimits" && "Không bao giờ triển khai Pod lên Kubernetes Production mà bỏ trống phần resources.requests và limits."}
                 {podScenario === "cgroups" && "Dùng requests để cam kết sàn tài nguyên khi lập lịch (Scheduling), dùng limits để ngăn chặn hiện tượng Noisy Neighbor."}
                 {podScenario === "oom" && "Đặt memory limit sát với thực tế kèm buffer 25-30% để phát hiện sớm rò rỉ bộ nhớ trước khi kéo sập cả Node."}
@@ -447,7 +485,7 @@ export default function InteractiveLabPage() {
           <div className="rounded-3xl bg-slate-900 text-white p-6 sm:p-10 border border-slate-800 shadow-2xl space-y-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
               <div>
-                <span className="text-xs font-mono font-bold text-orange-400 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-orange-400">
                   Mô hình Sách Phát triển bản thân & Tâm lý học
                 </span>
                 <h3 className="text-xl font-bold mt-1">
@@ -455,7 +493,7 @@ export default function InteractiveLabPage() {
                 </h3>
               </div>
               <span className="px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold">
-                Click vào từng nút để khám phá
+                Chọn từng bước để khám phá
               </span>
             </div>
 
@@ -502,13 +540,13 @@ export default function InteractiveLabPage() {
                 <button
                   key={node.id}
                   onClick={() => setSelectedMindNode(node.id)}
-                  className={`p-5 rounded-2xl border text-left transition-all cursor-pointer ${
+                  className={`p-5 rounded-2xl border text-left transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:outline-none ${
                     selectedMindNode === node.id
-                      ? `${node.color} scale-[1.02] shadow-lg ring-2 ring-white/20`
+                      ? `${node.color} shadow-lg ring-2 ring-white/20`
                       : "border-slate-800 bg-slate-800/40 text-slate-300 hover:bg-slate-800/80"
                   }`}
                 >
-                  <span className="text-[10px] font-mono font-bold uppercase opacity-80">
+                  <span className="text-xs font-semibold opacity-80">
                     {node.step}
                   </span>
                   <h4 className="text-base font-bold mt-1 text-white">{node.name}</h4>
@@ -520,7 +558,7 @@ export default function InteractiveLabPage() {
             {/* Mind Map Dynamic Detail Box */}
             <div className="p-6 rounded-2xl bg-slate-800/70 border border-slate-700 space-y-3">
               <h4 className="text-sm font-bold text-orange-400">
-                💡 Phân tích chiến lược áp dụng:
+                Phân tích chiến lược áp dụng:
               </h4>
               <p className="text-sm text-slate-200 leading-relaxed">
                 {selectedMindNode === "cue" &&
@@ -543,7 +581,7 @@ export default function InteractiveLabPage() {
           <div className="rounded-3xl bg-slate-900 text-white p-6 sm:p-10 border border-slate-800 shadow-2xl space-y-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
               <div>
-                <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-emerald-400">
                   Mô hình Sách Tài chính, Kinh tế & Đầu tư
                 </span>
                 <h3 className="text-xl font-bold mt-1">
@@ -551,7 +589,7 @@ export default function InteractiveLabPage() {
                 </h3>
               </div>
               <div className="text-right">
-                <span className="text-xs text-slate-400 font-mono">Tài sản tích lũy dự kiến:</span>
+                <span className="text-xs text-slate-400">Tài sản tích lũy dự kiến:</span>
                 <p className="text-xl font-black text-emerald-400">
                   {chartData.futureVal.toLocaleString("vi-VN")} Triệu VNĐ
                 </p>
@@ -613,7 +651,7 @@ export default function InteractiveLabPage() {
             <div className="p-6 rounded-2xl bg-slate-800/40 border border-slate-700/80 space-y-4">
               <div className="flex items-center justify-between text-xs text-slate-400">
                 <span>So sánh: Vốn tự bỏ ra vs Lợi nhuận sinh lời từ Lãi Kép</span>
-                <span className="font-mono text-emerald-300">
+                <span className="text-emerald-300 font-semibold">
                   Lãi gấp {(chartData.futureVal / (chartData.totalInvested || 1)).toFixed(1)}x vốn
                 </span>
               </div>
@@ -623,13 +661,13 @@ export default function InteractiveLabPage() {
                 <div>
                   <div className="flex justify-between text-xs mb-1">
                     <span className="text-slate-300">Tổng vốn tích lũy:</span>
-                    <span className="font-mono font-bold">{chartData.totalInvested.toLocaleString()} Tr</span>
+                    <span className="font-bold">{chartData.totalInvested.toLocaleString()} Tr</span>
                   </div>
                   <div className="w-full h-4 rounded-full bg-slate-700 overflow-hidden">
                     <div
-                      className="h-full bg-blue-500 rounded-full transition-all duration-300"
+                      className="h-full bg-blue-500 rounded-full origin-left transition-transform duration-300"
                       style={{
-                        width: `${Math.min(100, (chartData.totalInvested / chartData.futureVal) * 100)}%`,
+                        transform: `scaleX(${Math.min(1, chartData.totalInvested / (chartData.futureVal || 1))})`,
                       }}
                     />
                   </div>
@@ -639,13 +677,13 @@ export default function InteractiveLabPage() {
                 <div>
                   <div className="flex justify-between text-xs mb-1">
                     <span className="text-emerald-400 font-bold">Lợi nhuận từ Lãi Kép (Kỳ quan thứ 8):</span>
-                    <span className="font-mono font-bold text-emerald-400">+{chartData.profit.toLocaleString()} Tr</span>
+                    <span className="font-bold text-emerald-400">+{chartData.profit.toLocaleString()} Tr</span>
                   </div>
                   <div className="w-full h-4 rounded-full bg-slate-700 overflow-hidden">
                     <div
-                      className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-300"
+                      className="h-full bg-emerald-500 rounded-full origin-left transition-transform duration-300"
                       style={{
-                        width: `${Math.min(100, (chartData.profit / chartData.futureVal) * 100)}%`,
+                        transform: `scaleX(${Math.min(1, chartData.profit / (chartData.futureVal || 1))})`,
                       }}
                     />
                   </div>
@@ -662,7 +700,7 @@ export default function InteractiveLabPage() {
           <div className="rounded-3xl bg-slate-900 text-white p-6 sm:p-10 border border-slate-800 shadow-2xl space-y-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
               <div>
-                <span className="text-xs font-mono font-bold text-blue-400 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-blue-400">
                   Mô hình Sách Chiến lược & Ra quyết định
                 </span>
                 <h3 className="text-xl font-bold mt-1">
@@ -671,7 +709,7 @@ export default function InteractiveLabPage() {
               </div>
               <button
                 onClick={() => setDecisionStep(1)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-300 transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:outline-none"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Đặt lại kịch bản</span>
@@ -683,10 +721,10 @@ export default function InteractiveLabPage() {
               {/* Q1: Do First */}
               <div className="p-6 rounded-2xl bg-rose-500/10 border border-rose-500/30 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-0.5 rounded-md bg-rose-500/20 text-rose-300 text-[10px] font-mono font-bold uppercase">
+                  <span className="px-2.5 py-0.5 rounded-md bg-rose-500/20 text-rose-300 text-xs font-semibold">
                     Ô 1: Làm ngay
                   </span>
-                  <span className="text-xs font-bold text-rose-400">Khẩn cấp & Quan trọng</span>
+                  <span className="text-xs font-semibold text-rose-400">Khẩn cấp & Quan trọng</span>
                 </div>
                 <h4 className="text-sm font-bold text-white">Khủng hoảng & Hạn chót</h4>
                 <p className="text-xs text-slate-300 leading-relaxed">
@@ -697,10 +735,10 @@ export default function InteractiveLabPage() {
               {/* Q2: Schedule */}
               <div className="p-6 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-[10px] font-mono font-bold uppercase">
+                  <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 text-xs font-semibold">
                     Ô 2: Lên lịch
                   </span>
-                  <span className="text-xs font-bold text-emerald-400">Không khẩn cấp nhưng Quan trọng</span>
+                  <span className="text-xs font-semibold text-emerald-400">Không khẩn cấp nhưng Quan trọng</span>
                 </div>
                 <h4 className="text-sm font-bold text-white">Vùng Đột phá & Thành công bền vững</h4>
                 <p className="text-xs text-slate-300 leading-relaxed">
@@ -711,10 +749,10 @@ export default function InteractiveLabPage() {
               {/* Q3: Delegate */}
               <div className="p-6 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-[10px] font-mono font-bold uppercase">
+                  <span className="px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 text-xs font-semibold">
                     Ô 3: Ủy quyền
                   </span>
-                  <span className="text-xs font-bold text-amber-400">Khẩn cấp nhưng Không quan trọng</span>
+                  <span className="text-xs font-semibold text-amber-400">Khẩn cấp nhưng Không quan trọng</span>
                 </div>
                 <h4 className="text-sm font-bold text-white">Bẫy bận rộn giả tạo</h4>
                 <p className="text-xs text-slate-300 leading-relaxed">
@@ -725,10 +763,10 @@ export default function InteractiveLabPage() {
               {/* Q4: Delete */}
               <div className="p-6 rounded-2xl bg-slate-800/60 border border-slate-700 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="px-2.5 py-0.5 rounded-md bg-slate-700 text-slate-300 text-[10px] font-mono font-bold uppercase">
+                  <span className="px-2.5 py-0.5 rounded-md bg-slate-700 text-slate-300 text-xs font-semibold">
                     Ô 4: Loại bỏ
                   </span>
-                  <span className="text-xs font-bold text-slate-400">Không khẩn & Không quan trọng</span>
+                  <span className="text-xs font-semibold text-slate-400">Không khẩn & Không quan trọng</span>
                 </div>
                 <h4 className="text-sm font-bold text-white">Kẻ cắp thời gian</h4>
                 <p className="text-xs text-slate-300 leading-relaxed">
@@ -746,7 +784,7 @@ export default function InteractiveLabPage() {
           <div className="rounded-3xl bg-slate-900 text-white p-6 sm:p-10 border border-slate-800 shadow-2xl space-y-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
               <div>
-                <span className="text-xs font-mono font-bold text-orange-400 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-orange-400">
                   Mô hình Sách Kỹ thuật & Hệ thống Phân tán
                 </span>
                 <h3 className="text-xl font-bold mt-1">
@@ -800,14 +838,15 @@ export default function InteractiveLabPage() {
 
                 <button
                   onClick={triggerPacket}
-                  className="px-4 py-2.5 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-lg shadow-orange-600/30 inline-flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer"
+                  disabled={packetSent && !ackReceived}
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-lg shadow-orange-600/30 inline-flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer whitespace-nowrap focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
                   <span>Gửi 1 Ghi dữ liệu (Write Request)</span>
                 </button>
 
                 {packetSent && (
-                  <div className="text-[11px] font-mono text-orange-300 animate-pulse">
+                  <div className="text-xs font-medium text-orange-300 motion-safe:animate-pulse">
                     {ackReceived
                       ? `✓ Hoàn thành (${replicationMode === "sync" ? "Độ trễ cao hơn, bền vững 100%" : "Cực nhanh, chấp nhận rủi ro mất dữ liệu nếu Leader crash"})`
                       : "Đang truyền gói tin qua mạng..."}
@@ -821,7 +860,7 @@ export default function InteractiveLabPage() {
                   Replica
                 </div>
                 <h4 className="text-xs font-bold text-white">Follower Node</h4>
-                <p className="text-[11px] text-slate-400">Đồng bộ WAL & phản hồi ACK</p>
+                <p className="text-xs text-slate-400">Đồng bộ WAL & phản hồi ACK</p>
                 <div className="h-1 rounded-full bg-blue-500/50 w-16 mx-auto mt-2" />
               </div>
             </div>
@@ -839,7 +878,7 @@ export default function InteractiveLabPage() {
           <div className="pt-2">
             <Link
               href="/library"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-md shadow-orange-600/20 transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-md shadow-orange-600/20 transition-colors"
             >
               <span>Vào Thư viện đọc sách ngay</span>
               <ArrowRight className="w-4 h-4" />

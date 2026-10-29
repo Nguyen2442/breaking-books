@@ -10,6 +10,21 @@ import {
 
 export const dynamic = 'force-dynamic';
 
+function getCookieOptions(req) {
+  const host = req?.headers?.get('host') || '';
+  const proto = req?.headers?.get('x-forwarded-proto') || '';
+  const isHttps = proto === 'https';
+  const isLocal = host.includes('localhost') || host.includes('127.0.0.1') || host.startsWith('192.168.');
+
+  return {
+    httpOnly: true,
+    secure: isHttps && !isLocal,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: USER_SESSION_MAX_AGE,
+  };
+}
+
 export async function GET() {
   const user = await getCurrentUser();
   return NextResponse.json({ ok: true, user });
@@ -31,13 +46,7 @@ export async function POST(req) {
       const token = createUserSessionToken(newUser);
 
       const cookieStore = await cookies();
-      cookieStore.set(USER_COOKIE, token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: USER_SESSION_MAX_AGE,
-      });
+      cookieStore.set(USER_COOKIE, token, getCookieOptions(req));
 
       return NextResponse.json({
         ok: true,
@@ -63,13 +72,7 @@ export async function POST(req) {
 
       const token = createUserSessionToken(user);
       const cookieStore = await cookies();
-      cookieStore.set(USER_COOKIE, token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        path: '/',
-        maxAge: USER_SESSION_MAX_AGE,
-      });
+      cookieStore.set(USER_COOKIE, token, getCookieOptions(req));
 
       return NextResponse.json({
         ok: true,
@@ -80,7 +83,7 @@ export async function POST(req) {
 
     if (action === 'logout') {
       const cookieStore = await cookies();
-      cookieStore.delete(USER_COOKIE);
+      cookieStore.delete({ name: USER_COOKIE, path: '/' });
       return NextResponse.json({ ok: true, message: 'Đã đăng xuất.' });
     }
 
@@ -92,6 +95,6 @@ export async function POST(req) {
 
 export async function DELETE() {
   const cookieStore = await cookies();
-  cookieStore.delete(USER_COOKIE);
+  cookieStore.delete({ name: USER_COOKIE, path: '/' });
   return NextResponse.json({ ok: true });
 }

@@ -1,0 +1,68 @@
+<section class="chapter" id="ch5" data-ch="5" data-title="Chương 5: Mẫu Thiết Kế Decorator - Mở Rộng Linh Hoạt Bằng Thành Phần">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 5</p>
+    <h1>Chapter 5: The Decorator Pattern - Flexible Object Wrapping <span class="vi">Chương 5: Mẫu Thiết Kế Decorator - Mở Rộng Linh Hoạt Bằng Thành Phần</span></h1>
+    <p class="lede">Khắc phục bùng nổ lớp do kế thừa tĩnh bằng cách kết hợp và ủy quyền đối tượng linh hoạt tại thời điểm chạy (runtime).</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">3 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch5-t1" data-num="5.1" data-short="Nguyên lý OCP và Decorator">
+    <div class="topic-theory-card">
+      <p class="eyebrow">KIẾN TRÚC HƯỚNG ĐỐI TƯỢNG</p>
+      <h2>Vượt qua giới hạn kế thừa và ứng dụng Mẫu Decorator</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Sử dụng ủy quyền đối tượng tại thời điểm chạy để mở rộng tính năng mà không cần sửa đổi mã nguồn.</p></div>
+      <div class="prose">
+        <p>Trong thiết kế hệ thống phần mềm quy mô lớn, việc lạm dụng <dfn data-term="Inheritance"><strong>Inheritance</strong></dfn> dẫn đến sự phụ thuộc tĩnh tại thời điểm biên dịch và làm gia tăng số lượng lớp con theo cấp số nhân khi số lượng tính năng tăng lên. Mẫu <dfn data-term="Decorator Pattern"><strong>Decorator Pattern</strong></dfn> cung cấp giải pháp bọc đối tượng thông qua <dfn data-term="Object Composition"><strong>Object Composition</strong></dfn> và <dfn data-term="Delegation"><strong>Delegation</strong></dfn>, giúp linh hoạt thêm bớt trách nhiệm cho đối tượng ngay tại thời điểm chạy.</p><p>Các trường phái thiết kế và kỹ thuật áp dụng:</p><ul><li><strong>Static Subclassing:</strong> Cố định hành vi từ lúc biên dịch, dễ gây bùng nổ lớp khi kết hợp nhiều tính năng.</li><li><strong>Dynamic Wrapping:</strong> Sử dụng chuỗi các wrapper kế thừa cùng supertype để cộng dồn hành vi linh hoạt.</li><li><strong>Type Transparency:</strong> Giữ nguyên giao diện của component gốc để client code không bị ảnh hưởng khi có decorator xen vào.</li></ul><p>Khi triển khai trong các hệ thống hiệu năng cao, cần lưu ý chi phí quản lý vùng nhớ cho các đối tượng bọc trung gian và việc sử dụng các mẫu khởi tạo như <dfn data-term="Factory Pattern"><strong>Factory Pattern</strong></dfn> để đóng gói logic khởi tạo phức tạp.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại MoMo / ZaloPay</b>
+        <p>Trong hệ thống xử lý giao dịch thanh toán, khi người dùng áp dụng đồng thời mã giảm giá hoàn tiền, voucher của merchant và ưu đãi thẻ ngân hàng, hệ thống sử dụng kiến trúc chuỗi bộ lọc (Filter/Decorator chain) để lần lượt cộng dồn, kiểm tra điều kiện và tính toán số tiền thực tế phải trả một cách mượt mà thời gian thực.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch5-w1">
+      <figcaption>
+        <span class="lab-tag">📊 Biểu đồ Tương tác Động</span>
+        <strong>Mô phỏng chuỗi bọc Decorator (Beverage & Condiments)</strong>
+        <small>Tương tác với số lượng lớp bọc decorator và quan sát cơ chế ủy quyền tính toán chi phí theo thời gian thực</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch5-review" data-num="5.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 5</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Kế thừa tĩnh (static inheritance) dẫn đến sự bùng nổ lớp và sự phụ thuộc cứng nhắc khi yêu cầu thay đổi. Mẫu thiết kế <dfn data-term="Decorator Pattern"><strong>Decorator Pattern</strong></dfn> giải quyết bài toán này bằng cách bọc đối tượng (wrapping) thông qua <dfn data-term="Object Composition"><strong>Object Composition</strong></dfn> và <dfn data-term="Delegation"><strong>Delegation</strong></dfn>. Các thành phần decorator tuân thủ <dfn data-term="Open-Closed Principle"><strong>Open-Closed Principle</strong></dfn>: mở rộng hành vi thoải mái mà không cần sửa đổi mã nguồn hiện có. Trong hệ thống chịu tải cao, việc lạm dụng decorator có thể làm tăng số lượng đối tượng nhỏ trên heap và phức tạp hóa việc khởi tạo, đòi hỏi sự kết hợp chặt chẽ với <dfn data-term="Factory Pattern"><strong>Factory Pattern</strong></dfn> và <dfn data-term="Builder Pattern"><strong>Builder Pattern</strong></dfn>.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Mẫu thiết kế Decorator giải quyết triệt để vấn đề gì so với việc sử dụng kế thừa tĩnh (subclassing)?</p>
+        <ol><li>Làm tăng tốc độ thực thi mã nguồn máy ảo Java bằng cách loại bỏ đa hình.</li><li>Ngăn chặn sự bùng nổ lớp (class explosion) và cho phép thêm hành vi động tại thời điểm chạy.</li><li>Loại bỏ hoàn toàn sự cần thiết của các interface và abstract class.</li><li>Tự động tối ưu hóa bộ nhớ RAM và dọn dẹp rác Garbage Collection.</li></ol>
+        <p class="explain">Decorator cho phép kết hợp các hành vi linh hoạt thông qua composition tại runtime thay vì phải tạo hàng loạt lớp con cố định từ lúc compile-time.</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p><strong>Câu 2:</strong> Điều kiện bắt buộc nào để một Decorator có thể thay thế hoàn hảo cho đối tượng mà nó bọc?</p>
+        <ol><li>Phải có tên lớp trùng hoàn toàn với đối tượng gốc.</li><li>Phải triển khai cùng một interface hoặc kế thừa cùng một abstract supertype với component.</li><li>Phải được khởi tạo thông qua Singleton Pattern.</li><li>Phải ghi đè toàn bộ phương thức của lớp Object trong Java.</li></ol>
+        <p class="explain">Đặc tính 'type transparency' đòi hỏi decorator phải có cùng supertype để client code có thể tương tác mà không cần biết đang làm việc với decorator hay component gốc.</p>
+      </div>
+
+      <div class="q" data-answer="2">
+        <p><strong>Câu 3:</strong> Hạn chế lớn nhất khi lạm dụng Decorator Pattern trong thiết kế hệ thống là gì?</p>
+        <ol><li>Gây ra deadlock trong môi trường đa luồng.</li><li>Làm mất tính năng đóng gói dữ liệu của cơ sở dữ liệu quan hệ.</li><li>Tạo ra quá nhiều lớp nhỏ và làm phức tạp hóa mã nguồn khởi tạo đối tượng.</li><li>Không thể sử dụng chung với các design pattern khác.</li></ol>
+        <p class="explain">Decorator thường tạo ra hàng loạt lớp wrapper nhỏ, khiến code nhìn rối rắm và việc khởi tạo chuỗi đối tượng trở nên phức tạp nếu không dùng Factory/Builder.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

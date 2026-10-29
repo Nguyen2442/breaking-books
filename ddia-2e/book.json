@@ -4,6 +4,7 @@
   "subtitle": "Designing Data-Intensive Applications",
   "author": "Martin Kleppmann",
   "coverUrl": "/covers/ddia-2e.jpg",
+  "coverStoragePath": "storage/covers/ddia-2e.jpg",
   "edition": "2nd Edition (Early Release) + 1st Edition (2017)",
   "description": "Sổ tay đọc tương tác cho Designing Data-Intensive Applications: tóm tắt, giải nghĩa và ví dụ thao tác được cho từng chủ đề.",
   "sourcePdfs": [

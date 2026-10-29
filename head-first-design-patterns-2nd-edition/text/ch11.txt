@@ -1,0 +1,1489 @@
+this is a new chapter     277
+We’re on an encapsulation roll; we’ve encapsulated object 
+creation, method invocation, complex interfaces, ducks, 
+pizzas...what could be next? We’re going to get down to encapsulating 
+pieces of algorithms so that subclasses can hook themselves right into a 
+computation anytime they want. We’re even going to learn about a design principle 
+inspired by Hollywood. Let’s get started...
+8  the Template Method Pattern
+Encapsulating 
+               Algorithms      
+Yeah, he’s a great 
+boss until it comes to getting 
+down in this hole, then it ALL 
+becomes MY job. See what I 
+mean? He’s nowhere in sight!
+
+278        Chapter    8
+coffee and tea recipes are similar
+It’s time for some more caffeine
+Some people can’t live without their coffee; some 
+people can’t live without their tea. The common 
+ingredient? Caffeine, of  course! 
+But there’s more; tea and coffee are made in very 
+similar ways. Let’s check it out:
+The recipe for 
+coffee looks a lot 
+like the recipe for 
+tea, doesn’t it? 
+Starbuzz Coffee Barista Training Manual
+(1) Boil some water
+(2) Brew coffee in boiling water
+(3) Pour coffee in cup
+(4) Add sugar and milk
+Starbuzz Tea Recipe
+Starbuzz Coffee Recipe
+Baristas! Please follow these recipes precisely 
+when preparing Starbuzz beverages. 
+(1) Boil some water
+(2) Steep tea in boiling water
+(3) Pour tea in cup
+(4) Add lemon
+All recipes are Starbuzz Coffee trade secrets and should be kept 
+strictly confidential. 
+
+you are here 4        279
+the template method pattern
+public class Coffee {
+ 
+    void prepareRecipe() {
+        boilWater();
+        brewCoffeeGrinds();
+        pourInCup();
+        addSugarAndMilk();
+    }
+ 
+    public void boilWater() {
+        System.out.println("Boiling water");
+    }
+ 
+    public void brewCoffeeGrinds() {
+        System.out.println("Dripping Coffee through filter");
+    }
+ 
+    public void pourInCup() {
+        System.out.println("Pouring into cup");
+    }
+ 
+    public void addSugarAndMilk() {
+        System.out.println("Adding Sugar and Milk");
+    }
+}
+Let’s play “coding barista” and write some code for 
+creating coffee and tea.
+Here’s the coffee:
+Whipping up some coffee and tea classes 
+(in Java)
+Here’s our Coffee class for making coffee. 
+Here’s our recipe for coffee, 
+straight out of the training manual. 
+Each of the steps is implemented as 
+a separate method.
+Each of these methods 
+implements one step of 
+the algorithm. There’s 
+a method to boil water, 
+brew the coffee, pour 
+the coffee in a cup, 
+and add sugar and milk.
+
+280        Chapter    8
+tea implementation
+public class Tea {
+ 
+    void prepareRecipe() {
+        boilWater();
+        steepTeaBag();
+        pourInCup();
+        addLemon();
+    }
+ 
+    public void boilWater() {
+        System.out.println("Boiling water");
+    }
+ 
+    public void steepTeaBag() {
+        System.out.println("Steeping the tea");
+    }
+ 
+    public void addLemon() {
+        System.out.println("Adding Lemon");
+    }
+ 
+    public void pourInCup() {
+        System.out.println("Pouring into cup");
+    }
+}
+This looks very similar to the one 
+we just implemented in Coffee; 
+the second and fourth steps are 
+different, but it’s basically the 
+same recipe.
+Notice that these 
+two methods 
+are exactly the 
+same as they 
+are in Coffee! 
+So we definitely 
+have some code 
+duplication going 
+on here.
+And now the Tea...
+These two 
+methods are 
+specialized to Tea.
+When we’ve got code 
+duplication, that’s a good sign we need to 
+clean up the design. It seems like here we 
+should abstract the commonality into a base 
+class since coffee and tea are so similar.
+
+you are here 4        281
+the template method pattern
+ Design Puzzle
+You’ve seen that the Coffee and Tea classes have a fair bit of code duplication. Take another 
+look at the Coffee and Tea classes and draw a class diagram showing how you’d redesign the 
+classes to remove redundancy:
+
+282        Chapter    8
+first cut at abstraction
+Let’s abstract that Coffee and Tea
+Each subclass 
+implements its 
+own recipe.
+It looks like we’ve got a pretty straightforward design 
+exercise on our hands with the Coffee and Tea classes.  
+Your first cut might have looked something like this:
+prepareRecipe()
+boilWater()
+pourInCup()
+CaffeineBeverage
+prepareRecipe()
+steepTeaBag()
+addLemon()
+Tea
+prepareRecipe()
+brewCoffeeGrinds()
+addSugarAndMilk()
+Coffee
+The boilWater() and pourInCup() 
+methods are shared by both subclasses, 
+so they are defined in the superclass.
+The prepareRecipe() method 
+differs in each subclass, so it 
+is defined as abstract.
+The methods specific to 
+Coffee and Tea stay in 
+the subclasses.
+Each subclass 
+overrides the 
+prepareRecipe() 
+method and 
+implements its own 
+recipe.
+Did we do a good job on the redesign? Hmmmm, take another 
+look. Are we overlooking some other commonality? What are 
+other ways that Coffee and Tea are similar?
+
+you are here 4        283
+the template method pattern
+(1) Boil some water
+(2) Brew coffee in boiling water
+(3) Pour coffee in cup
+(4) Add sugar and milk
+Starbuzz Coffee Recipe
+Starbuzz Tea Recipe
+(1) Boil some water
+(2) Steep tea in boiling water
+(3) Pour tea in cup
+(4) Add lemon
+Taking the design further...
+So what else do Coffee and Tea have in common? Let’s start with the recipes.
+Notice that both recipes follow the same algorithm:
+1
+Boil some water.
+2
+3
+4
+Use the hot water to extract the coffee 
+or tea.
+Pour the resulting beverage into a cup.
+Add the appropriate condiments to the 
+beverage.
+These two are 
+already abstracted 
+into the base class.
+These aren’t 
+abstracted but 
+are the same; 
+they just apply 
+to di
+fferent 
+beverages.
+So, can we find a way to abstract prepareRecipe() too? Yes, let’s find out...
+
+284        Chapter    8
+abstract the algorithm
+Abstracting prepareRecipe()
+The first problem we have is that Coffee uses brewCoffeeGrinds() 
+and addSugarAndMilk() methods, while Tea uses steepTeaBag() and 
+addLemon() methods.
+Let’s step through abstracting prepareRecipe() from each subclass (that is, 
+the Coffee and Tea classes)...
+1
+Let’s think through this: steeping and brewing aren’t so different; they’re pretty analogous.  
+So let’s make a new method name, say, brew(), and we’ll use the same name whether 
+we’re brewing coffee or steeping tea.
+Likewise, adding sugar and milk is pretty much the same as adding a lemon: both 
+are adding condiments to the beverage. Let’s also make up a new method name, 
+addCondiments(), to handle this. So, our new prepareRecipe() method will look like this:
+    void prepareRecipe() {
+        boilWater();
+        brew();
+        pourInCup();
+        addCondiments();
+    }
+    void prepareRecipe() {
+        boilWater();
+        steepTeaBag();
+        pourInCup();
+        addLemon();
+    }
+Tea
+    void prepareRecipe() {
+        boilWater();
+        brewCoffeeGrinds();
+        pourInCup();
+        addSugarAndMilk();
+    }
+Coffee
+Now we have a new prepareRecipe() method, but we need to fit it into the code. 
+To do this we’ll start with the CaffeineBeverage superclass:
+2
+(Code on the 
+next page.)
+
+you are here 4        285
+the template method pattern
+public class Coffee extends CaffeineBeverage {
+    public void brew() {
+        System.out.println("Dripping Coffee through filter");
+    }
+    public void addCondiments() {
+        System.out.println("Adding Sugar and Milk");
+    }
+}
+public class Tea extends CaffeineBeverage {
+    public void brew() {
+        System.out.println("Steeping the tea");
+    }
+    public void addCondiments() {
+        System.out.println("Adding Lemon");
+    }
+}
+public abstract class CaffeineBeverage {
+  
+    final void prepareRecipe() {
+        boilWater();
+        brew();
+        pourInCup();
+        addCondiments();
+    }
+ 
+    abstract void brew();
+  
+    abstract void addCondiments();
+ 
+    void boilWater() {
+        System.out.println("Boiling water");
+    }
+  
+    void pourInCup() {
+        System.out.println("Pouring into cup");
+    }
+}
+Now, the same prepareRecipe() method 
+will be used to make both Tea and Coffee.  
+prepareRecipe() is declared final because 
+we don’t want our subclasses to be able to 
+override this method and change the recipe! 
+We’ve generalized steps 2 and 4 to brew() the 
+beverage and addCondiments().
+CaffeineBeverage is abstract, 
+just like in the class design.
+Because Coffee and Tea handle these 
+methods in different ways, they’re going to 
+have to be declared as abstract. Let the 
+subclasses worry about that stuff!
+Remember, we moved these into 
+the CaffeineBeverage class 
+(back in our class diagram).
+Finally, we need to deal with the Coffee and Tea classes. They now rely on CaffeineBeverage 
+to handle the recipe, so they just need to handle brewing and condiments:
+3
+As in our design, Tea and Coffee 
+now extend CaffeineBeverage.
+Tea needs to define brew() and 
+addCondiments()—the two abstract 
+methods from CaffeineBeverage.  
+Same for Coffee, except Coffee 
+deals with coffee, and sugar and milk 
+instead of tea bags and lemon.
+
+286        Chapter    8
+class diagram for caffeine beverages 
+Draw the new class diagram now that we’ve moved the 
+implementation of prepareRecipe() into the CaffeineBeverage class:
+
+you are here 4        287
+the template method pattern
+What have we done?
+1
+Boil some water
+2
+3
+4
+Steep the te a bag in the water
+Pour te a in a cup
+Add lemon
+1
+Boil some water
+2
+3
+4
+Bre w the cof fee grinds
+Pour cof fee in a cup
+Add sugar and milk
+2
+4
+Steep the te a bag in the water
+Add lemon
+Tea subclass
+Coffee subclass
+2
+4
+Bre w the cof fee grinds
+Add sugar and milk
+1
+Boil some water
+2
+3
+4
+Bre w
+Pour be verage in a cup
+Add condiments
+Caffeine Beverage
+Tea
+Coffee
+Caffeine Beverage 
+knows and controls the 
+steps of the recipe, and 
+performs steps 1 and 3 
+itself, but relies on Tea 
+or Coffee to do steps 
+2 and 4.
+We’ve recognized 
+that the two recipes 
+are essentially the 
+same, although 
+some of the steps 
+require different 
+implementations. So 
+we’ve generalized the 
+recipe and placed it 
+in the base class.
+generalize
+relies on 
+subclass 
+for some 
+steps
+generalize
+relies on 
+subclass 
+for some 
+steps
+
+288        Chapter    8
+meet the template method pattern
+Meet the Template Method 
+We ’ve basically just implemented the Template Method Pattern. What’s that? Let’s look at 
+the structure of  the CaffeineBeverage class; it contains the actual “template method”:
+final void prepareRecipe() {
+}
+brew();
+pourInCup();
+addCondiments();
+boilWater();
+   abstract void brew();
+   abstract void addCondiments();
+   void boilWater() {
+        // implementation
+   }
+   void pourInCup() {
+        // implementation
+   }
+}
+public abstract class CaffeineBeverage {
+In the template, each 
+step of the algorithm is 
+represented by a method.
+prepareRecipe() is our 
+template method
+. Why?
+Because:
+   (1) It is a method, after all.
+   (2) It serves as a template for an 
+algorithm—in this case, an algorithm 
+for making caffeinated beverages.
+Some methods are 
+handled by this class...
+...and some are handled 
+by the subclass.
+The methods that need to 
+be supplied by a subclass are 
+declared abstract.
+The Template Method defines the steps of an algorithm and allows 
+subclasses to provide the implementation for one or more steps.
+
+you are here 4        289
+the template method pattern
+Let’s make some tea...
+Let’s step through making a tea and trace through how the 
+template method works. You’ll see that the template method 
+controls the algorithm; at certain points in the algorithm, it lets 
+the subclass supply the implementation of  the steps...
+1
+Tea myTea = new Tea();
+Okay, first we need a Tea object...
+2
+myTea.prepareRecipe();
+Then we call the template method:
+which follows the algorithm for making caffeine 
+beverages...
+boilWater();
+brew();
+pourInCup();
+addCondiments();
+3
+boilWater();
+First we boil water:
+which happens in CaffeineBeverage.
+prepareRecipe()
+boilWater()
+pourInCup()
+CaffeineBeverage
+brew()
+addCondiments();
+Tea
+4
+brew();
+Next we need to brew the tea, which only the subclass knows 
+how to do:
+5
+pourInCup();
+Now we pour the tea in the cup; this is the same for all beverages, 
+so it happens in CaffeineBeverage:
+6
+addCondiments();
+Finally, we add the condiments, which are specific to each beverage, 
+so the subclass implements this:
+The prepareRecipe() method 
+controls the algorithm. No 
+one can change this, and 
+it counts on subclasses to 
+provide some or all of the 
+implementation.
+Behind 
+the Scenes
+
+290        Chapter    8
+what did template method get us?
+Underpowered  Te a & Cof fee 
+implementation
+What did the Template Method get us?
+Coffee and Tea are running the show; 
+they control the algorithm.
+Code changes to the algorithm 
+require opening the subclasses and 
+making multiple changes.
+The algorithm lives in one place and 
+code changes only need to be made 
+there.
+Code is duplicated across Coffee and 
+Tea.
+The CaffeineBeverage class 
+maximizes reuse among the 
+subclasses.
+The CaffeineBeverage class runs 
+the show; it has the algorithm, and 
+protects it.
+Classes are organized in a structure 
+that requires a lot of work to add a 
+new caffeine beverage.
+The Template Method Pattern provides 
+a framework that other caffeine 
+beverages can be plugged into. New 
+caffeine beverages only need to 
+implement a couple of methods.
+The CaffeineBeverage class 
+concentrates knowledge about the 
+algorithm and relies on subclasses to 
+provide complete implementations.
+Knowledge of the algorithm and how 
+to implement it is distributed over 
+many classes.
+Ne w, hip Caf feineBe verage 
+powered by Template Me thod
+
+you are here 4        291
+the template method pattern
+Template Method Pattern defined
+The Template Method Pattern defines the skeleton 
+of  an algorithm in a method, deferring some steps to 
+subclasses. Template Method lets subclasses redefine 
+certain steps of  an algorithm without changing the 
+algorithm’s structure.
+You’ve seen how the Template Method Pattern works in our Tea and Coffee example; 
+now, check out the official definition and nail down all the details:
+This pattern is all about creating a template for an algorithm. What’s a template?  
+As you’ve seen it’s just a method; more specifically, it’s a method that defines an 
+algorithm as a set of  steps. One or more of  these steps is defined to be abstract and 
+implemented by a subclass. This ensures the algorithm’s structure stays unchanged, 
+while subclasses provide some part of  the implementation.
+Let’s check out the class diagram:
+templateMethod()
+primitiveOperation1()
+primitiveOperation2()
+AbstractClass
+primitiveOperation1()
+primitiveOperation2()
+ConcreteClass
+primitiveOperation1();
+primitiveOperation2();
+The AbstractClass 
+contains the template 
+method...
+...and abstract versions 
+of the operations 
+used in the template 
+method.
+The ConcreteClass implements 
+the abstract operations, 
+which are called when the 
+templateMethod() needs them.
+There may be many 
+ConcreteClasses, each 
+implementing the full set of 
+operations required by the 
+template method.
+The template method makes use of the 
+primitive operations to implement an 
+algorithm. It is decoupled from the actual 
+implementation of these operations.
+
+292        Chapter    8
+template method pattern up close
+Code Up Close
+Here we have our abstract class; it 
+is declared abstract and meant to 
+be subclassed by classes that provide 
+implementations of the operations.
+Let’s take a closer look at how the AbstractClass is defined, including the template method 
+and primitive operations.
+abstract class AbstractClass {
+    
+    final void templateMethod() {
+        primitiveOperation1();
+        primitiveOperation2();
+        concreteOperation();
+    }
+    abstract void primitiveOperation1();
+    
+    abstract void primitiveOperation2();
+    
+    void concreteOperation() {
+        // implementation here
+    }
+}
+Here’s the template method. It’s 
+declared final to prevent subclasses 
+from reworking the sequence of 
+steps in the algorithm.
+The template method 
+defines the sequence of 
+steps, each represented 
+by a method.
+In this example, two of 
+the primitive operations 
+must be implemented by 
+concrete subclasses.
+We also have a concrete operation 
+defined in the abstract class. This 
+could be overridden by subclasses, or we 
+could prevent overriding by declaring 
+concreteOperation() as final. More about 
+this in a bit...
+
+you are here 4        293
+the template method pattern
+Now we’re going to look even closer at the types of  method that can go in the abstract class:
+abstract class AbstractClass {
+    
+    final void templateMethod() {
+        primitiveOperation1();
+        primitiveOperation2();
+        concreteOperation();
+        hook();
+    }
+    abstract void primitiveOperation1();
+    
+    abstract void primitiveOperation2();
+    
+    final void concreteOperation() {
+        // implementation here
+    }
+    void hook() {}
+}
+We still have our primitive 
+operation methods; 
+these are abstract and 
+implemented by concrete 
+subclasses.
+A concrete operation is defined in the 
+abstract class. This one is declared final 
+so that subclasses can’t override it. It 
+may be used in the template method 
+directly, or used by subclasses.
+We
+ can also have concrete methods that do nothing 
+by default; we call these “hooks.” Subclasses are free 
+to override these but don’t have to. We’re going to 
+see how these are useful on the next page.
+A concrete method, but 
+it does nothing!
+We’ve changed the 
+templateMethod() to 
+include a new method call.
+Code Way Up Close
+
+294        Chapter    8
+implement a hook
+public abstract class CaffeineBeverageWithHook {
+ 
+    final void prepareRecipe() {
+        boilWater();
+        brew();
+        pourInCup();
+        if (customerWantsCondiments()) {
+            addCondiments();
+        }
+    }
+ 
+    abstract void brew();
+ 
+    abstract void addCondiments();
+ 
+    void boilWater() {
+        System.out.println("Boiling water");
+    }
+ 
+    void pourInCup() {
+        System.out.println("Pouring into cup");
+    }
+ 
+    boolean customerWantsCondiments() {
+        return true;
+    }
+}
+Hooked on  
+Template Method...
+A hook is a method that is declared in the 
+abstract class, but only given an empty or default 
+implementation. This gives subclasses the ability to 
+“hook into” the algorithm at various points, if  they 
+wish; a subclass is also free to ignore the hook. 
+There are several uses of  hooks; let’s take a look at 
+one now. We’ll talk about a few other uses later:
+We’ve added a little conditional 
+statement that bases its 
+success on a concrete method, 
+customerWantsCondiments(). If the 
+customer WANTS condiments, only then 
+do we call addCondiments().
+Here we’ve defined a method 
+with a (mostly) empty default 
+implementation. This method just 
+returns true and does nothing else.  
+This is a 
+hook
+ because the 
+subclass can override this 
+method, but doesn’t have to.
+With a hook, I can 
+override the method or not. 
+It’s my choice. If I don’t, the 
+abstract class provides a default 
+implementation.
+
+you are here 4        295
+the template method pattern
+public class CoffeeWithHook extends CaffeineBeverageWithHook {
+ 
+    public void brew() {
+        System.out.println("Dripping Coffee through filter");
+    }
+ 
+    public void addCondiments() {
+        System.out.println("Adding Sugar and Milk");
+    }
+ 
+    public boolean customerWantsCondiments() {
+        String answer = getUserInput();
+        if (answer.toLowerCase().startsWith("y")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+ 
+    private String getUserInput() {
+        String answer = null;
+        System.out.print("Would you like milk and sugar with your coffee (y/n)? ");
+        BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+        try {
+            answer = in.readLine();
+        } catch (IOException ioe) {
+            System.err.println("IO error trying to read your answer");
+        }
+        if (answer == null) {
+            return "no";
+        }
+        return answer;
+    }
+}
+Using the hook
+To use the hook, we override it in our subclass. Here, the hook controls whether 
+the CaffeineBeverage class evaluates a certain part of  the algorithm—that is, 
+whether it adds a condiment to the beverage.
+How do we know whether the customer wants the condiment? Just ask!
+Here’s where you override 
+the hook and provide your 
+own functionality.
+Get the user’s input on 
+the condiment decision 
+and return true or false, 
+depending on the input.
+This code asks if the user would like milk and 
+sugar and gets the input from the command line.
+
+296        Chapter    8
+test drive
+public class BeverageTestDrive {
+    public static void main(String[] args) {
+ 
+        TeaWithHook teaHook = new TeaWithHook();
+        CoffeeWithHook coffeeHook = new CoffeeWithHook();
+ 
+        System.out.println("\nMaking tea...");
+        teaHook.prepareRecipe();
+ 
+        System.out.println("\nMaking coffee...");
+        coffeeHook.prepareRecipe();
+    }
+}
+Let’s run the Test Drive
+Okay, the water’s boiling... Here’s the test code where we create a 
+hot tea and a hot coffee.
+%java BeverageTestDrive
+Making tea...
+Boiling water
+Steeping the tea
+Pouring into cup
+Would you like lemon with your tea (y/n)? y
+Adding Lemon
+Making coffee...
+Boiling water
+Dripping Coffee through filter
+Pouring into cup
+Would you like milk and sugar with your coffee (y/n)? n
+%
+File  Edit   Window  Help  send-more-honesttea
+And let’s give it a run...
+A steaming cup of tea, and yes, 
+of course we want that lemon!
+And a nice hot cup of coffee, 
+but we’ll pass on the waistlineexpanding condiments.
+Create a tea. 
+Create a coffee.
+And call prepareRecipe() 
+on both!
+
+you are here 4        297
+the template method pattern
+You know what? We agree with you. But you 
+have to admit before you thought of  that, it was 
+a pretty cool example of  how a hook can be used 
+to conditionally control the flow of  the algorithm 
+in the abstract class. Right?
+We’re sure you can think of  many other more 
+realistic scenarios where you could use the 
+template method and hooks in your own code.
+Now, I would have thought 
+that functionality like 
+asking the customer could 
+have been used by all 
+subclasses?
+Q:
+ When I’m creating a template method, how do I know when 
+to use abstract methods and when to use hooks?
+A: Use abstract methods when your subclass MUST provide an 
+implementation of the method or step in the algorithm. Use hooks 
+when that part of the algorithm is optional. With hooks, a subclass 
+may choose to implement that hook, but it doesn’t have to.
+Q:
+ What are hooks really supposed to be used for?
+A: There are a few uses of hooks. As we just said, a hook may 
+provide a way for a subclass to implement an optional part of an 
+algorithm, or if it isn’t important to the subclass’s implementation, it 
+can skip it. Another use is to give the subclass a chance to react to 
+some step in the template method that is about to happen or just 
+happened. For instance, a hook method like justReorderedList() 
+allows the subclass to perform some activity (such as redisplaying an 
+onscreen representation) after an internal list is reordered. As you’ve 
+seen, a hook can also provide a subclass with the ability to make a 
+decision for the abstract class.  
+Q:
+ Does a subclass have to implement all the abstract 
+methods in the AbstractClass? 
+A: Yes, each concrete subclass defines the entire set of abstract 
+methods and provides a complete implementation of the undefined 
+steps of the template method’s algorithm.
+Q:
+ It seems like I should keep my abstract methods small in 
+number; otherwise, it will be a big job to implement them in the 
+subclass.
+A: That’s a good thing to keep in mind when you write template 
+methods. Sometimes you can do this by not making the steps of 
+your algorithm too granular. But it’s obviously a tradeoff: the less 
+granularity, the less flexibility. 
+ 
+Remember, too, that some steps will be optional, so you can 
+implement these as hooks rather than abstract methods, easing the 
+burden on the subclasses of your abstract class.
+
+298        Chapter    8
+the hollywood principle
+The Hollywood Principle
+The Hollywood Principle
+Don’t call us, we’ll call you. 
+We ’ve got another design principle for you; it’s called the 
+Hollywood Principle:
+Easy to remember, right? But what has it got to do with OO 
+design?
+The Hollywood Principle gives us a way to prevent 
+“dependency rot.” Dependency rot happens when you have 
+high-level components depending on low-level components 
+depending on high-level components depending on sideways 
+components depending on low-level components, and so 
+on.  When rot sets in, no one can easily understand the way a 
+system is designed.
+With the Hollywood Principle, we allow low-level components 
+to hook themselves into a system, but the high-level 
+components determine when they are needed, and how. In 
+other words, the high-level components give the low-level 
+components the “don’t call us, we’ll call you” treatment.
+High-Level Component
+Low-Level 
+Component
+Another 
+Low-Level 
+Component
+Low-level components 
+can participate in the 
+computation...
+...but the high-level 
+components control 
+when and how.
+A low-level component never 
+calls a high-level component 
+directly.
+You’ve heard me say it 
+before, and I’ll say it again: 
+don’t call me, I’ll call you!
+
+you are here 4        299
+the template method pattern
+The Factory Method and Observer; any others?
+The Hollywood Principle and Template Method
+The connection between the Hollywood Principle and the Template Method 
+Pattern is probably somewhat apparent: when we design with the Template 
+Method Pattern, we’re telling subclasses, “don’t call us, we’ll call you.” How? 
+Let’s take another look at our CaffeineBeverage design: 
+prepareRecipe()
+boilWater()
+pourInCup()
+brew()
+addCondiments()
+CaffeineBeverage
+brew()
+addCondiments()
+Tea
+brew()
+addCondiments()
+Coffee
+CaffeineBeverage is our high-level 
+component. It has control over the 
+algorithm for the recipe, and calls on 
+the subclasses only when they’re needed 
+for an implementation of a method.
+Tea and Coffee never 
+call the abstract class 
+directly without being 
+“called” first.
+The subclasses are used simply to 
+provide implementation details.  
+Clients of beverages will depend 
+on the CaffeineBeverage 
+abstraction rather than a 
+concrete Tea or Coffee, which 
+reduces dependencies in the 
+overall system.
+What other patterns make use of the Hollywood Principle?
+
+300        Chapter    8
+who does what
+Match each pattern with its description:
+Pattern
+Description
+Template Method
+Strategy
+Factory Method
+Encapsulate interchangeable 
+behaviors and use delegation to 
+decide which behavior to use.
+Subclasses decide how 
+to implement steps in an 
+algorithm.
+Subclasses decide which 
+concrete classes to instantiate.
+Q:
+ How does the Hollywood Principle relate to the 
+Dependency Inversion Principle that we learned a few chapters 
+back?
+A: The Dependency Inversion Principle teaches us to avoid the 
+use of concrete classes and instead work as much as possible with 
+abstractions. The Hollywood Principle is a technique for building 
+frameworks or components so that lower-level components can be 
+hooked into the computation, but without creating dependencies 
+between the lower-level components and the higher-level layers. So, 
+they both have the goal of decoupling, but the Dependency Inversion 
+Principle makes a much stronger and more general statement about 
+how to avoid dependencies in design.   
+ 
+The Hollywood Principle gives us a technique for creating designs 
+that allow low-level structures to interoperate while preventing other 
+classes from becoming too dependent on them.
+Q:
+ Is a low-level component disallowed from calling a 
+method in a higher-level component? 
+A: Not really. In fact, a low-level component will often end up 
+calling a method defined above it in the inheritance hierarchy purely 
+through inheritance. But we want to avoid creating explicit circular 
+dependencies between the low-level component and the high-level 
+ones.
+
+you are here 4        301
+the template method pattern
+Template Methods in the Wild
+The Template Method Pattern is a very common pattern and 
+you’re going to find lots of  it in the wild. You’ve got to have 
+a keen eye, though, because there are many implementations 
+of  the template methods that don’t quite look like the 
+textbook design of  the pattern.
+This pattern shows up so often because it’s a great design tool 
+for creating frameworks, where the framework controls how 
+something gets done, but leaves you (the person using the 
+framework) to specify your own details about what is actually 
+happening at each step of  the framework’s algorithm.
+Let’s take a little safari through a few uses in the wild (well, 
+okay, in the Java API)...
+In training, we study the classic 
+patterns. However, when we are out in 
+the real world, we must learn to recognize 
+the patterns out of context. We must also 
+learn to recognize variations of patterns, 
+because in the real world a square hole is 
+not always truly square.
+
+302        Chapter    8
+sorting with template method
+public static void sort(Object[] a) {
+    Object aux[] = (Object[])a.clone();
+    mergeSort(aux, a, 0, a.length, 0);
+}
+private static void mergeSort(Object src[], Object dest[],
+        int low, int high, int off) 
+{
+    // a lot of other code here
+    for (int i=low; i<high; i++){
+        for (int j=i; j>low &&
+             ((Comparable)dest[j-1]).compareTo((Comparable)dest[j])>0; j--)
+        {
+            swap(dest, j, j-1);
+        }
+    }
+    // and a lot of other code here
+}
+What’s something we often need to do with arrays?  
+Sort them!
+Recognizing that, the designers of  the Java Arrays class 
+have provided us with a handy template method for 
+sorting. Let’s take a look at how this method operates:
+Sorting with Template Method
+We actually have two methods here and they act 
+together to provide the sort functionality.  
+compareTo() is the method we 
+need to implement to “fill out” 
+the template method.
+This is a concrete method, already 
+defined in the Arrays class.
+We’ve pared down this 
+code a little to make 
+it easier to explain. If 
+you’d like to see it all, 
+grab the Java source 
+code and check it out...
+Think of this as the 
+template method
+.
+The first method, sort(), is just a helper method that creates a 
+copy of the array and passes it along as the destination array to 
+the mergeSort() method. It also passes along the length of the 
+array and tells the sort to start at the first element.
+The mergeSort() method contains the sort algorithm, and 
+relies on an implementation of the compareTo() method to 
+complete the algorithm. If you’re interested in the nittygritty of how the sorting happens, you’ll want to check out 
+the Java source code.
+
+you are here 4        303
+the template method pattern
+We’ve got an array of 
+ducks we need to sort.
+We’ve got some ducks to sort...
+The compareTo() method compares two objects and returns whether one is less than, greater than, 
+or equal to the other. sort() uses this as the basis of  its comparison of  objects in the array.
+Let’s say you have an array of  ducks that you’d like to sort. How do 
+you do it? Well, the sort() template method in Arrays gives us the 
+algorithm, but you need to tell it how to compare ducks, which you do by 
+implementing the compareTo() method... Make sense?
+Good point. Here’s the deal: the designers of  sort() wanted 
+it to be useful across all arrays, so they had to make sort() a 
+static method that could be used from anywhere. But that’s 
+okay, since it works almost the same as if  it were in a superclass. 
+Now, here is one more detail: because sort() really isn’t defined 
+in our superclass, the sort() method needs to know that you’ve 
+implemented the compareTo() method, or else you don’t have 
+the piece needed to complete the sort algorithm.
+To handle this, the designers made use of  the Comparable 
+interface. All you have to do is implement this interface, which 
+has one method (surprise): compareTo().
+What is compareTo()?
+No, it doesn’t. 
+Aren’t we supposed to be 
+subclassing something? I thought 
+that was the point of Template 
+Method. An array doesn’t subclass 
+anything, so I don’t get how we’d 
+use sort().
+Am I greater 
+than you?
+I don’t 
+know. That’s what 
+compareTo() tells us.
+
+304        Chapter    8
+public class Duck implements Comparable<Duck> {
+    String name;
+    int weight;
+  
+    public Duck(String name, int weight) {
+        this.name = name;
+        this.weight = weight;
+    }
+ 
+    public String toString() {
+        return name + " weighs " + weight;
+    }
+ 
+ 
+  
+    public int compareTo(Duck otherDuck) {
+  
+        if (this.weight < otherDuck.weight) {
+            return -1;
+        } else if (this.weight == otherDuck.weight) {
+            return 0;
+        } else { // this.weight > otherDuck.weight
+            return 1;
+        }
+    }
+}
+implementing comparable
+Comparing Ducks and Ducks
+Okay, so you know that if  you want to sort Ducks, 
+you’re going to have to implement this compareTo() 
+method; by doing that, you’ll give the Arrays class 
+what it needs to complete the algorithm and sort 
+your ducks.  
+Here’s the duck implementation:
+Remember, we need to implement the Comparable 
+interface since we aren’t really subclassing.
+Our Ducks have a name and a weight.
+We’re keepin’ it simple; all Ducks do is 
+print their name and weight!
+Okay, here’s what sort() needs...
+compareTo() takes another Duck to compare THIS Duck to.  
+Here’s where we specify how Ducks 
+compare. If THIS Duck weighs less 
+than otherDuck, we return -1; if 
+they are equal, we return 0; and 
+if THIS Duck weighs more, we 
+return 1.  
+
+you are here 4        305
+the template method pattern
+public class DuckSortTestDrive {
+    public static void main(String[] args) {
+        Duck[] ducks = { 
+                         new Duck("Daffy", 8), 
+                         new Duck("Dewey", 2),
+                         new Duck("Howard", 7),
+                         new Duck("Louie", 2),
+                         new Duck("Donald", 10), 
+                         new Duck("Huey", 2)
+         };
+        System.out.println("Before sorting:");
+        display(ducks);
+        Arrays.sort(ducks);
+ 
+        System.out.println("\nAfter sorting:");
+        display(ducks);
+    }
+    public static void display(Duck[] ducks) {
+        for (Duck d : ducks) {
+            System.out.println(d);
+        }
+    }
+}
+Let’s sort some Ducks
+%java DuckSortTestDrive
+Before sorting:
+Daffy weighs 8
+Dewey weighs 2
+Howard weighs 7
+Louie weighs 2
+Donald weighs 10
+Huey weighs 2
+After sorting:
+Dewey weighs 2
+Louie weighs 2
+Huey weighs 2
+Howard weighs 7
+Daffy weighs 8
+Donald weighs 10
+%
+File  Edit   Window  Help  DonaldNeedsToGoOnADiet
+The unsorted Ducks
+The sorted Ducks
+Let the sorting commence!
+Here’s the test drive for sorting Ducks...
+We need an array of 
+Ducks; these look good.
+Let’s print them to see 
+their names and weights.
+It’s sort time!
+Let’s print them (again) to see 
+their names and weights.
+Notice that we 
+call Arrays’ static 
+method sort(), and 
+pass it our Ducks.
+
+306        Chapter    8
+behind the scenes: sorting ducks
+The making of the sorting duck machine
+Let’s trace through how the Arrays sort() template method works.  
+We’ll check out how the template method controls the algorithm, 
+and at certain points in the algorithm, how it asks our Ducks to 
+supply the implementation of  a step...
+1
+Duck[] ducks = {new Duck("Daffy", 8), ... };
+First, we need an array of  Ducks:
+2
+Arrays.sort(ducks);
+Then we call the sort() template method in the Arrays 
+class and pass it our ducks:
+The sort() method (and its helper, mergeSort()) control 
+the sort procedure.
+for (int i=low; i<high; i++){
+        ... compareTo() ...
+        ... swap() ...
+}
+3
+ducks[0].compareTo(ducks[1]);
+To sort an array, you need to compare two items one 
+by one until the entire list is in sorted order.
+When it comes to comparing two ducks, the sort() 
+method relies on the Duck’s compareTo() method 
+to know how to do this. The compareTo() method 
+is called on the first duck and passed the duck to be 
+compared to:
+sort()
+swap()
+Arrays
+compareTo()
+toString()
+Duck
+4
+swap()
+If  the Ducks are not in sorted order, they’re swapped with 
+the concrete swap() method in Arrays:
+The sort() method controls 
+the algorithm; no class can 
+change this. sort() counts 
+on a Comparable class to 
+provide the implementation 
+of compareTo().
+5
+The sort() method continues comparing and swapping Ducks 
+until the array is in the correct order!
+First Duck
+Duck to compare it to
+No inheritance, 
+unlike a typical 
+template method.
+Behind 
+the Scenes
+
+you are here 4        307
+the template method pattern
+Q:
+ Is this really the Template Method Pattern, or are you 
+trying too hard?
+A: The pattern calls for implementing an algorithm and letting 
+subclasses supply the implementation of the steps—and the Arrays 
+sort() is clearly not doing that! But, as we know, patterns in the 
+wild aren’t always just like the textbook patterns. They have to be  
+modified to fit the context and implementation constraints.
+The designers of the Arrays sort() method had a few constraints. In 
+general, you can’t subclass a Java array and they wanted the sort to 
+be used on all arrays (and each array is a different class). So they 
+defined a static method and deferred the comparison part of the 
+algorithm to the items being sorted. 
+So, while it’s not a textbook template method, this implementation is 
+still in the spirit of the Template Method Pattern. Also, by eliminating 
+the requirement that you have to subclass Arrays to use this 
+algorithm, they’ve made sorting in some ways more flexible and 
+useful. 
+Q:
+ This implementation of sorting actually seems more like 
+the Strategy Pattern than the Template Method Pattern. Why do 
+we consider it Template Method?
+A: You’re probably thinking that because the Strategy Pattern uses 
+object composition. You’re right in a way—we’re using the Arrays 
+object to sort our array, so that’s similar to Strategy. But remember, 
+in Strategy, the class that you compose with implements the 
+entire algorithm. The algorithm that Arrays implements for sort() is 
+incomplete; it needs a class to fill in the missing compareTo() method.  
+So, in that way, it’s more like Template Method.
+Q:
+ Are there other examples of template methods in the Java 
+API?
+A: Yes, you’ll find them in a few places. For example, java.io has a 
+read() method in InputStream that subclasses must implement and is 
+used by the template method read(byte b[], int off, int len).
+We know that we should favor composition over inheritance, right? Well, the 
+implementers of the sort() template method decided not to use inheritance and 
+instead to implement sort() as a static method that is composed with a Comparable 
+at runtime. How is this better? How is it worse? How would you approach this 
+problem? Do Java arrays make this particularly tricky?
+Think of another pattern that is a specialization of the template method. In 
+this specialization, primitive operations are used to create and return objects.  
+What pattern is this?
+2
+
+308        Chapter    8
+the paint hook
+public class MyFrame extends JFrame {
+    public MyFrame(String title) {
+        super(title);
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setSize(300,300);
+        this.setVisible(true);
+    }
+    public void paint(Graphics graphics) {
+        super.paint(graphics);
+        String msg = "I rule!!";
+        graphics.drawString(msg, 100, 100);
+    }
+    public static void main(String[] args) {
+        MyFrame myFrame = new MyFrame("Head First Design Patterns");
+    }
+}
+Swingin’ with Frames
+Up next on our Template Method safari...keep your eye out for swinging JFrames!
+If  you haven’t encountered JFrame, it’s the most basic Swing container and inherits a 
+paint() method. By default, paint() does nothing because it’s a hook! By overriding paint(), 
+you can insert yourself  into JFrame’s algorithm for displaying its area of  the screen and 
+have your own graphic output incorporated into the JFrame. Here’s an embarrassingly 
+simple example of  using a JFrame to override the paint() hook method:
+We’re extending JFrame, which contains a 
+method update() that controls the algorithm 
+for updating the screen. We can hook into that 
+algorithm by overriding the paint() hook method.
+JFrame’s update algorithm calls paint(). By 
+default, paint() draws nothing...it’s a hook.  
+We’re overriding paint() and telling the 
+JFrame to draw a message in the window.
+Here’s the message that gets 
+painted in the frame because we’ve 
+hooked into the paint() method.
+Don’t look behind the 
+curtain! Just some 
+initialization here...
+
+you are here 4        309
+the template method pattern
+Custom Lists with AbstractList
+Our final stop on the safari: AbstractList.
+The list collections in Java, like ArrayList and LinkedList, 
+extend the AbstractList class, which provides some of  the 
+basic implementations for list behavior. If  you want to 
+create your own custom list—say, a list that contains only 
+Strings—you can do that by extending AbstractList so 
+you get that basic list behavior for free. 
+AbstractList has a template method, subList(), that relies 
+on two abstract methods, get() and size(). So when you 
+extend AbstractList to create your own custom list, you’ll 
+provide implementations for these methods. 
+Here’s an implementation of  a custom list that contains 
+only String objects, and uses arrays for the underlying 
+implementation: 
+Create a sublist of one item starting at 
+index 2...the Rubber Duck, of course.
+We create a custom list by 
+extending AbstractList.
+subList()
+get(int)
+size()
+iterator()
+hashCode()
+// other methods
+AbstractList
+get(int)
+size()
+MyList
+get(3);
+size();
+public class MyStringList extends AbstractList<String> {
+ private String[] myList;
+ MyStringList(String[] strings) {
+        myList = strings;
+       }
+ public String get(int index) {
+              return       myList[index];
+       }
+ public int size() {
+              return       myList.length;
+       }
+ public String set(int index, String item) {
+        String oldString = myList[index];
+        myList[index] = item;
+              return       oldString;
+       }
+}
+String[] ducks = { "Mallard Duck", "Redhead Duck", "Rubber Duck", "Decoy Duck"};
+MyStringList ducksList = new MyStringList(ducks);
+List ducksSubList = ducksList.subList(2, 3);
+Test the subList() template method in your MyStringList implementation like this:
+We must implement the methods get() 
+and size(), which are both used by 
+the template method subList().
+We also implement a method set() 
+so we can modify the list. 
+
+310        Chapter    8
+fireside chats: template method and strategy
+Tonight’s talk: Template Method and Strategy 
+compare methods.
+Template Method:
+Hey Strategy, what are you doing in my chapter?  
+I figured I’d get stuck with someone boring like 
+Factory Method.
+ 
+ 
+ 
+I was just kidding! But seriously, what are you doing 
+here? We haven’t heard from you in seven chapters!
+You might want to remind the reader what you’re 
+all about, since it’s been so long.
+ 
+ 
+Hey, that does sound a lot like what I do. But my 
+intent’s a little different from yours; my job is to 
+define the outline of  an algorithm, but let my 
+subclasses do some of  the work. That way, I can 
+have different implementations of  an algorithm’s 
+individual steps, but keep control over the 
+algorithm’s structure. Seems like you have to give up 
+control of  your algorithms.
+Strategy:
+ 
+ 
+ 
+ 
+ 
+Nope, it’s me, although be careful—you and Factory 
+Method are related, aren’t you?
+ 
+ 
+I’d heard you were on the final draft of  your chapter 
+and I thought I’d swing by to see how it was going. 
+We have a lot in common, so I thought I might be 
+able to help...
+I don’t know, since Chapter 1, people have been 
+stopping me in the street saying, “Aren’t you that 
+pattern...?” So I think they know who I am. But 
+for your sake: I define a family of  algorithms and 
+make them interchangeable. Since each algorithm is 
+encapsulated, the client can use different algorithms 
+easily.
+I’m not sure I’d put it quite like that...and anyway, 
+I’m not stuck using inheritance for algorithm 
+implementations. I offer clients a choice of  
+algorithm implementation through object 
+composition.
+Hey, I heard that!
+Factory Method
+
+you are here 4        311
+the template method pattern
+Template Method:
+I remember that. But I have more control over 
+my algorithm and I don’t duplicate code. In fact, 
+if  every part of  my algorithm is the same except 
+for, say, one line, then my classes are much more 
+efficient than yours. All my duplicated code gets put 
+into the superclass, so all the subclasses can share it.
+ 
+ 
+ 
+ 
+Yeah, well, I’m real happy for ya, but don’t forget 
+I’m the most used pattern around. Why? Because I 
+provide a fundamental method for code reuse that 
+allows subclasses to specify behavior. I’m sure you 
+can see that this is perfect for creating frameworks.
+How’s that? My superclass is abstract.  
+Like I said, Strategy, I’m real happy for you. Thanks 
+for stopping by, but I’ve got to get the rest of  this

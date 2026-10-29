@@ -1,0 +1,365 @@
+chapter done.
+Got it. Don’t call us, we’ll call you...
+Strategy:
+ 
+ 
+ 
+ 
+ 
+You might be a little more efficient (just a little) and 
+require fewer objects. And you might also be a little 
+less complicated in comparison to my delegation 
+model, but I’m more flexible because I use object 
+composition. With me, clients can change their 
+algorithms at runtime simply by using a different 
+strategy object. Come on, they didn’t choose me for 
+Chapter 1 for nothing!
+Yeah, I guess...but what about dependency?  You’re 
+way more dependent than me.
+But you have to depend on methods implemented 
+in your subclasses, which are part of  your algorithm.  
+I don’t depend on anyone; I can do the entire 
+algorithm myself !
+Okay, okay, don’t get touchy. I’ll let you work, but let 
+me know if  you need my special techniques anyway; 
+I’m always glad to help.
+
+312        Chapter    8
+crossword puzzle
+123
+45
+6
+7
+8
+91011
+12
+13
+14
+15
+16
+Across
+1. Huey, Louie and Dewey all weigh ________ 
+pounds
+2. The template method is usually defined in an 
+___________ class
+4. In this chapter we gave you more 
+_____________
+7. The steps in the algorithm that must be 
+supplied by the subclasses are usually 
+declared ___________
+11. The JFrame hook method that we overrode 
+to print "I Rule"
+12. _____List has a subList template method
+13. Type of sort used in Arrays
+14. The Template Method Pattern uses 
+____________ to defer implementation to 
+other classes
+15. Don't call us, we'll call you is known as the 
+_________________ Principle
+16. Strategy uses _________ rather than 
+inheritance
+Down
+1. Coffee and _____
+3. Factory Method is a _______________ of 
+Template Method
+5. A template method defines the steps of an 
+____________
+6. Big headed pattern
+8. _________ algorithm steps are implemented 
+by hook methods
+9. Our favorite coffee shop in Objectville
+10. The Arrays class implements its template 
+method as a _________ method
+15. A method in the abstract superclass that 
+does nothing or provides default behavior is 
+called a _________ method
+Design Patterns Crossword
+It’s that time again...
+ACROSS
+1. Huey, Louie, and Dewey all weigh __________ pounds.
+2. The template method is usually defined in an _______ 
+class.
+4. In this chapter we gave you more _________.
+7. The steps in the algorithm that must be supplied by the 
+subclasses are usually declared ___________.
+11. The JFrame hook method that we overrode to print “I 
+rule!!”
+12. ___________ has a subList() template method.
+13. Type of sort used in Arrays.
+14. The Template Method Pattern uses _____________ 
+to defer implementation to other classes.
+15. “Don’t call us, we’ll call you” is known as the 
+_________ Principle. 
+DOWN
+1. Coffee and ______.
+3. Factory Method is a __________ of Template Method.
+5. A template method defines the steps of an ________.
+6. Big-headed pattern.
+8. _______ algorithm steps are implemented by hook 
+methods. 
+9. Our favorite coffee shop in Objectville.
+10. The Arrays class implements its template method as 
+a ______ method.
+15. A method in the abstract superclass that does nothing 
+or provides default behavior is called a ____________  
+method.
+
+you are here 4        313
+the template method pattern
+Tools for your Design Toolbox
+We’ve added Template Method to your toolbox. 
+With Template Method, you can reuse code like a 
+pro while keeping control of  your algorithms.
+Abstraction
+Encapsulation
+Polymorphism
+Inheritance
+OO Basics
+Encapsulate what varies.
+Favor composition over inheritance.
+Program to interfaces, not 
+implementations.
+Strive for loosely coupled designs 
+between objects that interact.
+Classes should be open for extension 
+but closed for modification.
+Depend on abstractions. Do not 
+depend on concrete classes.
+Talk only to your friends.
+Don’t call us, we’ll call you.
+OO Principles
+Strategy
+ - defines a family of algorithms, 
+encapsulates each one, and makes them 
+interchangeable.  Strategy lets the algorithm 
+vary independently from clients that use it.
+OO Patterns
+Observer
+ - 
+defines a one-to-many 
+dependency between objects so that 
+when one object changes state, all its 
+dependents are notified and updated 
+automatically
+Decorator
+ - 
+Attach additional 
+responsibilities to an object dynamically.  
+Decorators provide a flexible 
+alternative to subclassing for extending 
+functionality.
+Abstract Factory
+ - 
+Provide an 
+interface for creating families of 
+related or depedent objects without 
+specifying their concrete classes.
+Factory Method 
+ - 
+Define an 
+interface for creating an object, but 
+let subclasses decide which class to 
+instantiate.  Factory Method lets 
+a class defer instantiation to the 
+subclasses.
+Singleton
+ - 
+Ensure a class only has one 
+instance and provide a global point of 
+access to it.
+Command
+ - 
+Encapsulates a request 
+as an object, thereby letting you 
+parameterize clients with different 
+requests, queue or log requests, and 
+support undoable operations.
+Adapter
+ - 
+Encapsulates a request 
+as an object, thereby letting you 
+parameterize clients with different 
+requests, queue or log requests, and 
+support undoable operations.
+Our newest principle 
+reminds you that your 
+superclasses are running 
+the show, so let them call 
+your subclass methods when 
+they’re needed, just like 
+they do in Hollywood.
+Facade
+ - 
+Encapsulates a request 
+as an object, thereby letting you 
+parameterize clients with different 
+requests, queue or log requests, and 
+support undoable operations.
+And our newest 
+pattern lets classes 
+implementing an 
+algorithm defer some 
+steps to subclasses.
+Template Method
+ - 
+Define the 
+skeleton of an algorithm in an operation, 
+deferring some steps to subclasses.  
+Template Method lets subclasses redefine 
+certain steps of an algorithm without 
+changing the algorithm’s structure.
+ A template method defines the 
+steps of an algorithm, deferring to 
+subclasses for the implementation 
+of those steps.
+ The Template Method Pattern 
+gives us an important technique 
+for code reuse.
+ The template method’s abstract 
+class may define concrete 
+methods, abstract methods, and 
+hooks.
+ Abstract methods are 
+implemented by subclasses.
+ Hooks are methods that do 
+nothing or default behavior in 
+the abstract class, but may be 
+overridden in the subclass.
+ To prevent subclasses from 
+changing the algorithm in the 
+template method, declare the 
+template method as final.
+ The Hollywood Principle guides us 
+to put decision making in highlevel modules that can decide 
+how and when to call low-level 
+modules.
+ You’ll see lots of uses of the 
+Template Method Pattern in 
+real-world code, but (as with any 
+pattern) don’t expect it all to be 
+designed “by the book.”
+ The Strategy and Template 
+Method Patterns both encapsulate 
+algorithms, the first by composition 
+and the other by inheritance.
+ Factory Method is a specialization 
+of Template Method.
+
+314        Chapter    8
+exercise solutions
+Draw the new class diagram now that we’ve moved 
+prepareRecipe() into the CaffeineBeverage class:
+Match each pattern with its description:
+SOlUTion
+PatternDescription
+Template Method
+Strategy
+Factory Method
+Encapsulate interchangable 
+behaviors and use delegation to 
+decide which behavior to use.
+Subclasses decide how to 
+implement steps in an algorithm.
+Subclasses decide which 
+concrete classes to create.
+prepareRecipe()
+boilWater()
+pourInCup()
+brew()
+addCondiments()
+CaffeineBeverage
+brew()
+addCondiments()
+Coffee
+brew()
+addCondiments()
+Tea
+
+you are here 4        315
+the template method pattern
+Design Patterns Crossword Solution
+It’s that time again...
+T
+1
+WOA
+2
+BS
+3
+TRACT
+C
+4
+A
+5
+FFEINEP
+LAES
+6
+GA
+7
+BSTRACTT
+OIR
+RAO
+8
+A
+IS
+9
+S
+10
+LP
+11
+AINT
+TTA
+12
+BSTRACTLISTE
+HAAZIG
+M
+13
+ERGESORTAOY
+BI
+14
+NHERITANCE
+UCIA
+ZH
+15
+OLLYWOOD
+ZC
+16
+OMPOSITION
+O
+K
+Across
+1. Huey, Louie and Dewey all weigh ________ 
+pounds [TWO] 
+2. The template method is usually defined in an 
+___________ class [ABSTRACT] 
+4. In this chapter we gave you more 
+_____________ [CAFFEINE] 
+7. The steps in the algorithm that must be 
+supplied by the subclasses are usually 
+declared ___________ [ABSTRACT] 
+11. The JFrame hook method that we overrode 
+to print "I Rule" [PAINT] 
+12. _____List has a subList template method 
+[ABSTRACTLIST] 
+13. Type of sort used in Arrays [MERGESORT] 
+14. The Template Method Pattern uses 
+____________ to defer implementation to 
+other classes [INHERITANCE] 
+15. Don't call us, we'll call you is known as the 
+_________________ Principle 
+[HOLLYWOOD] 
+Down
+1. Coffee and _____ [TEA] 
+3. Factory Method is a _______________ of 
+Template Method [SPECIALIZATION] 
+5. A template method defines the steps of an 
+____________ [ALGORITHM] 
+6. Big headed pattern [STRATEGY] 
+8. _________ algorithm steps are implemented 
+by hook methods [OPTIONAL] 
+9. Our favorite coffee shop in Objectville 
+[STARBUZZ] 
+10. The Arrays class implements its template 
+method as a _________ method [STATIC] 
+15. A method in the abstract superclass that 
+does nothing or provides default behavior is 
+called a _________ method [HOOK]

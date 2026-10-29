@@ -1,0 +1,706 @@
+Chapter 10. I mean, how many people are actually 
+going to read this far?
+ 
+ 
+ 
+ 
+That’s my brother, always the dreamer.
+State:
+Okay, when my Context objects get created, I may 
+tell them the state to start in, but then they change 
+their own state over time. 
+ 
+ 
+ 
+Sure you can, but the way I work is built around 
+discrete states; my Context objects change state 
+over time according to some well-defined state 
+transitions.  In other words, changing behavior is 
+built in to my scheme—it’s how I work!
+ 
+ 
+ 
+ 
+ 
+Look, we’ve already said we’re alike in structure, but 
+what we do is quite different in intent. Face it, the 
+world has uses for both of  us.
+ 
+ 
+ 
+ 
+ 
+ 
+Are you kidding? This is a Head First book and 
+Head First readers rock. Of  course they’re going to 
+get to Chapter 10!
+
+416        Chapter    10
+refill exercise
+We almost forgot!
+Mighty Gumball, Inc.
+Where the Gumball Machine 
+is Never Half Empty
+Gumball 
+  Sold
+   No 
+Quarter
+   Has 
+Quarter
+Out of 
+Gumballs
+There’s
+ one transition we forgot to put in the original spec...we 
+need a way to refill the gumball machine when it’s out of gumballs!  
+Here’s the new diagram 
+—   can you implement it for us? You did such 
+a good job on the rest of the gumball machine we have no doubt 
+you can add this in a jiffy!
+               - The Mighty Gumball Engineers
+insert quarter
+eject quarter
+turn crank
+dispense 
+gumball
+gumballs = 0
+gumballs > 0
+refill
+
+you are here 4        417
+the state pattern
+You’ve done some amazing work! 
+I’ve got some more ideas that 
+are going to change the gumball 
+industry and I need you to implement 
+them. Shhhhh! I’ll let you in on these 
+ideas in the next chapter.
+We need you to write the refill() method for the Gumball machine.  It has one 
+argument—the number of gumballs you’re adding to the machine—and 
+should update the gumball machine count and reset the machine’s state.
+
+418        Chapter    10
+who does what?
+Pattern
+Description
+State
+Strategy
+Template Method
+Encapsulate interchangeable 
+behaviors and use delegation to 
+decide which behavior to use.
+Subclasses decide how 
+to implement steps in an 
+algorithm.
+Encapsulate state-based 
+behavior and delegate 
+behavior to the current state.
+Match each pattern with its description:
+
+you are here 4        419
+the state pattern
+Tools for your Design Toolbox
+It’s the end of  another chapter; you’ve got enough 
+patterns here to breeze through any job interview!
+Abstraction
+Encapsulation
+Polymorphism
+Inheritance
+OO Basics
+Strategy
+ - defines a family of algorithms, 
+encapsulates each one, and makes them 
+interchangeable.  Strategy lets the algorithm 
+vary independently from clients that use it.
+OO Patterns
+Observer
+ - 
+defines a one-to-many 
+dependency between objects so that 
+when one object changes state, all its 
+dependents are notified and updated 
+automatically
+Decorator
+ - 
+Attach additional 
+responsibilities to an object dynamically.  
+Decorators provide a flexible 
+alternative to subclassing for extending 
+functionality.
+Abstract Factory
+ - 
+Provide an 
+interface for creating families of 
+related or depedent objects without 
+specifying their concrete classes.
+Factory Method 
+ - 
+Define an 
+interface for creating an object, but 
+let subclasses decide which class to 
+instantiate.  Factory Method lets 
+a class defer instantiation to the 
+subclasses.
+Singleton
+ - 
+Ensure a class only has one 
+instance and provide a global point of 
+access to it.
+Command
+ - 
+Encapsulates a request 
+as an object, thereby letting you 
+parameterize clients with different 
+requests, queue or log requests, and 
+support undoable operations.
+Adapter
+ - 
+Encapsulates a request 
+as an object, thereby letting you 
+parameterize clients with different 
+requests, queue or log requests, and 
+support undoable operations.
+No new principles this 
+chapter. That gives you 
+time to sleep on them.
+Facade
+ - 
+Encapsulates a request 
+as an object, thereby letting you 
+parameterize clients with different 
+requests, queue or log requests, and 
+support undoable operations.
+Here’s our new 
+pattern. If you’re 
+managing state in 
+a class, the State 
+Pattern gives you 
+a technique for 
+encapsulating that 
+state.
+State
+ - 
+Allow an object to alter its 
+behavior when its internal state changes.  
+The object will appear to change its 
+class.
+Encapsulate what varies.
+Favor composition over inheritance.
+Program to interfaces, not 
+implementations.
+Strive for loosely coupled designs 
+between objects that interact.
+Classes should be open for extension 
+but closed for modification.
+Depend on abstractions. Do not 
+depend on concrete classes.
+Only talk to your friends.
+Don’t call us, we’ll call you.
+A class should have only one reason 
+to change.
+OO Principles
+ The State Pattern allows an 
+object to have many different 
+behaviors that are based on 
+its internal state.
+ Unlike a procedural state 
+machine, the State Pattern 
+represents each state as a 
+full-blown class.
+ The Context gets its behavior 
+by delegating to the current 
+state object it is composed 
+with.
+ By encapsulating each state 
+into a class, we localize any 
+changes that will need to be 
+made.
+ The State and Strategy 
+Patterns have the same class 
+diagram, but they differ in 
+intent.
+ The Strategy Pattern typically 
+configures Context classes 
+with a behavior or algorithm.
+ The State Pattern allows 
+a Context to change its 
+behavior as the state of the 
+Context changes.
+ State transitions can be 
+controlled by the State 
+classes or by the Context 
+classes.
+ Using the State Pattern will 
+typically result in a greater 
+number of classes in your 
+design.
+ State classes may be shared 
+among Context instances.
+
+420        Chapter    10
+exercise solutions
+Out of 
+Gumballs
+   Has 
+Quarter
+   No 
+Quarter
+insert quarter
+eject quarter
+turn crank, no winner
+Winner
+turn crank, we 
+have a winner!
+Mighty Gumball, Inc.
+Where the Gumball Machine 
+is Never Half Empty
+Gumball 
+  Sold
+dispense 
+gumball
+gumballs = 0
+gumballs > 0
+gumballs = 0
+gumballs > 0
+dispense 2 
+gumballs
+Draw a state diagram for a Gumball Machine that handles the 1-in-10 
+contest. In this contest, 10% of the time the Sold state leads to two 
+balls being released, not one. Here’s our solution.
+Design Puzzle Solution
+
+you are here 4        421
+the state pattern
+Which of the following describe the state of our implementation?  
+(Choose all that apply.) Here’s our solution.
+We have one remaining class we haven’t implemented: SoldOutState. Why 
+don’t you implement it? To do this, carefully think through how the Gumball 
+Machine should behave in each situation. Here’s our solution.
+public class SoldOutState implements State {
+    GumballMachine gumballMachine;
+ 
+    public SoldOutState(GumballMachine gumballMachine) {
+        this.gumballMachine = gumballMachine;
+    }
+ 
+    public void insertQuarter() {
+        System.out.println("You can't insert a quarter, the machine is sold out");
+    }
+ 
+    public void ejectQuarter() {
+        System.out.println("You can't eject, you haven't inserted a quarter yet");
+    }
+ 
+    public void turnCrank() {
+        System.out.println("You turned, but there are no gumballs");
+    }
+ 
+    public void dispense() {
+        System.out.println("No gumball dispensed");
+    }
+}
+In the Sold Out state, we really 
+can’t do anything until someone 
+refills the Gumball Machine.
+❏   A. This code certainly isn’t adhering to the 
+Open Closed Principle.
+❏   B. This code would make a FORTRAN 
+programmer proud.
+❏   C. This design isn’t even very objectoriented.
+❏   D. State transitions aren’t explicit; they 
+are buried in the middle of  a bunch of  
+conditional statements.
+❏   E. We haven’t encapsulated anything that 
+varies here.                
+❏   F. Further additions are likely to cause bugs 
+in working code.
+
+422        Chapter    10
+exercise solutions
+Go to HasQuarterState.
+Tell the customer, “You haven’t inserted a quarter.”
+Tell the customer, “Please wait, we’re already giving you a gumball.”
+Tell the customer, “Sorry, you already turned the crank.”
+Tell the customer, “Turning twice doesn’t get you another gumball.”
+Tell the customer, “The machine is sold out.”
+Tell the customer, “You haven’t inserted a quarter yet.”
+Tell the customer, “You can’t insert another quarter.”
+Tell the customer, “There are no gumballs.”
+Go to SoldState.
+Give back quarter, go to NoQuarter state.
+Tell the customer, “You turned, but there’s no quarter.”
+NoQuarterState
+insertQuarter()
+ejectQuarter()
+turnCrank()
+dispense()
+SoldOutState
+insertQuarter()
+ejectQuarter()
+turnCrank()
+dispense()
+SoldState
+insertQuarter()
+ejectQuarter()
+turnCrank()
+dispense()
+HasQuarterState
+insertQuarter()
+ejectQuarter()
+turnCrank()
+dispense()
+Tell the customer, “You need to pay first.”
+Tell the customer, “No gumball dispensed.”
+Dispense one gumball. Check number of gumballs; if > 0, go 
+to NoQuarter state; otherwise, go to SoldOut state.
+Tell the customer, “No gumball dispensed.”
+Tell the customer, “Please wait, we’re already giving you a gumball.”
+Tell the customer, “Sorry, you already turned the crank.”
+Tell the customer, “Turning twice doesn’t get you another gumball.”
+WinnerState
+insertQuarter()
+ejectQuarter()
+turnCrank()
+dispense()
+Dispense two gumballs. Check number of gumballs; if > 0, 
+go to NoQuarter state; otherwise, go to SoldOutState.
+To  implement the states, we first need to define what the behavior will 
+be when the corresponding action is called. Annotate the diagram below 
+with the behavior of each action in each class; here’s our solution.
+
+you are here 4        423
+the state pattern
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+O
+u
+t
+G
+u
+m
+b
+a
+l
+l
+M
+a
+c
+h
+i
+n
+e
+G
+u
+m
+b
+a
+l
+l
+M
+a
+c
+h
+i
+n
+e
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+G
+u
+m
+b
+a
+l
+l
+M
+a
+c
+h
+i
+n
+e
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+ 
+ 
+ 
+ 
+H
+a
+s
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+N
+o
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+O
+u
+t
+ 
+ 
+ 
+ 
+H
+a
+s
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+N
+o
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+O
+u
+t
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+ 
+ 
+ 
+ 
+H
+a
+s
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+N
+o
+Q
+u
+a
+r
+t
+e
+r
+G
+u
+m
+b
+a
+l
+l
+M
+a
+c
+h
+i
+n
+e
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+ 
+ 
+ 
+ 
+H
+a
+s
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+N
+o
+Q
+u
+a
+r
+t
+e
+r
+ 
+ 
+ 
+ 
+ 
+ 
+S
+o
+l
+d
+O
+u
+t
+Gumball Machine States
+Gumball Machine States
+Gumball Machine States
+Gumball Machine States
+11
+22
+44
+33
+current state
+current state
+current state
+current state
+Behind the Scenes: 
+Self-Guided Tour 
+Solution
+insertQuarter()
+insertQuarter()
+delegates to 
+current state
+turnCrank()
+turnCrank()
+delegates
+transitions to 
+HasQuarter state
+machine action
+machine action
+transitions to 
+Sold state
+dispense()
+Here the machine 
+gives out a gumball 
+by calling the internal 
+dispense() action...
+...and then transitions 
+to NoQuarter.
+
+424        Chapter    10
+exercise solutions
+public void refill() { 
+    gumballMachine.setState(gumballMachine.getNoQuarterState());
+}
+Pattern
+Description
+State
+Strategy
+Template Method
+Encapsulate interchangeable 
+behaviors and use delegation to 
+decide which behavior to use.
+Subclasses decide how 
+to implement steps in an 
+algorithm.
+Encapsulate state-based 
+behavior and delegate 
+behavior to the current state.
+Match each pattern with its description:
+SOlUTion
+To  refill the Gumball Machine, we add a refill() method to the State interface, 
+which each State must implement. In every state except SoldOutState, the 
+method does nothing. In SoldOutState, refill() transitions to NoQuarterState. 
+We also add a refill() method to GumballMachine that adds to the count of 
+gumballs, and then calls the current state’s refill() method.
+void refill(int count) {
+    this.count += count;
+    System.out.println("The gumball machine was just refilled; its new count is: " + this.count);
+    state.refill();
+}
+We add this method to 
+the SoldOutState...
+...and add this method to 
+the GumballMachine class.

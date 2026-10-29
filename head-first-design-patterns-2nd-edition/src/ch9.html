@@ -1,0 +1,62 @@
+<section class="chapter" id="ch9" data-ch="9" data-title="Chương 9: Mẫu Thiết Kế Command - Đóng Gói Lời Gọi Phương Thức">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 9</p>
+    <h1>Chapter 9: The Command Pattern - Encapsulating Invocation <span class="vi">Chương 9: Mẫu Thiết Kế Command - Đóng Gói Lời Gọi Phương Thức</span></h1>
+    <p class="lede">Đóng gói lời gọi phương thức thành đối tượng độc lập giúp cô lập hoàn toàn bên yêu cầu khỏi bên thực thi.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">2 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch9-t1" data-num="9.1" data-short="Bản chất Command Pattern">
+    <div class="topic-theory-card">
+      <p class="eyebrow">NGUYÊN LÝ CỐT LÕI</p>
+      <h2>Đóng gói Lời gọi Phương thức và Giải quyết Bài toán Ghép nối</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Command Pattern đóng gói một yêu cầu thành một đối tượng, cho phép tham số hóa các đối tượng với các yêu cầu khác nhau.</p></div>
+      <div class="prose">
+        <p>Trong các hệ thống phần mềm lớn, khi một thành phần giao diện cần kích hoạt các hành động từ nhiều thiết bị hoặc dịch vụ khác nhau, việc sử dụng các câu lệnh điều kiện rẽ nhánh (if-else hoặc switch-case) sẽ tạo ra sự phụ thuộc cứng nhắc. <dfn data-term="tight-coupling"><strong>Ghép nối chặt chẽ</strong></dfn> này khiến mã nguồn cực kỳ khó bảo trì và dễ sinh lỗi mỗi khi có thiết bị hoặc nhà cung cấp mới xuất hiện.</p><p>Các hình thái cấu trúc thay thế khi xử lý lời gọi phương thức phân tán:</p><ul><li><strong>Direct Method Invocation:</strong> Gọi trực tiếp phương thức của thiết bị; ưu điểm đơn giản, nhược điểm phụ thuộc hoàn toàn vào interface cụ thể của từng vendor.</li><li><strong>Command Object Encapsulation:</strong> Đóng gói lời gọi thành đối tượng độc lập; ưu điểm linh hoạt, dễ mở rộng, nhược điểm tăng số lượng lớp (classes) trong dự án.</li><li><strong>Event-Driven Dispatcher:</strong> Chuyển lời gọi thành sự kiện bất đồng bộ; phù hợp với hệ thống phân tán cao nhưng phức tạp trong việc quản lý trạng thái.</li></ul><p>Bằng cách áp dụng <dfn data-term="command-pattern"><strong>Command Pattern</strong></dfn>, chúng ta biến mọi hành động thành dữ liệu hạng nhất (first-class citizens) có thể truyền qua lại, lưu trữ và thực thi theo ý muốn.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Thực chiến tại hệ thống thanh toán MoMo / ZaloPay</b>
+        <p>Khi xử lý hàng triệu giao dịch chuyển tiền và thanh toán hóa đơn đồng thời, các kỹ sư tại MoMo đóng gói mỗi lệnh giao dịch thành một Command object riêng biệt, cho phép hệ thống dễ dàng thực hiện cơ chế retry, rollback tự động khi lỗi mạng hoặc lưu vết audit log chính xác từng mili-giây.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch9-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô phỏng Luồng Thực thi Command Pattern</strong>
+        <small>Điều chỉnh tải lượng request đồng thời để quan sát cách Invoker kích hoạt Command và tác động lên Receiver.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch9-review" data-num="9.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 9</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Trong kiến trúc phần mềm chịu tải cao, việc ghép nối chặt chẽ (tight coupling) giữa thành phần giao diện người dùng hoặc bộ điều khiển (Invoker) với logic nghiệp vụ tầng sâu (Receiver) là điểm nghẽn nghiêm trọng khi mở rộng hệ thống. <dfn data-term="command-pattern"><strong>Command Pattern</strong></dfn> giải quyết triệt để bài toán này bằng cách bọc toàn bộ yêu cầu, tham số và đối tượng nhận vào một đối tượng lệnh duy nhất chỉ lộ ra phương thức <code>execute()</code>. Nhờ cơ chế này, hệ thống có thể dễ dàng lập lịch thực thi, xếp hàng (queue), ghi log (logging), hoặc hỗ trợ tính năng hoàn tác (undo/redo) mà không cần sửa đổi mã nguồn của đối tượng gọi lệnh.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Thành phần nào trong Command Pattern chịu trách nhiệm lưu trữ và kích hoạt lời gọi phương thức?</p>
+        <ol><li>Receiver</li><li>Invoker</li><li>Client</li><li>ConcreteCommand</li></ol>
+        <p class="explain">Invoker (như chiếc remote control) là thành phần giữ lệnh và gọi phương thức execute() khi có sự kiện xảy ra mà không cần biết chi tiết bên trong.</p>
+      </div>
+
+      <div class="q" data-answer="1">
+        <p><strong>Câu 2:</strong> Mục đích chính của việc sử dụng Null Object Pattern (ví dụ: NoCommand) trong thiết kế remote là gì?</p>
+        <ol><li>Tăng tốc độ xử lý CPU</li><li>Loại bỏ các câu lệnh kiểm tra null thủ công</li><li>Giảm dung lượng bộ nhớ RAM</li><li>Tự động tạo ra các thiết bị mới</li></ol>
+        <p class="explain">NoCommand hành động như một thể thân làm-gác-cổng không làm gì cả, giúp mã nguồn tại Invoker sạch sẽ và tránh hoàn toàn lỗi NullPointerException.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

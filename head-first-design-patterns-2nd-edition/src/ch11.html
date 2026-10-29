@@ -1,0 +1,56 @@
+<section class="chapter" id="ch11" data-ch="11" data-title="Mẫu Phương Thức: Đóng Gói Thuật Toán & Nguyên Lý Hollywood">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 11</p>
+    <h1>Template Method Pattern: Encapsulating Algorithms <span class="vi">Mẫu Phương Thức: Đóng Gói Thuật Toán & Nguyên Lý Hollywood</span></h1>
+    <p class="lede">Đóng gói các bước của thuật toán vào một phương thức khung chung, cho phép lớp con tùy biến từng bước cụ thể mà không làm thay đổi cấu trúc tổng thể.</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">1 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch11-t1" data-num="11.1" data-short="Cấu trúc & Nguyên lý">
+    <div class="topic-theory-card">
+      <p class="eyebrow">KIẾN TRÚC MẪU PHƯƠNG THỨC</p>
+      <h2>Xây dựng khung thuật toán và áp dụng Nguyên lý Hollywood</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Đóng gói thuật toán vào lớp cha và kiểm soát luồng thực thi bằng phương thức final.</p></div>
+      <div class="prose">
+        <p>Khi phát hiện các đoạn mã trùng lặp logic xuyên suốt nhiều lớp nghiệp vụ, kỹ sư thường rơi vào bẫy lặp lại mã nguồn hoặc phá vỡ tính đóng gói. <dfn data-term="Template Method Pattern"><strong>Template Method Pattern</strong></dfn> giải quyết triệt để bằng cách kéo các bước chung lên lớp trừu tượng cơ sở và đẩy các bước biến thể xuống lớp con.</p><p>Các trường phái thiết kế phương thức thành phần trong template:</p><ul><li><strong>Abstract Operations:</strong> Các phương thức bắt buộc lớp con phải hiện thực hóa, đảm bảo tính linh hoạt tối đa theo từng nghiệp vụ riêng biệt.</li><li><strong>Concrete Operations:</strong> Các phương thức được định nghĩa sẵn ở lớp cha và được dùng chung cho toàn bộ hệ thống mà không cần ghi đè.</li><li><strong>Hook Methods:</strong> Các phương thức rỗng hoặc có giá trị mặc định cho phép lớp con tùy ý can thiệp vào luồng thuật toán mà không bắt buộc phải viết code.</li></ul><p>Triển khai thực chiến đòi hỏi phải bảo vệ cấu trúc bằng từ khóa <code>final</code> để ngăn chặn việc lớp con vô tình làm sai lệch thứ tự các bước xử lý nghiệp vụ quan trọng.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Case Study: Hệ thống xử lý đơn hàng Flash Sale tại Shopee Việt Nam</b>
+        <p>Trong các chiến dịch lớn như 11.11, luồng xử lý đơn hàng tại Shopee tuân thủ nghiêm ngặt một Template Method chung gồm: 1. Validate giỏ hàng -> 2. Kiểm tra tồn kho Redis -> 3. Trừ tiền ví/thẻ -> 4. Tạo bản ghi đơn hàng -> 5. Bắn sự kiện sang Kafka. Các bước 1, 4, 5 giữ nguyên, trong khi bước 2 và 3 được cấu hình linh hoạt theo từng loại hình thanh toán khác nhau mà không làm sập luồng điều phối chính.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch11-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô phỏng luồng thực thi Template Method & Hook</strong>
+        <small>Điều chỉnh tải lượng request và quan sát cách lớp điều phối (Abstract Class) gọi các phương thức thành phần của lớp con.</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch11-review" data-num="11.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 11</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Template Method Pattern giải quyết bài toán trùng lặp mã nguồn khi các thuật toán có chung một bộ khung nhưng khác biệt ở một vài bước thực thi chi tiết. Pattern này định nghĩa bộ khung thuật toán trong một phương thức gốc (template method) được khai báo từ khóa final, đồng thời cung cấp các phương thức abstract hoặc hook để lớp con ghi đè. Thông qua Nguyên lý Hollywood (Don't call us, we'll call you), lớp cấp cao (high-level component) nắm toàn quyền kiểm soát luồng thực thi, chỉ gọi lớp cấp thấp khi cần thiết. Điều này giúp loại bỏ sự phụ thuộc vòng, tối đa hóa việc tái sử dụng mã nguồn và xây dựng các kiến trúc framework vững chắc.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Tại sao phương thức đóng khung thuật toán (template method) trong lớp cha thường được khai báo với từ khóa final?</p>
+        <ol><li>Để giúp biên dịch chạy nhanh hơn nhờ tối ưu hóa bytecode.</li><li>Để ngăn chặn các lớp con ghi đè và làm thay đổi thứ tự các bước trong cấu trúc thuật toán.</li><li>Để bắt buộc lớp con phải cài đặt lại toàn bộ thuật toán từ đầu.</li><li>Để cho phép gọi phương thức này trực tiếp từ bên ngoài mà không cần khởi tạo đối tượng.</li></ol>
+        <p class="explain">Từ khóa final đảm bảo rằng cấu trúc và thứ tự thực thi của thuật toán được kiểm soát chặt chẽ ở lớp cha, ngăn lớp con làm sai lệch logic tổng thể.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

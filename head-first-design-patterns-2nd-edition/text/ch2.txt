@@ -1,0 +1,1815 @@
+this is a new chapter     1
+Someone has already solved your problems. In this chapter, 
+you’ll learn why (and how) you can exploit the wisdom and lessons learned by other 
+developers who’ve been down the same design problem road and survived the trip. 
+Before we’re done, we’ll look at the use and benefits of design patterns, look at some 
+key object-oriented (OO) design principles, and walk through an example of how one 
+pattern works. The best way to use patterns is to load your brain with them and then 
+recognize places in your designs and existing applications where you can apply them. 
+Instead of code reuse, with patterns you get experience reuse.
+Welcome to 
+      Design Patterns
+1  intro to Design Patterns
+Now that we’re living 
+in Objectville, we’ve just got to 
+get into Design Patterns...everyone 
+is doing them. Soon we’ll be the hit 
+of Jim and Betty’s Wednesday night 
+patterns group!
+
+2        Chapter    1
+SimUDuck
+It started with a simple SimUDuck app
+Joe works for a company that makes a highly successful duck pond 
+simulation game, SimUDuck. The game can show a large variety of  
+duck species swimming and making quacking sounds. The initial 
+designers of  the system used standard OO techniques and created 
+one Duck superclass from which all other duck types inherit.
+Duck
+quack()
+swim()
+display()
+// OTHER duck-like methods...
+display() {
+// looks like a mallard }
+MallardDuck
+display() {
+// looks like a redhead }
+RedheadDuck
+Lots of other types of ducks 
+inherit from the Duck class. 
+Each duck subtype 
+is responsible 
+for implementing 
+its own display() 
+behavior for how it 
+looks on the screen.
+All ducks quack and swim. The 
+superclass takes care of the 
+implementation code.
+In the last year, the company has been under increasing pressure 
+from competitors. After a week-long off-site brainstorming 
+session over golf, the company executives think it’s time for a big 
+innovation. They need something really impressive to show at the 
+upcoming shareholders meeting in Maui next week.
+The display() method is 
+abstract, since all duck 
+subtypes look different.
+
+you are here 4        3
+intro to design patterns
+Joe
+All subclasses 
+inherit fly().
+What Joe added.
+The executives decided that flying ducks is just what the 
+simulator needs to blow away the competitors. And of  course 
+Joe’s manager told them it’ll be no problem for Joe to just 
+whip something up in a week. “After all,” said Joe’s boss, 
+“he’s an OO programmer...how hard can it be?”
+But now we need the ducks to FLY
+Other Duck types... 
+Duck
+quack()
+swim()
+display()
+fly()
+// OTHER duck-like methods...
+display() {
+// looks like a mallard }
+MallardDuck
+display() {
+// looks like a redhead }
+RedheadDuck
+What we want.
+I just need to add a 
+fly() method in the Duck class 
+and then all the ducks will inherit 
+it. Now’s my time to really show my 
+true OO genius.
+
+4        Chapter    1
+something went wrong
+What Joe thought 
+was a great use 
+of inheritance 
+for the purpose 
+of reuse hasn’t 
+turned out so well 
+when it comes to 
+maintenance.
+Okay, so there’s a slight 
+flaw in my design. I don’t 
+see why they can’t just call 
+it a “feature.” It’s kind 
+of cute...
+Joe failed to notice that not all 
+subclasses of  Duck should fly. When 
+Joe added new behavior to the 
+Duck superclass, he was also adding 
+behavior that was not appropriate 
+for some Duck subclasses. He now 
+has flying inanimate objects in the 
+SimUDuck program.
+A localized update to the code caused a nonlocal side effect (flying rubber ducks)!
+What happened?  
+quack()
+swim()
+display()
+fly()
+// OTHER duck-like methods...
+display() {
+// looks like a mallard 
+}
+MallardDuck
+display() {
+// looks like a redhead 
+}
+RedheadDuck
+quack() {
+  // overridden to Squeak
+}
+display() {
+// looks like a rubberduck 
+}
+RubberDuck
+Duck
+Notice too, that rubber 
+ducks don’t quack, so quack() 
+is overridden to “Squeak”.
+By putting fly() in the 
+superclass, he gave the 
+flying ability to ALL 
+ducks, including those 
+that shouldn’t fly.
+But something went horribly wrong...
+Joe, I’m at the shareholders meeting.  
+They just gave a demo and there were 
+rubber duckies flying around the screen. 
+Was this your idea of a joke? 
+
+you are here 4        5
+intro to design patterns
+Joe thinks about inheritance...
+quack()  { // squeak}
+display() { // rubber duck } 
+fly() { 
+   // override to do nothing 
+}
+RubberDuck
+❏   A. Code is duplicated across subclasses.
+❏   B. Runtime behavior changes are difficult.
+❏   C. We can’t make ducks dance.
+❏   D.     It’s hard to gain knowledge of  all duck behaviors.
+❏   E. Ducks can’t fly and quack at the same time.
+❏   F. Changes can unintentionally affect other ducks.
+quack() {
+  // override to do nothing 
+}
+display() { // decoy duck}
+fly() {
+  // override to do nothing
+}
+DecoyDuck
+Here’s another class in the 
+hierarchy; notice that like 
+RubberDuck, it doesn’t fly, 
+but it also doesn’t quack.
+But then what happens 
+when we add wooden 
+decoy ducks to the 
+program? They aren’t 
+supposed to fly or quack...
+Which of the following are disadvantages of using inheritance to 
+provide Duck behavior? (Choose all that apply.)
+I could always just 
+override the fly() method 
+in rubber duck, like I have 
+with the quack() method...
+
+6        Chapter    1
+inheritance is not the answer
+display() 
+fly()
+quack()
+MallardDuck
+display()
+fly()
+quack()
+RedheadDuck
+display()
+quack()
+RubberDuck
+swim()
+display()
+// OTHER duck-like methods...
+Duck
+display()
+DecoyDuck
+fly()
+Flyable
+quack()
+Quackable
+How about an interface?
+Joe realized that inheritance probably wasn’t the 
+answer, because he just got a memo that says that 
+the executives now want to update the product every 
+six months (in ways they haven’t yet decided on). Joe 
+knows the spec will keep changing and he’ll be forced 
+to look at and possibly override fly() and quack() for 
+every new Duck subclass that’s ever added to the 
+program... forever. 
+So, he needs a cleaner way to have only some (but not 
+all) of  the duck types fly or quack.
+What do YOU think about this design?
+I could take the fly() out of the Duck 
+superclass, and make a Flyable() interface 
+with a fly() method. That way, only the ducks 
+that are supposed to fly will implement that 
+interface and have a fly() method...and I might 
+as well make a Quackable, too, since not all 
+ducks can quack. 
+
+you are here 4        7
+intro to design patterns
+What would you do if you were Joe?
+We know that not all of  the subclasses should have flying or quacking 
+behavior, so inheritance isn’t the right answer. But while having the 
+subclasses implement Flyable and/or Quackable solves part of  the 
+problem (no inappropriately flying rubber ducks), it completely 
+destroys code reuse for those behaviors, so it just creates a different 
+maintenance nightmare. And of  course there might be more than one 
+kind of  flying behavior even among the ducks that do fly...
+At this point you might be waiting for a Design Pattern to come riding 
+in on a white horse and save the day. But what fun would that be? No, 
+we’re going to figure out a solution the old-fashioned way—by applying 
+good OO software design principles.
+That is, like, the dumbest idea 
+you’ve come up with. Can you say, 
+“duplicate code”? If you thought having 
+to override a few methods was bad, how 
+are you gonna feel when you need to make a 
+little change to the flying behavior...in all 48 
+of the flying Duck subclasses?!
+Wouldn’t it be dreamy 
+if there were a way to build software 
+so that when we need to change it, we 
+could do so with the least possible 
+impact on the existing code? We could 
+spend less time reworking code and 
+more making the program do cooler 
+things...
+
+8        Chapter    1
+change is constant
+Okay, what’s the one thing you can always count on in software development?
+No matter where you work, what you’re building, or what language you are programming in, what’s 
+the one true constant that will be with you always?
+The one constant in software development
+CHANGE
+(use a mirror to see the answer)
+No matter how well you design an application, over time an 
+application must grow and change or it will die.
+My customers or users decide they want something else, or they want new functionality.
+My company decided it is going with another database vendor and it is also purchasing 
+its data from another supplier that uses a different data format. Argh!
+Lots of things can drive change. List some reasons you’ve had to change code 
+in your applications (we put in a couple of our own to get you started). Check 
+your answers with the solution at the end of the chapter before you go on.
+
+you are here 4        9
+intro to design patterns
+So we know using inheritance hasn’t worked out very well, since 
+the duck behavior keeps changing across the subclasses, and it’s not 
+appropriate for all subclasses to have those behaviors. The Flyable 
+and Quackable interface sounded promising at first—only ducks that 
+really do fly will be Flyable, etc.—except Java interfaces typically have 
+no implementation code, so no code reuse. In either case, whenever 
+you need to modify a behavior, you’re often forced to track down and 
+change it in all the different subclasses where that behavior is defined, 
+probably introducing new bugs along the way!
+Luckily, there’s a design principle for just this situation.
+Zeroing in on the problem...
+In other words, if  you’ve got some aspect of  your code that is 
+changing, say with every new requirement, then you know you’ve 
+got a behavior that needs to be pulled out and separated from all 
+the stuff  that doesn’t change. 
+Here’s another way to think about this principle: take the parts 
+that vary and encapsulate them, so that later you can 
+alter or extend the parts that vary without affecting 
+those that don’t.  
+As simple as this concept is, it forms the basis for almost every 
+design pattern. All patterns provide a way to let some part of  a 
+system vary independently of  all other parts.
+Okay, time to pull the duck behavior out of  the Duck classes!
+Take what varies and 
+“encapsulate” it so it 
+won’t affect the rest of 
+your code.
+The result? Fewer 
+unintended consequences 
+from code changes and 
+more f lexibility in your 
+systems!
+Design Principle
+Identify the aspects of your 
+application that vary and separate 
+them from what stays the same. 
+The first of many design 
+principles. We’ll spend more time 
+on these throughout the book.
+
+10        Chapter    1
+pull out what varies
+Separating what changes from what stays the same
+D
+u
+c
+k
+ 
+c
+l
+a
+s
+s
+The Duck class is still the 
+superclass of all ducks, but we 
+are pulling out the fly and quack 
+behaviors and putting them into 
+another class structure.
+Various behavior 
+implementations are 
+going to live here.
+Now flying and quacking each 
+get their own set of classes.
+Duck Behaviors
+Q
+u
+a
+c
+k
+i
+n
+g
+ 
+B
+e
+h
+a
+v
+i
+o
+r
+s
+F
+l
+y
+i
+n
+g
+ 
+B
+e
+h
+a
+v
+i
+o
+r
+s
+Pull out what varies 
+Where do we start? As far as we can tell, other than the problems with fly() and quack(), the Duck 
+class is working well and there are no other parts of  it that appear to vary or change frequently. So, 
+other than a few slight changes, we’re going to pretty much leave the Duck class alone.
+Now, to separate the “parts that change from those that stay the same,” we are going to create 
+two sets of  classes (totally apart from Duck), one for fly and one for quack. Each set of  classes will 
+hold all the implementations of  the respective behavior. For instance, we might have one class that 
+implements quacking, another that implements squeaking, and another that implements silence. 
+We know that fly() and quack() are the parts of the 
+Duck class that vary across ducks.
+To separate these behaviors from the Duck class, we’ll pull both methods 
+out of the Duck class and create a new set of classes 
+to represent each behavior.
+
+you are here 4        11
+intro to design patterns
+So how are we going to design the set of  classes that 
+implement the fly and quack behaviors?  
+We’d like to keep things flexible; after all, it was the inflexibility in 
+the duck behaviors that got us into trouble in the first place. And we 
+know that we want to assign behaviors to the instances of  Duck. For 
+example, we might want to instantiate a new MallardDuck instance 
+and initialize it with a specific type of  flying behavior. And while 
+we’re there, why not make sure that we can change the behavior of  a 
+duck dynamically? In other words, we should include behavior setter 
+methods in the Duck classes so that we can change the MallardDuck’s 
+flying behavior at runtime.
+Given these goals, let’s look at our second design principle:
+Designing the Duck Behaviors
+Design Principle
+Program to an interface, not an 
+implementation.
+We’ll use an interface to represent each behavior—for instance, 
+FlyBehavior and QuackBehavior—and each implementation of  a 
+behavior will implement one of  those interfaces. 
+So this time it won’t be the Duck classes that will implement the 
+flying and quacking interfaces. Instead, we’ll make a set of  classes 
+whose entire reason for living is to represent a behavior (for example, 
+“squeaking”), and it’s the behavior class, rather than the Duck class, 
+that will implement the behavior interface.
+This is in contrast to the way we were doing things before, where 
+a behavior came either from a concrete implementation in the 
+superclass Duck, or by providing a specialized implementation in the 
+subclass itself. In both cases we were relying on an implementation. We 
+were locked into using that specific implementation and there was no 
+room for changing the behavior (other than writing more code).
+With our new design, the Duck subclasses will use a behavior 
+represented by an interface (FlyBehavior and QuackBehavior), so that 
+the actual implementation of  the behavior (in other words, the specific 
+concrete behavior coded in the class that implements the FlyBehavior 
+or QuackBehavior) won’t be locked into the Duck subclass.
+From now on, the Duck 
+behaviors will live in 
+a separate class—a 
+class that implements 
+a particular behavior 
+interface.
+That way, the Duck 
+classes won’t need 
+to know any of the 
+implementation details 
+for their own behaviors.
+<<interface>>
+FlyBehavior
+fly()
+fly() {
+  // implements duck flying
+}
+FlyWithWings
+fly() {
+  // do nothing - can’t fly!
+}
+FlyNoWay
+
+12        Chapter    1
+program to an interface
+The word interface is overloaded here. There’s the concept of  an 
+interface, but there’s also the Java construct of  an interface. You 
+can program to an interface without having to actually use a Java 
+interface. The point is to exploit polymorphism by programming 
+to a supertype so that the actual runtime object isn’t locked into 
+the code. And we could rephrase “program to a supertype” as 
+“the declared type of  the variables should be a supertype, usually 
+an abstract class or interface, so that the objects assigned to 
+those variables can be of  any concrete implementation of  the 
+supertype, which means the class declaring them doesn’t have to 
+know about the actual object types!”
+This is probably old news to you, but just to make sure we’re 
+all saying the same thing, here’s a simple example of  using a 
+polymorphic type—imagine an abstract class Animal, with two 
+concrete implementations, Dog and Cat. 
+Programming to an implementation would be:
+But programming to an interface/supertype would be:
+ 
+Even better, rather than hardcoding the instantiation of  the 
+subtype (like new Dog()) into the code, assign the concrete 
+implementation object at runtime:
+“Program to an interface” really means 
+“Program to a supertype.”
+makeSound()
+Animal
+makeSound() {
+    bark();
+}
+bark() { // bark sound }
+Dog
+makeSound() {
+   meow();
+}
+meow() { // meow sound }
+Cat
+Abstract supertype (could 
+be an abstract class OR 
+interface).
+Concrete
+implementations.
+Declaring the variable “d” as type 
+Dog (a concrete implementation 
+of Animal) forces us to code to a 
+concrete implementation.
+We know it’s a Dog, but 
+we can now use the animal 
+reference polymorphically.
+We don’t know WHAT the actual 
+animal subtype is...all we care about 
+is that it knows how to respond to 
+makeSound().
+Dog d = new Dog();
+d.bark();
+Animal animal = new Dog();
+animal.makeSound();
+a = getAnimal();
+a.makeSound(); 
+I don’t see why you 
+have to use an interface for 
+FlyBehavior. You can do the 
+same thing with an abstract 
+superclass. Isn’t the whole point 
+to use polymorphism?
+
+you are here 4        13
+intro to design patterns
+FlyBehavior is an interface 
+that all flying classes implement.  
+All new flying classes just need 
+to implement the fly() method.
+Here’s the implementation 
+of flying for all ducks 
+that have wings.
+And here’s the implementation 
+for all ducks that can’t fly.
+Quacks that 
+really quack.
+Quacks that squeak.
+Quacks that make 
+no sound at all.
+Same thing here for the quack 
+behavior; we have an interface 
+that just includes a quack() 
+method that needs to be 
+implemented. 
+<<interface>>
+FlyBehavior
+fly()
+fly() {
+  // implements duck flying
+}
+FlyWithWings
+fly() {
+  // do nothing - can’t fly!
+}
+FlyNoWay
+<<interface>>
+QuackBehavior
+quack()
+quack() {
+  // implements duck quacking
+}
+Quack
+quack() {
+  // rubber duckie squeak
+}
+Squeak
+quack() {
+  // do nothing - can’t quack!
+}
+MuteQuack
+Implementing the Duck Behaviors
+Here we have the two interfaces, FlyBehavior and QuackBehavior, along with 
+the corresponding classes that implement each concrete behavior:
+So we get the benefit of 
+REUSE without all the 
+baggage that comes along 
+with inheritance.
+With this design, other types of objects can 
+reuse our fly and quack behaviors because 
+these behaviors are no longer hidden away 
+in our Duck classes!
+And we can add new behaviors without 
+modifying any of our existing behavior 
+classes or touching any of the Duck classes 
+that use flying behaviors.
+
+14        Chapter    1
+behavior in a class
+Answers: 
+1) Create a FlyRocketPowered 
+class that implements the 
+FlyBehavior interface.
+2) One example, a duck call (a 
+device that makes duck sounds).
+Using our new design, what would you do if you needed 
+to add rocket-powered flying to the SimUDuck app?
+1
+Can you think of a class that might want to use the Quack 
+behavior that isn’t a duck?
+2
+Q:
+ Do I always have to implement my 
+application first, see where things are 
+changing, and then go back to separate 
+and encapsulate those things?
+A: Not always; often when you are 
+designing an application, you anticipate 
+those areas that are going to vary and then 
+go ahead and build the flexibility to deal 
+with it into your code. You’ll find that the 
+principles and patterns can be applied at any 
+stage of the development lifecycle.
+ 
+ 
+Q:
+ Should we make Duck an interface 
+too?
+A: Not in this case. As you’ll see once 
+we’ve got everything hooked together, we do 
+benefit by having Duck not be an interface, 
+and having specific ducks, like MallardDuck, 
+inherit common properties and methods. 
+Now that we’ve removed what varies from 
+the Duck inheritance, we get the benefits of 
+this structure without the problems. 
+ 
+ 
+Q:
+ It feels a little weird to have a class 
+that’s just a behavior. Aren’t classes 
+supposed to represent things? Aren’t 
+classes supposed to have both state AND 
+behavior?
+A: In an OO system, yes, classes 
+represent things that generally have both 
+state (instance variables) and methods. 
+And in this case, the thing happens to be 
+a behavior. But even a behavior can still 
+have state and methods; a flying behavior 
+might have instance variables representing 
+the attributes for the flying (wing beats per 
+minute, max altitude, speed, etc.) behavior.
+
+you are here 4        15
+intro to design patterns
+Here’s the key: A Duck will now delegate its flying and 
+quacking behaviors, instead of using quacking and 
+flying methods defined in the Duck class (or subclass).
+Here’s how:
+public abstract class Duck {
+   QuackBehavior quackBehavior;
+   // more
+   public void performQuack() {
+     quackBehavior.quack();
+   }
+}
+Integrating the Duck Behaviors
+First we’ll add two instance variables of  type FlyBehavior and 
+QuackBehavior—let’s call them flyBehavior and quackBehavior. Each concrete duck 
+object will assign to those variables a specific behavior at runtime, like FlyWithWings for 
+flying and Squeak for quacking.
+We’ll also remove the fly() and quack() methods from the Duck class (and any subclasses) 
+because we’ve moved this behavior out into the FlyBehavior and QuackBehavior classes. 
+We’ll replace fly() and quack() in the Duck class with two similar methods, called 
+performFly() and performQuack(); you’ll see how they work next.
+1
+2
+These methods replace 
+fly() and quack().
+Instance variables hold a reference 
+to a specific behavior at runtime.
+Now we implement performQuack():
+performQuack()
+swim()
+display()
+performFly()
+// OTHER duck-like methods...
+Duck
+FlyBehavior  flyBehavior
+QuackBehavior  quackBehavior
+Duck Behaviors
+Q
+u
+a
+c
+k
+i
+n
+g
+ 
+B
+e
+h
+a
+v
+i
+o
+r
+s
+F
+l
+y
+i
+n
+g
+ 
+B
+e
+h
+a
+v
+i
+o
+r
+s
+Rather than handling the quack 
+behavior itself, the Duck object 
+delegates that behavior to the object 
+referenced by quackBehavior.
+Pretty simple, huh? To perform the quack, a Duck just asks the object that 
+is referenced by quackBehavior to quack for it. In this part of  the code we 
+don’t care what kind of  object the concrete Duck is, all we care about is 
+that it knows how to quack()!
+Each Duck has a reference to something that 
+implements the QuackBehavior interface.
+The behavior variables are 
+declared as the behavior 
+INTERFACE type.
+
+16        Chapter    1
+integrating duck behavior
+More integration...
+3
+Okay, time to worry about how the flyBehavior and quackBehavior 
+instance variables are set. Let’s take a look at the MallardDuck 
+class:
+public class MallardDuck extends Duck {
+   public MallardDuck() {
+      quackBehavior = new Quack();
+      flyBehavior = new FlyWithWings();
+   }
+   public void display() {
+ System.out.println("I'm a real Mallard duck");
+   }
+}
+MallardDuck’s quack is a real live duck quack, not a squeak and not 
+a mute quack. When a MallardDuck is instantiated, its constructor 
+initializes the MallardDuck’s inherited quackBehavior instance 
+variable to a new instance of  type Quack (a QuackBehavior concrete 
+implementation class).
+And the same is true for the duck’s flying behavior—the MallardDuck’s 
+constructor initializes the inherited flyBehavior instance variable 
+with an instance of  type FlyWithWings (a FlyBehavior concrete 
+implementation class).
+A MallardDuck uses the Quack 
+class to handle its quack, so when 
+performQuack() is called, the 
+responsibility for the quack is delegated 
+to the Quack object and we get a real 
+quack. 
+And it uses FlyWithWings as its 
+FlyBehavior type.
+Remember, MallardDuck inherits the 
+quackBehavior and flyBehavior instance 
+variables from class Duck.
+
+you are here 4        17
+intro to design patterns
+Good catch, that’s exactly what we’re doing... 
+for now.
+Later in the book we’ll have more patterns in 
+our toolbox that can help us fix it.
+Still, notice that while we are setting the 
+behaviors to concrete classes (by instantiating 
+a behavior class like Quack or FlyWithWings 
+and assigning it to our behavior reference 
+variable), we could easily change that at 
+runtime.  
+So, we still have a lot of  flexibility here. That 
+said, we’re doing a poor job of  initializing 
+the instance variables in a flexible way. But 
+think about it: since the quackBehavior 
+instance variable is an interface type, we 
+could (through the magic of  polymorphism) 
+dynamically assign a different QuackBehavior 
+implementation class at runtime.
+Take a moment and think about how you 
+would implement a duck so that its behavior 
+could change at runtime. (You’ll see the code 
+that does this a few pages from now.)
+Wait a second, didn’t you 
+say we should NOT program to an 
+implementation? But what are we doing in that 
+constructor? We’re making a new instance of a 
+concrete Quack implementation class!
+
+18        Chapter    1
+testing duck behaviors
+Testing the Duck code
+Type and compile the Duck class below (Duck.java), and the 
+MallardDuck class from two pages back (MallardDuck.java).
+1
+public abstract class Duck {
+   FlyBehavior flyBehavior;
+   QuackBehavior quackBehavior;
+   public Duck() { } 
+              
+   public abstract void display();
+   public void performFly() {
+      flyBehavior.fly();
+   }
+   public void performQuack() {
+      quackBehavior.quack();
+   } 
+   public void swim() {
+      System.out.println("All ducks float, even decoys!");
+   }
+}
+Declare two reference 
+variables for the behavior 
+interface types. All duck 
+subclasses (in the same 
+package) inherit these. 
+Delegate to the behavior class.
+Type and compile the FlyBehavior interface (FlyBehavior.java) 
+and the two behavior implementation classes (FlyWithWings.java 
+and FlyNoWay.java).
+2
+public interface FlyBehavior {
+   public void fly();
+}
+public class FlyWithWings implements FlyBehavior {   
+   public void fly() {
+ System.out.println("I'm flying!!");
+   }
+}
+public class FlyNoWay implements FlyBehavior {
+   public void fly() {
+       System.out.println("I can't fly");
+   }
+}
+The interface that all flying 
+behavior classes implement.
+Flying behavior implementation 
+for ducks that DO fly...
+Flying behavior implementation 
+for ducks that do NOT fly (like 
+rubber ducks and decoy ducks).
+
+you are here 4        19
+intro to design patterns
+File  Edit   Window  Help  Yadayadayada
+%java MiniDuckSimulator
+Quack
+I’m flying!!
+public class MiniDuckSimulator {
+   public static void main(String[] args) {
+      Duck mallard = new MallardDuck();
+      mallard.performQuack();
+      mallard.performFly();
+   }
+}
+5
+Run the code!
+This calls the MallardDuck’s inherited 
+performQuack() method, which then delegates to 
+the object’s QuackBehavior (i.e., calls quack() on 
+the duck’s inherited quackBehavior reference).
+Then we do the same thing with MallardDuck’s 
+inherited performFly() method.
+Type and compile the test class 
+(MiniDuckSimulator.java).
+4
+Testing the Duck code, continued...
+Type and compile the QuackBehavior interface 
+(QuackBehavior.java) and the three behavior implementation 
+classes (Quack.java, MuteQuack.java, and Squeak.java).
+3
+public interface QuackBehavior {
+   public void quack();
+}
+public class Quack implements QuackBehavior {
+   public void quack() {
+      System.out.println("Quack");
+   }
+}
+public class MuteQuack implements QuackBehavior {
+   public void quack() {
+ System.out.println("<< Silence >>");
+   }
+}
+public class Squeak implements QuackBehavior {
+   public void quack() {
+       System.out.println("Squeak");
+   }
+}
+
+20        Chapter    1
+ducks with dynamic behavior
+Setting behavior dynamically
+What a shame to have all this dynamic talent built into our ducks and not be using 
+it! Imagine you want to set the duck’s behavior type through a setter method on the 
+Duck class, rather than by instantiating it in the duck’s constructor.
+1
+Add two new methods to the Duck class:
+We can call these methods anytime we want to change the 
+behavior of  a duck on the fly.
+public void setFlyBehavior(FlyBehavior fb) {
+    flyBehavior = fb;
+}
+public void setQuackBehavior(QuackBehavior qb) {
+    quackBehavior = qb;
+}
+Editor note:  gratuitous pun - fix
+public class ModelDuck extends Duck {   
+    public ModelDuck() {
+       flyBehavior = new FlyNoWay();
+ quackBehavior = new Quack();
+    }
+    public void display() {
+       System.out.println("I'm a model duck");
+    }
+}
+public class FlyRocketPowered implements FlyBehavior {
+    public void fly() {
+       System.out.println("I'm flying with a rocket!");
+    }
+}
+2
+Our model duck begins life grounded...
+without a way to fly.
+That’s okay, we’re creating a 
+rocket-powered flying behavior.
+Make a new Duck type (ModelDuck.java).
+3
+Make a new FlyBehavior type  
+(FlyRocketPowered.java).
+swim()
+display()
+performQuack()
+performFly()
+setFlyBehavior()
+setQuackBehavior()
+// OTHER duck-like methods...
+Duck
+FlyBehavior flyBehavior
+QuackBehavior quackBehavior
+
+you are here 4        21
+intro to design patterns
+public class MiniDuckSimulator {
+    public static void main(String[] args) {
+          Duck mallard = new MallardDuck();
+          mallard.performQuack();
+          mallard.performFly();
+   
+          Duck model = new ModelDuck();
+          model.performFly();
+          model.setFlyBehavior(new FlyRocketPowered());
+          model.performFly();  
+    }
+}
+The first call to performFly() 
+delegates to the flyBehavior object 
+set in the ModelDuck’s constructor, 
+which is a FlyNoWay instance.
+File  Edit   Window  Help  Yabbadabbadoo
+%java MiniDuckSimulator
+Quack
+I'm flying!!
+I can't fly
+I’m flying with a rocket!
+4
+Run it!
+5
+Change the test class (MiniDuckSimulator.java), add the 
+ModelDuck, and make the ModelDuck rocket-enabled.
+This invokes the model’s inherited 
+behavior setter method, and...voilà! 
+The model suddenly has rocketpowered flying capability!
+If it worked, the model duck dynamically 
+changed its flying behavior! You can’t do 
+THAT if the implementation lives inside 
+the Duck class.
+To change a duck’s 
+behavior at runtime, just 
+call the duck’s setter 
+method for that behavior.
+Before
+After
+
+22        Chapter    1
+the big picture
+Below is the entire reworked class structure. We have everything you’d expect: 
+ducks extending Duck, fly behaviors implementing FlyBehavior, and quack 
+behaviors implementing QuackBehavior.
+Notice also that we’ve started to describe things a little differently. Instead 
+of  thinking of  the duck behaviors as a set of  behaviors, we’ll start thinking of  
+them as a family of  algorithms. Think about it: in the SimUDuck design, the 
+algorithms represent things a duck would do (different ways of  quacking or 
+flying), but we could just as easily use the same techniques for a set of  classes 
+that implement the ways to compute state sales tax by different states. 
+Pay careful attention to the relationships between the classes. In fact, grab 
+your pen and write the appropriate relationship (IS-A, HAS-A, and 
+IMPLEMENTS) on each arrow in the class diagram.
+The Big Picture on encapsulated behaviors
+Okay, now that we’ve done the deep dive on the 
+duck simulator design, it’s time to come back up 
+for air and take a look at the big picture.
+swim()
+display()
+performQuack()
+performFly()
+setFlyBehavior()
+setQuackBehavior()
+// OTHER duck-like methods...
+Duck
+FlyBehavior flyBehavior
+QuackBehavior quackBehavior
+<<interface>>
+FlyBehavior
+fly()
+fly() {
+  // implements duck flying
+}
+FlyWithWings
+fly() {
+  // do nothing - can’t fly!
+}
+FlyNoWay
+<<interface>>
+QuackBehavior
+quack()
+quack() {
+  // implements duck quacking
+}
+Quack
+quack() {
+  // rubber duckie squeak
+}
+Squeak
+quack() {
+  // do nothing - can’t quack!
+}
+MuteQuack
+display() {
+// looks like a decoy duck }
+DecoyDuck
+display() {
+// looks like a mallard }
+MallardDuck
+display() {
+// looks like a redhead }
+RedheadDuck
+display() {
+// looks like a rubberduck }
+RubberDuck
+Encapsulated fly behavior
+Encapsulated quack behavior
+Think of each 
+set of behaviors 
+as a family of 
+algorithms.
+Client 
+These behaviors 
+“algorithms” are 
+interchangeable.
+Client makes use of an 
+encapsulated family of algorithms 
+for both flying and quacking.
+Make sure you do this.
+
+you are here 4        23
+intro to design patterns
+The HAS-A relationship is an interesting one: each duck 
+has a FlyBehavior and a QuackBehavior to which it 
+delegates flying and quacking.  
+When you put two classes together like this you’re using 
+composition. Instead of  inheriting their behavior, the 
+ducks get their behavior by being composed with the right 
+behavior object. 
+This is an important technique; in fact, it is the basis of  our 
+third design principle:
+Design Principle
+Favor composition over inheritance.
+As you’ve seen, creating systems using composition gives you 
+a lot more flexibility. Not only does it let you encapsulate 
+a family of  algorithms into their own set of  classes, but it 
+also lets you change behavior at runtime as long as 
+the object you’re composing with implements the correct 
+behavior interface. 
+Composition is used in many design patterns and you’ll see a 
+lot more about its advantages and disadvantages throughout 
+the book. 
+Guru and Student...
+Guru: Tell me what you 
+have learned of the 
+Object-Oriented ways.
+Student: Guru, I have 
+learned that the promise of the objectoriented way is reuse.
+Guru: Continue...
+Student: Guru, through inheritance all 
+good things may be reused and so we 
+come to drastically cut development 
+time like we swiftly cut bamboo in the 
+woods.
+Guru: Is more time spent on code 
+before or after development is 
+complete?
+Student: The answer is after, 
+Guru. We always spend more time 
+maintaining and changing software 
+than on initial development.
+Guru: So, should effort go into reuse 
+above maintainability and extensibility?
+Student: Guru, I believe that there is 
+truth in this.
+Guru: I can see that you still have 
+much to learn. I would like for you to 
+go and meditate on inheritance further. 
+As you’ve seen, inheritance has its 
+problems, and there are other ways of 
+achieving reuse.
+HAS-A can be better than IS-A
+A duck call is a device that hunters use to 
+mimic the calls (quacks) of ducks. How 
+would you implement your own duck call 
+that does not inherit from the Duck class?
+
+24        Chapter    1
+the strategy pattern
+Congratulations on 
+your first pattern!
+You just applied your first design pattern—the STRATEGY 
+Pattern. That’s right, you used the Strategy Pattern to 
+rework the SimUDuck app. 
+Thanks to this pattern, the simulator is ready for any 
+changes those execs might cook up on their next 
+business trip to Maui.
+Now that we’ve made you take the long road to learn it, 
+here’s the formal definition of this pattern:
+The Strategy Pattern defines a family of  algorithms, 
+encapsulates each one, and makes them interchangeable.  
+Strategy lets the algorithm vary independently from 
+clients that use it.
+Speaking of Design Patterns...
+Use THIS definition when you 
+need to impress friends and 
+influence key executives.
+
+you are here 4        25
+intro to design patterns
+Below you’ll find a mess of  classes and interfaces for an action adventure game. You’ll 
+find classes for game characters along with classes for weapon behaviors the characters 
+can use in the game. Each character can make use of  one weapon at a time, but can 
+change weapons at any time during the game. Your job is to sort it all out...
+(Answers are at the end of  the chapter.)
+Character
+WeaponBehavior weapon
+setWeapon(WeaponBehavior w) {
+    this.weapon = w;
+}
+fight()
+KnifeBehavior
+useWeapon() { // implements 
+cutting with a knife }
+Queen
+fight() { ... }
+King
+fight() { ... }
+Troll
+fight() { ... }
+BowAndArrowBehavior
+useWeapon() { // implements 
+shooting an arrow with a bow }
+Knight
+fight() { ... }
+<<interface>>
+WeaponBehavior
+useWeapon();
+AxeBehavior
+useWeapon() { // implements 
+chopping with an axe }
+SwordBehavior
+useWeapon() { // implements 
+swinging a sword }
+1.   Arrange the classes.
+2.   Identify one abstract class, one interface, and eight classes.
+3.   Draw arrows between classes.
+ a. Draw this kind of  arrow for inheritance (“extends”).
+ b. Draw this kind of  arrow for interface (“implements”).
+ c. Draw this kind of  arrow for HAS-A. 
+4.   Put the method setWeapon() into the right class.
+1
+2
+3
+4
+Your task:
+ Design Puzzle
+
+26        Chapter    1
+diner talk
+Overheard at the local diner...
+What’s the difference between these two orders? Not a thing! They’re both the 
+same order, except Alice is using twice the number of  words and trying the 
+patience of  a grumpy short-order cook.  
+What’s Flo got that Alice doesn’t? A shared vocabulary with the short-order 
+cook. Not only does that make it easier to communicate with the cook, but it gives 
+the cook less to remember because he’s got all the diner patterns in his head.
+Design Patterns give you a shared vocabulary with other developers. Once you’ve 
+got the vocabulary, you can more easily communicate with other developers and 
+inspire those who don’t know patterns to start learning them. It also elevates your 
+thinking about architectures by letting you think at the pattern level, not the 
+nitty-gritty object level.
+Flo
+Alice
+I need a cream cheese with jelly on white 
+bread, a chocolate soda with vanilla ice cream, a 
+grilled cheese sandwich with bacon, a tuna fish 
+salad on toast, a banana split with ice cream & sliced 
+bananas, and a coffee with a cream and two sugars ... 
+oh, and put a hamburger on the grill!
+Give me a C.J. White, 
+a black & white, a Jack 
+Benny, a radio, a house boat, a 
+coffee regular, and burn one!
+
+you are here 4        27
+intro to design patterns
+Overheard in the next cubicle...
+Rick
+Can you think of other shared 
+vocabularies that are used 
+beyond OO design and diner 
+talk? (Hint: how about auto 
+mechanics, carpenters, gourmet 
+chefs, and air traffic controllers?) 
+What qualities are communicated 
+along with the lingo?
+Can you think of aspects of OO 
+design that get communicated 
+along with pattern names? What 
+qualities get communicated along 
+with the name “Strategy Pattern”?
+So I created this broadcast class. It keeps 
+track of all the objects listening to it, and 
+anytime a new piece of data comes along it sends 
+a  message to each listener. What’s cool is that the 
+listeners can join the broadcast at any time or 
+they can even remove themselves. It is really 
+dynamic and loosely coupled!
+Exactly. If you communicate 
+in patterns, then other developers 
+know immediately and precisely the 
+design you’re describing. Just don’t 
+get Pattern Fever...you’ll know you 
+have it when you start using patterns 
+for Hello World...
+Rick, why didn’t you 
+just say you are using 
+the Observer Pattern?
+
+28        Chapter    1
+shared vocabulary
+Shared pattern vocabularies are POWERFUL.  
+When you communicate with another developer or your 
+team using patterns, you are communicating not just a 
+pattern name but a whole set of  qualities, characteristics, 
+and constraints that the pattern represents.
+Patterns allow you to say more with less. When you 
+use a pattern in a description, other developers quickly 
+know precisely the design you have in mind.
+Talking at the pattern level allows you to stay “in 
+the design” longer. Talking about software systems using 
+patterns allows you to keep the discussion at the design 
+level, without having to dive down to the nitty-gritty details 
+of  implementing objects and classes.
+Shared vocabularies can turbo-charge your 
+development team. A team well versed in design 
+patterns can move more quickly with less room for 
+misunderstanding.
+Shared vocabularies encourage more  junior 
+developers to get up to speed.  Junior developers look 
+up to experienced developers. When senior developers 
+make use of  design patterns, junior developers also become 
+motivated to learn them. Build a community of  pattern 
+users at your organization.
+The power of a shared pattern vocabulary
+When you communicate using patterns, you 
+are doing more than just sharing LINGO.
+“We’re using the Strategy Pattern to 
+implement the various behaviors of our 
+ducks.” This tells you the duck behavior 
+has been encapsulated into its own set 
+of classes that can be easily expanded 
+and changed, even at runtime if needed.
+How many design meetings have you 
+been in that quickly degrade into 
+implementation details?  
+Think about starting a patterns 
+study group at your organization. 
+Maybe you can even get paid while 
+you’re learning...
+As your team begins to share 
+design ideas and experience in 
+terms of patterns, you will build 
+a community of pattern users.
+
+you are here 4        29
+intro to design patterns
+We ’ve all used off-the-shelf  libraries and frameworks. We take them, write some code against their APIs, 
+compile them into our programs, and benefit from a lot of  code someone else has written. Think about 
+the Java APIs and all the functionality they give you: network, GUI, IO, etc. Libraries and frameworks go 
+a long way toward a development model where we can just pick and choose components and plug them 
+right in. But...they don’t help us structure our own applications in ways that are easier to understand, more 
+maintainable, and more flexible. That’s where design patterns come in.
+Design patterns don’t go directly into your code, they first go into your BRAIN. Once you’ve loaded your 
+brain with a good working knowledge of  patterns, you can then start to apply them to your new designs, 
+and rework your old code when you find it’s degrading into an inflexible mess.
+How do I use Design Patterns?
+Your BRAIN
+Your Code, now new 
+and improved with 
+design patterns!
+A Bunch of Patterns
+swim()
+display
+()
+performQuack()
+performFly()
+setFlyBehavior()
+setQuackBehavior()
+// OTHER duck-like methods...
+Duck
+FlyBehavior flyBehavior;
+QuackBehavior quackBehavior;
+<<interface>>
+FlyBehavior
+fly()
+fly() {
+  // implements duck flying
+}
+FlyWithWings
+fly() {
+  // do nothing - can’t fly!
+}
+FlyNoWay
+<<interface>>
+QuackBehavior
+quack()
+quack) {
+  // implements duck quacking
+}
+Quack
+quack() {
+  // rubber duckie squeak
+}
+Squeak
+quack() {
+  // do nothing - can’t quack!
+}
+MuteQuack
+display() {
+// looks like a decoy duck }
+Decoy Duck
+display() {
+// looks like a mallard }
+Mallard Duck
+display() {
+// looks like a redhead }
+Redhead Duck
+display() {
+// looks like a rubberduck }
+Rubber Duck
+Encapsulated fly behavior
+Encapsulated quack behavior
+Client 
+View
+C
+ontroller
+Model
+Request
+MVC
+S
+u
+b
+j
+e
+c
+t
+ 
+O
+b
+j
+e
+c
+t
+8
+int
+ 
+ 
+ 
+D
+o
+g
+ 
+O
+b
+j
+e
+c
+t
+M
+o
+u
+s
+e
+ 
+O
+b
+j
+e
+c
+t
+ 
+ 
+C
+a
+t
+ 
+O
+b
+j
+e
+c
+t
+ 
+ 
+D
+u
+c
+k
+ 
+O
+b
+j
+e
+c
+t
+Observers
+8
+8
+8
+8
+Automatic update/notification
+Object that 
+holds state
+Dependent Objects
+Q:
+ If design patterns are so great, why 
+can’t someone build a library of them so I 
+don’t have to?
+A: Design patterns are higher level than 
+libraries. Design patterns tell us how to 
+structure classes and objects to solve certain 
+problems, and it is our job to adapt those 
+designs to fit our particular application. 
+ 
+Q:
+ Aren’t libraries and frameworks 
+also design patterns?
+A: Frameworks and libraries are not 
+design patterns; they provide specific 
+implementations that we link into our 
+code. Sometimes, however, libraries and 
+frameworks make use of design patterns in 
+their implementations. That’s great, because 
+once you understand design patterns, you’ll 
+more quickly understand APIs that are 
+structured around design patterns.
+Q:
+ So, there are no libraries of design 
+patterns?
+A: No, but you will learn later about 
+patterns catalogs with lists of patterns that 
+you can apply to your applications.
+
+30        Chapter    1
+why design patterns?
+Skeptical DeveloperFriendly Patterns Guru
+Developer:  Okay, hmm, but isn’t this all just good object-oriented design; I 
+mean as long as I follow encapsulation and I know about abstraction, inheritance, 
+and polymorphism, do I really need to think about Design Patterns? Isn’t it pretty 
+straightforward? Isn’t this why I took all those OO courses? I think Design Patterns 
+are useful for people who don’t know good OO design.
+Guru:  Ah, this is one of the true misunderstandings of object-oriented 
+development: that by knowing the OO basics we are automatically going to be good at 
+building flexible, reusable, and maintainable systems.
+Developer: No?
+Guru: No. As it turns out, constructing OO systems that have these properties is 
+not always obvious and has been discovered only through hard work.
+Developer: I think I’m starting to get it. These, sometimes non-obvious, ways of 
+constructing object-oriented systems have been collected...
+Guru: ...yes, into a set of patterns called Design Patterns.
+Developer: So, by knowing patterns, I can skip the hard work and jump straight to 
+designs that always work?
+Guru: Yes, to an extent, but remember, design is an art. There will always be 
+tradeoffs. But, if you follow well-thought-out and time-tested design patterns, you’ll 
+be way ahead.  
+Developer: What do I do if I can’t find a pattern?
+Patterns are nothing 
+more than using OO 
+design principles...
+A common misconception, 
+but it’s more subtle than that. 
+You have much to learn...
+
+you are here 4        31
+intro to design patterns
+Guru: There are some object-oriented principles that 
+underlie the patterns, and knowing these will help you 
+to cope when you can’t find a pattern that matches your 
+problem.
+Developer: Principles? You mean beyond abstraction, 
+encapsulation, and...
+Guru: Yes, one of the secrets to creating maintainable 
+OO systems is thinking about how they might change in the 
+future, and these principles address those issues.
+Remember, knowing concepts 
+like abstraction, inheritance, and 
+polymorphism does not make you a good 
+object-oriented designer. A design guru 
+thinks about how to create flexible 
+designs that are maintainable and can 
+cope with change.
+
+32        Chapter    1
+your design toolbox
+Tools for your Design Toolbox
+Abstraction
+Encapsulation
+Polymorphism
+Inheritance
+OO Basics
+Encapsulate what varies.
+Favor composition over 
+inheritance.
+Program to interfaces, not 
+implementations.
+OO Principles
+Strategy
+ - defines a family of algorithms, 
+encapsulates each one, and makes them 
+interchangeable. Strategy lets the algorithm 
+vary independently from clients that use it.
+OO Patterns
+We assume you know the 
+OO basics like abstraction, 
+encapsulation, polymorphism, 
+and inheritance. If you are a 
+little rusty on these, pull out 
+your favorite object-oriented 
+book and review, then skim 
+this chapter again.
+We’ll be taking a closer look at 
+these down the road and also 
+adding a few more to the list.
+One down, many to go !  
+Throughout the 
+book, think about 
+how patterns rely 
+on OO basics and 
+principles.
+You’ve nearly made it through the first chapter!  You’ve 
+already put a few tools in your OO toolbox; let’s make a 
+list of  them before we move on to Chapter 2.
+ Knowing the OO basics 
+does not make you a good 
+OO designer.
+ Good OO designs are 
+reusable, extensible, and 
+maintainable.
+ Patterns show you how to 
+build systems with good 
+OO design qualities.
+ Patterns are proven 
+object-oriented 
+experience.
+ Patterns don’t give you 
+code, they give you 
+general solutions to 
+design problems. You 
+apply them to your specific 
+application.
+ Patterns aren’t invented, 
+they are discovered.
+ Most patterns and 
+principles address issues 
+of change in software.
+ Most patterns allow some 
+part of a system to vary 
+independently of all other 
+parts.
+ We often try to take what 
+varies in a system and 
+encapsulate it.
+ Patterns provide a 
+shared language that can 
+maximize the value of 
+your communication with 
+other developers.
+
+you are here 4        33
+intro to design patterns
+Design Patterns Crossword
+Let’s give your right brain something to do. 
+It’s your standard crossword; all of the solution words 
+are from this chapter. 
+ACROSS
+1. Paatterns can help us build ________ applications.
+4. Strategies can be __________. 
+7. Favor this over inheritance. 
+8. Development constant.
+9. Java IO, Networking, Sound. 
+10. Most patterns follow from OO _________. 
+12. Design patterns are a shared __________.
+14. High-level libraries.
+15. Learn from the other guy's ___________. 
+17. Pattern that fixed the simulator. 
+18. Program to this, not an implementation.
+ 
+ 
+ 
+DOWN
+2. Patterns go into your _______. 
+3. Duck that can't quack.
+5. Rubber ducks make a _______.
+6. ________ what varies.
+11. Grilled cheese with bacon.
+13. Rick was thrilled with this pattern. 
+16. Duck demo was located here.
+12
+345
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+Across
+1. Patterns can help us build ____ applications
+4. Strategies can be _______
+7. Favor over inheritance
+8. Development constant
+9. Java IO, Networking, Sound 
+10. Most patterns follow from OO _______
+12. Design patterns are a shared _____
+14. High level libraries
+15. Learn from the other guy's _______
+17. Pattern that fixed the simulator
+18. Program to this, not an implementation
+Down
+2. Patterns go into your _______
+3. Duck that can't quack
+5. Rubberducks make a ________
+6. _______ what varies
+11. Grilled cheese with bacon
+13. Rick was thrilled with this pattern
+16. Duck demo was located where
+
+34        Chapter    1
+design puzzle solution
+<<interface>> 
+WeaponBehavior
+Character is the abstract class for all the other characters (King, Queen, 
+Knight, and Troll), while WeaponBehavior is an interface that all weapon 
+behaviors implement. So all actual characters and weapons are concrete 
+classes.
+To switch weapons, each character calls the setWeapon() method, which 
+is defined in the Character superclass. During a fight the useWeapon() 
+method is called on the current weapon set for a given character to inflict 
+great bodily damage on another character.
+Character
+WeaponBehavior weapon
+fight()
+setWeapon(WeaponBehavior w) {
+    this.weapon = w;
+}
+King
+fight() { ... }
+Queen
+fight() { ... }
+Knight
+fight() { ... }
+Troll
+fight() { ... }
+useWeapon()
+BowAndArrowBehavior
+useWeapon() { // implements 
+shooting an arrow with a bow }
+AxeBehavior
+useWeapon() { // implements 
+chopping with an axe }
+SwordBehavior
+useWeapon() { // implements 
+swinging a sword }
+KnifeBehavior
+useWeapon() { // implements 
+cutting with a knife }
+ Design Puzzle Solution
+Note that ANY object could 
+implement the WeaponBehavior 
+interface—say, a paper clip, a tube of 
+toothpaste, or a mutated sea bass.
+Abstract
+A Character HAS-A 
+WeaponBehavior.
+
+you are here 4        35
+intro to design patterns
+❏   A. Code is duplicated across subclasses.
+❏   B. Runtime behavior changes are difficult.
+❏   C. We can’t make ducks dance.
+❏   D.     It’s hard to gain knowledge of  all duck behaviors.
+❏   E. Ducks can’t fly and quack at the same time.
+❏   F. Changes can unintentionally affect other ducks.
+My customers or users decide they want something else, or they want new functionality.
+My company decided it is going with another database vendor and it is also purchasing its data 
+from another supplier that uses a different data format. Argh!
+Well, technology changes and we’ve got to update our code to make use of protocols.
+We’ve learned enough building our system that we’d like to go back and do things a little better.
+Which of the following are disadvantages of using subclassing to provide 
+specific Duck behavior? (Choose all that apply.) Here’s our solution.
+What are some factors that drive change in your applications? 
+You might have a very different list, but here’s a few of ours. Look 
+familiar? Here’s our solution.
+
+36        Chapter    1
+Design Patterns Crossword Solution
+F
+1
+LEXIB
+2
+LE
+D
+3
+RR
+4
+EUS
+5
+ED
+EAE
+6
+Q
+C
+7
+OMPOSITIONU
+ONC
+8
+HANGE
+YAA
+9
+PIS
+DP
+10
+RINCIPLESK
+USJ
+11
+CV
+12
+OCABULARYA
+KO
+13
+LC
+BF
+14
+RAMEWORKS
+STB
+E
+15
+XPERIENCEE
+M
+16
+RN
+AVN
+UES
+17
+TRATEGY
+I
+18
+NTERFACE
+Across
+1. Patterns can help us build ____ applications 
+[FLEXIBLE] 
+4. Strategies can be _______ [REUSED] 
+7. Favor over inheritance [COMPOSITION] 
+8. Development constant [CHANGE] 
+9. Java IO, Networking, Sound  [APIS] 
+10. Most patterns follow from OO _______ 
+[PRINCIPLES] 
+12. Design patterns are a shared _____ 
+[VOCABULARY] 
+14. High level libraries [FRAMEWORKS] 
+Down
+2. Patterns go into your _______ [BRAIN] 
+3. Duck that can't quack [DECOYDUCK] 
+5. Rubberducks make a ________ [SQUEAK] 
+6. _______ what varies [ENCAPSULATE] 
+11. Grilled cheese with bacon [JACKBENNY] 
+13. Rick was thrilled with this pattern [OBSERVER] 
+16. Duck demo was located where [MAUI] 
+crossword solution

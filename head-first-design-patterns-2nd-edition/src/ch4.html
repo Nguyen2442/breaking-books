@@ -1,0 +1,56 @@
+<section class="chapter" id="ch4" data-ch="4" data-title="Mẫu thiết kế Decorator: Mở rộng hành vi đối tượng tại thời điểm chạy">
+  <header class="chapter-head">
+    <p class="eyebrow">CHƯƠNG 4</p>
+    <h1>The Decorator Pattern: Decorating Objects <span class="vi">Mẫu thiết kế Decorator: Mở rộng hành vi đối tượng tại thời điểm chạy</span></h1>
+    <p class="lede">Vượt qua giới hạn cứng nhắc của kế thừa tĩnh bằng mô hình thành phần đối tượng tại thời điểm chạy (runtime composition).</p>
+    <div class="chapter-meta">
+      <span class="pill">1 bài học lý thuyết</span>
+      <span class="pill">1 sơ đồ tư duy tương tác</span>
+      <span class="pill">1 câu trắc nghiệm</span>
+    </div>
+  </header>
+
+  <div class="bb-topics-section">
+    <article class="topic" id="ch4-t1" data-num="4.1" data-short="Bẫy Kế Thừa">
+    <div class="topic-theory-card">
+      <p class="eyebrow">PHÂN TÍCH KIẾN TRÚC</p>
+      <h2>Hiện tượng bùng nổ lớp và sự thất bại của Inheritance</h2>
+      <div class="tldr"><h3>Tóm tắt cốt lõi</h3><p>Kế thừa tĩnh tạo ra hàng trăm lớp con khi các tùy chọn kết hợp với nhau.</p></div>
+      <div class="prose">
+        <p>Khi khởi tạo hệ thống đặt hàng Starbuzz, đội ngũ phát triển ban đầu tạo ra các lớp con cho từng loại đồ uống kèm topping. Kết quả là hàng chục lớp như <dfn data-term="HouseBlendWithSteamedMilkAndMocha"><strong>HouseBlendWithMocha</strong></dfn> xuất hiện dày đặc, gây tê liệt tiến trình bảo trì.</p><p>Các phương án thiết kế tồi thường gặp khi hệ thống scale:</p><ul><li><strong>Subclassing vô tận:</strong> Tạo hàng trăm lớp kết hợp, dẫn đến quản lý mã nguồn hỗn loạn.</li><li><strong>Nhồi biến Boolean vào lớp cha:</strong> Thêm hàng loạt cờ kiểm tra như hasMilk(), hasMocha() làm phình to lớp <dfn data-term="Base Class"><strong>Base Class</strong></dfn> và vi phạm nguyên lý thiết kế.</li></ul><p>Kiến trúc sư chịu tải cao cần nhận diện sớm các điểm nghẽn thiết kế này trước khi đưa mã nguồn lên môi trường Production.</p>
+      </div>
+      
+      <aside class="callout callout-real">
+        <b>Bão đơn 11.11 tại Shopee Food</b>
+        <p>Khi hệ thống xử lý hàng trăm nghìn tùy chọn topping đồ ăn kèm trong chiến dịch sale lớn, mô hình class cứng nhắc sẽ gây lỗi biên dịch và không thể mở rộng tính năng mới theo thời gian thực.</p>
+      </aside>
+    </div>
+
+    <figure class="lab topic-lab-card" data-widget="ch4-w1">
+      <figcaption>
+        <span class="lab-tag">🧠 Sơ đồ Tư duy & Luồng Luận điểm</span>
+        <strong>Mô phỏng Bùng nổ Lớp (Class Explosion Simulator)</strong>
+        <small>Quan sát sự gia tăng phi mã số lượng lớp khi số lượng tùy chọn (condiments) tăng lên</small>
+      </figcaption>
+      <div class="lab-body"></div>
+    </figure>
+  </article>
+  </div>
+
+  
+  <div class="bb-quiz-section">
+    <article class="topic topic-standalone-card" id="ch4-review" data-num="4.★" data-short="Tổng kết & Kiểm tra">
+      <p class="eyebrow">TỔNG KẾT & KIỂM TRA CHƯƠNG 4</p>
+      <h2>Thực hành & Trắc nghiệm Active Recall</h2>
+      <div class="prose">
+        <p>Chương này mổ xẻ bẫy kế thừa (inheritance explosion) kinh điển qua bài toán tính giá cà phê tại Starbuzz Coffee. Khi các tùy chọn (condiments) bùng nổ, việc lạm dụng phân lớp hay nhồi nhét biến boolean vào lớp cha <dfn data-term="Beverage"><strong>Beverage</strong></dfn> phá vỡ hoàn toàn nguyên lý đóng gói và nguyên lý Open-Closed (<dfn data-term="SOLID"><strong>SOLID</strong></dfn>). Giải pháp kiến trúc là áp dụng mô hình <dfn data-term="Decorator Pattern"><strong>Decorator Pattern</strong></dfn>, cho phép bọc các đối tượng lại để gắn thêm trách nhiệm linh hoạt mà không làm thay đổi mã nguồn gốc.</p>
+      </div>
+      <div class="quiz">
+      <div class="q" data-answer="1">
+        <p><strong>Câu 1:</strong> Tại sao việc thêm các biến boolean quản lý topping vào lớp cha Beverage lại là một thiết kế tồi?</p>
+        <ol><li>Vì nó làm giảm tốc độ thực thi của CPU.</li><li>Vì nó vi phạm nguyên lý Open-Closed (OCP) và làm mã nguồn cứng nhắc khi có topping mới.</li><li>Vì ngôn ngữ lập trình giới hạn số lượng biến boolean trong lớp.</li><li>Vì nó gây tốn kém dung lượng ổ cứng lưu trữ mã nguồn.</li></ol>
+        <p class="explain">Việc thêm biến boolean vào lớp cha buộc phải sửa đổi lớp cha mỗi khi có topping mới hoặc thay đổi giá, vi phạm nghiêm trọng nguyên lý Open-Closed trong thiết kế phần mềm.</p>
+      </div></div>
+    </article>
+  </div>
+</section>

@@ -1,0 +1,20 @@
+pages 672
+Chương 1: Someone has already solved your problems. In this chapter, - you’ll learn why (and how) you can exploit the wisdom and lessons learned by other
+Chương 2: Someone has already solved your problems. In this chapter, - you’ll learn why (and how) you can exploit the wisdom and lessons learned by other
+Chương 3: You don’t want to miss out when something interesting - happens, do you? We’ve got a pattern that keeps your objects in the
+Chương 4: Just call this chapter “Design Eye for the Inheritance Guy.” - We’ll re-examine the typical overuse of inheritance and you’ll learn how to decorate
+Chương 5: , this is
+Chương 6: the Factory Pattern - Get ready to bake some loosely coupled OO designs. There is more
+Chương 7: for a review.
+Chương 8: Our next stop is the Singleton Pattern, our ticket to creating one- - of-a-kind objects for which there is only one instance, ever. You might
+Chương 9: In this chapter, we take encapsulation to a whole new level: - we’re going to encapsulate method invocation. That’s right—by
+Chương 10: In this chapter we’re going to attempt such impossible feats - as putting a square peg in a round hole. Sound impossible? Not when
+Chương 11: We’re on an encapsulation roll; we’ve encapsulated object - creation, method invocation, complex interfaces, ducks,
+Chương 12: one.
+Chương 13: There are lots of  ways to stuff  objects into a collection. - Put them into an Array, a Stack, a List, a hash map—take your pick. Each has its
+Chương 14: A little-known fact: the Strategy and State Patterns - are twins separated at birth. You’d think they’d live similar lives,
+Chương 15: I mean, how many people are actually
+Chương 16: Ever play good cop, bad cop? You’re the good cop and you provide all - your services in a nice and friendly manner, but you don’t want everyone asking you
+Chương 17: Who would have ever guessed that Patterns could work together? - You’ve already witnessed the acrimonious Fireside Chats (and you haven’t even seen the Pattern
+Chương 18: Ahhhh, now you’re ready for a bright new world filled with - Design Patterns. But, before you go opening all those new doors of opportunity, we
+Chương 19: Not everyone can be the most popular. A lot has changed - in the last 25+ years. Since Design Patterns: Elements of Reusable Object-

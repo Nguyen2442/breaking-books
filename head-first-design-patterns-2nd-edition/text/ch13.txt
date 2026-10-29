@@ -1,0 +1,5835 @@
+this is a new chapter     317
+There are lots of  ways to stuff  objects into a collection. 
+Put them into an Array, a Stack, a List, a hash map—take your pick. Each has its 
+own advantages and tradeoffs. But at some point your clients are going to want 
+to iterate over those objects, and when they do, are you going to show them your 
+implementation? We certainly hope not! That just wouldn’t be professional. Well, you 
+don’t have to risk your career; in this chapter you’re going to see how you can allow 
+your clients to iterate through your objects without ever getting a peek at how you store 
+your objects. You’re also going to learn how to create some super collections of objects 
+that can leap over some impressive data structures in a single bound. And if that’s not 
+enough, you’re also going to learn a thing or two about object responsibility.  
+9  the Iterator and Composite Patterns
+Well-Managed
+          Collections
+You bet I keep 
+my collections well 
+encapsulated!
+
+318        Chapter    9
+a business merger
+Mel
+Lou
+That’s great news! Now we can get those delicious pancake breakfasts at the 
+Pancake House and those yummy lunches at the Diner all in one place. But there 
+seems to be a slight problem...
+Breaking News: Objectville Diner and 
+Objectville Pancake House Merge
+They want to use my Pancake House 
+menu as the breakfast menu and 
+the Diner’s menu as the lunch menu.  
+We’ve agreed on an implementation 
+for the menu items...
+...but we can’t agree on how to implement 
+our menus. That joker over there used an 
+ArrayList to hold his menu items, and I 
+used an Array. Neither one of us is willing to 
+change our implementations...we just have 
+too much code written that depends on 
+them.
+
+you are here 4        319
+the iterator and composite patterns
+public class MenuItem {
+    String name;
+    String description;
+    boolean vegetarian;
+    double price;
+ 
+    public MenuItem(String name, 
+                    String description, 
+                    boolean vegetarian, 
+                    double price) 
+    {
+        this.name = name;
+        this.description = description;
+        this.vegetarian = vegetarian;
+        this.price = price;
+    }
+  
+    public String getName() {
+        return name;
+    }
+  
+    public String getDescription() {
+        return description;
+    }
+  
+    public double getPrice() {
+        return price;
+    }
+  
+    public boolean isVegetarian() {
+        return vegetarian;
+    }
+}
+Check out the Menu Items
+Objectville Diner
+Vegetarian BLT                            
+                                              2.99
+        (Fakin’) Bacon with lettuce & tomato on 
+        whole wheat
+BLT  
+                                                                                                    2.99
+        Bacon with lettuce & tomato on whole wheat
+Soup of the day  
+                                                                      3.29
+        A bowl of the soup of the day, with 
+        a side of potato salad
+Hot Dog                                         
+                                              3.05
+        A hot dog, with sauerkraut, relish, onions, 
+        topped with cheese
+Steamed Veggies and Brown Rice                           
+3.99
+        A medley of steamed vegetables over brown rice
+K&B’s Pancake Breakfast                                 
+          2.99
+        Pancakes with scrambled eggs and toast 
+Regular Pancake Breakfast  
+                                   2.99
+        Pancakes with fried eggs, sausage
+Blueberry Pancakes                                 
+                     3.49
+        Pancakes made with fresh blueberries, 
+        and blueberry syrup
+Waffles                                
+                                                   3.59
+        Waffles with your choice of blueberries 
+        or strawberries
+Objectville Pancake House
+A MenuItem consists of a name, a description, 
+a flag to indicate if the item is vegetarian, 
+and a price. You pass all these values into the 
+constructor to initialize the MenuItem.
+These getter methods let you access 
+the fields of the menu item.
+At least Lou and Mel agree on the 
+implementation of  the MenuItems. Let’s 
+check out the items on each menu, and 
+also take a look at the implementation.
+The Diner menu has lots of lunch 
+items, while the Pancake House 
+consists of breakfast items.  
+Every menu item has a name, a 
+description, and a price.
+
+320        Chapter    9
+two menu implementations
+public class PancakeHouseMenu {
+    List<MenuItem> menuItems;
+ 
+    public PancakeHouseMenu() {
+        menuItems = new ArrayList<MenuItem>();
+    
+        addItem("K&B's Pancake Breakfast", 
+            "Pancakes with scrambled eggs and toast", 
+            true,
+            2.99);
+ 
+        addItem("Regular Pancake Breakfast", 
+            "Pancakes with fried eggs, sausage", 
+            false,
+            2.99);
+ 
+        addItem("Blueberry Pancakes",
+            "Pancakes made with fresh blueberries",
+            true,
+            3.49);
+ 
+        addItem("Waffles",
+            "Waffles with your choice of blueberries or strawberries",
+            true,
+            3.59);
+    }
+    public void addItem(String name, String description,
+                        boolean vegetarian, double price)
+    {
+        MenuItem menuItem = new MenuItem(name, description, vegetarian, price);
+        menuItems.add(menuItem);
+    }
+ 
+    public ArrayList<MenuItem> getMenuItems() {
+        return menuItems;
+    }
+    // other menu methods here
+}
+I used an ArrayList 
+so I can easily expand 
+my menu.
+Lou and Mel’s Menu implementations
+Now let’s take a look at what Lou and Mel are 
+arguing about. They both have lots of  time and 
+code invested in the way they store their menu 
+items in a menu, and lots of  other code that 
+depends on it.
+Lou’s using an ArrayList 
+class to store his menu items.
+Each menu item is added to the 
+ArrayList here, in the constructor.
+To add a menu item, Lou creates a new 
+MenuItem object, passing in each argument, 
+and then adds it to the ArrayList.
+Lou has a bunch of other menu code that 
+depends on the ArrayList implementation. He 
+doesn’t want to have to rewrite all that code!
+The getMenuItems() method returns the 
+list of menu items.
+Here’s Lou’s implementation of 
+the Pancake House menu.  
+Each MenuItem has a name, a 
+description, whether or not it’s a 
+vegetarian item, and the price.
+
+you are here 4        321
+the iterator and composite patterns
+public class DinerMenu {
+    static final int MAX_ITEMS = 6;
+    int numberOfItems = 0;
+    MenuItem[] menuItems;
+  
+    public DinerMenu() {
+        menuItems = new MenuItem[MAX_ITEMS];
+ 
+        addItem("Vegetarian BLT",
+            "(Fakin') Bacon with lettuce & tomato on whole wheat", true, 2.99);
+        addItem("BLT",
+            "Bacon with lettuce & tomato on whole wheat", false, 2.99);
+        addItem("Soup of the day",
+            "Soup of the day, with a side of potato salad", false, 3.29);
+        addItem("Hotdog",
+            "A hot dog, with sauerkraut, relish, onions, topped with cheese",
+            false, 3.05);
+        // a couple of other Diner Menu items added here
+    }
+  
+    public void addItem(String name, String description, 
+                         boolean vegetarian, double price) 
+    {
+        MenuItem menuItem = new MenuItem(name, description, vegetarian, price);
+        if (numberOfItems >= MAX_ITEMS) {
+            System.err.println("Sorry, menu is full!  Can't add item to menu");
+        } else {
+            menuItems[numberOfItems] = menuItem;
+            numberOfItems = numberOfItems + 1;
+        }
+    }
+ 
+    public MenuItem[] getMenuItems() {
+        return menuItems;
+    }
+ 
+    // other menu methods here
+}
+And here’s Mel’s implementation of the Diner menu.  
+Mel takes a different approach; he’s using an Array 
+class so he can control the max size of the menu. 
+Like Lou, Mel creates his menu items in the 
+constructor, using the addItem() helper method. 
+addItem() takes all the parameters 
+necessary to create a MenuItem and 
+instantiates one. It also checks to make 
+sure we haven’t hit the menu size limit.
+Like Lou, Mel has a bunch of code that depends on the implementation 
+of his menu being an Array. He’s too busy cooking to rewrite all of this.
+Mel specifically wants to keep his menu 
+under a certain size (presumably so he 
+doesn’t have to remember too many recipes).
+getMenuItems() returns the array of menu items.
+Haah! An ArrayList...I used a 
+REAL Array so I can control the 
+maximum size of my menu.
+
+322        Chapter    9
+java-enabled waitress
+To see why having two different menu representations complicates 
+things, let’s try implementing a client that uses the two menus.  
+Imagine you have been hired by the new company formed by the 
+merger of  the Diner and the Pancake House to create a Java-enabled 
+waitress (this is Objectville, after all). The spec for the Java-enabled 
+waitress specifies that she can print a custom menu for customers on 
+demand, and even tell you if  a menu item is vegetarian without having 
+to ask the cook—now that’s an innovation!
+Let’s check out the spec for the waitress, and then step through what it 
+might take to implement her...
+What’s the problem with having two different 
+menu representations?
+The Waitress is getting 
+Java-enabled.
+The Java-Enabled Waitress Specification
+Java-Enabled Waitress: code-name "Alice"
+printMenu()
+   - prints every item on the breakfast and
+ 
+     lunch menus
+printBreakfastMenu()
+   - prints just breakfast items
+printLunchMenu()
+   - prints just lunch items
+printVegetarianMenu()
+   - prints all vegetarian menu items
+isItemVegetarian(name)
+   - given the name of an item, returns true
+     if the items is vegetarian, otherwise,
+     returns false
+The spec for 
+the Waitress
+
+you are here 4        323
+the iterator and composite patterns
+1
+3
+2
+To print all the items on each menu, you’ll need to call the getMenuItems() 
+method on the PancakeHouseMenu and the DinerMenu to retrieve their 
+respective menu items. Note that each returns a different type:
+PancakeHouseMenu pancakeHouseMenu = new PancakeHouseMenu();
+ArrayList<MenuItem> breakfastItems = pancakeHouseMenu.getMenuItems();
+DinerMenu dinerMenu = new DinerMenu();
+MenuItem[] lunchItems = dinerMenu.getMenuItems();
+Now, to print out the items from the PancakeHouseMenu, we’ll loop through the 
+items on the breakfastItems ArrayList. And to print out the Diner items, we’ll loop 
+through the Array.
+Implementing every other method in the Waitress is going to be a variation of  
+this theme. We’re always going to need to get both menus and use two loops to 
+iterate through their items. If  another restaurant with a different implementation 
+is acquired, then we’ll have three loops.
+for (int i = 0; i < breakfastItems.size(); i++) {
+    MenuItem menuItem = breakfastItems.get(i);
+    System.out.print(menuItem.getName() + " ");
+    System.out.println(menuItem.getPrice() + " ");
+    System.out.println(menuItem.getDescription());
+}
+for (int i = 0; i < lunchItems.length; i++) {
+    MenuItem menuItem = lunchItems[i];
+    System.out.print(menuItem.getName() + " ");
+    System.out.println(menuItem.getPrice() + " ");
+    System.out.println(menuItem.getDescription());
+}
+The method looks 
+the same, but the 
+calls are returning 
+different types.
+Now, we have to 
+implement two 
+different loops to 
+step through the two 
+implementations of the 
+menu items...
+...one loop for the 
+ArrayList...
+...and another for 
+the Array.
+The implementation is showing 
+through: breakfast items are 
+in an ArrayList, and lunch 
+items are in an Array.
+Let’s start by stepping through how we’d implement the printMenu() method:
+Implementing the spec: our first attempt
+
+324        Chapter    9
+what’s the goal
+❏   A. We are coding to the 
+PancakeHouseMenu and DinerMenu 
+concrete implementations, not to an 
+interface.
+❏   B. The Waitress doesn’t implement the 
+Java Waitress API and so she isn’t 
+adhering to a standard.
+❏   C. If  we decided to switch from using 
+DinerMenu to another type of  menu 
+that implemented its list of  menu items 
+with a hash table, we’d have to modify 
+a lot of  code in the Waitress.
+❏   D. The Waitress needs to know how each 
+menu represents its internal collection of  
+menu items; this violates encapsulation.
+❏   E. We have duplicate code: the printMenu() 
+method needs two separate loops to 
+iterate over the two different kinds of  
+menus. And if  we added a third menu, 
+we’d have yet another loop. 
+❏   F. The implementation isn’t based on 
+MXML (Menu XML) and so isn’t as 
+interoperable as it should be.
+Mel and Lou are putting us in a difficult position. They don’t want to change their 
+implementations because it would mean rewriting a lot of  code that is in each respective 
+menu class. But if  one of  them doesn’t give in, then we’re going to have the job of  
+implementing a Waitress that will be hard to maintain and extend.
+It would really be nice if  we could find a way to allow them to implement the same 
+interface for their menus (they’re already close, except for the return type of  the 
+getMenuItems() method). That way we can minimize the concrete references in the 
+Waitress code and also hopefully get rid of  the multiple loops required to iterate over 
+both menus.
+Sound good? Well, how are we going to do that?
+What now?
+Based on our implementation of printMenu(), which of the following apply? 
+
+you are here 4        325
+the iterator and composite patterns
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+1234
+ArrayList
+An ArrayList 
+of MenuItems
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+1
+2
+3
+4
+Array
+An Array of 
+MenuItems.
+for (int i = 0; i < breakfastItems.size(); i++) {
+    MenuItem menuItem = breakfastItems.get(i);
+}
+for (int i = 0; i < lunchItems.length; i++) {
+    MenuItem menuItem = lunchItems[i];
+}
+Can we encapsulate the iteration?
+If we’ve learned one thing in this book, it’s to encapsulate what varies. It’s 
+obvious what is changing here: the iteration caused by different collections of  
+objects being returned from the menus. But can we encapsulate this? Let’s work 
+through the idea...
+1
+To iterate through the breakfast items, we use the size() and get() 
+methods on the ArrayList:
+2
+And to iterate through the lunch items we use the Array length field and 
+the array subscript notation on the MenuItem Array.
+lunchItems[0]
+lunchItems[1]
+lunchItems[2]
+lunchItems[3]
+get(0)
+get(1)
+get(2)get(3)
+get() helps us step 
+through each item.
+We use the array 
+subscripts to step 
+through items.
+
+326        Chapter    9
+3
+Now what if we create an object, let’s call it an Iterator, 
+that encapsulates the way we iterate through a 
+collection of objects? Let’s try this on the ArrayList:
+Iterator iterator = breakfastMenu.createIterator();
+while (iterator.hasNext()) {
+    MenuItem menuItem = iterator.next();
+}
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+1234
+ArrayList
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+I
+t
+e
+r
+a
+t
+o
+r
+We ask the breakfastMenu 
+for an iterator of its 
+MenuItems.
+And while there are more items left...
+...we get the next item.
+4
+Let’s try that on the Array too:
+Iterator iterator = lunchMenu.createIterator();
+while (iterator.hasNext()) {
+    MenuItem menuItem = iterator.next();
+}
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+1
+2
+3
+4
+Array
+lunchItems[0]
+lunchItems[1]
+lunchItems[2]
+lunchItems[3]
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+I
+t
+e
+r
+a
+t
+o
+r
+The client just calls hasNext() 
+and next(); behind the scenes the 
+iterator calls get() on the ArrayList.
+Same situation here: the client just calls 
+hasNext() and next(); behind the scenes, 
+the iterator indexes into the Array.
+Wow, this code 
+is exactly the 
+same as the 
+breakfastMenu 
+code.
+get(0)
+get(1)
+get(2)
+get(3)
+next()
+next()
+encapsulating iteration
+
+you are here 4        327
+the iterator and composite patterns
+Meet the Iterator Pattern
+Well, it looks like our plan of  encapsulating iteration just might 
+actually work; and as you’ve probably already guessed, it is a 
+Design Pattern called the Iterator Pattern.  
+The first thing you need to know about the Iterator Pattern is that 
+it relies on an interface called Iterator. Here’s one possible Iterator 
+interface:
+hasNext()
+next()
+<<interface>>
+Iterator
+The hasNext() method 
+tells us if there are 
+more elements in the 
+aggregate to iterate 
+through.
+The next() method 
+returns the next 
+object in the 
+aggregate.
+Now, once we have this interface, we can implement Iterators for 
+any kind of  collection of  objects: arrays, lists, hash maps ...   pick your 
+favorite collection of  objects. Let’s say we wanted to implement the 
+Iterator for the Array used in the DinerMenu. It would look like this:
+DinerMenuIterator is an 
+implementation of Iterator 
+that knows how to iterate 
+over an array of MenuItems.  
+hasNext()
+next()
+<<interface>>
+Iterator
+hasNext()
+next()
+DinerMenuIterator
+Let’s go ahead and implement this Iterator and incorporate it into 
+DinerMenu to see how this works...
+When we say 
+COLLECTION we just mean a group 
+of objects. They might be stored in 
+very different data structures like lists, 
+arrays, or hash maps, but they’re still 
+collections. We also sometimes call 
+these AGGREGATES.
+
+328        Chapter    9
+public interface Iterator {
+    boolean hasNext();
+    MenuItem next();
+}
+public class DinerMenuIterator implements Iterator {
+    MenuItem[] items;
+    int position = 0;
+ 
+    public DinerMenuIterator(MenuItem[] items) {
+        this.items = items;
+    }
+ 
+    public MenuItem next() {
+        MenuItem menuItem = items[position];
+        position = position + 1;
+        return menuItem;
+    }
+ 
+    public boolean hasNext() {
+        if (position >= items.length || items[position] == null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+}
+Adding an Iterator to DinerMenu
+Here are our two methods:
+The hasNext() method returns a boolean 
+indicating whether or not there are 
+more elements to iterate over...
+To add an iterator to the DinerMenu, we first need to define the Iterator interface:
+...and the next() method 
+returns the next element.
+And now we need to implement a concrete Iterator that works for the Diner menu:
+We implement the 
+Iterator interface.
+The constructor takes the 
+array of menu items we are 
+going to iterate over.
+position maintains the 
+current position of the 
+iteration over the array.
+The
+ next() method returns the 
+next item in the array and 
+increments the position.
+The
+ hasNext() method checks to see 
+if we’ve seen all the elements of the 
+array and returns true if there are 
+more to iterate through. 
+Because the diner chef went ahead and 
+allocated a max sized array, we need to 
+check not only if we are at the end of 
+the array, but also if the next item is null, 
+which indicates there are no more items. 
+using iterator
+
+you are here 4        329
+the iterator and composite patterns
+public class DinerMenu {
+    static final int MAX_ITEMS = 6;
+    int numberOfItems = 0;
+    MenuItem[] menuItems;
+  
+    // constructor here
+  
+    // addItem here
+ 
+    public MenuItem[] getMenuItems() {
+        return menuItems;
+    }
+  
+    public Iterator createIterator() {
+        return new DinerMenuIterator(menuItems);
+    }
+ 
+    // other menu methods here
+}
+Reworking the DinerMenu with Iterator
+Okay, we’ve got the iterator. Time to work it into the DinerMenu; all we need to do is 
+add one method to create a DinerMenuIterator and return it to the client:
+We’re not going to need the getMenuItems() 
+method anymore; in fact, we don’t want it 
+because it exposes our internal implementation!
+Here’s the createIterator() method.  
+It creates a DinerMenuIterator 
+from the menuItems array and 
+returns it to the client.
+We’re returning the Iterator interface. The client 
+doesn’t need to know how the MenuItems are maintained 
+in the DinerMenu, nor does it need to know how the 
+DinerMenuIterator is implemented. It just needs to use 
+the iterators to step through the items in the menu.
+Go ahead and implement the PancakeHouseIterator yourself and make the changes 
+needed to incorporate it into the PancakeHouseMenu.
+
+330        Chapter    9
+public class Waitress {
+    PancakeHouseMenu pancakeHouseMenu;
+    DinerMenu dinerMenu;
+ 
+    public Waitress(PancakeHouseMenu pancakeHouseMenu, DinerMenu dinerMenu) {
+        this.pancakeHouseMenu = pancakeHouseMenu;
+        this.dinerMenu = dinerMenu;
+    }
+ 
+    public void printMenu() {
+        Iterator pancakeIterator = pancakeHouseMenu.createIterator();
+        Iterator dinerIterator = dinerMenu.createIterator();
+        System.out.println("MENU\n----\nBREAKFAST");
+        printMenu(pancakeIterator);
+        System.out.println("\nLUNCH");
+        printMenu(dinerIterator);
+    }
+ 
+    private void printMenu(Iterator iterator) {
+        while (iterator.hasNext()) {
+            MenuItem menuItem = iterator.next();
+            System.out.print(menuItem.getName() + ", ");
+            System.out.print(menuItem.getPrice() + " -- ");
+            System.out.println(menuItem.getDescription());
+        }
+    }
+ 
+    // other methods here
+}
+Fixing up the Waitress code
+In the constructor the Waitress 
+class takes the two menus.
+The printMenu() 
+method now creates 
+two iterators, one for 
+each menu...
+...and then calls the 
+overloaded printMenu() 
+with each iterator.
+The overloaded 
+printMenu() 
+method uses 
+the Iterator to 
+step through 
+the menu items 
+and print them.
+Note that we’re down 
+to one loop.
+Test if there are 
+any more items.
+Get the 
+next item.
+Use the item to 
+get name, price, 
+and description 
+and print them.
+Now we need to integrate the iterator code into the 
+Waitress class. We should be able to get rid of  some 
+of  the redundancy in the process. Integration is pretty 
+straightforward: first we create a printMenu() method 
+that takes an Iterator; then we use the createIterator() 
+method on each menu to retrieve the Iterator and 
+pass it to the new method.
+New and 
+improved with 
+Iterator.
+fixing the waitress
+
+you are here 4        331
+the iterator and composite patterns
+public class MenuTestDrive {
+    public static void main(String args[]) {
+        PancakeHouseMenu pancakeHouseMenu = new PancakeHouseMenu();
+        DinerMenu dinerMenu = new DinerMenu();
+ 
+        Waitress waitress = new Waitress(pancakeHouseMenu, dinerMenu);
+ 
+        waitress.printMenu();
+    }
+}
+Testing our code
+File  Edit   Window  Help   
+% java DinerMenuTestDrive
+MENU
+----
+BREAKFAST
+K&B’s Pancake Breakfast, 2.99 -- Pancakes with scrambled eggs and toast
+Regular Pancake Breakfast, 2.99 -- Pancakes with fried eggs, sausage
+Blueberry Pancakes, 3.49 -- Pancakes made with fresh blueberries
+Waffles, 3.59 -- Waffles with your choice of blueberries or strawberries
+LUNCH
+Vegetarian BLT, 2.99 -- (Fakin’) Bacon with lettuce & tomato on whole wheat
+BLT, 2.99 -- Bacon with lettuce & tomato on whole wheat
+Soup of the day, 3.29 -- Soup of the day, with a side of potato salad
+Hot Dog, 3.05 -- A hot dog, with sauerkraut, relish, onions, topped with cheese
+Steamed Veggies and Brown Rice, 3.99 -- Steamed vegetables over brown rice
+Pasta, 3.89 -- Spaghetti with marinara sauce, and a slice of sourdough bread
+%
+First we create the new menus.
+Then we create a 
+Waitress and pass 
+her the menus.
+Then we print them.
+Here’s the test run...
+It’s time to put everything to a test. Let’s write some 
+test drive code and see how the Waitress works...
+First we iterate 
+through the 
+pancake menu...
+...and then 
+the lunch 
+menu, all 
+with the 
+same 
+iteration 
+code.
+
+332        Chapter    9
+What have we done so far?
+Woohoo! No code 
+changes other 
+than adding the 
+createIterator() method.
+Veggie burger
+For starters, we’ve made our Objectville cooks 
+very happy. They settled their differences and 
+kept their own implementations. Once we gave 
+them a PancakeHouseMenuIterator and a 
+DinerMenuIterator, all they had to do was add a 
+createIterator() method and they were finished.
+We’ve also helped ourselves in the process. The 
+Waitress will be much easier to maintain and 
+extend down the road. Let’s go through exactly 
+what we did and think about the consequences:
+Hard-to-Maintain 
+Wait re ss Implementation
+Ne w, Hip 
+Wait re ss Powered by Iterator
+The Menus are not well 
+encapsulated; we can see the 
+Diner is using an ArrayList and the 
+Pancake House an Array.
+The Waitress is bound to concrete 
+classes (MenuItem[] and ArrayList).
+The Waitress now uses an interface 
+(Iterator).
+We need two loops to iterate through 
+the MenuItems.
+All we need is a loop that 
+polymorphically handles any 
+collection of items as long as it 
+implements Iterator.
+The Menu implementations are now 
+encapsulated. The Waitress has 
+no idea how the Menus hold their 
+collection of menu items.
+The Waitress is bound to two different 
+concrete Menu classes, despite their 
+interfaces being almost identical.
+The Menu interfaces are now exactly 
+the same and, uh oh, we still don’t 
+have a common interface, which 
+means the Waitress is still bound to 
+two concrete Menu classes. We’d 
+better fix that.
+comparing our implementations
+
+you are here 4        333
+the iterator and composite patterns
+hasNext()
+next()
+<<interface>>
+Iterator
+Before we clean things up, let’s get a bird’s-eye view of  our current design.
+Note that the iterator gives us a way to 
+step through the elements of an aggregate 
+without forcing the aggregate to clutter its 
+own interface with a bunch of methods to 
+support traversal of its elements. It also allows 
+the implementation of the iterator to live 
+outside of the aggregate; in other words, we’ve 
+encapsulated the iteration.
+PancakeHouseMenu and DinerMenu 
+implement the new createIterator() 
+method; they are responsible for creating 
+the iterator for their respective menu 
+items’ implementations.
+printMenu()
+Waitress
+createIterator()
+PancakeHouseMenu
+menuItems
+createIterator()
+DinerMenu
+menuItems
+hasNext()
+next()
+DinerMenuIterator
+hasNext()
+next()
+PancakeHouseMenuIterator
+Reviewing our current design...
+These two menus implement the 
+same exact set of methods, but 
+they aren’t implementing the same 
+interface. We’re going to fix this 
+and free the Waitress from any 
+dependencies on concrete Menus.
+We’re now using a 
+common Iterator 
+interface 
+and we’ve 
+implemented two 
+concrete classes.
+The
+ Iterator allows the Waitress to be decoupled 
+from the actual implementation of the concrete 
+classes. She doesn’t need to know if a Menu is 
+implemented with an Array, an ArrayList, or with 
+Post-it  notes. All she cares about is that she can 
+get an Iterator to do her iterating.
+®
+
+334        Chapter    9
+Making some improvements...
+Okay, we know the interfaces of  PancakeHouseMenu and DinerMenu are exactly the same 
+and yet we haven’t defined a common interface for them. So, we’re going to do that and clean 
+up the Waitress a little more.  
+You may be wondering why we’re not using the Java Iterator interface—we did that so you 
+could see how to build an iterator from scratch. Now that we’ve done that, we’re going to 
+switch to using the Java Iterator interface, because we’ll get a lot of  leverage by implementing 
+that instead of  our home-grown Iterator interface. What kind of  leverage? You’ll soon see.
+First, let’s check out the java.util.Iterator interface: 
+hasNext()
+next()
+remove()
+<<interface>>
+Iterator
+This looks just like our previous definition...
+...except we have an additional method that 
+allows us to remove the last item returned 
+by the next() method from the aggregate.
+This is going to be a piece of  cake: we just need to change the interface that both 
+PancakeHouseMenuIterator and DinerMenuIterator extend, right? Almost...actually, it’s even 
+easier than that. Not only does java.util have its own Iterator interface, but ArrayList has an 
+iterator() method that returns an iterator. In other words, we never needed to implement our 
+own iterator for ArrayList. However, we’ll still need our implementation for the DinerMenu 
+because it relies on an Array, which doesn’t support the iterator() method.
+Q:
+ What if I don’t want to provide the ability to remove 
+something from the underlying collection of objects?
+A: The remove() method is considered optional. You don’t have 
+to provide remove functionality. But you should provide the method 
+because it’s part of the Iterator interface. If you’re not going to 
+allow remove() in your iterator, you’ll want to throw the runtime 
+exception java.lang.UnsupportedOperationException. The Iterator 
+API documentation specifies that this exception may be thrown 
+from remove() and any client that is a good citizen will check for this 
+exception when calling the remove() method.
+Q:
+ How does remove() behave under multiple threads that 
+may be using different iterators over the same collection of 
+objects? 
+A: The behavior of the remove() method is unspecified if the 
+collection changes while you are iterating over it. So you should be 
+careful in designing your own multithreaded code when accessing a 
+collection concurrently.
+using java’s iterator
+
+you are here 4        335
+the iterator and composite patterns
+import java.util.Iterator;
+  
+public class DinerMenuIterator implements Iterator<MenuItem> {
+    MenuItem[] items;
+    int position = 0;
+ 
+    public DinerMenuIterator(MenuItem[] items) {
+        this.items = items;
+    }
+ 
+    public MenuItem next() {
+        //implementation here
+    }
+ 
+    public boolean hasNext() {
+        //implementation here
+    }
+  
+    public void remove() {
+        throw new UnsupportedOperationException
+                    ("You shouldn't be trying to remove menu items.");
+    }
+}
+Cleaning things up with java.util.Iterator
+public Iterator<MenuItem> createIterator() {
+    return menuItems.iterator();
+}
+Let’s start with the PancakeHouseMenu. Changing it over to  
+java.util.Iterator is going to be easy. We just delete the 
+PancakeHouseMenuIterator class, add an import java.util.Iterator 
+to the top of  PancakeHouseMenu, and change one line of  the 
+PancakeHouseMenu:
+Instead of creating our own iterator 
+now, we just call the iterator() 
+method on the menuItems ArrayList 
+(more on this in a bit).
+And that’s it, PancakeHouseMenu is done.
+Now we need to make the changes to allow DinerMenu to work with java.util.Iterator.
+First we import java.util.Iterator, the 
+interface we’re going to implement.
+None of our current 
+implementation changes...
+Remember, the remove() method is optional 
+in the Iterator interface. Having our waitress 
+remove menu items really doesn’t make sense, 
+so we’ll just throw an exception if she tries.
+
+336        Chapter    9
+import java.util.Iterator;
+ 
+public class Waitress {
+    Menu pancakeHouseMenu;
+    Menu dinerMenu;
+ 
+    public Waitress(Menu pancakeHouseMenu, Menu dinerMenu) {
+        this.pancakeHouseMenu = pancakeHouseMenu;
+        this.dinerMenu = dinerMenu;
+    }
+ 
+    public void printMenu() {
+        Iterator<MenuItem> pancakeIterator = pancakeHouseMenu.createIterator();
+        Iterator<MenuItem> dinerIterator = dinerMenu.createIterator();
+        System.out.println("MENU\n----\nBREAKFAST");
+        printMenu(pancakeIterator);
+        System.out.println("\nLUNCH");
+        printMenu(dinerIterator);
+    }
+ 
+    private void printMenu(Iterator iterator) {
+        while (iterator.hasNext()) {
+            MenuItem menuItem = iterator.next();
+            System.out.print(menuItem.getName() + ", ");
+            System.out.print(menuItem.getPrice() + " -- ");
+            System.out.println(menuItem.getDescription());
+        }
+    }
+ 
+    // other methods here
+}
+We are almost there...
+Now we just need to give the Menus a common interface and rework the 
+Waitress a little. The Menu interface is quite simple: we might want to add a 
+few more methods to it eventually, like addItem(), but for now we’ll let the chefs 
+control their menus by keeping that method out of  the public interface:
+public interface Menu {
+    public Iterator<MenuItem> createIterator();
+}
+This is a simple interface that 
+just lets clients get an iterator 
+for the items in the menu.
+Now we need to add an implements Menu to both the PancakeHouseMenu 
+and the DinerMenu class definitions and update the Waitress class:
+Now the Waitress uses the java.util.Iterator as well.
+We need to replace the 
+concrete Menu classes with 
+the Menu interface.
+Nothing changes 
+here.
+reworking the waitress
+
+you are here 4        337
+the iterator and composite patterns
+The PancakeHouseMenu and DinerMenu classes implement an interface, 
+Menu. This allows the Waitress to refer to each menu object using the interface 
+rather than the concrete class. So, we’re reducing the dependency between 
+the Waitress and the concrete classes by “programming to an interface, not an 
+implementation.”
+Also, the new Menu interface has one method, createIterator(), that is 
+implemented by PancakeHouseMenu and DinerMenu. Each menu class 
+assumes the responsibility of  creating a concrete Iterator that is appropriate for 
+its internal implementation of  the menu items.
+printMenu()
+Waitress
+createIterator()
+PancakeHouseMenu
+menuItems
+createIterator()
+DinerMenu
+menuItems
+hasNext()
+next()
+remove()
+<<interface>>
+Iterator
+Here’s our new Menu interface. 
+It specifies the new method, 
+createIterator().
+Now, Waitress 
+only needs to 
+be concerned 
+with Menus and 
+Iterators. 
+We’ve
+ decoupled Waitress from the 
+implementation of the menus, so now 
+we can use an Iterator to iterate 
+over any list of menu items without 
+having to know about how the list of 
+items is implemented.
+PancakeHouseMenu and DinerMenu now 
+implement the Menu interface, which 
+means they need to implement the new 
+createIterator() method.
+DinerMenu returns 
+a DinerMenuIterator 
+from its 
+createIterator() 
+method because 
+that’s the kind of 
+iterator required 
+to iterate over its 
+Array of menu items.  
+Each concrete Menu is responsible 
+for creating the appropriate 
+concrete Iterator class. 
+What does this get us?
+This solves the problem 
+of the Waitress 
+depending on the 
+concrete Menus.
+createIterator()
+<<interface>>
+Menu
+createIterator()
+hasNext()
+next()
+remove()
+PancakeHouseMenuIterator
+hasNext()
+next()
+remove()
+DinerMenuIterator
+We’re now using the 
+ArrayList iterator 
+supplied by java.util. We 
+don’t need this anymore.
+
+338        Chapter    9
+Iterator Pattern defined
+The Iterator Pattern provides a way to 
+access the elements of  an aggregate object 
+sequentially without exposing its underlying 
+representation.
+You’ve already seen how to implement the Iterator 
+Pattern with your very own iterator. You’ve also seen 
+how Java supports iterators in some of  its collectionoriented classes (ArrayList). Now it’s time to check out 
+the official definition of  the pattern:
+This makes a lot of  sense: the pattern gives you a way 
+to step through the elements of  an aggregate without 
+having to know how things are represented under the 
+covers. You’ve seen that with the two implementations 
+of  Menus. But the effect of  using iterators in your design 
+is just as important: once you have a uniform way of  
+accessing the elements of  all your aggregate objects, you 
+can write polymorphic code that works with any of  these 
+aggregates—just like the printMenu() method, which 
+doesn’t care if  the menu items are held in an Array or 
+ArrayList (or anything else that can create an Iterator), as 
+long as it can get hold of  an Iterator.
+The other important impact on your design is that the 
+Iterator Pattern takes the responsibility of  traversing 
+elements and gives that responsibility to the iterator 
+object, not the aggregate object. This not only keeps 
+the aggregate interface and implementation simpler, 
+it removes the responsibility for iteration from the 
+aggregate and keeps the aggregate focused on the 
+things it should be focused on (managing a collection of  
+objects), not on iteration.
+The Iterator Pattern 
+allows traversal of the 
+elements of an aggregate 
+without exposing the 
+underlying implementation.
+It also places the task 
+of traversal on the 
+iterator object, not 
+on the aggregate, 
+which simplifies the 
+aggregate interface and 
+implementation, and 
+places the responsibility 
+where it should be.
+iterator pattern defined
+
+you are here 4        339
+the iterator and composite patterns
+hasNext()
+next()
+remove()
+<<interface>>
+Iterator
+hasNext()
+next()
+remove()
+ConcreteIterator
+createIterator()
+<<interface>>
+Aggregate
+createIterator()
+ConcreteAggregate
+Client
+The ConcreteAggregate 
+has a collection of 
+objects and implements 
+the method that 
+returns an Iterator for 
+its collection.
+Each 
+ConcreteAggregate 
+is responsible for 
+instantiating a 
+ConcreteIterator that 
+can iterate over its 
+collection of objects.
+The Iterator interface 
+provides the interface 
+that all iterators 
+must implement, and 
+a set of methods 
+for traversing over 
+elements of a collection. 
+Here  we’re  using  the               
+java.util.Iterator. If 
+you don’t want to 
+use Java’s Iterator 
+interface, you can 
+always create your own.
+Having
+ a common
+ interface for your 
+aggregates is handy for your client; 
+it decouples your client from the 
+implementation of your collection of objects.
+The ConcreteIterator is 
+responsible for managing 
+the current position of 
+the iteration.
+The class diagram for the Iterator Pattern looks very similar to another 
+pattern you’ve studied; can you think of what it is? Hint: a subclass 
+decides which object to create.
+Let’s check out the class diagram to put all the pieces in context...
+The Iterator Pattern Structure
+
+340        Chapter    9
+the single responsibility principle
+OO Glue
+Head First
+The Single Responsibility Principle
+Design Principle
+A class should have only one 
+reason to change.
+What if  we allowed our aggregates to implement their internal 
+collections and related operations AND the iteration methods? 
+Well, we already know that would expand the number of  
+methods in the aggregate, but so what? Why is that so bad?
+Well, to see why, you first need to recognize that when we allow 
+a class to not only take care of  its own business (managing 
+some kind of  aggregate) but also take on more responsibilities 
+(like iteration) then we’ve given the class two reasons to change. 
+Two? Yup, two: it can change if  the collection changes in some 
+way, and it can change if  the way we iterate changes. So once 
+again our friend CHANGE is at the center of  another design 
+principle:
+We know we want to avoid change in our classes because 
+modifying code provides all sorts of  opportunities for 
+problems to creep in. Having two ways to change increases 
+the probability the class will change in the future, and when 
+it does, it’s going to affect two aspects of  your design.
+The solution? The principle guides us to assign each 
+responsibility to one class, and only one class.
+That’s right, it’s as easy as that, and then again it’s not: 
+separating responsibility in design is one of  the most 
+difficult things to do. Our brains are just too good at seeing 
+a set of  behaviors and grouping them together even when 
+there are actually two or more responsibilities. The only 
+way to succeed is to be diligent in examining your designs  
+and to watch out for signals that a class is changing in more 
+than one way as your system grows.
+Every responsibility of 
+a class is an area of 
+potential change. More 
+than one responsibility 
+means more than one area 
+of change.  
+This principle guides us to 
+keep each class to a single 
+responsibility.
+Cohesion is a term you’ll 
+hear used as a measure of 
+how closely a class or a 
+module supports a single 
+purpose or responsibility. 
+We say that a module or 
+class has high cohesion when it 
+is designed around a set of related 
+functions, and we say it has low 
+cohesion when it is designed around a 
+set of unrelated functions.
+Cohesion is a more general concept 
+than the Single Responsibility Principle, 
+but the two are closely related.  
+Classes that adhere to the principle 
+tend to have high cohesion and are 
+more maintainable than classes that 
+take on multiple responsibilities and 
+have low cohesion.
+
+you are here 4        341
+the iterator and composite patterns
+hasNext()
+next()
+remove()
+Iterator
+hasNext()
+next()
+remove()
+addCard()
+removeCard()
+shuffle()
+DeckOfCards
+setName()
+setAddress()
+setPhoneNumber()
+save()
+load()
+Person
+dial()
+hangUp()
+talk()
+sendData()
+flash()
+Phone
+getCount()
+getState()
+getLocation()
+GumballMachine
+add()
+remove()
+checkOut()
+saveForLater()
+ShoppingCart
+login()
+signup()
+move()
+fire()
+rest()
+Game
+Hard hat area. watch out 
+for falling assumptions
+getHighScore()
+getName()
+Player
+login()
+signup()
+move()
+fire()
+rest()
+getHighScore()
+getName()
+Game
+move()
+fire()
+rest()
+PlayerActions
+login()
+signup()
+GameSession
+Examine these classes and determine which ones 
+have multiple responsibilities.
+Determine if these classes have low or high cohesion.
+2
+
+342        Chapter    9
+no dumb questions
+Q:
+ I’ve seen other books show the 
+Iterator class diagram with the methods 
+first(), next(), isDone(), and currentItem().  
+Why are these methods different?
+A: Those are the “classic” method names 
+that have been used. These names have 
+changed over time and we now have next(), 
+hasNext(), and even remove() in  
+java.util.Iterator. 
+ 
+Let’s look at the classic methods. The 
+next() and currentItem() have been merged 
+into one method in java.util. The isDone() 
+method has become hasNext(), but we 
+have no method corresponding to first(). 
+That’s because in Java we tend to just get 
+a new iterator whenever we need to start 
+the traversal over. Nevertheless, you can 
+see there is very little difference in these 
+interfaces. In fact, there is a whole range 
+of behaviors you can give your iterators.  
+The remove() method is an example of an 
+extension in java.util.Iterator.
+Q:
+ I’ve heard about “internal” iterators 
+and “external” iterators. What are they?  
+Which kind did we implement in the 
+example?
+A: We implemented an external iterator, 
+which means that the client controls the 
+iteration by calling next() to get the next 
+element. An internal iterator is controlled 
+by the iterator itself. In that case, because 
+it’s the iterator that’s stepping through the 
+elements, you have to tell the iterator what 
+to do with those elements as it goes through 
+them. That means you need a way to pass 
+an operation to an iterator. Internal iterators 
+are less flexible than external iterators 
+because the client doesn’t have control of 
+the iteration. However, some might argue 
+that they are easier to use because you just 
+ 
+ 
+ hand them an operation and tell them to 
+iterate, and they do all the work for you.  
+Q:
+ Could I implement an Iterator that 
+can go backward as well as forward?
+A: Definitely. In that case, you’d probably 
+want to add two methods, one to get to the 
+previous element, and one to tell you when 
+you’re at the beginning of the collection 
+of elements. Java’s Collection Framework 
+provides another type of iterator interface 
+called ListIterator. This iterator adds 
+previous() and a few other methods to the 
+standard Iterator interface. It is supported 
+by any Collection that implements the List 
+interface.
+Q:
+ Who defines the ordering of the 
+iteration in a collection like Hashtable, 
+which is inherently unordered?
+A: Iterators imply no ordering. The 
+underlying collections may be unordered as 
+in a hash table or in a bag; they may even 
+contain duplicates. So ordering is related 
+to both the properties of the underlying 
+collection and to the implementation. In 
+general, you should make no assumptions 
+about ordering unless the Collection 
+documentation indicates otherwise.
+Q:
+ You said we can write 
+“polymorphic code” using an iterator; can 
+you explain that more?
+A: When we write methods that take 
+Iterators as parameters, we are using 
+polymorphic iteration. That means we are 
+creating code that can iterate over any 
+collection as long as it supports Iterator.  
+We don’t care about how the collection 
+is implemented, we can still write code to 
+iterate over it.
+Q:
+ If I’m using Java, won’t I always 
+want to use the java.util.Iterator 
+interface so I can use my own iterator 
+implementations with classes that are 
+already using the Java iterators?
+A: Probably. If you have a common 
+Iterator interface, it will certainly make it 
+easier for you to mix and match your own 
+aggregates with Java aggregates like 
+ArrayList and Vector. But remember, if you 
+need to add functionality to your Iterator 
+interface for your aggregates, you can 
+always extend the Iterator interface.
+Q:
+ I’ve seen an Enumeration interface 
+in Java; does that implement the Iterator 
+Pattern?
+A: We talked about this in the 
+Adapter Pattern chapter (Chapter 7). 
+Remember? The java.util.Enumeration 
+is an older implementation of Iterator 
+that has since been replaced by java.util.
+Iterator. Enumeration has two methods, 
+hasMoreElements(), corresponding to 
+hasNext(), and nextElement(), corresponding 
+to next(). However, you’ll probably want to 
+use Iterator over Enumeration as more Java 
+classes support it. If you need to convert 
+from one to another, review Chapter 7 again 
+where you implemented the adapter for 
+Enumeration and Iterator.
+Q:
+ Is using Java’s enhanced for loop 
+related to iterators?
+A: Good question! It is, and to tackle that 
+question we need to understand another 
+interface—that is, Java’s Iterable interface. 
+This is a good time to do just that...
+
+you are here 4        343
+the iterator and composite patterns
+Meet Java’s Iterable interface
+You’re already up to speed on Java’s Iterator interface, but there’s 
+another interface you need to meet: Iterable. The Iterable interface 
+is implemented by every Collection type in Java. Guess what? In your 
+code using the ArrayList, you’ve already been using this interface. 
+Let’s take a look at the Iterable interface:
+iterator()
++ forEach()
++ spliterator()
+<<interface>>
+Iterable
+add()
+addAll()
+clear()
+contains()
+containsAll()
+equals()
+hashCode()
+isEmpty()
+iterator()
+remove()
+removeAll()
+retainAll()
+size()
+toArray()
+<<interface>>
+Collection
+next()
+hasNext()
++ remove()
+<<interface>>
+Iterator
+The Iterable interface 
+includes an iterator() 
+method that returns 
+an iterator that 
+implements the 
+Iterator interface.
+All Collection classes, like 
+ArrayList, implement the 
+Collection interface, which 
+inherits from the Iterable 
+interface, so all Collection 
+classes are Iterables. 
+You already know about the 
+Iterator interface; that's the 
+same interface we’ve been using 
+with our Diner and Pancake 
+house iterators.
+Here’s the Iterable 
+interface.
+If  a class implements Iterable, we know that the class implements an 
+iterator() method. That method returns an iterator that implements 
+the Iterator interface. This interface also includes a default forEach() 
+method that can be used as another way to iterate through the 
+collection. In addition to all that, Java even provides some nice 
+syntactic sugar for iteration, with its enhanced for loop. Let’s see how 
+that works.
+The Iterable interface also 
+includes the spliterator() 
+method
+, which provides even 
+more advanced ways to iterate 
+through a collection. 
+
+344        Chapter    9
+the enhanced for loop
+Java’s enhanced for loop
+Let’s take an object whose class implements the Iterable interface...why not 
+the ArrayList collection we used for the Pancake House menu items:
+List<MenuItem> menuItems = new ArrayList<MenuItem>();
+We can iterate over ArrayList the way we have been:
+Iterator iterator = menu.iterator();
+while (iterator.hasNext()) {
+ MenuItem menuItem = iterator.next();
+ System.out.print(menuItem.getName() + ", ");
+ System.out.print(menuItem.getPrice() + " -- ");
+       System.out.println(menuItem.getDescription());
+}
+Or, given we know ArrayList is an Iterable, we could use Java’s enhanced 
+for shorthand:
+for (MenuItem item: menu) {
+ System.out.print(menuItem.getName() + ", ");
+ System.out.print(menuItem.getPrice() + " -- ");
+       System.out.println(menuItem.getDescription());
+}
+Here we can dispense with 
+the explicit iterator as the 
+hasNext() and next() methods.
+This is the way we've been 
+doing iteration over our 
+collections, using an iterator 
+along with the hasNext
+() and 
+next() methods
+.
+Looks like a great way to use Iterators 
+that really results in simple code—no more 
+hasNext() or next() method calls. So, can we 
+rework our Waitress code to use Iterable and 
+the enhanced for loop for both menus?
+
+you are here 4        345
+the iterator and composite patterns
+We have some bad news: the Diner may not have made the best decision using an 
+Array as the basis for its menus. As it turns out, Arrays are not Java Collections 
+and so they don’t implement the Iterable interface. Given that, we can’t as easily 
+consolidate our Waitress code into one method that takes an Iterable and use it 
+with both the Pancake House’s breakfastItems and the Diner’s lunchItems. If  you 
+try to change the Waitress’s printMenu() method to take an Iterable instead of  an 
+Iterator, and use the for-each loop instead of  the Iterator API, like this: 
+Not so fast; Arrays are not Iterables
+public void printMenu(Iterable<MenuItem> iterable) {
+ for (MenuItem menuItem : iterable) {
+        // print menuItem
+       }
+}
+you’ll get a compiler error when you try to pass the lunchItems array to printMenu():
+printMenu(lunchItems);
+because, again, Arrays don’t implement the Iterable interface.
+If  you keep both loops in the Waitress code, we’re back to square one: the Waitress is 
+once again dependent on the aggregate types we’re using to store the menus, and she 
+has duplicate code: one loop for the ArrayList, and one loop for the Array. 
+So what do we do? Well, there are many ways to solve this issue, but they are a bit of  a 
+sideshow, as would be refactoring our code. After all, this chapter is about the Iterator 
+Pattern, not Java’s Iterable interface. But the good news is you know about Iterable, you 
+know its relationship to Java’s Iterator interface and to the Iterator Pattern. So, let’s keep 
+moving, as we’ve got a great implementation even if  we aren’t taking advantage of  a 
+little syntactic sugar from Java’s for loop.
+This will only work for the 
+ArrayList we’re using for the 
+Pancake House menu.
+Compile error! Arrays are not Iterables.
+breakfastItems.forEach(item -> System.out.println(item));
+You probably noticed the forEach() method in the Iterable menu. It’s used as the basis for 
+Java’s enhanced for loop, but you can also use it directly with Iterables. Here’s how it works:
+Here’s an Iterable, in this case 
+our Pancake House ArrayList 
+of menu items.
+We’re calling forEach()...
+...and passing a lambda that takes a 
+menuItem, and just prints it. 
+So this code will print every 
+item in the collection.
+
+346        Chapter    9
+a new acquisition
+Wow, and we thought things 
+were already complicated.  
+Now what are we going to do? 
+Good thing you’re 
+learning about the Iterator 
+Pattern because I just heard that 
+Objectville Mergers and Acquisitions 
+has done another deal...we’re merging 
+with Objectville Café and adopting their 
+dinner menu.
+Come on, think positively. 
+I’m sure we can find a way to 
+work them into the Iterator 
+Pattern.
+
+you are here 4        347
+the iterator and composite patterns
+public class CafeMenu {
+    Map<String, MenuItem> menuItems = new HashMap<String, MenuItem>();
+  
+    public CafeMenu() {
+        addItem("Veggie Burger and Air Fries",
+            "Veggie burger on a whole wheat bun, lettuce, tomato, and fries",
+            true, 3.99);
+        addItem("Soup of the day",
+            "A cup of the soup of the day, with a side salad",
+            false, 3.69);
+        addItem("Burrito",
+            "A large burrito, with whole pinto beans, salsa, guacamole",
+            true, 4.29);
+    }
+ 
+    public void addItem(String name, String description, 
+                         boolean vegetarian, double price) 
+    {
+        MenuItem menuItem = new MenuItem(name, description, vegetarian, price);
+        menuItems.put(name, menuItem);
+    }
+ 
+    public Map<String, MenuItem> getMenuItems() {
+        return menuItems;
+    }
+}
+Here’s the café menu. It doesn’t look like too much trouble to integrate the 
+CafeMenu class into our framework...let’s check it out.
+CafeMenu doesn’t implement our new Menu 
+interface, but this is easily fixed.
+The café is storing their menu items in a HashMap.  
+Does that support Iterator? We’ll see shortly...
+Like the other Menus, the menu items 
+are initialized in the constructor.
+Here’s where we create a new MenuItem 
+and add it to the menuItems HashMap.
+We’re not going to need this anymore.
+1. 
+2. 
+3. 
+The key is the item name.
+The value is the menuItem object.
+Before looking at the next page, quickly jot down the three 
+things we have to do to this code to fit it into our framework:
+Taking a look at the Café Menu
+
+348        Chapter    9
+Are we violating 
+the Principle of 
+Least Knowledge 
+here? What can 
+we do about it?
+reworking the menu code
+public class CafeMenu implements Menu {
+    Map<String, MenuItem> menuItems = new HashMap<String, MenuItem>();
+  
+    public CafeMenu() {
+        // constructor code here
+    }
+ 
+    public void addItem(String name, String description, 
+                         boolean vegetarian, double price) 
+    {
+        MenuItem menuItem = new MenuItem(name, description, vegetarian, price);
+        menuItems.put(name, menuItem);
+    }
+ 
+    public Map<String, MenuItem> getMenuItems() {
+        return menuItems;
+    }
+  
+    public Iterator<MenuItem> createIterator() {
+        return menuItems.values().iterator();
+    }
+}
+Code Up Close
+Let’s rework the CafeMenu code. We’re going to take care of  implementing the 
+Menu interface, and we also need to deal with creating an Iterator for the values 
+stored in the HashMap. Things are a little different than when we did the same 
+for the ArrayList; check it out...
+CafeMenu implements the Menu interface, so the 
+Waitress can use it just like the other two Menus.
+Just like before, we can get rid of getItems() 
+so we don’t expose the implementation of 
+menuItems to the Waitress.
+And here’s where we implement the 
+createIterator() method. Notice that 
+we’re not getting an Iterator for the 
+whole HashMap, just for the values.
+    public Iterator<MenuItem> createIterator() {
+        return menuItems.values().iterator();
+    }
+First we get the values of the 
+HashMap, which is just a collection of 
+all the objects in the HashMap.
+Luckily that collection supports the 
+iterator() method, which returns a 
+object of type java.util.Iterator.
+HashMap is a little more complex than ArrayList because it supports both 
+keys and values, but we can still get an Iterator for the values (which are 
+the MenuItems).
+We’re using HashMap because it’s a common 
+data structure for storing values.
+Reworking the Café Menu code
+
+you are here 4        349
+the iterator and composite patterns
+public class Waitress {
+    Menu pancakeHouseMenu;
+    Menu dinerMenu;
+    Menu cafeMenu;
+ 
+    public Waitress(Menu pancakeHouseMenu, Menu dinerMenu, Menu cafeMenu) {
+        this.pancakeHouseMenu = pancakeHouseMenu;
+        this.dinerMenu = dinerMenu;
+        this.cafeMenu = cafeMenu;
+    }
+ 
+    public void printMenu() {
+        Iterator<MenuItem> pancakeIterator = pancakeHouseMenu.createIterator();
+        Iterator<MenuItem> dinerIterator = dinerMenu.createIterator();
+        Iterator<MenuItem> cafeIterator = cafeMenu.createIterator();
+        System.out.println("MENU\n----\nBREAKFAST");
+        printMenu(pancakeIterator);
+        System.out.println("\nLUNCH");
+        printMenu(dinerIterator);
+        System.out.println("\nDINNER");
+        printMenu(cafeIterator);
+    }
+ 
+    private void printMenu(Iterator iterator) {
+        while (iterator.hasNext()) {
+            MenuItem menuItem = iterator.next();
+            System.out.print(menuItem.getName() + ", ");
+            System.out.print(menuItem.getPrice() + " -- ");
+            System.out.println(menuItem.getDescription());
+        }
+    }
+}
+Now it’s time to modify the Waitress to support our new Menu. Now that the 
+Waitress expects Iterators, it should be straightforward:
+The café menu is passed into the Waitress 
+in the constructor with the other menus, 
+and we stash it in an instance variable.
+We’re using the café’s 
+menu for our dinner 
+menu. All we have to do 
+to print it is create the 
+iterator, and pass it to 
+printMenu(). That’s it!
+Nothing changes here.
+Adding the Cafe Menu to the Waitress
+‘
+
+350        Chapter    9
+testing the new menu
+public class MenuTestDrive {
+    public static void main(String args[]) {
+        PancakeHouseMenu pancakeHouseMenu = new PancakeHouseMenu();
+        DinerMenu dinerMenu = new DinerMenu();
+        CafeMenu cafeMenu = new CafeMenu();
+ 
+        Waitress waitress = new Waitress(pancakeHouseMenu, dinerMenu, cafeMenu);
+ 
+        waitress.printMenu();
+}
+File  Edit   Window  Help   
+% java DinerMenuTestDrive
+MENU
+----
+BREAKFAST
+K&B's Pancake Breakfast, 2.99 -- Pancakes with scrambled eggs and toast
+Regular Pancake Breakfast, 2.99 -- Pancakes with fried eggs, sausage
+Blueberry Pancakes, 3.49 -- Pancakes made with fresh blueberries
+Waffles, 3.59 -- Waffles with your choice of blueberries or strawberries
+LUNCH
+Vegetarian BLT, 2.99 -- (Fakin') Bacon with lettuce & tomato on whole wheat
+BLT, 2.99 -- Bacon with lettuce & tomato on whole wheat
+Soup of the day, 3.29 -- Soup of the day, with a side of potato salad
+Hot Dog, 3.05 -- A hot dog, with sauerkraut, relish, onions, topped with cheese
+Steamed Veggies and Brown Rice, 3.99 -- Steamed vegetables over brown rice
+Pasta, 3.89 -- Spaghetti with marinara sauce, and a slice of sourdough bread
+DINNER
+Soup of the day, 3.69 -- A cup of the soup of the day, with a side salad
+Burrito, 4.29 -- A large burrito, with whole pinto beans, salsa, guacamole
+Veggie Burger and Air Fries, 3.99 -- Veggie burger on a whole wheat bun,
+ lettuce, tomato, and fries
+%
+First we iterate 
+through the 
+pancake menu...
+...and then 
+the diner 
+menu...
+...and finally 
+the new café 
+menu, all with 
+the same 
+iteration code.
+Breakfast, lunch, AND dinner
+Let’s update our test drive to make sure this all works.
+Create a CafeMenu...
+...and pass it to the waitress.
+Now, when we print we should see all three menus.
+Here’s the test run; check out the new dinner menu from the Café!
+
+you are here 4        351
+the iterator and composite patterns
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+1234
+ArrayList
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+1
+2
+3
+4
+Array
+...and we didn’t want her to 
+know about how the menu 
+items are implemented.
+ArrayList has a 
+built-in iterator...
+...Array 
+doesn’t have 
+a built-in 
+Iterator so 
+we built our 
+own.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+I
+t
+e
+r
+a
+t
+o
+r
+We wanted to give the 
+Waitress an easy way to 
+iterate over menu items...
+Our
+ menu items had two 
+different implementations 
+and two different 
+interfaces for iterating.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+I
+t
+e
+r
+a
+t
+o
+r
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+1234
+ArrayList
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+1
+2
+3
+4
+Array
+So
+ we gave the Waitress an 
+Iterator for each kind of 
+group of objects she needed 
+to iterate over...
+...one for 
+ArrayList...
+...and one for Array.
+next()
+next()
+Now she doesn’t have to worry about which 
+implementation we used; she always uses the same 
+interface 
+—   Iterator 
+—   to iterate over menu items.  
+She’s been decoupled from the implementation.
+What did we do?
+We decoupled the Waitress....
+
+352        Chapter    9
+a more extensible waitress
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+I
+t
+e
+r
+a
+t
+o
+r
+next()
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+1234
+Vector
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+HashMap
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+k
+e
+y
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+k
+e
+y
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+k
+e
+y
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+k
+e
+y
+Most have different 
+interfaces.
+By
+ giving her an Iterator, 
+we have decoupled her 
+from the implementation 
+of the menu items, so we 
+can easily add new Menus 
+if we want.
+We easily added another 
+implementation of menu 
+items, and since we 
+provided an Iterator, 
+the Waitress knew what 
+to do.
+Which is better for her, 
+because now she can use the 
+same code to iterate over 
+any group of objects. And 
+it’s better for us because 
+the implementation details 
+aren’t exposed.
+...and more!
+Making an Iterator 
+for the HashMap 
+values was easy; 
+when you call 
+ 
+values.iterator() 
+you get an Iterator.
+LinkedList
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+But almost all of 
+them support a 
+way to obtain an 
+Iterator.
+And if they don’t support 
+Iterator, that’s okay, because now 
+you know how to build your own.
+...and we made the Waitress more extensible
+But there’s more!
+Java gives you a lot of “Collection” 
+classes that allow you to store 
+and retrieve groups of objects; 
+for example, Vector and 
+LinkedList.
+
+you are here 4        353
+the iterator and composite patterns
+Iterators and Collections
+We’ve been using a couple of  classes that are part of  the Java Collections Framework. 
+This “framework” is just a set of  classes and interfaces, including ArrayList, which 
+we’ve been using, and many others like Vector, LinkedList, Stack, and PriorityQueue.  
+Each of  these classes implements the java.util.Collection interface, which contains a 
+bunch of  useful methods for manipulating groups of  objects.
+Let’s take a quick look at the interface:
+add()
+addAll()
+clear()
+contains()
+containsAll()
+equals()
+hashCode()
+isEmpty()
+iterator()
+remove()
+removeAll()
+retainAll()
+size()
+toArray()
+<<interface>>
+Collection
+As you can see, there’s all kinds 
+of good stuff here. You can add 
+and remove elements from your 
+collection without even knowing 
+how it’s implemented.
+Here’s our old friend, the 
+iterator() method. With this 
+method, you can get an Iterator 
+for any class that implements 
+the Collection interface.
+Other handy methods include 
+size(), to get the number of 
+elements, and toArray() to turn 
+your collection into an array.
+        HashMap is one of 
+a few classes that 
+indirectly 
+supports Iterator.
+As you saw when we 
+implemented the CafeMenu, you 
+could get an Iterator from it, but 
+only by first retrieving its Collection 
+called values. If you think about it, 
+this makes sense: the HashMap 
+holds two sets of objects: keys and 
+values. If we want to iterate over 
+its values, we first need to retrieve 
+them from the HashMap, and then 
+obtain the iterator.
+The nice thing about Collections and 
+Iterators is that each Collection object 
+knows how to create its own Iterator. Calling 
+iterator() on an ArrayList returns a concrete 
+Iterator made for ArrayLists, but you never need 
+to see or worry about the concrete class it uses; 
+you just use the Iterator interface.
+iterator()
++ forEach()
++ spliterator()
+<<interface>>
+Iterable
+Don’t forget the 
+Collection interface 
+implements the 
+Iterable interface.
+
+354        Chapter    9
+code magnets
+The Chefs have decided that they want to be able to alternate their lunch menu items; in other words, 
+they will offer some items on Monday, Wednesday, Friday, and Sunday, and other items on Tuesday, 
+Thursday, and Saturday. Someone already wrote the code for a new “Alternating” DinerMenu Iterator so 
+that it alternates the menu items, but she scrambled it up and put it on the fridge in the Diner as a joke. 
+Can you put it back together?  Some of the curly braces fell on the floor and they were too small to pick 
+up, so feel free to add as many of those as you need.
+Code Magnets
+}
+}
+}
+MenuItem menuItem = items[position];
+position = position + 2;
+return menuItem;
+import java.util.Iterator;
+import java.util.Calendar;
+public Object next() {
+public AlternatingDinerMenuIterator(MenuItem[] items)
+this.items = items;
+position = Calendar.DAY_OF_WEEK % 2;
+public void remove() {
+implements Iterator<MenuItem>
+MenuItem[] items;
+int position;
+public class AlternatingDinerMenuIterator
+public boolean hasNext() {
+throw new UnsupportedOperationException(
+    "Alternating Diner Menu Iterator does not support remove()");
+if (position >= items.length || items[position] == null) {
+    return false;
+} else {
+    return true;
+}
+
+you are here 4        355
+the iterator and composite patterns
+    public void printMenu() {
+        Iterator<MenuItem> pancakeIterator = pancakeHouseMenu.createIterator();
+        Iterator<MenuItem> dinerIterator = dinerMenu.createIterator();
+        Iterator<MenuItem> cafeIterator = cafeMenu.createIterator();
+        System.out.println("MENU\n----\nBREAKFAST");
+        printMenu(pancakeIterator);
+        System.out.println("\nLUNCH");
+        printMenu(dinerIterator);
+        System.out.println("\nDINNER");
+        printMenu(cafeIterator);
+    }
+Is the Waitress ready for prime time?
+The Waitress has come a long way, but you’ve gotta admit 
+those three calls to printMenu() are looking kind of  ugly.
+Let’s be real—every time we add a new menu we’re going to 
+have to open up the Waitress implementation and add more 
+code. Can you say “violating the Open Closed Principle”?
+It’s not the Waitress’s fault. We’ve done a great job of  decoupling the menu implementation 
+and extracting the iteration into an iterator. But we still are handling the menus with 
+separate, independent objects—we need a way to manage them together.
+Three calls to 
+printMenu.
+Three createIterator() calls.
+Every time we add or remove a menu 
+, we’re going 
+to have to open this code up for changes.
+The Waitress still needs to make three calls to printMenu(), one for each menu. Can you 
+think of a way to combine the menus so that only one call needs to be made? Or perhaps 
+so that one Iterator is passed to the Waitress to iterate over all the menus?
+
+356        Chapter    9
+public class Waitress {
+    List<Menu> menus;
+  
+    public Waitress(List<Menu> menus) {
+ this.menus = menus;
+    }
+   
+    public void printMenu() {
+ Iterator<Menu> menuIterator = menus.iterator();
+ while(menuIterator.hasNext()) {
+        Menu menu = menuIterator.next();
+              printMenu(menu.createIterator());
+       }
+    }
+   
+    void printMenu(Iterator<MenuItem> iterator) {
+ while (iterator.hasNext()) {
+        MenuItem menuItem = iterator.next();
+        System.out.print(menuItem.getName() + ", ");
+        System.out.print(menuItem.getPrice() + " -- ");
+              System.out.println(menuItem.getDescription());
+       }
+    }
+} 
+a new design
+Sounds like the chef  is on to something. Let’s give it a try:
+Now we just take a list 
+of menus, instead of 
+each menu separately.
+And we iterate through the 
+menus, passing each menu’s 
+iterator to the overloaded 
+printMenu() method.
+No code 
+changes here.
+This looks pretty good, although we’ve lost the names of  the menus, 
+but we could add the names to each menu.
+This isn’t so bad. All 
+we need to do is package the 
+menus up into an ArrayList and then 
+iterate through each Menu. The code in 
+the Waitress is going to be simple and it 
+will handle any number of menus.
+
+you are here 4        357
+the iterator and composite patterns
+P
+a
+n
+c
+a
+k
+e
+H
+o
+u
+s
+e
+M
+e
+n
+u
+ 
+ 
+D
+i
+n
+e
+r
+M
+e
+n
+u
+ 
+ 
+ 
+C
+a
+f
+e
+M
+e
+n
+u
+123
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+1234
+Pancake Menu
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+1
+2
+3
+4
+Diner Menu
+All Menus
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+1
+2
+3
+4
+Dessert Menu
+Here’s our ArrayList 
+that holds the menus 
+of each restaurant.
+We need for Diner Menu to hold a submenu, 
+but we can’t actually assign a menu to a 
+MenuItem array because the types are 
+different, so this isn’t going to work.
+Array
+ArrayList
+HashMap
+Just when we thought it was safe...
+Now they want to add a dessert submenu.
+Okay, now what? Now we have to support not only multiple 
+menus, but menus within menus.  
+It would be nice if  we could just make the dessert menu an 
+element of  the DinerMenu collection, but that won’t work as it is 
+now implemented.
+What we want (something like this):
+But this won’t 
+work!
+We can’t assign a dessert menu to a 
+MenuItem array.
+Time for a change!
+I just heard the Diner is 
+going to be creating a dessert 
+menu that is going to be an insert 
+into their regular menu. 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+Café Menu
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+k
+e
+y
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+k
+e
+y
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+k
+e
+y
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+k
+e
+y
+
+358        Chapter    9
+time to refactor
+What do we need?
+The time has come to make an executive decision to 
+rework the chef ’s implementation into something that 
+is general enough to work over all the menus (and now 
+submenus). That’s right, we’re going to tell the chefs that 
+the time has come for us to reimplement their menus. 
+The reality is that we’ve reached a level of  complexity 
+such that if  we don’t rework the design now, we’re never 
+going to have a design that can accommodate further 
+acquisitions or submenus.
+So, what is it we really need out of  our new design?
+• We need some kind of  a tree-shaped structure that 
+will accommodate menus, submenus, and menu 
+items.
+• We need to make sure we maintain a way to traverse 
+the items in each menu that is at least as convenient 
+as what we’re doing now with iterators.
+• We may need to traverse the items in a more flexible 
+manner. For instance, we might need to iterate over 
+only the Diner’s dessert menu, or we might need to 
+iterate over the Diner’s entire menu, including the 
+dessert submenu.
+There comes a time when we 
+must refactor our code in order 
+for it to grow. To not do so would 
+leave us with rigid, inflexible code 
+that has no hope of ever sprouting 
+new life.
+
+you are here 4        359
+the iterator and composite patterns
+ 
+ 
+ 
+ 
+A
+l
+l
+ 
+M
+e
+n
+u
+s
+ 
+ 
+ 
+D
+e
+s
+s
+e
+r
+t
+ 
+M
+e
+n
+u
+P
+a
+n
+c
+a
+k
+e
+ 
+H
+o
+u
+s
+e
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+ 
+D
+i
+n
+e
+r
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+ 
+ 
+C
+a
+f
+é
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+We need to 
+accommodate 
+Menus...
+...and menu items.
+...and submenus...
+Because we need to represent 
+menus, nested submenus, and menu 
+items, we can naturally fit them 
+in a tree-like structure.
+ 
+ 
+ 
+ 
+A
+l
+l
+ 
+M
+e
+n
+u
+s
+ 
+ 
+ 
+D
+e
+s
+s
+e
+r
+t
+ 
+M
+e
+n
+u
+P
+a
+n
+c
+a
+k
+e
+ 
+H
+o
+u
+s
+e
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+ 
+D
+i
+n
+e
+r
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+ 
+ 
+C
+a
+f
+e
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+D
+e
+s
+s
+e
+r
+t
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+We still need to be able 
+to traverse all the items 
+in the tree.
+We also need to be able to 
+traverse more flexibly, for 
+instance over one menu.
+How would you handle this new wrinkle to our design 
+requirements? Think about it before turning the page.
+
+360        Chapter    9
+composite pattern defined
+The Composite Pattern defined
+That’s right; we’re going to introduce another pattern 
+to solve this problem. We didn’t give up on Iterator—it 
+will still be part of  our solution—however, the problem 
+of  managing menus has taken on a new dimension that 
+Iterator doesn’t solve. So, we’re going to step back and 
+solve it with the Composite Pattern.
+We’re not going to beat around the bush on this 
+pattern; we’re going to go ahead and roll out the official 
+definition now:
+The Composite Pattern allows you to 
+compose objects into tree structures to 
+represent part-whole hierarchies. Composite 
+lets clients treat individual objects and 
+compositions of  objects uniformly.
+Let’s think about this in terms of  our menus: this pattern 
+gives us a way to create a tree structure that can handle 
+a nested group of  menus and menu items in the same 
+structure. By putting menus and items in the same 
+structure we create a part-whole hierarchy—that is, a 
+tree of  objects that is made of  parts (menus and menu 
+items) but that can be treated as a whole, like one big 
+über menu.
+Once we have our über menu, we can use this 
+pattern to treat “individual objects and compositions 
+uniformly.” What does that mean? It means if  we have 
+a tree structure of  menus, submenus, and perhaps 
+subsubmenus along with menu items, then any menu 
+is a “composition” because it can contain both other 
+menus and menu items. The individual objects are just 
+the menu items—they don’t hold other objects. As you’ll 
+see, using a design that follows the Composite Pattern 
+is going to allow us to write some simple code that can 
+apply the same operation (like printing!) over the entire 
+menu structure.
+Here’s a tree structure.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+N
+o
+d
+e
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+L
+e
+a
+f
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+L
+e
+a
+f
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+L
+e
+a
+f
+Elements without children 
+are called leaves.
+Elements with 
+child elements 
+are called nodes.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+Menus are nodes and 
+MenuItems are leaves.
+We can represent 
+our Menu and 
+MenuItems in a 
+tree structure.
+
+you are here 4        361
+the iterator and composite patterns
+The Composite Pattern 
+allows us to build 
+structures of objects in 
+the form of trees that 
+contain both compositions 
+of objects and individual 
+objects as nodes.
+Using a composite 
+structure, we can apply 
+the same operations over 
+both composites and 
+individual objects.  In 
+other words, in most 
+cases we can ignore the 
+differences between 
+compositions of objects 
+and individual objects.
+ 
+ 
+ 
+ 
+A
+l
+l
+ 
+M
+e
+n
+u
+s
+ 
+ 
+ 
+D
+e
+s
+s
+e
+r
+t
+ 
+M
+e
+n
+u
+P
+a
+n
+c
+a
+k
+e
+ 
+H
+o
+u
+s
+e
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+ 
+D
+i
+n
+e
+r
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+ 
+ 
+C
+a
+f
+e
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+Menus
+Submenu
+MenuItems
+We can create arbitrarily 
+complex trees.
+ 
+ 
+ 
+ 
+A
+l
+l
+ 
+M
+e
+n
+u
+s
+ 
+ 
+ 
+D
+e
+s
+s
+e
+r
+t
+ 
+M
+e
+n
+u
+P
+a
+n
+c
+a
+k
+e
+ 
+H
+o
+u
+s
+e
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+ 
+D
+i
+n
+e
+r
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+ 
+ 
+C
+a
+f
+e
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+Menus
+Submenu
+MenuItems
+And treat them as a whole...
+....or as parts.
+ 
+ 
+ 
+ 
+A
+l
+l
+ 
+M
+e
+n
+u
+s
+ 
+ 
+ 
+D
+e
+s
+s
+e
+r
+t
+ 
+M
+e
+n
+u
+P
+a
+n
+c
+a
+k
+e
+ 
+H
+o
+u
+s
+e
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+ 
+D
+i
+n
+e
+r
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+ 
+ 
+C
+a
+f
+e
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+Menus
+Submenu
+MenuItems
+Operations can be 
+applied to the whole...
+...or the parts.
+print()
+print()
+
+362        Chapter    9
+composite pattern class diagram
+operation()
+add(Component)
+remove(Component)
+getChild(int)
+Component
+add(Component)
+remove(Component)
+getChild(int)
+operation()
+Composite
+Client
+operation()
+Leaf
+The Component defines an 
+interface for all objects in the 
+composition: both the composite 
+and leaves.
+The Component may implement 
+a default behavior for add(), 
+remove(), getChild() and its 
+operations.
+A leaf has no 
+children.
+A leaf defines the behavior for 
+the elements in the composition.  
+It does this by implementing the 
+operations the Composite supports.
+The Composite’s role is to 
+define behavior of the 
+components having children and 
+to store child components.
+The Composite also 
+implements the Leafrelated operations.  
+Note that some of 
+these may not make 
+sense on a Composite, 
+so in that case an 
+exception might be 
+generated.
+The Client uses the 
+Component interface to 
+manipulate the objects in 
+the composition.
+Note that the leaf also 
+inherits methods like add(), 
+remove(), and getChild(), 
+which don’t necessarily make a 
+lot of sense for a leaf node. 
+We’re going to come back to 
+this issue.
+Q:
+ Component, Composite, Trees? I’m confused.
+A: A composite contains components. Components come in 
+two flavors: composites and leaf elements. Sound recursive? It is. 
+A composite holds a set of children; those children may be other 
+composites or leaf elements.   
+ 
+When you organize data in this way you end up with a tree structure 
+(actually an upside-down tree structure) with a composite at the root 
+and branches of composites growing up to leaves.
+Q:
+ How does this relate to iterators?
+A: Remember, we’re taking a new approach. We’re going to 
+re-implement the menus with a new solution: the Composite Pattern.  
+So don’t look for some magical transformation from an iterator to a 
+composite. That said, the two work very nicely together. You’ll soon 
+see that we can use iterators in a couple of ways in the composite 
+implementation. 
+
+you are here 4        363
+the iterator and composite patterns
+getName()
+getDescription()
+getPrice()
+isVegetarian()
+print()
+add(MenuComponent)
+remove(MenuComponent)
+getChild(int)
+MenuComponent
+getName()
+getDescription()
+getPrice()
+isVegetarian()
+print()
+MenuItem
+Waitress
+getName()
+getDescription()
+print()
+add(MenuComponent)
+remove(MenuComponent)
+getChild(int)
+Menu
+menuComponents
+Designing Menus with Composite
+So, how do we apply the Composite Pattern to our menus? To start with, we need to create a 
+component interface; this acts as the common interface for both menus and menu items and allows 
+us to treat them uniformly. In other words, we can call the same method on menus or menu items.
+Now, it may not make sense to call some of  the methods on a menu item or a menu, but we can deal 
+with that, and we will in just a moment. But for now, let’s take a look at a sketch of  how the menus 
+are going to fit into a Composite Pattern structure:
+MenuComponent represents the interface 
+for both MenuItem and Menu. We’ve used an 
+abstract class here because we want to provide 
+default implementations for these methods. 
+We have some of the same 
+methods you’ll remember 
+from our previous versions 
+of MenuItem and Menu, 
+and we’ve added print(), 
+add(), remove() and 
+getChild(). We’ll describe 
+these soon, when we 
+implement our new Menu 
+and MenuItem classes.
+MenuItem overrides the methods that make 
+sense, and uses the default implementations 
+in MenuComponent for those that don’t 
+make sense (like add() 
+—   it doesn’t make 
+sense to add a component  to a MenuItem... 
+we can only add components to a Menu).
+Menu also overrides the methods that 
+make sense, like a way to add and remove 
+menu items (or other menus!) from its 
+menuComponents. In addition, we’ll use the 
+getName() and getDescription() methods to 
+return the name and description of the menu.
+Both MenuItem and 
+Menu override print(). 
+The Waitress is going to use the 
+MenuComponent interface to access 
+both Menus and MenuItems.  
+Here are the methods for 
+manipulating the components.  
+The components are 
+MenuItem and Menu.
+
+364        Chapter    9
+implementing composite menus
+public abstract class MenuComponent {
+   
+    public void add(MenuComponent menuComponent) {
+        throw new UnsupportedOperationException();
+    }
+    public void remove(MenuComponent menuComponent) {
+        throw new UnsupportedOperationException();
+    }
+    public MenuComponent getChild(int i) {
+        throw new UnsupportedOperationException();
+    }
+  
+    public String getName() {
+        throw new UnsupportedOperationException();
+    }
+    public String getDescription() {
+        throw new UnsupportedOperationException();
+    }
+    public double getPrice() {
+        throw new UnsupportedOperationException();
+    }
+    public boolean isVegetarian() {
+        throw new UnsupportedOperationException();
+    }
+  
+    public void print() {
+        throw new UnsupportedOperationException();
+    }
+}
+Implementing MenuComponent
+Okay, we’re going to start with the MenuComponent abstract 
+class; remember, the role of  the menu component is to provide an 
+interface for the leaves and the composite nodes. Now you might 
+be asking, “Isn’t MenuComponent playing two roles?” It might 
+well be and we’ll come back to that point. However, for now we’re 
+going to provide a default implementation of  the methods so that 
+if  the MenuItem (the leaf) or the Menu (the composite) doesn’t 
+want to implement some of  the methods (like getChild() for a leaf  
+node), it can fall back on some basic behavior:
+MenuComponent 
+provides default 
+ 
+implementations for 
+every method.
+We’ve grouped together the 
+“composite”  methods — that  is, 
+methods to add, remove, and 
+get MenuComponents.
+Here are the “operation” methods; 
+these are used by the MenuItems.  
+It turns out we can also use a 
+couple of them in Menu too, as 
+you’ll see in a couple of pages when 
+we show the Menu code.
+print() is an “operation” method 
+that both our Menus and 
+MenuItems will implement, but we 
+provide a default operation here.
+Because some of these methods 
+only make sense for MenuItems, and 
+some only make sense for Menus, 
+the default implementation is 
+UnsupportedOperationException. That 
+way, if MenuItem or Menu doesn’t 
+support an operation, it doesn’t have 
+to do anything; it can just inherit the 
+default implementation.
+All components must implement 
+the MenuComponent interface; 
+however, because leaves and 
+nodes have different roles we 
+can’t always define a default 
+implementation for each 
+method that makes sense. 
+Sometimes the best you can do 
+is throw a runtime exception.
+
+you are here 4        365
+the iterator and composite patterns
+public class MenuItem extends MenuComponent {
+    String name;
+    String description;
+    boolean vegetarian;
+    double price;
+    
+    public MenuItem(String name, 
+                    String description, 
+                    boolean vegetarian, 
+                    double price) 
+    { 
+        this.name = name;
+        this.description = description;
+        this.vegetarian = vegetarian;
+        this.price = price;
+    }
+  
+    public String getName() {
+        return name;
+    }
+  
+    public String getDescription() {
+        return description;
+    }
+  
+    public double getPrice() {
+        return price;
+    }
+  
+    public boolean isVegetarian() {
+        return vegetarian;
+    }
+  
+    public void print() {
+        System.out.print("  " + getName());
+        if (isVegetarian()) {
+            System.out.print("(v)");
+        }
+        System.out.println(", " + getPrice());
+        System.out.println("     -- " + getDescription());
+    }
+}
+Implementing the MenuItem
+Okay, let’s give the MenuItem class a shot. Remember, 
+this is the leaf  class in the Composite diagram, and it 
+implements the behavior of  the elements of  the composite.
+First we need to extend 
+the MenuComponent 
+interface.
+The constructor just takes the 
+name, description, etc., and 
+keeps a reference to them all. 
+This is pretty much like our 
+old MenuItem implementation.
+Here’s our getter 
+methods — just  like  our 
+previous implementation.
+This is different from the previous implementation. 
+Here we’re overriding the print() method in the 
+MenuComponent class. For MenuItem this method 
+prints the complete menu entry: name, description, 
+price, and whether or not it’s veggie.
+I’m glad we’re going in this 
+direction. I’m thinking this 
+is going to give me the flexibility 
+I need to implement that crêpe 
+menu I’ve always wanted.
+
+366        Chapter    9
+implementing the new menu class
+public class Menu extends MenuComponent {
+    List<MenuComponent> menuComponents = new ArrayList<MenuComponent>();
+    String name;
+    String description;
+  
+    public Menu(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
+ 
+    public void add(MenuComponent menuComponent) {
+        menuComponents.add(menuComponent);
+    }
+ 
+    public void remove(MenuComponent menuComponent) {
+        menuComponents.remove(menuComponent);
+    }
+ 
+    public MenuComponent getChild(int i) {
+        return menuComponents.get(i);
+    }
+ 
+    public String getName() {
+        return name;
+    }
+ 
+    public String getDescription() {
+        return description;
+    }
+ 
+    public void print() {
+        System.out.print("\n" + getName());
+        System.out.println(", " + getDescription());
+        System.out.println("---------------------");
+    }
+}
+Implementing the Composite Menu
+Now that we have the MenuItem, we just need the composite class, which we’re 
+calling Menu. Remember, the composite class can hold MenuItems or other Menus.   
+There’s a couple of  methods from MenuComponent this class doesn’t implement, 
+getPrice() and isVegetarian(), because those don’t make a lot of  sense for a Menu.
+Menu can have any number of children 
+of type MenuComponent. We’ll use an 
+internal ArrayList to hold these.
+This is different than our old 
+implementation: we’re going to give each 
+Menu a name and a description. Before, 
+we just relied on having different classes 
+for each menu.
+Here’s how you add MenuItems or 
+other Menus to a Menu. Because 
+both MenuItems and Menus are 
+MenuComponents, we just need one 
+method to do both.
+You can also remove a MenuComponent 
+or get a MenuComponent.
+Here are the getter methods for getting the name 
+and description.
+Notice, we aren’t overriding getPrice() or 
+isVegetarian() because those methods don’t make 
+sense for a Menu (although you could argue that 
+isVegetarian() might make sense). If someone tries 
+to call those methods on a Menu, they’ll get an 
+UnsupportedOperationException.
+To print the Menu, we print its 
+name and description.
+Menu is also a MenuComponent, 
+just like MenuItem.
+
+you are here 4        367
+the iterator and composite patterns
+public class Menu extends MenuComponent {
+    List<MenuComponent> menuComponents = new ArrayList<MenuComponent>();
+    String name;
+    String description;
+  
+    // constructor code here
+ 
+    // other methods here
+ 
+    public void print() {
+ System.out.print("\n" + getName());
+ System.out.println(", " + getDescription());
+       System.out.println("---------------------");
+  
+ for (MenuComponent menuComponent : menuComponents) {
+           menuComponent.print();
+       }
+    }
+}
+Look! We get to use an Iterator behind 
+the scenes of the enhanced for loop. We 
+use it to iterate through all the Menu’s 
+components...those could be other Menus, 
+or they could be MenuItems.  
+Good catch. Because Menu is a composite and contains 
+both MenuItems and other Menus, its print() method should 
+print everything it contains. If  it doesn’t, we’ll have to iterate 
+through the entire composite and print each item ourselves. 
+That kind of  defeats the purpose of  having a composite 
+structure.
+As you’re going to see, implementing print() correctly is easy 
+because we can rely on each component to be able to print 
+itself. It’s all wonderfully recursive and groovy. Check it out:
+All we need to do is change the print() method 
+to make it print not only the information about 
+this Menu, but all of this Menu’s components: 
+other Menus and MenuItems.  
+NOTE: If, during this iteration, we encounter another Menu object, 
+its print() method will start another iteration, and so on.
+Fixing the print() method
+Wait a sec, I don’t 
+understand the implementation of print(). 
+I thought I was supposed to be able to apply the 
+same operations to a composite that I could to a leaf. If 
+I apply print() to a composite with this implementation, 
+all I get is a simple menu name and description. I don’t 
+get a printout of the COMPOSITE.
+Since both Menus and MenuItems 
+implement print(), we just call 
+print() and the rest is up to them.
+
+368        Chapter    9
+test drive the menu composite
+public class Waitress {
+    MenuComponent allMenus;
+ 
+    public Waitress(MenuComponent allMenus) {
+        this.allMenus = allMenus;
+    }
+ 
+    public void printMenu() {
+        allMenus.print();
+    }
+}
+Getting ready for a test drive...
+It’s about time we took this code for a test drive, but we need to update the Waitress code before 
+we do—after all, she’s the main client of  this code:
+ 
+ 
+ 
+ 
+A
+l
+l
+ 
+M
+e
+n
+u
+s
+ 
+ 
+ 
+D
+e
+s
+s
+e
+r
+t
+ 
+M
+e
+n
+u
+P
+a
+n
+c
+a
+k
+e
+ 
+H
+o
+u
+s
+e
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+ 
+D
+i
+n
+e
+r
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+ 
+ 
+C
+a
+f
+e
+ 
+M
+e
+n
+u
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+Composite
+Yup! The Waitress code really is this simple.  
+Now we just hand her the top-level menu 
+component, the one that contains all the 
+other menus. We’ve called that allMenus.
+All she has to do to print the entire menu 
+hierarchy 
+—   all the menus and all the menu 
+items 
+—   is call print() on the top-level menu. 
+We’re gonna have one happy Waitress.
+Okay, one last thing before we write our test drive. Let’s get an idea of  what the menu 
+composite is going to look like at runtime:
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+ 
+ 
+ 
+M
+e
+n
+u
+I
+t
+e
+m
+The top-level menu holds 
+all menus and items.
+Each Menu 
+holds items...
+...or items and 
+other menus.
+Composite
+Composite
+Leaf
+Every Menu and 
+MenuItem implements the 
+MenuComponent interface.
+Leaf
+Leaf
+Leaf
+
+you are here 4        369
+the iterator and composite patterns
+public class MenuTestDrive {
+    public static void main(String args[]) {
+        MenuComponent pancakeHouseMenu = 
+            new Menu("PANCAKE HOUSE MENU", "Breakfast");
+        MenuComponent dinerMenu = 
+            new Menu("DINER MENU", "Lunch");
+        MenuComponent cafeMenu = 
+            new Menu("CAFE MENU", "Dinner");
+        MenuComponent dessertMenu = 
+            new Menu("DESSERT MENU", "Dessert of course!");
+  
+        MenuComponent allMenus = new Menu("ALL MENUS", "All menus combined");
+  
+        allMenus.add(pancakeHouseMenu);
+        allMenus.add(dinerMenu);
+        allMenus.add(cafeMenu);
+  
+        // add menu items here
+ 
+        dinerMenu.add(new MenuItem(
+            "Pasta",
+            "Spaghetti with Marinara Sauce, and a slice of sourdough bread",
+            true, 
+            3.89));
+   
+        dinerMenu.add(dessertMenu);
+  
+        dessertMenu.add(new MenuItem(
+            "Apple Pie",
+            "Apple pie with a flakey crust, topped with vanilla ice cream",
+            true,
+            1.59));
+  
+        // add more menu items here
+  
+        Waitress waitress = new Waitress(allMenus);
+   
+        waitress.printMenu();
+    }
+}
+Now for the test drive...
+Okay, now we just need a test drive. Unlike our previous version, we’re going to 
+handle all the menu creation in the test drive. We could ask each chef  to give us 
+his new menu, but let’s get it all tested first. Here’s the code:
+Let’s first create 
+all the menu objects.
+We also need a toplevel menu that we’ll 
+name allMenus.
+We’re using the Composite add() method to add 
+each menu to the top-level menu, allMenus.
+And we’re also adding a menu to a 
+menu. All dinerMenu cares about is that 
+everything it holds, whether it’s a menu 
+item or a menu, is a MenuComponent.
+Add some apple pie to the 
+dessert menu...
+Once we’ve constructed our 
+entire menu hierarchy, we hand 
+the whole thing to the Waitress, 
+and as you’ve seen, it’s as easy as 
+apple pie for her to print it out.
+Now we need to add all the menu 
+items. Here’s one example; for 
+the rest, look at the complete 
+source code.
+
+370        Chapter    9
+another test drive
+File  Edit   Window  Help   
+% java MenuTestDrive
+ALL MENUS, All menus combined
+---------------------
+PANCAKE HOUSE MENU, Breakfast
+---------------------
+  K&B’s Pancake Breakfast(v), 2.99
+     -- Pancakes with scrambled eggs and toast
+  Regular Pancake Breakfast, 2.99
+     -- Pancakes with fried eggs, sausage
+  Blueberry Pancakes(v), 3.49
+     -- Pancakes made with fresh blueberries, and blueberry syrup
+  Waffles(v), 3.59
+     -- Waffles with your choice of blueberries or strawberries
+DINER MENU, Lunch
+---------------------
+  Vegetarian BLT(v), 2.99
+     -- (Fakin’) Bacon with lettuce & tomato on whole wheat
+  BLT, 2.99
+     -- Bacon with lettuce & tomato on whole wheat
+  Soup of the day, 3.29
+     -- A bowl of the soup of the day, with a side of potato salad
+  Hot Dog, 3.05
+     -- A hot dog, with sauerkraut, relish, onions, topped with cheese
+  Steamed Veggies and Brown Rice(v), 3.99
+     -- Steamed vegetables over brown rice
+  Pasta(v), 3.89
+     -- Spaghetti with marinara sauce, and a slice of sourdough bread
+DESSERT MENU, Dessert of course!
+---------------------
+  Apple Pie(v), 1.59
+     -- Apple pie with a flakey crust, topped with vanilla ice cream
+  Cheesecake(v), 1.99
+     -- Creamy New York cheesecake, with a chocolate graham crust
+  Sorbet(v), 1.89
+     -- A scoop of raspberry and a scoop of lime
+CAFE MENU, Dinner
+---------------------
+  Veggie Burger and Air Fries(v), 3.99
+     -- Veggie burger on a whole wheat bun, lettuce, tomato, and fries
+  Soup of the day, 3.69
+     -- A cup of the soup of the day, with a side salad
+  Burrito(v), 4.29
+     -- A large burrito, with whole pinto beans, salsa, guacamole
+%
+Here’s all our menus...we printed all 
+this just by calling print() on the 
+top-level menu.
+The new 
+dessert menu 
+is printed 
+when we are 
+printing all the 
+Diner menu 
+components.
+Getting ready for a test drive...
+NOTE: this output is based on the complete source.
+
+you are here 4        371
+the iterator and composite patterns
+There is some truth to that observation. We could 
+say that the Composite Pattern takes the Single Responsibility 
+Principle and trades it for transparency. What’s transparency? Well, by 
+allowing the Component interface to contain the child management 
+operations and the leaf  operations, a client can treat both composites 
+and leaves uniformly; so whether an element is a composite or leaf  
+node becomes transparent to the client.
+Now, given we have both types of  operations in the Component 
+class, we lose a bit of  safety because a client might try to do something 
+inappropriate or meaningless on an element (like try to add a menu 
+to a menu item). This is a design decision; we could take the design 
+in the other direction and separate out the responsibilities into 
+interfaces. This would make our design safe, in the sense that any 
+inappropriate calls on elements would be caught at compile time or 
+runtime, but we’d lose transparency and our code would have to use 
+conditionals and the instanceof operator.
+So, to return to your question, this is a classic case of  tradeoff. We 
+are guided by design principles, but we always need to observe the 
+effect they have on our designs. Sometimes we purposely do things 
+in a way that seems to violate the principle. In some cases, however, 
+this is a matter of  perspective; for instance, it might seem incorrect to 
+have child management operations in the leaves (like add(), remove(), 
+and getChild()), but then again you can always shift your perspective 
+and see a leaf  as a node with zero children.
+What’s the story?  
+First you tell us One Class, One 
+Responsibility, and now you’re giving us a 
+pattern with two responsibilities in one class. 
+The Composite Pattern manages a hierarchy 
+AND it performs operations related to Menus.
+
+372        Chapter    9
+interview with composite
+HeadFirst: We’re here tonight speaking with the 
+Composite Pattern. Why don’t you tell us a little about 
+yourself, Composite?
+Composite: Sure...I’m the pattern to use when you have 
+collections of  objects with whole-part relationships and 
+you want to be able to treat those objects uniformly.
+HeadFirst: Okay, let’s dive right in here...what do you 
+mean by whole-part relationships?
+Composite: Imagine a graphical user interface (GUI); 
+there you’ll often find a top-level component like a Frame 
+or a Panel, containing other components, like menus, 
+text panes, scrollbars, and buttons. So your GUI consists 
+of  several parts, but when you display it, you generally 
+think of  it as a whole. You tell the top-level component 
+to display, and count on that component to display all 
+its parts. We call the components that contain other 
+components, composite objects, and components that don’t 
+contain other components leaf  objects.
+HeadFirst: Is that what you mean by treating the objects 
+uniformly? Having common methods you can call on 
+composites and leaves?
+Composite: Right. I can tell a composite object to 
+display or a leaf  object to display and it will do the right 
+thing. The composite object will display by telling all its 
+components to display.
+HeadFirst: That implies that every object has the same 
+interface. What if  you have objects in your composite that 
+do different things?
+Composite: In order for the composite to work 
+transparently to the client, you must implement the same 
+interface for all objects in the composite; otherwise, the 
+client has to worry about which interface each object 
+is implementing, which kind of  defeats the purpose. 
+Obviously that means that at times you’ll have objects for 
+which some of  the method calls don’t make sense. 
+HeadFirst: So how do you handle that?
+Composite: Well, there are a couple of  ways to handle 
+it; sometimes you can just do nothing, or return null or 
+false—whatever makes sense in your application. Other 
+times you’ll want to be more proactive and throw an 
+exception. Of  course, then the client has to be willing to 
+do a little work and make sure that the method call didn’t 
+do something unexpected.
+HeadFirst: But if  the client doesn’t know which kind of  
+object they’re dealing with, how would they ever know 
+which calls to make without checking the type?  
+Composite: If  you’re a little creative you can structure 
+your methods so that the default implementations do 
+something that does make sense. For instance, if  the client 
+is calling getChild() on the composite, this makes sense. 
+And it makes sense on a leaf  too, if  you think of  the leaf  
+as an object with no children.  
+HeadFirst: Ah...smart. But I’ve heard some clients are 
+so worried about this issue that they require separate 
+interfaces for different objects so they aren’t allowed to 
+make nonsensical method calls. Is that still the Composite 
+Pattern? 
+Composite: Yes. It’s a much safer version of  the 
+Composite Pattern, but it requires the client to check the 
+type of  every object before making a call so the object can 
+be cast correctly.
+HeadFirst: Tell us a little more about how these 
+composite and leaf  objects are structured.
+Composite: Usually it’s a tree structure, some kind of  
+hierarchy. The root is the top-level composite, and all its 
+children are either composites or leaves.
+HeadFirst: Do children ever point back up to their 
+parents?
+Composite: Yes, a component can have a pointer to a 
+parent to make traversal of  the structure easier. And, if  
+This week’s interview: 
+The Composite Pattern, on implementation issues
+Patterns Exposed
+
+you are here 4        373
+the iterator and composite patterns
+you have a reference to a child and you need to delete it, 
+you’ll need to get the parent to remove the child. Having 
+the parent reference makes that easier too.
+HeadFirst: There’s really quite a lot to consider in your 
+implementation. Are there other issues we should think 
+about when implementing the Composite Pattern?
+Composite: Actually, there are. One is the ordering 
+of  children. What if  you have a composite that needs to 
+keep its children in a particular order? Then you’ll need a 
+more sophisticated management scheme for adding and 
+removing children, and you’ll have to be careful about 
+how you traverse the hierarchy.
+HeadFirst: A good point I hadn’t thought of.
+Composite: And did you think about caching?
+HeadFirst: Caching?
+Composite: Yeah, caching. Sometimes, if  the 
+composite structure is complex or expensive to traverse, 
+it’s helpful to implement caching of  the composite nodes. 
+For instance, if  you are constantly traversing a composite 
+and all its children to compute some result, you could 
+implement a cache that stores the result temporarily to 
+save traversals. 
+HeadFirst: Well, there’s a lot more to the Composite 
+Patterns than I ever would have guessed. Before we wrap 
+this up, one more question: what do you consider your 
+greatest strength?
+Composite: I think I’d definitely have to say simplifying 
+life for my clients. My clients don’t have to worry about 
+whether they’re dealing with a composite object or a 
+leaf  object, so they don’t have to write if  statements 
+everywhere to make sure they’re calling the right methods 
+on the right objects. Often, they can make one method 
+call and execute an operation over an entire structure.
+HeadFirst: That does sound like an important benefit.  
+There’s no doubt you’re a useful pattern to have around 
+for collecting and managing objects. And, with that, we’re 
+out of  time. Thanks so much for joining us and come 
+back soon for another Patterns Exposed.
+
+374        Chapter    9
+crossword puzzle
+Design Patterns Crossword
+Wrap your brain around this composite crossword.
+ACROSS
+1. Collection and Iterator are in this package.
+3. This class indirectly supports Iterator.
+8. Iterators are usually created using this pattern (two 
+words).
+12. A class should have only one reason to do this.
+13. We encapsulated this.
+15. User interface packages often use this pattern for 
+their components.
+16. Name of the principle that states only one 
+responsibility per class (two words).
+17. This menu caused us to change our entire 
+implementation.
+DOWN
+2. Has no children.
+4. Merged with the Diner (two words).
+5. The Iterator Pattern decouples the client from the 
+aggregate’s ________.
+6. A separate object that can traverse a collection.
+7. HashMap values and ArrayList both implement this 
+interface.
+9. We Java-enabled her.
+10. A component can be a composite or this.
+11. A composite holds these.
+12. Third company acquired.
+14. We deleted the PancakeHouseMenuIterator because 
+this class already provides an iterator. 
+12
+3456
+78
+910
+1112
+1314
+15
+16
+17
+Across
+1. Collection and Iterator are in this package
+3. This class indirectly supports Iterator.
+8. Iterators are usually created using this 
+pattern.
+12. A class should have only one reason to do 
+this.
+13. We encapsulated this.
+15. User interface packages often use this 
+pattern for their components.
+16. Name of principle that states only one 
+responsibility per class.
+17. This menu caused us to change our entire 
+implementation.
+Down
+2. Has no children.
+4. Merged with the Diner.
+5. The Iterator Pattern decouples the client 
+from the aggregates _________.
+6. A separate object that can traverse a 
+collection.
+7. HashMap values and ArrayList both 
+implement this interface.
+9. We java-enabled her.
+10. A component can be a composite or this.
+11. A composite holds these.
+12. Third company acquired.
+14. We deleted PancakeHouseMenuIterator 
+because this class already provides an 
+iterator.
+
+you are here 4        375
+the iterator and composite patterns
+Match each pattern with its description:
+Pattern
+Description
+Strategy
+Adapter
+Iterator
+Facade
+Composite
+Observer
+Clients treat collections 
+of objects and individual 
+objects uniformly
+Provides a way to traverse 
+a collection of objects 
+without exposing the 
+collection’s implementation
+Simplifies the interface of 
+a group of classes
+Changes the interface of 
+one or more classes
+Allows a group of objects to 
+be notified when some state 
+changes
+Encapsulates interchangeable 
+behaviors and uses delegation to 
+decide which one to use
+
+376        Chapter    9
+your design toolbox
+Tools for your Design Toolbox
+Two new patterns for your toolbox—two great ways to 
+deal with collections of  objects.
+Abstraction
+Encapsulation
+Polymorphism
+Inheritance
+OO Basics
+Strategy
+ - defines a family of algorithms, 
+encapsulates each one, and makes them 
+interchangeable.  Strategy lets the algorithm 
+vary independently from clients that use it.
+OO Patterns
+Observer
+ - 
+defines a one-to-many 
+dependency between objects so that 
+when one object changes state, all its 
+dependents are notified and updated 
+automatically
+Decorator
+ - 
+Attach additional 
+responsibilities to an object dynamically.  
+Decorators provide a flexible 
+alternative to subclassing for extending 
+functionality.
+Abstract Factory
+ - 
+Provide an 
+interface for creating families of 
+related or depedent objects without 
+specifying their concrete classes.
+Factory Method 
+ - 
+Define an 
+interface for creating an object, but 
+let subclasses decide which class to 
+instantiate.  Factory Method lets 
+a class defer instantiation to the 
+subclasses.
+Singleton
+ - 
+Ensure a class only has one 
+instance and provide a global point of 
+access to it.
+Command
+ - 
+Encapsulates a request 
+as an object, thereby letting you 
+parameterize clients with different 
+requests, queue or log requests, and 
+support undoable operations.
+Adapter
+ - 
+Encapsulates a request 
+as an object, thereby letting you 
+parameterize clients with different 
+requests, queue or log requests, and 
+support undoable operations.
+Yet another important 
+principle based on change 
+in a design.
+Facade
+ - 
+Encapsulates a request 
+as an object, thereby letting you 
+parameterize clients with different 
+requests, queue or log requests, and 
+support undoable operations.
+Another two-for-one 
+chapter.
+Template Method
+ - 
+Define the 
+skeleton of an algorithm in an operation,  
+deferring some steps to subclasses.  
+Template Method lets subclasses 
+redefine certain steps of an algorithm 
+without changing the algorithm’s 
+structure
+Iterator 
+- 
+Provide a way to access 
+the elements of an aggregate object 
+sequentially without exposing its 
+underlying representation
+Composite 
+- 
+Compose objects into 
+tree structures to represent part-whole 
+hierarchies. Composite lets clients treat 
+individual objects and compositions of 
+objects uniformly
+Encapsulate what varies
+Favor composition over inheritance.
+Program to interfaces, not 
+implementations.
+Strive for loosely coupled designs 
+between objects that interact.
+Classes should be open for extension 
+but closed for modification.
+Depend on abstractions. Do not 
+depend on concrete classes.
+Only talk to your friends.
+Don’t call us, we’ll call you.
+A class should have only one reason 
+to change.
+OO Principles
+ An Iterator allows access to an 
+aggregate’s elements without 
+exposing its internal structure.
+ An Iterator takes the job of 
+iterating over an aggregate 
+and encapsulates it in another 
+object.
+ When using an Iterator, we 
+relieve the aggregate of the 
+responsibility of supporting 
+operations for traversing its 
+data.
+ An Iterator provides a 
+common interface for 
+traversing the items of an 
+aggregate, allowing you to use 
+polymorphism when writing 
+code that makes use of the 
+items of the aggregate.
+ The Iterable interface provides 
+a means of getting an 
+iterator and enables Java’s 
+enchanced for loop.
+ We should strive to assign 
+only one responsibility to each 
+class.
+ The Composite Pattern allows 
+clients to treat composites and 
+individual objects uniformly.
+ A Component is any object 
+in a Composite structure. 
+Components may be other 
+composites or leaves.
+ There are many design 
+tradeoffs in implementing 
+Composite. You need to 
+balance transparency and 
+safety with your needs.
+
+you are here 4        377
+the iterator and composite patterns
+❏   A. We are coding to the 
+PancakeHouseMenu and DinerMenu 
+concrete implementations, not to an 
+interface.
+❏   B. The Waitress doesn’t implement the 
+Java Waitress API and so she isn’t 
+adhering to a standard.
+❏   C. If  we decided to switch from using 
+DinerMenu to another type of  menu 
+that implemented its list of  menu items 
+with a hash table, we’d have to modify 
+a lot of  code in the Waitress.
+❏   D. The Waitress needs to know how each 
+menu represents its internal collection of  
+menu items; this violates encapsulation.
+❏   E. We have duplicate code: the printMenu() 
+method needs two separate loops to 
+iterate over the two different kinds of  
+menus. And if  we added a third menu, 
+we’d have yet another loop.
+❏   F. The implementation isn’t based on 
+MXML (Menu XML) and so isn’t as 
+interoperable as it should be.
+Based on our implementation of printMenu(), which of the following apply? 
+1. 
+2. 
+3. 
+Before looking at the next page, quickly jot down the three 
+things we have to do to this code to fit it into our framework:
+implement the Menu interface
+get rid of getItems()
+add createIterator() and return an Iterator that can step through the HashMap values
+
+378        Chapter    9
+exercise solutions
+Notice that this Iterator 
+implementation does not 
+support remove().
+The unscrambled “Alternating” DinerMenu Iterator.
+Code Magnets Solution
+}
+}
+}
+import java.util.Iterator;
+import java.util.Calendar;
+public MenuItem next() {
+public AlternatingDinerMenuIterator(MenuItem[] items)
+this.items = items;
+position = Calendar.DAY_OF_WEEK % 2;
+public void remove() {
+implements Iterator<MenuItem>
+public class AlternatingDinerMenuIterator
+public boolean hasNext() {
+throw new UnsupportedOperationException(
+    "Alternating Diner Menu Iterator does not support remove()");
+if (position >= items.length || items[position] == null) {
+    return false;
+} else {
+    return true;
+}
+}
+MenuItem menuItem = items[position];
+position = position + 2;
+return menuItem;
+}
+MenuItem[] items;
+int position;
+}
+}
+
+you are here 4        379
+the iterator and composite patterns
+Match each pattern with its description:
+Pattern
+Description
+Strategy
+Adapter
+Iterator
+Facade
+Composite
+Observer
+Clients treat collections 
+of objects and individual 
+objects uniformly
+Provides a way to traverse 
+a collection of objects 
+without exposing the 
+collection’s implementation
+Simplifies the interface of 
+a group of classes
+Changes the interface of 
+one or more classes
+Allows a group of objects to 
+be notified when some state 
+changes
+Encapsulates interchangeable 
+behaviors and uses delegation to 
+decide which one to use
+SOlUTion
+
+380        Chapter    9
+crossword puzzle solution
+Design Patterns Crossword Solution
+Wrap your brain around this composite crossword. Here’s our solution.
+J
+1
+AVA.UTIL
+2
+E
+H
+3
+ASHMAP
+4
+I
+5
+I
+6
+C
+7
+F
+8
+ACTORYMETHOD
+ONPE
+W
+9
+LCL
+10
+LR
+ALC
+11
+C
+12
+HANGEEA
+I
+13
+TERA
+14
+TIONAKAMT
+TCRMFEFEO
+RTRPEHNR
+EIAOC
+15
+OMPOSITE
+SOYNUA
+S
+16
+INGLERESPONSIBILITY
+INEI
+D
+17
+ESSERTO
+TSN
+Across
+1. Collection and Iterator are in this package 
+[JAVA.UTIL] 
+3. This class indirectly supports Iterator. 
+[HASHMAP] 
+8. Iterators are usually created using this 
+pattern. [FACTORYMETHOD] 
+12. A class should have only one reason to do 
+this. [CHANGE] 
+13. We encapsulated this. [ITERATION] 
+15. User interface packages often use this 
+pattern for their components. [COMPOSITE] 
+16. Name of principle that states only one 
+responsibility per class. 
+[SINGLERESPONSIBILITY] 
+17. This menu caused us to change our entire 
+implementation. [DESSERT] 
+Down
+2. Has no children. [LEAF] 
+4. Merged with the Diner. [PANCAKEHOUSE] 
+5. The Iterator Pattern decouples the client 
+from the aggregates _________. 
+[IMPLEMENTATION] 
+6. A separate object that can traverse a 
+collection. [ITERATOR] 
+7. HashMap values and ArrayList both 
+implement this interface. [COLLECTION] 
+9. We java-enabled her. [WAITRESS] 
+10. A component can be a composite or this. 
+[LEAF] 
+11. A composite holds these. [COMPONENTS] 
+12. Third company acquired. [CAFE] 
+14. We deleted PancakeHouseMenuIterator 
+because this class already provides an 
+iterator. [ARRAYLIST]

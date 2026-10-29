@@ -50,6 +50,7 @@ model Book {
   author      String?
   isbn        String?
   coverUrl    String?
+  coverStoragePath String?
   pageCount   Int?       @default(0)
   totalWords  Int?       @default(0)
   status      BookStatus @default(PENDING)
