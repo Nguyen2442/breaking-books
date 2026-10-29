@@ -44,7 +44,10 @@ import Interactive3DHologram from "@/components/Interactive3DHologram";
 function LandingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isPreview = searchParams.get("preview") === "1" || searchParams.get("landing") === "1";
+  const isPreview =
+    searchParams.get("preview") === "1" ||
+    searchParams.get("landing") === "1" ||
+    searchParams.get("home") === "1";
 
   const [currentUser, setCurrentUser] = useState(null);
   const [isDark, setIsDark] = useState(false);
@@ -67,24 +70,21 @@ function LandingContent() {
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
 
-    // 1. Instant check from localStorage: if already signed in, redirect to Studio Library!
-    try {
-      const cached = localStorage.getItem("bb_user");
-      if (cached && !isPreview) {
-        router.replace("/library");
-        return;
-      }
-    } catch {}
-
-    // 2. Background session sync
+    // Verify authenticated session with server
     fetch("/api/auth")
       .then((r) => r.json())
       .then((data) => {
         if (data.ok && data.user) {
           setCurrentUser(data.user);
+          // Only redirect if not explicitly visiting home / preview
           if (!isPreview) {
             router.replace("/library");
           }
+        } else {
+          setCurrentUser(null);
+          try {
+            localStorage.removeItem("bb_user");
+          } catch {}
         }
       })
       .catch(() => {});

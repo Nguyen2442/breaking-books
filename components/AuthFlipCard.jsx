@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
-import { Eye, EyeOff, BookOpen, Loader2, AlertCircle, ArrowRight, UserPlus, LogIn } from "lucide-react";
+import { Eye, EyeOff, BookOpen, Loader2, AlertCircle, ArrowRight, ArrowLeft, UserPlus, LogIn, X } from "lucide-react";
 
 const Clay3DAuthScene = dynamic(() => import("@/components/Clay3DAuthScene"), {
   ssr: false,
@@ -32,8 +32,13 @@ export default function AuthFlipCard({ initialMode = "login" }) {
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get("redirect") || "/library";
 
+  const [mounted, setMounted] = useState(false);
   const [mode, setMode] = useState(initialMode);
   const isRegister = mode === "register";
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Login form states
   const [loginEmail, setLoginEmail] = useState("");
@@ -136,8 +141,17 @@ export default function AuthFlipCard({ initialMode = "login" }) {
 
   return (
     <div className="w-full max-w-5xl mx-auto py-4">
-      {/* Top Floating Pill Mode Switcher */}
-      <div className="flex justify-center mb-6">
+      {/* Top Header Bar with Home Return & Mode Switcher */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6 px-1">
+        <Link
+          href="/?home=1"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-white dark:bg-slate-900 border border-orange-100 dark:border-white/10 text-slate-700 dark:text-slate-300 text-xs font-bold hover:text-orange-600 hover:bg-orange-50/50 shadow-sm transition-colors cursor-pointer"
+          title="Quay lại Trang chủ giới thiệu"
+        >
+          <ArrowLeft className="w-4 h-4 text-orange-500" />
+          <span>Về trang chủ</span>
+        </Link>
+
         <div className="inline-flex p-1.5 rounded-full bg-white dark:bg-slate-900 shadow-md border border-orange-100 dark:border-white/10 gap-1.5">
           <button
             type="button"
@@ -168,7 +182,17 @@ export default function AuthFlipCard({ initialMode = "login" }) {
       </div>
 
       {/* Main Clay Auth Modal Card */}
-      <div className="w-full rounded-[36px] sm:rounded-[44px] bg-white dark:bg-slate-900 shadow-2xl border border-orange-100 dark:border-white/10 p-6 sm:p-10 lg:p-12 overflow-hidden">
+      <div className="w-full rounded-[36px] sm:rounded-[44px] bg-white dark:bg-slate-900 shadow-2xl border border-orange-100 dark:border-white/10 p-6 sm:p-10 lg:p-12 overflow-hidden relative">
+        {/* Top-Right Quick Close Button to Home */}
+        <Link
+          href="/?home=1"
+          className="absolute top-5 right-5 sm:top-7 sm:right-7 w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-orange-100 hover:text-orange-600 dark:hover:bg-slate-700 text-slate-400 flex items-center justify-center transition-colors z-20"
+          title="Đóng và quay về trang chủ"
+          aria-label="Đóng và quay về trang chủ"
+        >
+          <X className="w-4 h-4" />
+        </Link>
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           {/* Left Column: 3D Book Page Flip Form Panel */}
           <div className="lg:col-span-6 relative min-h-[460px] flex flex-col justify-center" style={{ perspective: "1200px" }}>
@@ -187,7 +211,7 @@ export default function AuthFlipCard({ initialMode = "login" }) {
                   className="space-y-6"
                 >
                   <Link
-                    href="/"
+                    href="/?home=1"
                     className="inline-flex items-center gap-2 group focus-visible:ring-2 focus-visible:ring-orange-500 focus-visible:outline-none rounded-xl"
                   >
                     <div className="w-9 h-9 rounded-xl bg-orange-500 flex items-center justify-center text-white shadow-md shadow-orange-500/25 motion-safe:group-hover:scale-105 motion-safe:transition-transform motion-reduce:transition-none">
@@ -402,7 +426,13 @@ export default function AuthFlipCard({ initialMode = "login" }) {
 
           {/* Right Column: Unified 3D Clay Scene with 2 Distinct Styles */}
           <div className="lg:col-span-6 flex flex-col items-center justify-center">
-            <Clay3DAuthScene mode={mode} className="w-full" />
+            {mounted ? (
+              <Clay3DAuthScene mode={mode} className="w-full" />
+            ) : (
+              <div className="w-full aspect-square max-w-[480px] rounded-3xl bg-orange-100/40 dark:bg-slate-800/40 animate-pulse flex items-center justify-center text-xs text-orange-500 font-bold border border-orange-200/50">
+                Đang tải không gian 3D…
+              </div>
+            )}
           </div>
         </div>
       </div>

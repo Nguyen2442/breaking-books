@@ -26,7 +26,8 @@ import {
 } from "lucide-react";
 
 export const EXPLORE_LINKS = [
-  { href: "/features", label: "Tính năng bóc tách", desc: "Mô phỏng lab 3D & flashcard", icon: Zap },
+  { href: "/simulation", label: "Phòng Lab 3D", desc: "Mô phỏng lab phân tán trực quan", icon: Cpu },
+  { href: "/features", label: "Tính năng bóc tách", desc: "Bóc tách đa tầng & visual lab", icon: Zap },
   { href: "/pricing", label: "Bảng giá hội viên", desc: "Miễn phí & Gói Studio Pro", icon: Tag },
   { href: "/about", label: "Về Breaking Books", desc: "Triết lý đọc sách tương tác", icon: HelpCircle },
   { href: "/changelog", label: "Nhật ký cập nhật", desc: "Phiên bản mới & tính năng", icon: GitCommit },
@@ -123,8 +124,8 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-1 xl:gap-2 text-xs font-semibold">
+        {/* Desktop Navigation - Ultra-minimal: Tủ sách & Khám phá Dropdown */}
+        <nav className="hidden lg:flex items-center gap-1.5 xl:gap-2 text-xs font-semibold">
           {/* Primary Studio Link: Tủ sách */}
           <Link
             href="/library"
@@ -138,26 +139,13 @@ export default function Navbar() {
             <span>Tủ sách</span>
           </Link>
 
-          {/* Primary Studio Link: Phòng Lab 3D */}
-          <Link
-            href="/simulation"
-            className={`px-3.5 py-2 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 flex items-center gap-1.5 ${
-              pathname === "/simulation"
-                ? "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 font-bold"
-                : "text-slate-700 dark:text-slate-300 hover:text-orange-600 hover:bg-orange-50/50 dark:hover:bg-white/5"
-            }`}
-          >
-            <Cpu className="w-4 h-4" />
-            <span>Phòng Lab 3D</span>
-          </Link>
-
-          {/* Explore Dropdown: Gom tất cả các trang giới thiệu vào đây */}
+          {/* Explore Dropdown: Gom tất cả các trang giới thiệu & Phòng Lab 3D */}
           <div className="relative" ref={exploreRef}>
             <button
               type="button"
               onClick={() => setExploreOpen(!exploreOpen)}
               className={`px-3.5 py-2 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 flex items-center gap-1.5 cursor-pointer ${
-                exploreOpen || ["/features", "/pricing", "/about", "/changelog", "/feedback"].includes(pathname)
+                exploreOpen || ["/simulation", "/features", "/pricing", "/about", "/changelog", "/feedback"].includes(pathname)
                   ? "bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 font-bold"
                   : "text-slate-700 dark:text-slate-300 hover:text-orange-600 hover:bg-orange-50/50 dark:hover:bg-white/5"
               }`}
@@ -282,14 +270,6 @@ export default function Navbar() {
             >
               <Library className="w-4 h-4" />
               <span>Tủ sách của bạn</span>
-            </Link>
-            <Link
-              href="/simulation"
-              onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center gap-3 px-3.5 py-2 rounded-xl text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-white/5"
-            >
-              <Cpu className="w-4 h-4 text-slate-400" />
-              <span>Phòng Lab mô phỏng 3D</span>
             </Link>
             <Link
               href="/profile"
