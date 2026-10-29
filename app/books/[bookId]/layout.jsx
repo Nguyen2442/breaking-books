@@ -35,6 +35,7 @@ import {
   Sliders,
   BookmarkCheck,
   Minimize2,
+  FlaskConical,
 } from "lucide-react";
 
 export default function BookReaderLayout({ children }) {
@@ -63,6 +64,34 @@ export default function BookReaderLayout({ children }) {
   const [highlightsCount, setHighlightsCount] = useState(0);
   const [bookmarksList, setBookmarksList] = useState([]);
   const [focusMode, setFocusMode] = useState(false);
+  const [showLabs, setShowLabs] = useState(true);
+
+  // Sync showLabs with localStorage & global events
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("bb_show_labs");
+      if (saved !== null) {
+        setShowLabs(saved === "true");
+      }
+    } catch {}
+
+    function handleToggle(e) {
+      if (typeof e.detail?.showLabs === "boolean") {
+        setShowLabs(e.detail.showLabs);
+      }
+    }
+    window.addEventListener("bb:toggle-labs", handleToggle);
+    return () => window.removeEventListener("bb:toggle-labs", handleToggle);
+  }, []);
+
+  function toggleLabs() {
+    const next = !showLabs;
+    setShowLabs(next);
+    try {
+      localStorage.setItem("bb_show_labs", String(next));
+    } catch {}
+    window.dispatchEvent(new CustomEvent("bb:toggle-labs", { detail: { showLabs: next } }));
+  }
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
@@ -317,6 +346,21 @@ export default function BookReaderLayout({ children }) {
                   {highlightsCount + notesCount + bookmarksList.length}
                 </span>
               )}
+            </button>
+
+            {/* Interactive Lab Toggle Button (avoid clutter / distraction) */}
+            <button
+              onClick={toggleLabs}
+              className={`inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border text-sm font-semibold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${
+                showLabs
+                  ? "border-orange-500/80 bg-orange-50/80 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400"
+                  : "border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-400 hover:border-orange-500/60"
+              }`}
+              title={showLabs ? "Interactive Lab: Đang Bật • Bấm để ẩn tránh rối mắt khi đọc" : "Interactive Lab: Đang Tắt • Bấm để mở lại mô phỏng"}
+            >
+              <FlaskConical className={`w-4 h-4 ${showLabs ? "text-orange-600 dark:text-orange-400" : "text-slate-400"}`} />
+              <span className="hidden sm:inline">Lab:</span>
+              <span className="text-xs font-bold">{showLabs ? "Bật" : "Tắt"}</span>
             </button>
 
             {/* Reader Preferences (Font Size, Spacing, Zen mode) */}

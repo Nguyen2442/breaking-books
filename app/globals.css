@@ -799,6 +799,13 @@ mark.bb-highlight[data-has-note="true"]::after {
 }
 
 /* View Mode Filter: [data-view="theory"] and [data-view="lab"] */
+.bb-chapter-reader[data-hide-labs="true"] figure.lab,
+.bb-chapter-reader[data-hide-labs="true"] .lab,
+.bb-chapter-reader[data-hide-labs="true"] .topic-lab-card,
+.bb-chapter-reader[data-hide-labs="true"] .bb-lab-wrapper {
+  display: none !important;
+}
+
 .bb-chapter-reader[data-view="theory"] figure.lab,
 .bb-chapter-reader[data-view="theory"] .topic-lab-card {
   display: none !important;

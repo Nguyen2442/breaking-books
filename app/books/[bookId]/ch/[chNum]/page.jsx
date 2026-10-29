@@ -11,6 +11,7 @@ import {
   RefreshCw,
   BookOpen,
   Brain,
+  FlaskConical,
 } from "lucide-react";
 import { FloatingTextHighlighter } from "@/components/ReaderToolSuite";
 import { formatRawSourceTextHtml } from "@/lib/formatRawText";
@@ -69,6 +70,34 @@ export default function SingleChapterReaderPage() {
   const [jobMessage, setJobMessage] = useState("");
   const [viewMode, setViewMode] = useState("all"); // "all" | "theory" | "lab"
   const [readingStep, setReadingStep] = useState("lesson"); // "lesson" | "quiz"
+  const [showLabs, setShowLabs] = useState(true);
+
+  // Sync showLabs with localStorage & global events
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("bb_show_labs");
+      if (saved !== null) {
+        setShowLabs(saved === "true");
+      }
+    } catch {}
+
+    function handleToggle(e) {
+      if (typeof e.detail?.showLabs === "boolean") {
+        setShowLabs(e.detail.showLabs);
+      }
+    }
+    window.addEventListener("bb:toggle-labs", handleToggle);
+    return () => window.removeEventListener("bb:toggle-labs", handleToggle);
+  }, []);
+
+  function toggleLabs() {
+    const next = !showLabs;
+    setShowLabs(next);
+    try {
+      localStorage.setItem("bb_show_labs", String(next));
+    } catch {}
+    window.dispatchEvent(new CustomEvent("bb:toggle-labs", { detail: { showLabs: next } }));
+  }
 
   const contentRef = useRef(null);
 
@@ -369,32 +398,26 @@ export default function SingleChapterReaderPage() {
               </button>
             </div>
 
-            {/* Filter within Lesson: All | Theory Only | Visual Labs Only */}
+            {/* Reading Mode & Interactive Lab Toggle */}
             {readingStep === "lesson" && (
-              <div className="flex items-center gap-1 px-2 border-t sm:border-t-0 border-slate-100 pt-2 sm:pt-0">
+              <div className="flex items-center gap-2 px-2 border-t sm:border-t-0 border-slate-100 dark:border-white/10 pt-2 sm:pt-0">
                 <button
-                  onClick={() => setViewMode("all")}
-                  className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
-                    viewMode === "all" ? "bg-orange-50 text-orange-800 font-bold" : "text-slate-500 hover:text-slate-800"
+                  type="button"
+                  onClick={toggleLabs}
+                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${
+                    showLabs
+                      ? "bg-orange-500 text-white border-orange-500 shadow-sm shadow-orange-500/25"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/10 hover:bg-slate-200 dark:hover:bg-slate-700"
                   }`}
+                  title={showLabs ? "Ẩn Interactive Lab để tránh rối mắt khi đọc" : "Bật lại Interactive Lab để xem mô phỏng tương tác"}
                 >
-                  Tất cả
-                </button>
-                <button
-                  onClick={() => setViewMode("theory")}
-                  className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
-                    viewMode === "theory" ? "bg-orange-50 text-orange-800 font-bold" : "text-slate-500 hover:text-slate-800"
-                  }`}
-                >
-                  Chỉ Lý thuyết
-                </button>
-                <button
-                  onClick={() => setViewMode("lab")}
-                  className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
-                    viewMode === "lab" ? "bg-orange-50 text-orange-800 font-bold" : "text-slate-500 hover:text-slate-800"
-                  }`}
-                >
-                  Chỉ Thử nghiệm
+                  <FlaskConical className={`w-3.5 h-3.5 ${showLabs ? "text-white" : "text-slate-400"}`} />
+                  <span>Interactive lab:</span>
+                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                    showLabs ? "bg-white/25 text-white" : "bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300"
+                  }`}>
+                    {showLabs ? "Bật" : "Tắt"}
+                  </span>
                 </button>
               </div>
             )}
@@ -409,11 +432,29 @@ export default function SingleChapterReaderPage() {
         </div>
       )}
 
+      {/* Helpful banner when Interactive Labs are toggled off */}
+      {!loading && chapterData?.html && !showLabs && readingStep === "lesson" && (
+        <div className="mb-6 p-4 rounded-2xl bg-orange-50/60 dark:bg-orange-950/20 border border-orange-200/60 dark:border-orange-500/20 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-700 dark:text-slate-300">
+          <div className="flex items-center gap-2">
+            <FlaskConical className="w-4 h-4 text-orange-500 shrink-0" />
+            <span>Chế độ đọc thuần tuý: Các <strong>Interactive Lab</strong> đang được ẩn để tránh rối mắt.</span>
+          </div>
+          <button
+            type="button"
+            onClick={toggleLabs}
+            className="font-bold text-orange-600 dark:text-orange-400 hover:underline cursor-pointer"
+          >
+            Bật lại lab
+          </button>
+        </div>
+      )}
+
       {/* Interactive Chapter Content Container with separated theory & lab cards */}
       <div
         ref={contentRef}
         data-view={viewMode}
         data-step={readingStep}
+        data-hide-labs={!showLabs}
         className={`bb-chapter-reader ${loading ? "hidden" : "block"}`}
       />
 
@@ -547,6 +588,25 @@ export default function SingleChapterReaderPage() {
             )}
           </div>
         </div>
+      )}
+
+      {/* Floating Quick Action Pill for Interactive Lab Toggle */}
+      {!loading && chapterData?.html && readingStep === "lesson" && (
+        <button
+          type="button"
+          onClick={toggleLabs}
+          className={`fixed bottom-6 right-6 z-30 inline-flex items-center gap-2 px-4 py-2.5 rounded-full shadow-lg border transition-colors cursor-pointer backdrop-blur-md active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 ${
+            showLabs
+              ? "bg-white/95 dark:bg-slate-900/95 border-orange-200 dark:border-orange-500/30 text-orange-600 dark:text-orange-400 hover:bg-orange-50/80 shadow-orange-500/10"
+              : "bg-slate-900/95 dark:bg-slate-800/95 border-slate-700 text-slate-200 hover:bg-slate-800"
+          }`}
+          title={showLabs ? "Ẩn Interactive Lab để tránh rối mắt" : "Bật lại Interactive Lab để xem mô phỏng"}
+        >
+          <FlaskConical className="w-4 h-4 shrink-0" />
+          <span className="text-xs font-bold whitespace-nowrap">
+            {showLabs ? "Interactive lab: Bật" : "Interactive lab: Tắt"}
+          </span>
+        </button>
       )}
     </motion.div>
   );
