@@ -70,7 +70,7 @@ export default function SingleChapterReaderPage() {
   const [jobMessage, setJobMessage] = useState("");
   const [viewMode, setViewMode] = useState("all"); // "all" | "theory" | "lab"
   const [readingStep, setReadingStep] = useState("lesson"); // "lesson" | "quiz"
-  const [showLabs, setShowLabs] = useState(true);
+  const [showLabs, setShowLabs] = useState(false); // Mặc định tắt Interactive Lab để tránh rối mắt
 
   // Sync showLabs with localStorage & global events
   useEffect(() => {
@@ -78,6 +78,8 @@ export default function SingleChapterReaderPage() {
       const saved = localStorage.getItem("bb_show_labs");
       if (saved !== null) {
         setShowLabs(saved === "true");
+      } else {
+        setShowLabs(false);
       }
     } catch {}
 

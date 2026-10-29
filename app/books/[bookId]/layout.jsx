@@ -64,7 +64,7 @@ export default function BookReaderLayout({ children }) {
   const [highlightsCount, setHighlightsCount] = useState(0);
   const [bookmarksList, setBookmarksList] = useState([]);
   const [focusMode, setFocusMode] = useState(false);
-  const [showLabs, setShowLabs] = useState(true);
+  const [showLabs, setShowLabs] = useState(false); // Mặc định tắt Interactive Lab để tránh rối mắt
 
   // Sync showLabs with localStorage & global events
   useEffect(() => {
@@ -72,6 +72,8 @@ export default function BookReaderLayout({ children }) {
       const saved = localStorage.getItem("bb_show_labs");
       if (saved !== null) {
         setShowLabs(saved === "true");
+      } else {
+        setShowLabs(false);
       }
     } catch {}
 
