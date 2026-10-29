@@ -1084,6 +1084,54 @@ mark.bb-highlight[data-has-note="true"]::after {
 .bb-chapter-reader .log .bad { color: var(--bad); }
 .bb-chapter-reader .log .acc { color: var(--accent); }
 
+/* Interactive Lab Pedagogical Explanation Card */
+.bb-chapter-reader .lab-insight-card {
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: all 0.25s ease;
+}
+.bb-chapter-reader .lab-insight-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  font-family: var(--f-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  width: fit-content;
+}
+.bb-chapter-reader .lab-insight-title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.bb-chapter-reader .lab-insight-desc {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+.bb-chapter-reader .lab-insight-takeaway {
+  margin-top: 4px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--surface);
+  border-left: 3px solid var(--accent);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
 .bb-chapter-reader .pill {
   display: inline-flex;
   align-items: center;

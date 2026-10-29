@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 
 export default function InteractiveLabPage() {
-  const [activeTab, setActiveTab] = useState("mindmap"); // "mindmap" | "chart" | "decision" | "system"
+  const [activeTab, setActiveTab] = useState("pod"); // "pod" | "mindmap" | "chart" | "decision" | "system"
 
   // 1. Mind Map state (Atomic Habits loop)
   const [selectedMindNode, setSelectedMindNode] = useState("cue");
@@ -40,6 +40,10 @@ export default function InteractiveLabPage() {
   // 4. Decision Tree state
   const [decisionStep, setDecisionStep] = useState(1);
   const [decisionHistory, setDecisionHistory] = useState([]);
+
+  // 5. Pod Resource Isolation state (Kubernetes / DevOps)
+  const [podScenario, setPodScenario] = useState("cgroups"); // "nolimits" | "cgroups" | "oom"
+  const [podTraffic, setPodTraffic] = useState(1200); // req/s
 
   // Calculate compound interest for Chart
   function calculateCompound(pMonthly, rate, yr) {
@@ -88,10 +92,22 @@ export default function InteractiveLabPage() {
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex flex-wrap items-center justify-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-[#10161D] max-w-2xl mx-auto border border-slate-200/80 dark:border-white/10">
+        <div className="flex flex-wrap items-center justify-center gap-2 p-1.5 rounded-2xl bg-slate-100 dark:bg-[#10161D] max-w-4xl mx-auto border border-slate-200/80 dark:border-white/10">
+          <button
+            onClick={() => setActiveTab("pod")}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              activeTab === "pod"
+                ? "bg-white dark:bg-slate-800 text-orange-600 dark:text-orange-400 shadow-sm"
+                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            }`}
+          >
+            <Cpu className="w-4 h-4" />
+            <span>Cô lập Tài nguyên Pod (K8s)</span>
+          </button>
+
           <button
             onClick={() => setActiveTab("mindmap")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === "mindmap"
                 ? "bg-white dark:bg-slate-800 text-orange-600 dark:text-orange-400 shadow-sm"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -103,7 +119,7 @@ export default function InteractiveLabPage() {
 
           <button
             onClick={() => setActiveTab("chart")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === "chart"
                 ? "bg-white dark:bg-slate-800 text-orange-600 dark:text-orange-400 shadow-sm"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
@@ -115,28 +131,314 @@ export default function InteractiveLabPage() {
 
           <button
             onClick={() => setActiveTab("decision")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === "decision"
                 ? "bg-white dark:bg-slate-800 text-orange-600 dark:text-orange-400 shadow-sm"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
             <GitBranch className="w-4 h-4" />
-            <span>Cây Quyết định (Flow)</span>
+            <span>Ma trận Quyết định (2x2)</span>
           </button>
 
           <button
             onClick={() => setActiveTab("system")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               activeTab === "system"
                 ? "bg-white dark:bg-slate-800 text-orange-600 dark:text-orange-400 shadow-sm"
                 : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
-            <Cpu className="w-4 h-4" />
-            <span>Mô phỏng Hệ thống (Sim)</span>
+            <Layers className="w-4 h-4" />
+            <span>Sao chép Phân tán (Replication)</span>
           </button>
         </div>
+
+        {/* =========================================================================
+            TAB 0: POD RESOURCE ISOLATION (Mô phỏng Cô lập Tài nguyên Pod trên Node Đơn)
+           ========================================================================= */}
+        {activeTab === "pod" && (
+          <div className="rounded-3xl bg-slate-900 text-white p-6 sm:p-10 border border-slate-800 shadow-2xl space-y-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold mb-2">
+                  <span>🧪 Phòng Thí Nghiệm Trực Quan · Kubernetes & Microservices</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold">
+                  Mô phỏng Cô lập Tài nguyên Pod trên Node Đơn
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                  Điều chỉnh tải lượng request và quan sát cách container Web API và Worker tác vụ nền tranh chấp hoặc cô lập tài nguyên qua Linux cgroups.
+                </p>
+              </div>
+
+              {/* Slider for Traffic */}
+              <div className="w-full sm:w-64 bg-slate-800/80 p-3 rounded-2xl border border-slate-700 space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-semibold">
+                  <span className="text-slate-300">Tải lượng Request</span>
+                  <span className="font-mono text-orange-400 font-bold">{podTraffic.toLocaleString()} req/s</span>
+                </div>
+                <input
+                  type="range"
+                  min="200"
+                  max="5000"
+                  step="100"
+                  value={podTraffic}
+                  onChange={(e) => setPodTraffic(Number(e.target.value))}
+                  className="w-full accent-orange-500 cursor-pointer"
+                />
+              </div>
+            </div>
+
+            {/* Scenario Pills */}
+            <div className="flex flex-wrap gap-2.5">
+              {[
+                { id: "nolimits", label: "🔴 1. Không giới hạn (No Limits)", desc: "Tranh chấp CPU & Noisy Neighbor" },
+                { id: "cgroups", label: "🟢 2. Bật cgroups CPU Limit", desc: "Cô lập an toàn & Throttling" },
+                { id: "oom", label: "⚠️ 3. Thử nghiệm Rò rỉ RAM (OOM)", desc: "OOMKilled & Bảo vệ Node" },
+              ].map((sc) => (
+                <button
+                  key={sc.id}
+                  onClick={() => setPodScenario(sc.id)}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                    podScenario === sc.id
+                      ? "bg-orange-600 border-orange-500 text-white shadow-lg shadow-orange-600/30 scale-[1.02]"
+                      : "bg-slate-800/60 border-slate-700/80 text-slate-300 hover:bg-slate-800 hover:text-white"
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span>{sc.label}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* 3 Metric Stat Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className={`p-4 rounded-2xl border transition-all ${
+                podScenario === "nolimits"
+                  ? "bg-rose-500/10 border-rose-500/30 text-rose-300"
+                  : "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+              }`}>
+                <span className="text-[11px] font-mono text-slate-400 block">Độ trễ P99 Web API</span>
+                <span className="text-2xl font-black font-mono mt-1 block">
+                  {podScenario === "nolimits" ? "1,450 ms" : "18 ms"}
+                </span>
+                <span className="text-[11px] mt-1 block">
+                  {podScenario === "nolimits" ? "⚠️ Timeout & Nghẽn nặng" : "✓ Mượt mà & Đạt SLA"}
+                </span>
+              </div>
+
+              <div className={`p-4 rounded-2xl border transition-all ${
+                podScenario === "nolimits"
+                  ? "bg-amber-500/10 border-amber-500/30 text-amber-300"
+                  : "bg-slate-800/80 border-slate-700 text-slate-200"
+              }`}>
+                <span className="text-[11px] font-mono text-slate-400 block">Tổng tải CPU Node (4 Cores)</span>
+                <span className="text-2xl font-black font-mono mt-1 block">
+                  {podScenario === "nolimits" ? "98% (3.9 / 4 Cores)" : "62% (2.5 / 4 Cores)"}
+                </span>
+                <span className="text-[11px] mt-1 block">
+                  {podScenario === "nolimits" ? "Nguy cơ sập toàn Node" : "Trong ngưỡng an toàn"}
+                </span>
+              </div>
+
+              <div className={`p-4 rounded-2xl border transition-all ${
+                podScenario === "oom"
+                  ? "bg-amber-500/10 border-amber-500/30 text-amber-300"
+                  : podScenario === "nolimits"
+                  ? "bg-rose-500/10 border-rose-500/30 text-rose-300"
+                  : "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+              }`}>
+                <span className="text-[11px] font-mono text-slate-400 block">Trạng thái Pod Worker</span>
+                <span className="text-xl font-black font-mono mt-1 block">
+                  {podScenario === "oom"
+                    ? "OOMKilled (Exit 137)"
+                    : podScenario === "nolimits"
+                    ? "Chiếm 3.2 Cores"
+                    : "Throttled (1.0 Core Max)"}
+                </span>
+                <span className="text-[11px] mt-1 block">
+                  {podScenario === "oom"
+                    ? "K8s tự khởi động lại worker"
+                    : podScenario === "nolimits"
+                    ? "Lấn át Web API chính"
+                    : "cgroups kẹp chặt trần"}
+                </span>
+              </div>
+            </div>
+
+            {/* Visual Architecture Box (Node Frame + 2 Containers + cgroups wall) */}
+            <div className="p-6 rounded-2xl bg-slate-950/80 border border-slate-800 relative overflow-hidden">
+              <div className="flex items-center justify-between pb-4 border-b border-slate-800/80 text-xs">
+                <span className="font-mono font-bold text-slate-300 flex items-center gap-2">
+                  <Cpu className="w-4 h-4 text-orange-500" />
+                  <span>K8s Worker Node (4 CPU Cores · 8 GB RAM)</span>
+                </span>
+                <span className="font-mono text-slate-400">cgroups v2 enabled</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 relative">
+                {/* Web API Container */}
+                <div className={`p-5 rounded-2xl border transition-all ${
+                  podScenario === "nolimits"
+                    ? "bg-rose-950/20 border-rose-500/40"
+                    : "bg-emerald-950/20 border-emerald-500/40"
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-sm text-white flex items-center gap-2">
+                      <span>🚀 Web API Container (Chính)</span>
+                    </span>
+                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${
+                      podScenario === "nolimits"
+                        ? "bg-rose-500/20 text-rose-300"
+                        : "bg-emerald-500/20 text-emerald-300"
+                    }`}>
+                      {podScenario === "nolimits" ? "CPU Starvation (Nghẽn)" : "Guaranteed (2.0 Cores)"}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 space-y-3">
+                    <div>
+                      <div className="flex justify-between text-xs text-slate-400 mb-1">
+                        <span>CPU Được Cấp</span>
+                        <span className="font-mono font-bold text-white">
+                          {podScenario === "nolimits" ? "0.7 Core (Bị cướp)" : "2.0 Cores (Đủ)"}
+                        </span>
+                      </div>
+                      <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-500 ${
+                            podScenario === "nolimits" ? "bg-rose-500 w-[20%]" : "bg-emerald-500 w-[60%]"
+                          }`}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs text-slate-400 mb-1">
+                        <span>Request Hàng Đợi (Queue)</span>
+                        <span className="font-mono text-white">
+                          {podScenario === "nolimits" ? "1,240 req (Tràn)" : "12 req (Trống)"}
+                        </span>
+                      </div>
+                      <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-500 ${
+                            podScenario === "nolimits" ? "bg-rose-500 w-[95%]" : "bg-emerald-500 w-[10%]"
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Worker Container */}
+                <div className={`p-5 rounded-2xl border transition-all ${
+                  podScenario === "oom"
+                    ? "bg-amber-950/20 border-amber-500/40"
+                    : podScenario === "nolimits"
+                    ? "bg-rose-950/20 border-rose-500/40"
+                    : "bg-blue-950/20 border-blue-500/40"
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-sm text-white flex items-center gap-2">
+                      <span>⚙️ Worker Batch (Tác vụ nền)</span>
+                    </span>
+                    <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full font-bold ${
+                      podScenario === "oom"
+                        ? "bg-amber-500/20 text-amber-300"
+                        : podScenario === "nolimits"
+                        ? "bg-rose-500/20 text-rose-300"
+                        : "bg-blue-500/20 text-blue-300"
+                    }`}>
+                      {podScenario === "oom"
+                        ? "OOMKilled (Exit 137)"
+                        : podScenario === "nolimits"
+                        ? "Chiếm 3.2 Cores (Lấn lướt)"
+                        : "Throttled (Limit 1.0 Core)"}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 space-y-3">
+                    <div>
+                      <div className="flex justify-between text-xs text-slate-400 mb-1">
+                        <span>CPU Tiêu Thụ</span>
+                        <span className="font-mono font-bold text-white">
+                          {podScenario === "oom" ? "0 Core (Restarting)" : podScenario === "nolimits" ? "3.2 Cores (80%)" : "1.0 Core (Capped)"}
+                        </span>
+                      </div>
+                      <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-500 ${
+                            podScenario === "oom"
+                              ? "bg-slate-700 w-0"
+                              : podScenario === "nolimits"
+                              ? "bg-rose-500 w-[85%]"
+                              : "bg-blue-500 w-[30%]"
+                          }`}
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-xs text-slate-400 mb-1">
+                        <span>Bộ nhớ RAM</span>
+                        <span className="font-mono text-white">
+                          {podScenario === "oom" ? "Vượt 2GB trần -> Kill" : podScenario === "nolimits" ? "6.2 GB (Không giới hạn)" : "1.2 GB / 2.0 GB"}
+                        </span>
+                      </div>
+                      <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-500 ${
+                            podScenario === "oom"
+                              ? "bg-rose-500 w-[100%]"
+                              : podScenario === "nolimits"
+                              ? "bg-amber-500 w-[80%]"
+                              : "bg-blue-500 w-[55%]"
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Pedagogical Explanation Card */}
+            <div className="p-6 rounded-2xl bg-slate-800/80 border border-slate-700 space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs font-semibold">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Phân tích Cơ chế & Luồng Khái niệm Kiến trúc</span>
+              </div>
+
+              <h4 className="text-base font-bold text-white">
+                {podScenario === "nolimits" && "Kịch bản 1: Tranh chấp CPU & Hiện tượng Noisy Neighbor"}
+                {podScenario === "cgroups" && "Kịch bản 2: Cơ chế Throttling của Linux cgroups & Bảo toàn SLO"}
+                {podScenario === "oom" && "Kịch bản 3: Cách ly Sự cố cấp Container với Kernel OOM-Killer"}
+              </h4>
+
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                {podScenario === "nolimits" && (
+                  "Khi một Pod không được thiết lập resources.limits, Linux kernel CFS sẽ phân bổ chu kỳ CPU tự do. Khi tác vụ nền (Worker) gặp lô dữ liệu lớn, nó chiếm dụng toàn bộ tài nguyên rảnh rỗi trên Node, khiến Web API bị 'bỏ đói' CPU (CPU Starvation). Độ trễ phản hồi vọt từ 18ms lên 1,450ms làm người dùng gặp lỗi 504 Gateway Timeout."
+                )}
+                {podScenario === "cgroups" && (
+                  "Bằng cách thiết lập resources.limits.cpu = 1.0 cho Worker, Linux CFS cgroups sẽ áp đặt hạn ngạch chu kỳ thời gian (cpu.cfs_quota_us). Dù Worker muốn ngốn thêm CPU, kernel lập tức bóp xung nhịp (Throttling). Tác vụ nền chạy lâu hơn một chút nhưng Web API luôn giữ trọn vẹn 2.0 Cores để phục vụ khách hàng với độ trễ 18ms."
+                )}
+                {podScenario === "oom" && (
+                  "Khác với CPU có thể bóp xung nhịp (Throttling), bộ nhớ RAM không thể co giãn. Khi Worker rò rỉ RAM vượt quá hạn mức 2GB, Linux cgroup memory subsystem gửi tín hiệu SIGKILL (Exit code 137) CHỈ tới tiến trình Worker vi phạm. K8s tự động khởi động lại container mới mà KHÔNG làm ảnh hưởng đến Web API hay các Pod khác trên cùng Node."
+                )}
+              </p>
+
+              <div className="p-3.5 rounded-xl bg-slate-900/90 border-l-4 border-orange-500 text-xs text-slate-200">
+                <strong>🎯 Quy tắc Thiết kế Thực chiến:</strong>{" "}
+                {podScenario === "nolimits" && "Không bao giờ triển khai Pod lên Kubernetes Production mà bỏ trống phần resources.requests và limits."}
+                {podScenario === "cgroups" && "Dùng requests để cam kết sàn tài nguyên khi lập lịch (Scheduling), dùng limits để ngăn chặn hiện tượng Noisy Neighbor."}
+                {podScenario === "oom" && "Đặt memory limit sát với thực tế kèm buffer 25-30% để phát hiện sớm rò rỉ bộ nhớ trước khi kéo sập cả Node."}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* =========================================================================
             TAB 1: INTERACTIVE MIND MAP (Phát triển bản thân / Tâm lý)
