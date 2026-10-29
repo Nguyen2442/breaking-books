@@ -26,8 +26,18 @@ import {
   Play,
   RotateCcw,
   Atom,
+  Search,
 } from "lucide-react";
-import Interactive3DBook from "@/components/Interactive3DBook";
+import dynamic from "next/dynamic";
+
+const Clay3DLibraryScene = dynamic(() => import("@/components/Clay3DLibraryScene"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full aspect-[4/3] max-w-[620px] rounded-3xl bg-orange-100/40 dark:bg-slate-800/40 animate-pulse flex items-center justify-center text-xs text-orange-500 font-bold border border-orange-200/50">
+      Đang tải không gian 3D…
+    </div>
+  ),
+});
 import Interactive3DHologram from "@/components/Interactive3DHologram";
 
 export default function LandingPage() {
@@ -35,10 +45,21 @@ export default function LandingPage() {
   const [currentUser, setCurrentUser] = useState(null);
   const [isDark, setIsDark] = useState(false);
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   // Interactive Live Demo Mockup state
   const [demoReplicationMode, setDemoReplicationMode] = useState("async"); // "sync" | "async"
   const [demoPacketSent, setDemoPacketSent] = useState(false);
   const [demoAckReceived, setDemoAckReceived] = useState(false);
+
+  function handleSearch(e) {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/library?q=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push("/library");
+    }
+  }
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains("dark"));
@@ -75,78 +96,90 @@ export default function LandingPage() {
       {/* Navigation Header */}
       <Navbar />
 
-      {/* Hero Section with 3D Interactive Book Showcase */}
-      <section className="relative pt-12 sm:pt-20 pb-20 px-4 sm:px-8 max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          {/* Left: Typography & CTAs */}
-          <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-            <div>
-              <span className="text-xs font-semibold text-orange-600 dark:text-orange-400">
-                Nền tảng đọc sách thực hành và mô phỏng kiến trúc
-              </span>
-            </div>
+      {/* Hero Section with 3D Claymorphic Library Showcase */}
+      <section className="relative px-3 sm:px-6 pt-4 pb-12 max-w-7xl mx-auto">
+        <div className="rounded-[36px] sm:rounded-[48px] bg-gradient-to-br from-orange-200 via-orange-300 to-orange-400 dark:from-slate-900 dark:via-orange-950/30 dark:to-slate-900 p-2 sm:p-3 shadow-xl border border-orange-200/60 dark:border-white/10 relative overflow-hidden">
+          {/* Decorative Soft Peach Geometric Rings */}
+          <div className="absolute top-0 right-0 w-80 h-80 rounded-full border-[32px] border-orange-300/35 pointer-events-none -mr-20 -mt-20" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full border-[40px] border-amber-200/40 pointer-events-none -ml-24 -mb-24" />
+          <div className="absolute top-8 left-8 w-12 h-12 rounded-full bg-orange-300/35 pointer-events-none" />
+          <div className="absolute bottom-12 right-12 w-8 h-8 rounded-full bg-amber-400/25 pointer-events-none" />
 
-            <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.12]">
-              Đừng đọc sách thụ động. <br />
-              <span className="text-orange-600 dark:text-orange-400">
-                Làm chủ tri thức qua thực hành tương tác.
-              </span>
-            </h1>
+          {/* Main Floating Clay Canvas Container - Màu Cam Nhạt */}
+          <div className="rounded-[30px] sm:rounded-[42px] bg-orange-50/70 dark:bg-slate-900 border border-orange-200/80 dark:border-orange-500/20 p-6 sm:p-10 lg:p-14 shadow-xl shadow-orange-500/10 relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+              {/* Left: Headline, Description, and Search Pill */}
+              <div className="lg:col-span-6 space-y-6 text-left">
+                <div>
+                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-orange-100/90 dark:bg-orange-500/10 text-orange-700 dark:text-orange-400 text-xs font-semibold border border-orange-200/80 dark:border-white/10">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Thư viện Tương tác Thế hệ Mới</span>
+                  </span>
+                </div>
 
-            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-xl leading-relaxed mx-auto lg:mx-0">
-              Breaking Books bóc tách mọi cuốn sách dày cộp thành các Topic 5-10 phút cô đọng, kèm sơ đồ tư duy 3D, phòng thí nghiệm trực quan và thẻ ôn tập flashcards thông minh.
-            </p>
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-stone-900 dark:text-white tracking-tight leading-[1.1]">
+                  Online Library
+                </h1>
 
-            {/* CTA Buttons */}
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5">
-              <Link
-                href={currentUser ? "/library" : "/register?redirect=/library"}
-                className="w-full sm:w-auto px-7 py-3.5 rounded-2xl text-sm font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-lg shadow-orange-600/20 flex items-center justify-center gap-2.5 transition-colors cursor-pointer"
-              >
-                <span>{currentUser ? "Truy cập Thư viện cá nhân" : "Bắt đầu dùng thử miễn phí"}</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+                <p className="text-sm sm:text-base text-stone-600 dark:text-stone-300 leading-relaxed max-w-lg">
+                  Nền tảng đọc sách công nghệ tương tác với visual lab 3D và câu hỏi ôn tập.
+                </p>
 
-              <Link
-                href="/library"
-                className="w-full sm:w-auto px-6 py-3.5 rounded-2xl text-sm font-semibold bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-slate-800 flex items-center justify-center gap-2 transition-colors cursor-pointer"
-              >
-                <BookOpen className="w-4 h-4 text-orange-500" />
-                <span>Khám phá 3 sách mẫu</span>
-              </Link>
-            </div>
+                {/* Clay Pill Search Bar */}
+                <form
+                  onSubmit={handleSearch}
+                  className="rounded-2xl border border-stone-200 dark:border-white/10 bg-white dark:bg-slate-800 shadow-md p-1.5 flex items-center gap-2 max-w-lg transition-colors"
+                >
+                  <div className="flex items-center gap-2.5 pl-3 flex-1 min-w-0">
+                    <Search className="w-4 h-4 text-stone-400 shrink-0" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Tìm sách của bạn ở đây..."
+                      className="w-full bg-transparent text-sm text-stone-900 dark:text-white placeholder:text-stone-400 focus:outline-none"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="px-6 py-3 rounded-xl bg-orange-500 hover:bg-orange-600 active:scale-95 text-white text-sm font-bold shadow-md shadow-orange-500/25 transition-colors cursor-pointer shrink-0"
+                  >
+                    Search Book
+                  </button>
+                </form>
 
-            {/* Highlights Badges */}
-            <div className="pt-4 flex flex-wrap items-center justify-center lg:justify-start gap-4 sm:gap-6 text-xs text-slate-500 dark:text-slate-400">
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                <span>100% Visual Lab tương tác</span>
+                {/* Quick Filter Tags */}
+                <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-stone-500 dark:text-stone-400">
+                  <span className="font-medium">Chủ đề nổi bật:</span>
+                  <button
+                    type="button"
+                    onClick={() => router.push("/books/ddia-2e")}
+                    className="px-3 py-1 rounded-xl bg-stone-100 hover:bg-orange-50 dark:bg-white/5 dark:hover:bg-white/10 text-stone-700 dark:text-stone-300 hover:text-orange-600 font-medium transition-colors cursor-pointer"
+                  >
+                    DDIA 2e
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => router.push("/books/building-microservices-2nd-edition-sam-newman")}
+                    className="px-3 py-1 rounded-xl bg-stone-100 hover:bg-orange-50 dark:bg-white/5 dark:hover:bg-white/10 text-stone-700 dark:text-stone-300 hover:text-orange-600 font-medium transition-colors cursor-pointer"
+                  >
+                    Microservices
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => router.push("/books/head-first-design-patterns-2nd-edition")}
+                    className="px-3 py-1 rounded-xl bg-stone-100 hover:bg-orange-50 dark:bg-white/5 dark:hover:bg-white/10 text-stone-700 dark:text-stone-300 hover:text-orange-600 font-medium transition-colors cursor-pointer"
+                  >
+                    Design Patterns
+                  </button>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                <span>Sơ đồ tư duy 3D trực quan</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                <span>Bảo mật dữ liệu cá nhân</span>
+
+              {/* Right: 3D Claymorphic Library Scene with Cursor Tilt */}
+              <div className="lg:col-span-6 flex items-center justify-center">
+                <Clay3DLibraryScene />
               </div>
             </div>
-          </div>
-
-          {/* Right: Interactive 3D Book Model with Physics Tilt */}
-          <div className="lg:col-span-5 flex flex-col items-center justify-center relative">
-            <Interactive3DBook
-              title="Designing Data-Intensive Applications"
-              subtitle="Cẩm nang Thiết kế Hệ thống Đáng tin cậy"
-              author="Martin Kleppmann"
-              size="lg"
-              badge="Mô hình 3D tương tác"
-              coverGradient="from-amber-600 via-orange-600 to-slate-900"
-              spineColor="#9a3412"
-            />
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 text-center">
-              Xoay góc nhìn 3D bằng chuột để quan sát mô hình cấu trúc sách
-            </p>
           </div>
         </div>
       </section>

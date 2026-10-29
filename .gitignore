@@ -41,3 +41,5 @@ Thumbs.db
 *.db
 *.sqlite
 auramind-core/prisma/*.db
+data/
+storage/

@@ -145,16 +145,25 @@ export default function Navbar() {
 
           {/* User CTA */}
           {currentUser ? (
-            <Link
-              href="/library"
-              className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-md shadow-orange-600/20 flex items-center gap-2 transition-colors active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 shrink-0"
-            >
-              <div className="w-4 h-4 rounded-full bg-white/20 flex items-center justify-center text-[10px]">
-                {currentUser.name ? currentUser.name.charAt(0) : "U"}
-              </div>
-              <span className="hidden sm:inline">Thư viện của tôi</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
+            <div className="flex items-center gap-2 shrink-0">
+              <Link
+                href="/profile"
+                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-orange-50 dark:bg-slate-800 text-orange-600 dark:text-orange-400 border border-orange-200/60 dark:border-white/10 hover:bg-orange-100 dark:hover:bg-slate-700 flex items-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 shrink-0"
+                title="Hồ sơ thành viên & Cài đặt"
+              >
+                <div className="w-4 h-4 rounded-full bg-orange-500 text-white flex items-center justify-center text-[10px] font-black">
+                  {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : "U"}
+                </div>
+                <span className="hidden sm:inline max-w-[100px] truncate">{currentUser.name || "Hồ sơ"}</span>
+              </Link>
+              <Link
+                href="/library"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white shadow-md shadow-orange-500/20 flex items-center gap-1.5 transition-colors active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 shrink-0"
+              >
+                <span className="hidden md:inline">Thư viện</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
           ) : (
             <div className="flex items-center gap-1.5 shrink-0">
               <Link
@@ -165,7 +174,7 @@ export default function Navbar() {
               </Link>
               <Link
                 href="/register?redirect=/library"
-                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-orange-600 hover:bg-orange-500 text-white shadow-md shadow-orange-600/20 flex items-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 active:scale-[0.98]"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white shadow-md shadow-orange-500/20 flex items-center gap-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-500 active:scale-[0.98]"
               >
                 <span>Dùng thử</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -213,19 +222,27 @@ export default function Navbar() {
 
           <div className="pt-2 border-t border-slate-100 dark:border-white/[0.06] flex items-center justify-between px-2 text-xs">
             <Link
-              href="/library"
+              href="/profile"
               onClick={() => setMobileMenuOpen(false)}
               className="font-bold text-orange-600 dark:text-orange-400 flex items-center gap-1.5 py-1"
             >
+              <User className="w-4 h-4" />
+              <span>Hồ sơ & Đăng xuất</span>
+            </Link>
+            <Link
+              href="/library"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-slate-600 dark:text-slate-300 hover:text-orange-600 flex items-center gap-1.5 py-1 font-semibold"
+            >
               <Library className="w-4 h-4" />
-              <span>Vào Thư viện sách</span>
+              <span>Thư viện</span>
             </Link>
             <Link
               href="/admin"
               onClick={() => setMobileMenuOpen(false)}
               className="text-slate-400 hover:text-slate-200 py-1"
             >
-              Quản trị viên
+              Admin
             </Link>
           </div>
         </div>

@@ -6,6 +6,7 @@ import {
   USER_SESSION_MAX_AGE,
   createUserSessionToken,
   getCurrentUser,
+  clearSessionCache,
 } from '@/lib/user-auth';
 
 export const dynamic = 'force-dynamic';
@@ -83,6 +84,8 @@ export async function POST(req) {
 
     if (action === 'logout') {
       const cookieStore = await cookies();
+      const token = cookieStore.get(USER_COOKIE)?.value;
+      if (token) clearSessionCache(token);
       cookieStore.delete({ name: USER_COOKIE, path: '/' });
       return NextResponse.json({ ok: true, message: 'Đã đăng xuất.' });
     }
